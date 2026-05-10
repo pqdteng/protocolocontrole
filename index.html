@@ -16,15 +16,15 @@
 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; }
         
-        /* TELA DE LOGIN */
+        /* TELA DE LOGIN (ATUALIZADA) */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: linear-gradient(135deg, #0d0d0d, #1a1a1a); display: flex; justify-content: center; align-items: center; z-index: 9999; }
         .login-box { background-color: var(--card-bg); padding: 40px; border-radius: 15px; border: 2px solid var(--accent-blue); text-align: center; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
         .login-box h1 { color: white; margin: 0 0 10px 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .login-box h1 i { font-size: 2em; color: var(--accent-blue); }
         .login-box p { color: #aaa; margin-bottom: 25px; font-size: 0.9em; }
-        .login-input { width: 100%; padding: 15px; background: #121212; border: 1px solid #444; color: white; border-radius: 8px; box-sizing: border-box; font-size: 1.1em; outline: none; text-align: center; margin-bottom: 20px;}
+        .login-input { width: 100%; padding: 15px; background: #121212; border: 1px solid #444; color: white; border-radius: 8px; box-sizing: border-box; font-size: 1.1em; outline: none; text-align: center; margin-bottom: 15px;}
         .login-input:focus { border-color: var(--accent-blue); }
-        .btn-login { width: 100%; background: var(--accent-blue); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1em; cursor: pointer; transition: 0.3s; }
+        .btn-login { width: 100%; background: var(--accent-blue); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1em; cursor: pointer; transition: 0.3s; margin-top: 10px;}
         .btn-login:hover { background: #2a6bdd; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(58, 134, 255, 0.4); }
 
         /* DASHBOARD PRINCIPAL */
@@ -151,8 +151,9 @@
     <div id="login-screen">
         <div class="login-box">
             <h1><i class="fas fa-lock"></i> Sala de Comando</h1>
-            <p>Insira o e-mail de acesso (o mesmo da compra na Kiwify) para carregar seus dados criptografados.</p>
-            <input type="email" id="input-email" class="login-input" placeholder="exemplo@email.com" required>
+            <p>Insira suas credenciais de acesso fornecidas na área de membros.</p>
+            <input type="email" id="input-email" class="login-input" placeholder="Seu E-mail" required>
+            <input type="password" id="input-senha" class="login-input" placeholder="Sua Senha" required>
             <button class="btn-login" onclick="login()"><i class="fas fa-sign-in-alt"></i> ACESSAR PAINEL</button>
         </div>
     </div>
@@ -339,20 +340,21 @@
 
     <script>
         // ==============================================================================
-        // WEBHOOK DO APPS SCRIPT (MANTENHA O SEU AQUI)
+        // WEBHOOK DO APPS SCRIPT
         // ==============================================================================
         const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz1vLMkc_dklbl7AxBHKBF8j1amLTAHwrUwknmLAZJxuXXaL1ra-LBjqCihay9RbX4_Qw/exec";
 
         // ==============================================================================
-        // SISTEMA DE LOGIN
+        // SISTEMA DE LOGIN DE SEGURANÇA
         // ==============================================================================
         let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
+        let loggedUserSenha = localStorage.getItem('pqdtSenha') || "";
 
         function checkLogin() {
             let loginScreen = document.getElementById('login-screen');
             let appContent = document.getElementById('app-content');
             if(loginScreen && appContent) {
-                if (loggedUserEmail) {
+                if (loggedUserEmail && loggedUserSenha) {
                     loginScreen.style.display = 'none';
                     appContent.style.display = 'block';
                     document.getElementById('user-email-display').innerText = loggedUserEmail;
@@ -366,23 +368,53 @@
 
         function login() {
             let emailInput = document.getElementById('input-email').value.trim().toLowerCase();
-            if (emailInput && emailInput.includes('@')) {
-                localStorage.setItem('pqdtEmail', emailInput);
-                loggedUserEmail = emailInput;
-                checkLogin();
-            } else {
-                alert("Por favor, insira um e-mail válido para acessar a plataforma.");
+            let senhaInput = document.getElementById('input-senha').value.trim();
+
+            if (!emailInput || !senhaInput) {
+                alert("Por favor, preencha o E-mail e a Senha.");
+                return;
             }
+
+            let btn = document.querySelector('.btn-login');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando...';
+            btn.disabled = true;
+
+            // Dispara um GET para o Google verificar as credenciais na aba "Usuarios"
+            let fetchUrl = WEBHOOK_URL + "?acao=login&email=" + encodeURIComponent(emailInput) + "&senha=" + encodeURIComponent(senhaInput);
+
+            fetch(fetchUrl)
+                .then(async response => {
+                    let text = await response.text();
+                    try { return JSON.parse(text); } 
+                    catch (e) { throw new Error("Erro de comunicação com o servidor."); }
+                })
+                .then(data => {
+                    if(data.status === "sucesso") {
+                        localStorage.setItem('pqdtEmail', emailInput);
+                        localStorage.setItem('pqdtSenha', senhaInput);
+                        loggedUserEmail = emailInput;
+                        loggedUserSenha = senhaInput;
+                        checkLogin();
+                    } else {
+                        alert(data.mensagem || "Acesso Negado: E-mail ou Senha incorretos.");
+                        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ACESSAR PAINEL';
+                        btn.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    alert("Erro ao validar login: " + err.message);
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ACESSAR PAINEL';
+                    btn.disabled = false;
+                });
         }
 
         function logout() {
             localStorage.removeItem('pqdtEmail');
+            localStorage.removeItem('pqdtSenha');
             location.reload();
         }
 
-        window.onload = function() {
-            checkLogin();
-        };
+        window.onload = function() { checkLogin(); };
 
         // ==============================================================================
         // CONFIGURAÇÕES BASE E GAMIFICAÇÃO
@@ -463,7 +495,7 @@
         }
 
         // ==============================================================================
-        // FETCH DO APPS SCRIPT (AGORA TOTALMENTE BLINDADO CONTRA ERROS DE TELA)
+        // FETCH DO APPS SCRIPT (COM VERIFICAÇÃO DE SESSÃO)
         // ==============================================================================
         function loadGoogleSheetsData() {
             let btn = document.getElementById('btn-sync');
@@ -472,19 +504,22 @@
                 btn.style.backgroundColor = "var(--accent-orange)";
             }
             
-            let fetchUrl = WEBHOOK_URL + "?email=" + encodeURIComponent(loggedUserEmail);
+            // Envia e-mail e senha para acessar os dados
+            let fetchUrl = WEBHOOK_URL + "?email=" + encodeURIComponent(loggedUserEmail) + "&senha=" + encodeURIComponent(loggedUserSenha);
 
             fetch(fetchUrl)
                 .then(async response => {
                     let text = await response.text(); 
-                    try {
-                        let data = JSON.parse(text); 
-                        return data;
-                    } catch (e) {
-                        throw new Error("Erro na Leitura da Nuvem. O Google devolveu:\n" + text.substring(0, 100));
-                    }
+                    try { return JSON.parse(text); } 
+                    catch (e) { throw new Error("Erro do Servidor."); }
                 })
                 .then(data => {
+                    // Proteção: se o script disser "Acesso Negado", desloga na hora
+                    if(data.erro) {
+                        alert("Sua sessão expirou ou as credenciais foram alteradas.");
+                        logout();
+                        return;
+                    }
                     processData(data);
                     if(btn) {
                         btn.innerHTML = '<i class="fas fa-check-circle"></i> Sincronizado';
@@ -497,7 +532,6 @@
                         btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro Conexão';
                         btn.style.backgroundColor = "var(--accent-red)";
                     }
-                    alert("⚠️ DIAGNÓSTICO DO ERRO:\n\n" + err.message);
                 });
         }
 
@@ -565,7 +599,6 @@
                 Array.from(uniqueSubjects).sort().forEach(s => { filter.innerHTML += `<option value="${s}">${s}</option>`; });
             }
 
-            // Exibe os blocos apenas se eles existirem (Blindagem)
             if(document.getElementById('rank-panel')) document.getElementById('rank-panel').style.display = 'flex';
             if(document.getElementById('gps-panel')) document.getElementById('gps-panel').style.display = 'grid';
             if(document.getElementById('dynamic-title')) document.getElementById('dynamic-title').style.display = 'block';
@@ -596,7 +629,6 @@
 
         function saveGoals() { localStorage.setItem('metaHrs', document.getElementById('meta-hrs').value); localStorage.setItem('metaQ', document.getElementById('meta-q').value); updateGPS(); }
 
-        // LÓGICA DE TRAVA DE CICLO
         function updateGPS() {
             let metaHrs = parseFloat(document.getElementById('meta-hrs') ? document.getElementById('meta-hrs').value : 20) || 20; 
             let metaQ = parseFloat(document.getElementById('meta-q') ? document.getElementById('meta-q').value : 500) || 500;
@@ -727,15 +759,10 @@
         function renderCharts(mode, labels, accData, hrsData, volData) { 
             if(chart1Obj) chart1Obj.destroy(); if(chart2Obj) chart2Obj.destroy(); if(chart3Obj) chart3Obj.destroy(); 
             
-            let canvas1 = document.getElementById('chart1');
-            let canvas2 = document.getElementById('chart2');
-            let canvas3 = document.getElementById('chart3');
-            
+            let canvas1 = document.getElementById('chart1'); let canvas2 = document.getElementById('chart2'); let canvas3 = document.getElementById('chart3');
             if(!canvas1 || !canvas2 || !canvas3) return;
 
-            const ctx1 = canvas1.getContext('2d'); 
-            const ctx2 = canvas2.getContext('2d'); 
-            const ctx3 = canvas3.getContext('2d'); 
+            const ctx1 = canvas1.getContext('2d'); const ctx2 = canvas2.getContext('2d'); const ctx3 = canvas3.getContext('2d'); 
             
             if(mode === 'all') { 
                 chart1Obj = new Chart(ctx1, { type: 'radar', data: { labels: labels, datasets: [{ label: '% de Acerto', data: accData, backgroundColor: 'rgba(56, 176, 0, 0.2)', borderColor: '#38B000', pointBackgroundColor: '#38B000' }] }, options: { plugins: { title: { display: true, text: 'PRECISÃO GLOBAL', font: { size: 16 } } }, scales: { r: { min: 0, max: 100, ticks: { backdropColor: 'transparent', stepSize: 20 } } }, maintainAspectRatio: false } }); 
@@ -762,10 +789,8 @@
         }
         
         function renderReport() { 
-            let tbody = document.getElementById('report-body'); 
-            let colPeriodo = document.getElementById('col-periodo'); 
+            let tbody = document.getElementById('report-body'); let colPeriodo = document.getElementById('col-periodo'); 
             if(!tbody || !colPeriodo) return;
-
             tbody.innerHTML = ''; let dataArray = []; 
             if (currentReportMode === 'diario') { 
                 colPeriodo.innerText = 'Data do Estudo'; 
@@ -815,9 +840,7 @@
         function closeDetailsModal() { document.getElementById('detailsModal').style.display = 'none'; } 
         
         function openEntryModal() { 
-            if(timerSeconds > 0 && document.getElementById('f-tempo')) {
-                document.getElementById('f-tempo').value = Math.floor(timerSeconds/60); 
-            }
+            if(timerSeconds > 0 && document.getElementById('f-tempo')) document.getElementById('f-tempo').value = Math.floor(timerSeconds/60); 
             if(document.getElementById('entryModal')) document.getElementById('entryModal').style.display = 'block'; 
         }
         function closeEntryModal() { if(document.getElementById('entryModal')) document.getElementById('entryModal').style.display = 'none'; }
@@ -829,6 +852,7 @@
             
             let parts = document.getElementById('f-data').value.split('-');
             
+            // Envia o e-mail validado no payload para salvar no banco de dados
             let payload = { 
                 dataEstudo: `${parts[2]}/${parts[1]}/${parts[0]}`, 
                 materia: document.getElementById('f-materia').value, 
