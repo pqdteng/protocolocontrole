@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sala de Comando: Dashboard Gamificado</title>
+    <title>Sala de Comando: Auditor TCE</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -14,20 +14,36 @@
             --accent-purple: #8338EC; --accent-orange: #FFBE0B; --accent-gold: #FFD700;
         }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; }
         
+        /* TELA DE LOGIN */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: linear-gradient(135deg, #0d0d0d, #1a1a1a); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { background-color: var(--card-bg); padding: 40px; border-radius: 15px; border: 2px solid var(--accent-blue); text-align: center; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .login-box h1 { color: white; margin: 0 0 10px 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .login-box h1 i { font-size: 2em; color: var(--accent-blue); }
+        .login-box p { color: #aaa; margin-bottom: 25px; font-size: 0.9em; }
+        .login-input { width: 100%; padding: 15px; background: #121212; border: 1px solid #444; color: white; border-radius: 8px; box-sizing: border-box; font-size: 1.1em; outline: none; text-align: center; margin-bottom: 20px;}
+        .login-input:focus { border-color: var(--accent-blue); }
+        .btn-login { width: 100%; background: var(--accent-blue); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1em; cursor: pointer; transition: 0.3s; }
+        .btn-login:hover { background: #2a6bdd; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(58, 134, 255, 0.4); }
+
+        /* DASHBOARD PRINCIPAL */
+        #app-content { display: none; padding: 20px; }
+
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #333; flex-wrap: wrap; gap: 15px; }
-        .header h1 { margin: 0; color: white; display: flex; align-items: center; gap: 10px;}
-        .controls { display: flex; gap: 15px; align-items: center; flex-wrap: wrap;}
+        .header h1 { margin: 0; color: white; display: flex; align-items: center; gap: 10px; font-size: 1.5em;}
+        .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;}
         
-        .btn { border: 1px solid #444; color: white; background-color: var(--accent-blue); padding: 10px 20px; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;}
+        .btn { border: 1px solid #444; color: white; background-color: var(--accent-blue); padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;}
         .btn:hover { background-color: #2a6bdd; transform: scale(1.05); color: white;}
         .btn-forms { background-color: var(--accent-purple); border-color: #6a1b9a; }
         .btn-sync { background-color: var(--accent-green); border-color: #2d8a00; }
+        .btn-logout { background-color: #333; border-color: #555; color: #aaa; }
+        .btn-logout:hover { background-color: var(--accent-red); border-color: var(--accent-red); color: white; }
         
         select.btn { background-color: #2A2A2A; color: #E0E0E0; outline: none; }
 
-        /* GAMIFICAÇÃO - RANKING ESPORTS */
+        /* GAMIFICAÇÃO */
         .rank-container { background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%); border: 2px solid var(--accent-gold); border-radius: 15px; padding: 15px 30px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 20px rgba(255, 215, 0, 0.15); flex-wrap: wrap; gap: 20px;}
         .rank-info { display: flex; align-items: center; gap: 20px; }
         .rank-icon { font-size: 3.5em; color: var(--accent-gold); text-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
@@ -38,9 +54,11 @@
         .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #FFBE0B, #FFD700); width: 0%; transition: 1.5s ease-out; }
         
         .bonus-badges { display: flex; gap: 15px; margin-top: 5px; font-size: 0.85em; }
-        .badge { background: #333; padding: 5px 12px; border-radius: 6px; color: #888; display: flex; align-items: center; gap: 6px; transition: 0.5s; }
+        .badge { background: #333; padding: 5px 12px; border-radius: 6px; color: #888; display: flex; align-items: center; gap: 6px; transition: 0.5s; font-weight: bold;}
         .badge.active-q { background: rgba(255, 190, 11, 0.2); color: var(--accent-orange); border: 1px solid var(--accent-orange); box-shadow: 0 0 10px rgba(255, 190, 11, 0.3); }
         .badge.active-h { background: rgba(56, 176, 0, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); box-shadow: 0 0 10px rgba(56, 176, 0, 0.3); }
+        .badge.info { background: rgba(58, 134, 255, 0.1); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+        .badge.warning { background: rgba(208, 0, 0, 0.1); color: var(--accent-red); border: 1px solid var(--accent-red); }
 
         /* FOCO E CRONÔMETRO */
         .focus-section { display: flex; justify-content: center; align-items: center; gap: 40px; margin-bottom: 30px; flex-wrap: wrap; }
@@ -89,7 +107,6 @@
         .chart-box { background-color: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); min-height: 400px; }
         .full-width { grid-column: 1 / -1; }
         canvas { width: 100% !important; height: 100% !important; }
-        #dynamic-title { color: var(--accent-orange); margin-top: -10px; margin-bottom: 20px; font-size: 1.2em; display: none;}
 
         /* RELATÓRIOS */
         .report-section { background-color: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); margin-top: 30px; display: none; }
@@ -112,7 +129,6 @@
         .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 20px;}
         .close-btn:hover { color: white; }
 
-        /* Modal Raio-X */
         .modal-header-social { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px;}
         .modal-header-social h3 { margin: 0; color: var(--accent-orange); font-size: 1.5em; display: flex; align-items: center; gap: 10px;}
         .modal-kpi-container { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;}
@@ -122,7 +138,6 @@
         .modal-chart-area { display: flex; justify-content: center; align-items: center; background: #252525; border-radius: 12px; padding: 20px; margin-bottom: 25px; height: 280px;}
         .modal-table-area { overflow-x: auto; }
 
-        /* Modal Lançamento */
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; color: var(--accent-orange); font-size: 0.85em; font-weight: bold; text-transform: uppercase; margin-bottom: 6px; }
         .form-group input, .form-group select { width: 100%; padding: 12px; background: #121212; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; font-size: 1em; outline: none;}
@@ -133,160 +148,157 @@
 </head>
 <body>
 
-    <div class="header">
-        <h1><i class="fas fa-gamepad"></i> Sala de Comando: Estudos</h1>
-        <div class="controls">
-            <select id="subjectFilter" class="btn" onchange="updateDashboard(this.value)">
-                <option value="all">Visão Geral (Todas as Disciplinas)</option>
-            </select>
-            <button class="btn btn-forms" onclick="openEntryModal()"><i class="fas fa-pen-nib"></i> Lançar Missão</button>
-            <button class="btn btn-sync" id="btn-sync" onclick="loadGoogleSheetsData()"><i class="fas fa-sync-alt"></i> Sincronizar Base</button>
+    <div id="login-screen">
+        <div class="login-box">
+            <h1><i class="fas fa-lock"></i> Sala de Comando</h1>
+            <p>Insira o e-mail de acesso (o mesmo da compra na Kiwify) para carregar seus dados criptografados.</p>
+            <input type="email" id="input-email" class="login-input" placeholder="exemplo@email.com" required>
+            <button class="btn-login" onclick="login()"><i class="fas fa-sign-in-alt"></i> ACESSAR PAINEL</button>
         </div>
     </div>
 
-    <div class="rank-container" id="rank-panel" style="display: none;">
-        <div class="rank-info">
-            <i class="fas fa-hammer rank-icon" id="rank-icon"></i>
-            <div class="rank-details">
-                <h2 id="rank-title">Ferro</h2>
-                <p id="rank-subtitle">Iniciando a jornada</p>
-            </div>
-        </div>
-        <div class="xp-bar-container">
-            <div style="display: flex; justify-content: space-between; font-size: 0.8em; color: #aaa; font-weight: bold;">
-                <span>Nível de XP (Questões)</span>
-                <span id="rank-progress-text">0 / 1000 Q</span>
-            </div>
-            <div class="xp-bar-bg"><div class="xp-bar-fill" id="rank-bar"></div></div>
-            
-            <div class="bonus-badges">
-                <div class="badge" id="badge-q">
-                    <i class="fas fa-fire"></i> Questões Hoje: <span id="txt-daily-q">0</span> / 100
-                </div>
-                <div class="badge" id="badge-h">
-                    <i class="fas fa-clock"></i> Horas Hoje: <span id="txt-daily-h">0.0</span> / 2h
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="focus-section">
-        <div class="datetime-container">
-            <div id="date-display">--/--/----</div>
-            <div id="clock-display">--:--:--</div>
-        </div>
-        <div class="timer-container">
-            <div class="timer-display" id="timer-display">00:00:00</div>
-            <div class="timer-controls">
-                <button class="play-btn" onclick="startTimer()" title="Iniciar Foco"><i class="fas fa-play"></i></button>
-                <button onclick="pauseTimer()" title="Pausar"><i class="fas fa-pause"></i></button>
-                <button class="stop-btn" onclick="resetTimer()" title="Zerar"><i class="fas fa-stop"></i></button>
-            </div>
-        </div>
-    </div>
-
-    <div class="gps-container" id="gps-panel">
-        <div class="gps-card">
-            <h3><i class="fas fa-bullseye"></i> Metas da Semana</h3>
-            <div class="goal-row">
-                <div class="goal-labels">
-                    <span>Horas Líquidas: <span id="lbl-hrs-feito">0</span> / <input type="number" id="meta-hrs" value="20" class="goal-inputs" onchange="saveGoals()"></span>
-                    <span id="lbl-hrs-pct">0%</span>
-                </div>
-                <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-hrs"></div></div>
-            </div>
-            <div class="goal-row">
-                <div class="goal-labels">
-                    <span>Questões MB: <span id="lbl-q-feito">0</span> / <input type="number" id="meta-q" value="500" class="goal-inputs" onchange="saveGoals()"></span>
-                    <span id="lbl-q-pct">0%</span>
-                </div>
-                <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-q"></div></div>
+    <div id="app-content">
+        <div class="header">
+            <h1><i class="fas fa-landmark"></i> Sala de Comando: <span style="font-size: 0.6em; color: var(--accent-blue); margin-left: 10px;" id="user-email-display"></span></h1>
+            <div class="controls">
+                <select id="subjectFilter" class="btn" onchange="updateDashboard(this.value)">
+                    <option value="all">Visão Geral (Todas)</option>
+                </select>
+                <button class="btn btn-forms" onclick="openEntryModal()"><i class="fas fa-pen-nib"></i> Lançar Missão</button>
+                <button class="btn btn-sync" id="btn-sync" onclick="loadGoogleSheetsData()"><i class="fas fa-sync-alt"></i> Sincronizar Base</button>
+                <button class="btn btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
             </div>
         </div>
 
-        <div class="gps-card" style="border-top-color: var(--accent-blue);">
-            <h3><i class="fas fa-map-marked-alt"></i> Missão Dinâmica & Revisão</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; height: 100%;">
-                <div class="action-box">
-                    <h4><i class="fas fa-route"></i> Próximos Alvos</h4>
-                    <div id="gps-missao-hoje">
-                        <p class="mission-day" id="mission-title">Sequência Atual</p>
-                        <ul class="mission-list">
-                            <li class="now"><i class="fas fa-angle-double-right"></i> <strong>Agora:</strong> <span id="mission-t1">--</span></li>
-                            <li><i class="fas fa-angle-right"></i> <strong>Passo 2:</strong> <span id="mission-t2">--</span></li>
-                            <li><i class="fas fa-angle-right"></i> <strong>Passo 3:</strong> <span id="mission-t3">--</span></li>
-                            <li><i class="fas fa-angle-right"></i> <strong>Passo 4:</strong> <span id="mission-t4">--</span></li>
-                        </ul>
+        <div class="rank-container" id="rank-panel" style="display: none;">
+            <div class="rank-info">
+                <i class="fas fa-hammer rank-icon" id="rank-icon"></i>
+                <div class="rank-details">
+                    <h2 id="rank-title">Ferro</h2>
+                    <p id="rank-subtitle">Iniciando a jornada</p>
+                </div>
+            </div>
+            <div class="xp-bar-container">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8em; color: #aaa; font-weight: bold;">
+                    <span>Nível de XP (Questões)</span>
+                    <span id="rank-progress-text">0 / 1000 Q</span>
+                </div>
+                <div class="xp-bar-bg"><div class="xp-bar-fill" id="rank-bar"></div></div>
+                
+                <div class="bonus-badges">
+                    <div class="badge" id="badge-q">
+                        <i class="fas fa-fire"></i> Questões Hoje: <span id="txt-daily-q">0</span> / 100
                     </div>
-                </div>
-                <div class="action-box">
-                    <h4><i class="fas fa-external-link-alt"></i> Último Caderno</h4>
-                    <div id="gps-ultimo-caderno" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%;">
-                        <p>Aguardando Sincronização...</p>
+                    <div class="badge" id="badge-h">
+                        <i class="fas fa-clock"></i> Horas Hoje: <span id="txt-daily-h">0.0</span> / 2h
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div id="dynamic-title"><i class="fas fa-search"></i> Analisando: <span id="title-text">Visão Geral</span></div>
-
-    <div class="cards-container">
-        <div class="card card-q"><div class="card-icon"><i class="fas fa-tasks"></i></div><div class="card-content"><h3>Questões Resolvidas</h3><p id="kpi-q">0</p></div></div>
-        <div class="card card-acc"><div class="card-icon"><i class="fas fa-bullseye"></i></div><div class="card-content"><h3>Precisão Média</h3><p id="kpi-acc">0.0%</p></div></div>
-        <div class="card card-hrs"><div class="card-icon"><i class="fas fa-hourglass-half"></i></div><div class="card-content"><h3>Horas Líquidas</h3><p id="kpi-hrs">0.0h</p></div></div>
-        <div class="card card-vel"><div class="card-icon"><i class="fas fa-tachometer-alt"></i></div><div class="card-content"><h3>Velocidade Média</h3><p id="kpi-vel">0 Q/h</p></div></div>
-    </div>
-
-    <div class="charts-row">
-        <div class="chart-box"><canvas id="chart1"></canvas></div>
-        <div class="chart-box"><canvas id="chart2"></canvas></div>
-    </div>
-    <div class="charts-row">
-        <div class="chart-box full-width"><canvas id="chart3"></canvas></div>
-    </div>
-
-    <div class="report-section" id="reportSection">
-        <div class="report-header">
-            <h2><i class="fas fa-list-alt"></i> Relatório de Andamento</h2>
-            <div class="toggle-report">
-                <button class="toggle-btn active" id="btnDiario" onclick="switchReport('diario')">Visão Diária</button>
-                <button class="toggle-btn" id="btnSemanal" onclick="switchReport('semanal')">Visão Semanal</button>
+        <div class="focus-section">
+            <div class="datetime-container">
+                <div id="date-display">--/--/----</div>
+                <div id="clock-display">--:--:--</div>
+            </div>
+            <div class="timer-container">
+                <div class="timer-display" id="timer-display">00:00:00</div>
+                <div class="timer-controls">
+                    <button class="play-btn" onclick="startTimer()" title="Iniciar Foco"><i class="fas fa-play"></i></button>
+                    <button onclick="pauseTimer()" title="Pausar"><i class="fas fa-pause"></i></button>
+                    <button class="stop-btn" onclick="resetTimer()" title="Zerar"><i class="fas fa-stop"></i></button>
+                </div>
             </div>
         </div>
-        <div style="overflow-x: auto;">
-            <table>
-                <thead>
-                    <tr><th id="col-periodo">Data</th><th>Questões Feitas</th><th>Acertos</th><th>% Acerto</th><th>Tempo Líquido</th><th>Velocidade</th><th>Raio-X</th></tr>
-                </thead>
-                <tbody id="report-body"></tbody>
-            </table>
-        </div>
-    </div>
 
-    <div id="detailsModal" class="modal">
+        <div class="gps-container" id="gps-panel">
+            <div class="gps-card">
+                <h3><i class="fas fa-bullseye"></i> Metas da Semana</h3>
+                <div class="goal-row">
+                    <div class="goal-labels">
+                        <span>Horas Líquidas: <span id="lbl-hrs-feito">0</span> / <input type="number" id="meta-hrs" value="20" class="goal-inputs" onchange="saveGoals()"></span>
+                        <span id="lbl-hrs-pct">0%</span>
+                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-hrs"></div></div>
+                </div>
+                <div class="goal-row">
+                    <div class="goal-labels">
+                        <span>Questões MB: <span id="lbl-q-feito">0</span> / <input type="number" id="meta-q" value="500" class="goal-inputs" onchange="saveGoals()"></span>
+                        <span id="lbl-q-pct">0%</span>
+                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-q"></div></div>
+                </div>
+            </div>
+
+            <div class="gps-card" style="border-top-color: var(--accent-blue);">
+                <h3><i class="fas fa-map-marked-alt"></i> Missão Dinâmica & Revisão</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; height: 100%;">
+                    <div class="action-box">
+                        <h4><i class="fas fa-route"></i> Próximos Alvos</h4>
+                        <div id="gps-missao-hoje">
+                            <p class="mission-day" id="mission-title">Sequência Atual</p>
+                            <ul class="mission-list">
+                                <li class="now"><i class="fas fa-angle-double-right"></i> <strong>Agora:</strong> <span id="mission-t1">--</span></li>
+                                <li><i class="fas fa-angle-right"></i> <strong>Passo 2:</strong> <span id="mission-t2">--</span></li>
+                                <li><i class="fas fa-angle-right"></i> <strong>Passo 3:</strong> <span id="mission-t3">--</span></li>
+                                <li><i class="fas fa-angle-right"></i> <strong>Passo 4:</strong> <span id="mission-t4">--</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="action-box">
+                        <h4><i class="fas fa-external-link-alt"></i> Último Caderno</h4>
+                        <div id="gps-ultimo-caderno" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%;">
+                            <p>Aguardando Sincronização...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cards-container">
+            <div class="card card-q"><div class="card-icon"><i class="fas fa-tasks"></i></div><div class="card-content"><h3>Questões Resolvidas</h3><p id="kpi-q">0</p></div></div>
+            <div class="card card-acc"><div class="card-icon"><i class="fas fa-bullseye"></i></div><div class="card-content"><h3>Precisão Média</h3><p id="kpi-acc">0.0%</p></div></div>
+            <div class="card card-hrs"><div class="card-icon"><i class="fas fa-hourglass-half"></i></div><div class="card-content"><h3>Horas Líquidas</h3><p id="kpi-hrs">0.0h</p></div></div>
+            <div class="card card-vel"><div class="card-icon"><i class="fas fa-tachometer-alt"></i></div><div class="card-content"><h3>Velocidade Média</h3><p id="kpi-vel">0 Q/h</p></div></div>
+        </div>
+
+        <div class="charts-row">
+            <div class="chart-box"><canvas id="chart1"></canvas></div>
+            <div class="chart-box"><canvas id="chart2"></canvas></div>
+        </div>
+        <div class="charts-row">
+            <div class="chart-box full-width"><canvas id="chart3"></canvas></div>
+        </div>
+
+        <div class="report-section" id="reportSection">
+            <div class="report-header">
+                <h2><i class="fas fa-list-alt"></i> Relatório de Andamento</h2>
+                <div class="toggle-report">
+                    <button class="toggle-btn active" id="btnDiario" onclick="switchReport('diario')">Visão Diária</button>
+                    <button class="toggle-btn" id="btnSemanal" onclick="switchReport('semanal')">Visão Semanal</button>
+                </div>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr><th id="col-periodo">Data</th><th>Questões Feitas</th><th>Acertos</th><th>% Acerto</th><th>Tempo Líquido</th><th>Velocidade</th><th>Raio-X</th></tr>
+                    </thead>
+                    <tbody id="report-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div> <div id="detailsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header-social">
                 <h3 id="modalTitle"><i class="fas fa-camera-retro"></i> Raio-X do Ciclo</h3>
                 <span class="close-btn" onclick="closeDetailsModal()">&times;</span>
             </div>
-            
             <div class="modal-kpi-container">
-                <div class="modal-kpi-box" style="border-bottom-color: var(--accent-orange);">
-                    <h4>Total de Horas</h4><p id="m-kpi-hrs">0.0h</p>
-                </div>
-                <div class="modal-kpi-box" style="border-bottom-color: var(--accent-blue);">
-                    <h4>Questões Realizadas</h4><p id="m-kpi-q">0</p>
-                </div>
-                <div class="modal-kpi-box" style="border-bottom-color: var(--accent-green);">
-                    <h4>Precisão Geral</h4><p id="m-kpi-acc">0%</p>
-                </div>
+                <div class="modal-kpi-box" style="border-bottom-color: var(--accent-orange);"><h4>Total de Horas</h4><p id="m-kpi-hrs">0.0h</p></div>
+                <div class="modal-kpi-box" style="border-bottom-color: var(--accent-blue);"><h4>Questões Realizadas</h4><p id="m-kpi-q">0</p></div>
+                <div class="modal-kpi-box" style="border-bottom-color: var(--accent-green);"><h4>Precisão Geral</h4><p id="m-kpi-acc">0%</p></div>
             </div>
-
-            <div class="modal-chart-area">
-                <canvas id="modalChartPie"></canvas>
-            </div>
-
+            <div class="modal-chart-area"><canvas id="modalChartPie"></canvas></div>
             <div class="modal-table-area">
                 <table id="modalTable">
                     <thead><tr><th>Matéria</th><th>Tempo (h)</th><th>Questões</th><th>Acertos</th><th>% Acerto</th></tr></thead>
@@ -315,10 +327,7 @@
                 <div class="form-group">
                     <label>Fase</label>
                     <select id="f-fase" required>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
+                        <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
                     </select>
                 </div>
                 <button type="submit" id="btn-submit-form" class="form-submit-btn">ENVIAR PARA BASE_DASHBOARD</button>
@@ -328,21 +337,52 @@
 
     <script>
         // ==============================================================================
-        // WEBHOOK OFICIAL (LÊ E ESCREVE)
+        // WEBHOOK DO APPS SCRIPT
         // ==============================================================================
         const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz1vLMkc_dklbl7AxBHKBF8j1amLTAHwrUwknmLAZJxuXXaL1ra-LBjqCihay9RbX4_Qw/exec";
+
+        // ==============================================================================
+        // SISTEMA DE LOGIN MVP
+        // ==============================================================================
+        let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
+
+        function checkLogin() {
+            if (loggedUserEmail) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+                document.getElementById('user-email-display').innerText = loggedUserEmail;
+                initApp();
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('app-content').style.display = 'none';
+            }
+        }
+
+        function login() {
+            let emailInput = document.getElementById('input-email').value.trim().toLowerCase();
+            if (emailInput && emailInput.includes('@')) {
+                localStorage.setItem('pqdtEmail', emailInput);
+                loggedUserEmail = emailInput;
+                checkLogin();
+            } else {
+                alert("Por favor, insira um e-mail válido para acessar a plataforma.");
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('pqdtEmail');
+            location.reload();
+        }
 
         // ==============================================================================
         // CONFIGURAÇÕES BASE E GAMIFICAÇÃO
         // ==============================================================================
         Chart.defaults.color = '#E0E0E0'; Chart.defaults.borderColor = '#333';
-        let globalData = []; 
-        let groupedDaily = {}, groupedWeekly = {}; 
+        let globalData = []; let groupedDaily = {}, groupedWeekly = {}; 
         let chart1Obj, chart2Obj, chart3Obj, modalPieChartObj; 
         let currentReportMode = 'diario'; let currentWeekStr = "";
         let totalQHistory = 0; let dailyQ = 0; let dailyMins = 0;
 
-        // RANKS DE JOGOS CLÁSSICOS (GENÉRICOS E COMPETITIVOS)
         const GAMER_RANKS = [
             { threshold: 0, title: "Ferro", icon: "fa-hammer", desc: "Iniciando a jornada" },
             { threshold: 1000, title: "Bronze", icon: "fa-medal", desc: "Ganhando consistência" },
@@ -357,30 +397,33 @@
             { threshold: 100000, title: "Mito", icon: "fa-meteor", desc: "Deus dos Concursos!" }
         ];
 
-        // INCLUÍDAS AS DISCIPLINAS PARECER E REDAÇÃO (NÃO PULARÁ MAIS O CICLO)
         const cicloMaster = [
-            { nome: "Eng: Planejamento de Obras", chaves: ["PNFL"] }, 
-            { nome: "AFO / Orçamento Público", chaves: ["AFO"] }, 
-            { nome: "Direito Constitucional", chaves: ["DCO"] }, 
-            { nome: "Controle Externo (TCE-SP)", chaves: ["CEX"] }, 
-            { nome: "Contabilidade Pública", chaves: ["CASP"] }, 
-            { nome: "Contabilidade Geral", chaves: ["CTG"] }, 
-            { nome: "Eng: Edificações/Estruturas", chaves: ["EDF"] }, 
-            { nome: "Eng: Ambiental", chaves: ["AMB"] }, 
-            { nome: "Direito Administrativo", chaves: ["DAD"] }, 
-            { nome: "Português", chaves: ["POR"] }, 
-            { nome: "Eng: Rodoviária", chaves: ["OR"] }, 
-            { nome: "Eng: Hídrica", chaves: ["OH"] }, 
-            { nome: "Raciocínio Lógico", chaves: ["RLM"] }, 
-            { nome: "Informática", chaves: ["INF"] }, 
-            { nome: "Auditoria Governamental", chaves: ["AUDG"] },
-            { nome: "Peça Técnica / Parecer", chaves: ["PARECER", "PEÇA", "DISCURSIVA"] },
-            { nome: "Treino: Redação", chaves: ["RED", "REDAÇÃO"] }
+            { nome: "Eng: Planejamento de Obras", chaves: ["PNFL"] }, { nome: "AFO / Orçamento Público", chaves: ["AFO"] }, { nome: "Direito Constitucional", chaves: ["DCO"] }, { nome: "Controle Externo (TCE-SP)", chaves: ["CEX"] }, { nome: "Contabilidade Pública", chaves: ["CASP"] }, { nome: "Contabilidade Geral", chaves: ["CTG"] }, { nome: "Eng: Edificações/Estruturas", chaves: ["EDF"] }, { nome: "Eng: Ambiental", chaves: ["AMB"] }, { nome: "Direito Administrativo", chaves: ["DAD"] }, { nome: "Português", chaves: ["POR"] }, { nome: "Eng: Rodoviária", chaves: ["OR"] }, { nome: "Eng: Hídrica", chaves: ["OH"] }, { nome: "Raciocínio Lógico", chaves: ["RLM"] }, { nome: "Informática", chaves: ["INF"] }, { nome: "Auditoria Governamental", chaves: ["AUDG"] }, { nome: "Peça Técnica / Parecer", chaves: ["PARECER", "PEÇA", "DISCURSIVA"] }, { nome: "Treino: Redação", chaves: ["RED", "REDAÇÃO"] }
         ];
 
         // ==============================================================================
-        // INICIALIZAÇÃO E RELÓGIO
+        // INICIALIZAÇÃO (Só roda após Login)
         // ==============================================================================
+        function initApp() {
+            updateTimerDisplay();
+            let select = document.getElementById('f-materia');
+            select.innerHTML = ""; 
+            cicloMaster.forEach(d => { 
+                let opt = document.createElement('option'); 
+                opt.value = d.chaves[0]; opt.innerText = d.nome; 
+                select.appendChild(opt); 
+            });
+            document.getElementById('f-data').valueAsDate = new Date();
+            if(localStorage.getItem('metaHrs')) document.getElementById('meta-hrs').value = localStorage.getItem('metaHrs');
+            if(localStorage.getItem('metaQ')) document.getElementById('meta-q').value = localStorage.getItem('metaQ');
+            
+            loadGoogleSheetsData();
+        }
+
+        window.onload = function() {
+            checkLogin();
+        };
+
         function updateClock() {
             const now = new Date();
             const optionsDate = { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' };
@@ -402,22 +445,6 @@
         function pauseTimer() { isTimerRunning = false; clearInterval(timerInterval); }
         function resetTimer() { pauseTimer(); timerSeconds = 0; updateTimerDisplay(); }
 
-        window.onload = function() {
-            updateTimerDisplay();
-            let select = document.getElementById('f-materia');
-            cicloMaster.forEach(d => { 
-                let opt = document.createElement('option'); 
-                opt.value = d.chaves[0]; // ENVIA A SIGLA PARA A PLANILHA (Ponto 1)
-                opt.innerText = d.nome;  // MOSTRA O NOME COMPLETO NA TELA
-                select.appendChild(opt); 
-            });
-            document.getElementById('f-data').valueAsDate = new Date();
-            if(localStorage.getItem('metaHrs')) document.getElementById('meta-hrs').value = localStorage.getItem('metaHrs');
-            if(localStorage.getItem('metaQ')) document.getElementById('meta-q').value = localStorage.getItem('metaQ');
-            
-            loadGoogleSheetsData();
-        };
-
         function getWeekNumber(d) {
             let tempD = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
             tempD.setUTCDate(tempD.getUTCDate() + 4 - (tempD.getUTCDay()||7));
@@ -427,14 +454,16 @@
         }
 
         // ==============================================================================
-        // SISTEMA DE DADOS (VIA FETCH API)
+        // SISTEMA DE DADOS COM FILTRO POR E-MAIL E NOVOS STATUS
         // ==============================================================================
         function loadGoogleSheetsData() {
             let btn = document.getElementById('btn-sync');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sincronizando...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
             btn.style.backgroundColor = "var(--accent-orange)";
             
-            fetch(WEBHOOK_URL)
+            let fetchUrl = WEBHOOK_URL + "?email=" + encodeURIComponent(loggedUserEmail);
+
+            fetch(fetchUrl)
                 .then(response => response.json())
                 .then(data => {
                     processData(data);
@@ -442,7 +471,7 @@
                     btn.style.backgroundColor = "var(--accent-green)";
                 })
                 .catch(err => {
-                    console.error("Erro na Leitura da API: ", err);
+                    console.error("Erro na API: ", err);
                     btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro Conexão';
                     btn.style.backgroundColor = "var(--accent-red)";
                 });
@@ -452,7 +481,7 @@
             globalData = []; groupedDaily = {}; groupedWeekly = {}; totalQHistory = 0; dailyQ = 0; dailyMins = 0;
             currentWeekStr = getWeekNumber(new Date());
             let uniqueSubjects = new Set();
-            let startRow = (data[0] && String(data[0][2]).toLowerCase().includes('mat')) ? 1 : 0;
+            let startRow = (data.length > 0 && String(data[0][2]).toLowerCase().includes('mat')) ? 1 : 0;
             let todayStr = new Date().toLocaleDateString('pt-BR');
 
             for(let i = startRow; i < data.length; i++) {
@@ -465,6 +494,12 @@
                 let topico = r[3] ? String(r[3]).trim() : 'Sem Tópico';
                 let link = r[4] ? String(r[4]).trim() : '';
                 
+                // NOVOS STATUS EXTRAÍDOS DAS COLUNAS I, J, K, L (Índices 8, 9, 10, 11)
+                let fase = r[8] ? String(r[8]).trim() : '';
+                let perc = r[9] ? String(r[9]).trim() : '';
+                let statusK = r[10] ? String(r[10]).trim() : '';
+                let statusL = r[11] ? String(r[11]).trim() : '';
+                
                 if(q > 0 || t > 0) {
                     uniqueSubjects.add(mat); totalQHistory += q;
                     
@@ -473,13 +508,13 @@
                     let dParts = dateStr.split('/');
                     if(dParts.length === 3) dateObj = new Date(dParts[2], dParts[1] - 1, dParts[0]);
 
-                    // Extrai bônus diário
-                    if(dateObj.toLocaleDateString('pt-BR') === todayStr) {
-                        dailyQ += q;
-                        dailyMins += t;
-                    }
+                    if(dateObj.toLocaleDateString('pt-BR') === todayStr) { dailyQ += q; dailyMins += t; }
 
-                    globalData.push({ rowData: r, dataReal: dateObj, mat: mat, topico: topico, link: link, q: q, a: a, t: t, originalIndex: i });
+                    globalData.push({ 
+                        rowData: r, dataReal: dateObj, mat: mat, topico: topico, link: link, 
+                        q: q, a: a, t: t, originalIndex: i, 
+                        fase: fase, perc: perc, statusK: statusK, statusL: statusL 
+                    });
 
                     let dayKey = dateObj.toLocaleDateString('pt-BR');
                     let weekKey = getWeekNumber(dateObj);
@@ -514,9 +549,6 @@
             updateRank(); updateGPS(); updateDashboard('all'); renderReport();
         }
 
-        // ==============================================================================
-        // GAMIFICAÇÃO & GPS
-        // ==============================================================================
         function updateRank() {
             let rank = GAMER_RANKS[0]; let next = GAMER_RANKS[1];
             for(let i = 0; i < GAMER_RANKS.length; i++) { if(totalQHistory >= GAMER_RANKS[i].threshold) { rank = GAMER_RANKS[i]; next = GAMER_RANKS[i+1] || rank; } }
@@ -537,6 +569,9 @@
 
         function saveGoals() { localStorage.setItem('metaHrs', document.getElementById('meta-hrs').value); localStorage.setItem('metaQ', document.getElementById('meta-q').value); updateGPS(); }
 
+        // ==============================================================================
+        // LÓGICA DE TRAVA DE CICLO (O GENERAL DE DIVISÃO)
+        // ==============================================================================
         function updateGPS() {
             let metaHrs = parseFloat(document.getElementById('meta-hrs').value) || 20; 
             let metaQ = parseFloat(document.getElementById('meta-q').value) || 500;
@@ -550,50 +585,79 @@
             document.getElementById('lbl-q-feito').innerText = qFeitas; document.getElementById('lbl-q-pct').innerText = pctQ + '%'; document.getElementById('bar-q').style.width = pctQ + '%';
 
             if(globalData.length > 0) {
-                let last = globalData[0]; // Última matéria lançada
+                let last = globalData[0]; // A matéria mais recente
+                
+                // VERIFICA SE AS CONDIÇÕES DE AVANÇO FORAM ATINGIDAS
+                let isConsolidated = (
+                    last.fase == "4" && 
+                    last.statusK.toUpperCase() === "OK" && 
+                    last.statusL.toUpperCase().includes("CONSOLIDADO")
+                );
                 
                 let idx = cicloMaster.findIndex(d => last.mat === d.chaves[0] || last.mat.includes(d.nome)); 
                 if(idx === -1) idx = 0;
                 
-                let p1 = cicloMaster[(idx + 1) % cicloMaster.length]; // AGORA - A próxima no ciclo (mesmo que seja Redação ou Parecer)
-                let p2 = cicloMaster[(idx + 2) % cicloMaster.length];
-                let p3 = cicloMaster[(idx + 3) % cicloMaster.length];
-                let p4 = cicloMaster[(idx + 4) % cicloMaster.length];
+                let p1, p2, p3, p4;
+
+                if (isConsolidated) {
+                    // SE SIM: Avança para a próxima na lista
+                    p1 = cicloMaster[(idx + 1) % cicloMaster.length]; 
+                    p2 = cicloMaster[(idx + 2) % cicloMaster.length];
+                    p3 = cicloMaster[(idx + 3) % cicloMaster.length];
+                    p4 = cicloMaster[(idx + 4) % cicloMaster.length];
+                    document.getElementById('mission-title').innerText = "Missão Cumprida! Próximo Alvo:";
+                    document.getElementById('mission-title').style.color = "var(--accent-green)";
+                } else {
+                    // SE NÃO: Trava na matéria atual, manda repetir
+                    p1 = cicloMaster[idx]; 
+                    p2 = cicloMaster[(idx + 1) % cicloMaster.length];
+                    p3 = cicloMaster[(idx + 2) % cicloMaster.length];
+                    p4 = cicloMaster[(idx + 3) % cicloMaster.length];
+                    document.getElementById('mission-title').innerText = "Matéria Não Consolidada! Foque nela:";
+                    document.getElementById('mission-title').style.color = "var(--accent-red)";
+                }
 
                 document.getElementById('mission-t1').innerText = p1.nome;
                 document.getElementById('mission-t2').innerText = p2.nome;
                 document.getElementById('mission-t3').innerText = p3.nome;
                 document.getElementById('mission-t4').innerText = p4.nome;
 
-                let linkCaderno = "";
-                let dataUltimaMissao = "--/--/----";
+                let linkCaderno = ""; let dataUltimaMissao = "--/--/----";
 
-                // Varredura para encontrar o último caderno de p1
                 for(let i = 0; i < globalData.length; i++) {
                     let item = globalData[i];
                     if(item.mat === p1.chaves[0] || item.mat.includes(p1.nome)) {
-                        if(dataUltimaMissao === "--/--/----") {
-                            dataUltimaMissao = item.dataReal.toLocaleDateString('pt-BR');
-                        }
+                        if(dataUltimaMissao === "--/--/----") dataUltimaMissao = item.dataReal.toLocaleDateString('pt-BR');
                         if(item.link && (item.link.includes("http") || item.link.includes("www"))) {
-                            linkCaderno = item.link;
-                            break; 
+                            linkCaderno = item.link; break; 
                         }
                     }
                 }
 
                 let container = document.getElementById('gps-ultimo-caderno');
+                
+                // Badges de Status
+                let badgeHTML = "";
+                if (!isConsolidated) {
+                    badgeHTML = `
+                    <div style="display:flex; gap: 5px; margin-top: 10px; justify-content: center; flex-wrap: wrap;">
+                        <span class="badge info" style="font-size: 10px;">Fase Atual: ${last.fase}</span>
+                        <span class="badge warning" style="font-size: 10px;">Status: ${last.statusL || "Em andamento"}</span>
+                    </div>`;
+                }
 
-                // Lógica Inteligente para matérias com ou sem Link
                 if(linkCaderno !== "") {
                     let urlRegex = /(https?:\/\/[^\s]+)/g; let extractedLink = linkCaderno.match(urlRegex); let finalUrl = extractedLink ? extractedLink[0] : linkCaderno;
                     container.innerHTML = `<a href="${finalUrl}" target="_blank" class="btn" style="background:var(--accent-orange); color:black; font-size:13px; width:100%; justify-content:center; padding:12px; margin-bottom: 8px;"><i class="fas fa-external-link-alt"></i> Retomar: ${p1.chaves[0]}</a>
-                    <span style="font-size:12px; color:#888;">Último acesso: <strong>${dataUltimaMissao}</strong></span>`;
+                    <span style="font-size:12px; color:#888;">Último acesso: <strong>${dataUltimaMissao}</strong></span>
+                    ${badgeHTML}`;
                 } else { 
-                    // Mostra normalmente na tela mesmo se a disciplina de AGORA não tiver um link web (ex: Parecer)
-                    container.innerHTML = `<span style="font-size:13px; color:#E0E0E0; background:#333; padding:10px; border-radius:8px; display:block; width:100%; box-sizing:border-box;">Alvo atual: <strong>${p1.chaves[0]}</strong><br><span style="color:#FFBE0B; font-size:11px;">Nenhum link web salvo anteriormente.</span></span>
-                    <span style="font-size:11px; color:#aaa; margin-top:8px; display:block;">Última vez estudada: <strong>${dataUltimaMissao !== "--/--/----" ? dataUltimaMissao : "Nunca"}</strong></span>`; 
+                    container.innerHTML = `<span style="font-size:13px; color:#E0E0E0; background:#333; padding:10px; border-radius:8px; display:block; width:100%; box-sizing:border-box;">Alvo atual: <strong>${p1.chaves[0]}</strong><br><span style="color:#FFBE0B; font-size:11px;">Nenhum link web salvo.</span></span>
+                    <span style="font-size:11px; color:#aaa; margin-top:8px; display:block;">Última vez estudada: <strong>${dataUltimaMissao !== "--/--/----" ? dataUltimaMissao : "Nunca"}</strong></span>
+                    ${badgeHTML}`; 
                 }
+            } else {
+                document.getElementById('mission-title').innerText = "Bem-vindo! Inicie o seu Ciclo";
             }
         }
 
@@ -643,9 +707,6 @@
             } 
         }
 
-        // ==============================================================================
-        // RELATÓRIOS E MODAL RAIO-X
-        // ==============================================================================
         function switchReport(mode) { currentReportMode = mode; document.getElementById('btnDiario').classList.remove('active'); document.getElementById('btnSemanal').classList.remove('active'); if(mode === 'diario') document.getElementById('btnDiario').classList.add('active'); else document.getElementById('btnSemanal').classList.add('active'); renderReport(); }
         
         function renderReport() { 
@@ -697,9 +758,6 @@
         }
         function closeDetailsModal() { document.getElementById('detailsModal').style.display = 'none'; } 
         
-        // ==============================================================================
-        // MODAL DE LANÇAMENTO (FORMULÁRIO INTERNO)
-        // ==============================================================================
         function openEntryModal() { 
             if(timerSeconds > 0) document.getElementById('f-tempo').value = Math.floor(timerSeconds/60); 
             document.getElementById('entryModal').style.display = 'block'; 
@@ -715,13 +773,14 @@
             
             let payload = { 
                 dataEstudo: `${parts[2]}/${parts[1]}/${parts[0]}`, 
-                materia: document.getElementById('f-materia').value, // Envia sigla Ponto 1
+                materia: document.getElementById('f-materia').value, 
                 topico: document.getElementById('f-topico').value, 
                 tipoLink: document.getElementById('f-tipo-link').value, 
                 tempo: document.getElementById('f-tempo').value, 
                 questoes: document.getElementById('f-q').value, 
                 acertos: document.getElementById('f-a').value, 
-                fase: document.getElementById('f-fase').value 
+                fase: document.getElementById('f-fase').value,
+                email: loggedUserEmail 
             };
             
             fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
