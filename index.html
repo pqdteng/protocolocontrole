@@ -129,19 +129,19 @@
             <input type="password" id="log-pass" class="login-input" placeholder="Sua Senha">
             <button class="btn-access" onclick="login()">ENTRAR</button>
             <div class="access-links">
-                <a onclick="showScreen('register')">Criar Conta</a>
-                <a onclick="showScreen('reset')">Trocar Senha</a>
+                <a onclick="showScreen('register')">Ativar Primeiro Acesso</a>
+                <a onclick="showScreen('reset')">Esqueci a Senha</a>
             </div>
         </div>
     </div>
 
     <div id="register-screen" style="display:none;">
         <div class="login-box" style="border-color: var(--accent-green);">
-            <h1><i class="fas fa-user-plus" style="color:var(--accent-green)"></i> Cadastrar</h1>
-            <p>Crie sua conta para iniciar a jornada.</p>
-            <input type="email" id="reg-email" class="login-input" placeholder="Seu E-mail">
-            <input type="password" id="reg-pass" class="login-input" placeholder="Crie uma Senha">
-            <button class="btn-access" style="background:var(--accent-green)" onclick="register()">CADASTRAR</button>
+            <h1><i class="fas fa-user-check" style="color:var(--accent-green)"></i> Ativação</h1>
+            <p>Ative sua conta com o mesmo e-mail da Kiwify.</p>
+            <input type="email" id="reg-email" class="login-input" placeholder="E-mail da Compra">
+            <input type="password" id="reg-pass" class="login-input" placeholder="Crie sua Senha">
+            <button class="btn-access" style="background:var(--accent-green)" onclick="register()">ATIVAR CONTA</button>
             <div class="access-links" style="justify-content:center">
                 <a onclick="showScreen('login')">Voltar para Login</a>
             </div>
@@ -326,11 +326,11 @@
         function register() {
             let e = document.getElementById('reg-email').value.trim();
             let s = document.getElementById('reg-pass').value.trim();
-            if(!e || !s) return alert("Preencha todos os campos!");
+            if(!e || !s) return alert("Preencha tudo!");
             fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "cadastro", email: e, senha: s})})
-            .then(() => { alert("Cadastro enviado para a base! Faça o login."); showScreen('login'); });
+            .then(() => { alert("Verificação concluída! Tente logar com a senha que você criou."); showScreen('login'); });
         }
-
+        
         function login() {
             let e = document.getElementById('log-email').value.trim().toLowerCase();
             let s = document.getElementById('log-pass').value.trim();
