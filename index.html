@@ -323,7 +323,7 @@
             
             <div class="prompt-box" id="ai-prompt">RESUMO DE ASSUNTO.
 
-Aja como um professor especialista em concursos públicos. Estou estudando [INSERIR DISCIPLINA - ex: Direito Administrativo], especificamente o assunto [INSERIR ASSUNTO - ex: Licitações e Contratos], resolvendo questões da banca [INSERIR BANCA - ex: VUNESP]. Acabei de fazer as questões listadas ao final desta mensagem e fiz o upload dos meus materiais de apoio.
+Aja como um professor especialista em concursos públicos. Estou estudando [INSERIR DISCIPLINA], especificamente o assunto [INSERIR ASSUNTO], resolvendo questões da banca [INSERIR BANCA]. Acabei de fazer as questões listadas ao final desta mensagem e fiz o upload dos meus materiais de apoio.
 
 Gostaria que você realizasse as seguintes tarefas com base EXCLUSIVAMENTE nas questões enviadas e nos documentos anexados:
 
@@ -381,7 +381,7 @@ Segue a lista de questões:
         const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz1vLMkc_dklbl7AxBHKBF8j1amLTAHwrUwknmLAZJxuXXaL1ra-LBjqCihay9RbX4_Qw/exec";
 
         // ==============================================================================
-        // VARIÁVEIS GLOBAIS E DICIONÁRIO DE MATÉRIAS
+        // VARIÁVEIS GLOBAIS E DICIONÁRIO DE MATÉRIAS (FORMATO UNIFICADO)
         // ==============================================================================
         let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
         let loggedUserSenha = localStorage.getItem('pqdtSenha') || "";
@@ -405,35 +405,35 @@ Segue a lista de questões:
             { threshold: 100000, title: "Mito", icon: "fa-meteor", desc: "Deus dos Concursos!" }
         ];
 
-        // BASE DE DADOS DE TODAS AS MATÉRIAS POSSÍVEIS
+        // BASE DE DADOS DE TODAS AS MATÉRIAS POSSÍVEIS (ALINHADA COM O '.chaves[0]')
         const TODAS_MATERIAS = [
-            { id: "POR", nome: "Português" },
-            { id: "RLM", nome: "Raciocínio Lógico" },
-            { id: "DCO", nome: "Direito Constitucional" },
-            { id: "DAD", nome: "Direito Administrativo" },
-            { id: "AFO", nome: "AFO / Orçamento Público" },
-            { id: "CEX", nome: "Controle Externo" },
-            { id: "AUDG", nome: "Auditoria Governamental" },
-            { id: "CTG", nome: "Contabilidade Geral" },
-            { id: "CASP", nome: "Contabilidade Pública" },
-            { id: "ADM", nome: "Administração Pública" },
-            { id: "ECO", nome: "Economia" },
-            { id: "INF", nome: "Informática / TI" },
-            { id: "PNFL", nome: "Eng: Planejamento de Obras" },
-            { id: "EDF", nome: "Eng: Edificações/Estruturas" },
-            { id: "AMB", nome: "Eng: Ambiental" },
-            { id: "OR", nome: "Eng: Rodoviária" },
-            { id: "OH", nome: "Eng: Hídrica" },
-            { id: "CIV", nome: "Direito Civil" },
-            { id: "PEN", nome: "Direito Penal" },
-            { id: "PARECER", nome: "Peça Técnica / Parecer" },
-            { id: "RED", nome: "Treino: Redação" }
+            { chaves: ["POR"], nome: "Português" },
+            { chaves: ["RLM"], nome: "Raciocínio Lógico" },
+            { chaves: ["DCO"], nome: "Direito Constitucional" },
+            { chaves: ["DAD"], nome: "Direito Administrativo" },
+            { chaves: ["AFO"], nome: "AFO / Orçamento Público" },
+            { chaves: ["CEX"], nome: "Controle Externo" },
+            { chaves: ["AUDG"], nome: "Auditoria Governamental" },
+            { chaves: ["CTG"], nome: "Contabilidade Geral" },
+            { chaves: ["CASP"], nome: "Contabilidade Pública" },
+            { chaves: ["ADM"], nome: "Administração Pública" },
+            { chaves: ["ECO"], nome: "Economia" },
+            { chaves: ["INF"], nome: "Informática / TI" },
+            { chaves: ["PNFL"], nome: "Eng: Planejamento de Obras" },
+            { chaves: ["EDF"], nome: "Eng: Edificações/Estruturas" },
+            { chaves: ["AMB"], nome: "Eng: Ambiental" },
+            { chaves: ["OR"], nome: "Eng: Rodoviária" },
+            { chaves: ["OH"], nome: "Eng: Hídrica" },
+            { chaves: ["CIV"], nome: "Direito Civil" },
+            { chaves: ["PEN"], nome: "Direito Penal" },
+            { chaves: ["PARECER"], nome: "Peça Técnica / Parecer" },
+            { chaves: ["RED"], nome: "Treino: Redação" }
         ];
 
         let cicloMaster = []; // Ciclo dinâmico do usuário
 
         // ==============================================================================
-        // CONFIGURADOR DE CICLO (MÉTODO 2)
+        // CONFIGURADOR DE CICLO (MÉTODO 2) - CORRIGIDO
         // ==============================================================================
         function loadCiclo() {
             let saved = localStorage.getItem('pqdtCicloCustom');
@@ -441,7 +441,7 @@ Segue a lista de questões:
                 cicloMaster = JSON.parse(saved);
             } else {
                 // Ciclo Padrão de Engenheiro se for o 1º acesso
-                cicloMaster = TODAS_MATERIAS.filter(m => ["PNFL", "AFO", "DCO", "CEX", "CASP", "CTG", "EDF", "DAD", "POR", "OR"].includes(m.id));
+                cicloMaster = TODAS_MATERIAS.filter(m => ["PNFL", "AFO", "DCO", "CEX", "CASP", "CTG", "EDF", "DAD", "POR", "OR"].includes(m.chaves[0]));
             }
             updateSelects();
         }
@@ -450,8 +450,8 @@ Segue a lista de questões:
             let container = document.getElementById('config-checkboxes');
             container.innerHTML = '';
             TODAS_MATERIAS.forEach(m => {
-                let isChecked = cicloMaster.some(c => c.chaves[0] === m.id) ? 'checked' : '';
-                container.innerHTML += `<label class="checkbox-label"><input type="checkbox" value="${m.id}" data-nome="${m.nome}" ${isChecked}> ${m.nome}</label>`;
+                let isChecked = cicloMaster.some(c => c.chaves[0] === m.chaves[0]) ? 'checked' : '';
+                container.innerHTML += `<label class="checkbox-label"><input type="checkbox" value="${m.chaves[0]}" data-nome="${m.nome}" ${isChecked}> ${m.nome}</label>`;
             });
             document.getElementById('configModal').style.display = 'block';
         }
@@ -559,7 +559,7 @@ Segue a lista de questões:
         // INICIALIZAÇÃO E RELÓGIO
         // ==============================================================================
         function initApp() {
-            loadCiclo(); // Carrega as disciplinas salvas pelo usuário
+            loadCiclo(); // Carrega as disciplinas salvas pelo usuário e monta os selects
             document.getElementById('f-data').valueAsDate = new Date();
             if(localStorage.getItem('metaHrs')) document.getElementById('meta-hrs').value = localStorage.getItem('metaHrs');
             if(localStorage.getItem('metaQ')) document.getElementById('meta-q').value = localStorage.getItem('metaQ');
