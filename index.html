@@ -16,31 +16,31 @@
 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; }
         
-        /* TELA DE LOGIN */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: linear-gradient(135deg, #0d0d0d, #1a1a1a); display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .login-box { background-color: var(--card-bg); padding: 40px; border-radius: 15px; border: 2px solid var(--accent-blue); text-align: center; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-        .login-box h1 { color: white; margin: 0 0 10px 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .login-box h1 i { font-size: 2em; color: var(--accent-blue); }
-        .login-box p { color: #aaa; margin-bottom: 25px; font-size: 0.9em; }
-        .login-input { width: 100%; padding: 15px; background: #121212; border: 1px solid #444; color: white; border-radius: 8px; box-sizing: border-box; font-size: 1.1em; outline: none; text-align: center; margin-bottom: 15px;}
+        /* TELAS DE ACESSO */
+        #login-screen, #register-screen, #reset-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: linear-gradient(135deg, #0d0d0d, #1a1a1a); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { background-color: var(--card-bg); padding: 35px; border-radius: 15px; border: 2px solid var(--accent-blue); text-align: center; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .login-box h1 { color: white; margin: 0 0 10px 0; }
+        .login-box p { color: #aaa; margin-bottom: 20px; font-size: 0.85em; }
+        .login-input { width: 100%; padding: 12px; background: #121212; border: 1px solid #444; color: white; border-radius: 8px; box-sizing: border-box; font-size: 1em; outline: none; text-align: center; margin-bottom: 12px;}
         .login-input:focus { border-color: var(--accent-blue); }
-        .btn-login { width: 100%; background: var(--accent-blue); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1em; cursor: pointer; transition: 0.3s; margin-top: 10px;}
-        .btn-login:hover { background: #2a6bdd; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(58, 134, 255, 0.4); }
+        .btn-access { width: 100%; background: var(--accent-blue); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 1em; cursor: pointer; transition: 0.3s; }
+        .btn-access:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(58, 134, 255, 0.3); }
+        .access-links { margin-top: 20px; display: flex; justify-content: space-between; font-size: 0.8em; }
+        .access-links a { color: var(--accent-blue); text-decoration: none; cursor: pointer; }
+        .access-links a:hover { text-decoration: underline; }
 
         /* DASHBOARD PRINCIPAL */
         #app-content { display: none; padding: 20px; }
 
+        /* HEADER E CONTROLES */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #333; flex-wrap: wrap; gap: 15px; }
         .header h1 { margin: 0; color: white; display: flex; align-items: center; gap: 10px; font-size: 1.5em;}
         .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;}
-        
         .btn { border: 1px solid #444; color: white; background-color: var(--accent-blue); padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;}
         .btn:hover { background-color: #2a6bdd; transform: scale(1.05); color: white;}
-        .btn-forms { background-color: var(--accent-purple); border-color: #6a1b9a; }
         .btn-sync { background-color: var(--accent-green); border-color: #2d8a00; }
-        .btn-logout { background-color: #333; border-color: #555; color: #aaa; }
-        .btn-logout:hover { background-color: var(--accent-red); border-color: var(--accent-red); color: white; }
-        
+        .btn-logout { background-color: #333; color: #aaa; }
+        .btn-logout:hover { background-color: var(--accent-red); color: white; }
         select.btn { background-color: #2A2A2A; color: #E0E0E0; outline: none; }
 
         /* GAMIFICAÇÃO */
@@ -52,99 +52,44 @@
         .xp-bar-container { flex-grow: 1; max-width: 500px; display: flex; flex-direction: column; gap: 8px; }
         .xp-bar-bg { width: 100%; height: 16px; background-color: #333; border-radius: 10px; overflow: hidden; border: 1px solid #555; }
         .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #FFBE0B, #FFD700); width: 0%; transition: 1.5s ease-out; }
-        
         .bonus-badges { display: flex; gap: 15px; margin-top: 5px; font-size: 0.85em; }
         .badge { background: #333; padding: 5px 12px; border-radius: 6px; color: #888; display: flex; align-items: center; gap: 6px; transition: 0.5s; font-weight: bold;}
-        .badge.active-q { background: rgba(255, 190, 11, 0.2); color: var(--accent-orange); border: 1px solid var(--accent-orange); box-shadow: 0 0 10px rgba(255, 190, 11, 0.3); }
-        .badge.active-h { background: rgba(56, 176, 0, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); box-shadow: 0 0 10px rgba(56, 176, 0, 0.3); }
-        .badge.info { background: rgba(58, 134, 255, 0.1); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
-        .badge.warning { background: rgba(208, 0, 0, 0.1); color: var(--accent-red); border: 1px solid var(--accent-red); }
+        .badge.active-q { background: rgba(255, 190, 11, 0.2); color: var(--accent-orange); border: 1px solid var(--accent-orange); }
+        .badge.active-h { background: rgba(56, 176, 0, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
 
-        /* FOCO E CRONÔMETRO */
+        /* GPS E LAYOUT */
         .focus-section { display: flex; justify-content: center; align-items: center; gap: 40px; margin-bottom: 30px; flex-wrap: wrap; }
-        .datetime-container { background-color: #0A0A0A; border: 2px solid #333; border-radius: 15px; padding: 20px 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(58, 134, 255, 0.15); height: 100%; box-sizing: border-box;}
-        #date-display { font-size: 1.2em; color: #AAA; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; }
-        #clock-display { font-family: 'Courier New', Courier, monospace; font-size: 3.5em; font-weight: bold; color: var(--accent-blue); text-shadow: 0 0 15px rgba(58, 134, 255, 0.6); letter-spacing: 3px; line-height: 1; }
-        .timer-container { background-color: #0A0A0A; border: 2px solid #333; border-radius: 15px; padding: 20px 50px; display: flex; flex-direction: column; align-items: center; gap: 15px; box-shadow: 0 0 30px rgba(255, 190, 11, 0.15); width: fit-content; height: 100%; box-sizing: border-box;}
-        .timer-display { font-family: 'Courier New', Courier, monospace; font-size: 5em; font-weight: bold; color: var(--accent-orange); text-shadow: 0 0 20px rgba(255, 190, 11, 0.6); letter-spacing: 5px; line-height: 1; }
-        .timer-controls { display: flex; gap: 30px; }
-        .timer-controls button { background: none; border: none; color: #888; font-size: 2.5em; cursor: pointer; transition: 0.2s; }
-        .timer-controls button:hover { color: white; transform: scale(1.15); }
-        .timer-controls .play-btn:hover { color: var(--accent-green); }
-        .timer-controls .stop-btn:hover { color: var(--accent-red); }
-
-        /* GPS E METAS */
-        .gps-container { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 30px; align-items: stretch;}
-        .gps-card { background-color: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border-top: 4px solid var(--accent-orange); display: flex; flex-direction: column; box-sizing: border-box;}
-        .gps-card h3 { margin-top: 0; color: var(--accent-orange); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .goal-row { margin-bottom: 15px; }
-        .goal-labels { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px; }
-        .goal-inputs input { width: 60px; background: #333; border: 1px solid #555; color: white; border-radius: 4px; padding: 2px 5px; text-align: center; }
-        .progress-bar-bg { width: 100%; background-color: #333; border-radius: 10px; overflow: hidden; height: 12px; }
-        .progress-bar-fill { height: 100%; background-color: var(--accent-green); width: 0%; transition: 1s ease-in-out; }
+        .datetime-container, .timer-container { background-color: #0A0A0A; border: 2px solid #333; border-radius: 15px; padding: 20px 40px; box-shadow: 0 0 20px rgba(58, 134, 255, 0.15); box-sizing: border-box; }
+        .timer-display { font-family: 'Courier New', monospace; font-size: 5em; font-weight: bold; color: var(--accent-orange); letter-spacing: 5px; }
         
-        .action-box { background: #2A2A2A; padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent-blue); display: flex; flex-direction: column; justify-content: center; flex-grow: 1; box-sizing: border-box;}
-        .action-box h4 { margin: 0 0 10px 0; font-size: 16px; color: white; display: flex; align-items: center; gap: 8px;}
-        .mission-day { font-size: 1.2em; color: var(--accent-blue); font-weight: bold; margin-bottom: 10px;}
-        .mission-list { list-style: none; padding: 0; margin: 0; }
-        .mission-list li { margin-bottom: 8px; font-size: 14px; color: #CCC; }
-        .mission-list li strong { color: white; display: inline-block; width: 85px;}
-        .mission-list li.now strong { color: var(--accent-green); }
-
+        .gps-container { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 30px; align-items: stretch;}
+        .gps-card { background-color: var(--card-bg); border-radius: 12px; padding: 20px; border-top: 4px solid var(--accent-orange); display: flex; flex-direction: column; box-sizing: border-box;}
+        .action-box { background: #2A2A2A; padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent-blue); display: flex; flex-direction: column; justify-content: center; flex-grow: 1; margin-top: 10px; }
+        
         /* CARDS KPI */
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .card { background-color: var(--card-bg); border-radius: 12px; padding: 20px; display: flex; align-items: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border-left: 5px solid; }
+        .card { background-color: var(--card-bg); border-radius: 12px; padding: 20px; display: flex; align-items: center; border-left: 5px solid; }
         .card-icon { font-size: 40px; margin-right: 20px; }
-        .card-content h3 { margin: 0; font-size: 13px; color: #A0A0A0; text-transform: uppercase; }
-        .card-content p { margin: 5px 0 0 0; font-size: 26px; font-weight: bold; }
-        .card-q { border-color: var(--accent-blue); } .card-q .card-icon { color: var(--accent-blue); }
-        .card-acc { border-color: var(--accent-green); } .card-acc .card-icon { color: var(--accent-green); }
-        .card-hrs { border-color: var(--accent-purple); } .card-hrs .card-icon { color: var(--accent-purple); }
-        .card-vel { border-color: var(--accent-orange); } .card-vel .card-icon { color: var(--accent-orange); }
 
-        /* GRÁFICOS */
+        /* GRÁFICOS E RELATÓRIOS */
         .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .chart-box { background-color: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); min-height: 400px; }
+        .chart-box { background-color: var(--card-bg); border-radius: 12px; padding: 20px; min-height: 400px; }
         .full-width { grid-column: 1 / -1; }
         canvas { width: 100% !important; height: 100% !important; }
-        #dynamic-title { color: var(--accent-orange); margin-top: -10px; margin-bottom: 20px; font-size: 1.2em; display: none;}
-
-        /* RELATÓRIOS */
-        .report-section { background-color: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); margin-top: 30px; display: none; }
-        .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .report-header h2 { margin: 0; font-size: 1.5em; color: var(--accent-blue); }
-        .toggle-report { display: flex; gap: 10px; }
-        .toggle-btn { background-color: #333; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .toggle-btn.active { background-color: var(--accent-purple); }
+        .report-section { background-color: var(--card-bg); border-radius: 12px; padding: 20px; margin-top: 30px; display: none; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; color: #E0E0E0; text-align: left; }
         th, td { padding: 12px; border-bottom: 1px solid #444; }
-        th { background-color: #2A2A2A; color: var(--accent-orange); }
-        tr:hover { background-color: #333; }
-        .good-acc { color: var(--accent-green); font-weight: bold; }
-        .bad-acc { color: var(--accent-red); font-weight: bold; }
-        .details-link { color: var(--accent-blue); text-decoration: none; cursor: pointer; font-weight: bold; }
+        .toggle-btn { background-color: #333; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        .toggle-btn.active { background-color: var(--accent-purple); }
 
         /* MODAIS */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); overflow-y: auto;}
-        .modal-content { background-color: var(--card-bg); margin: 5% auto; padding: 25px; border: 1px solid #444; width: 90%; max-width: 750px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.9); }
-        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 20px;}
-        .close-btn:hover { color: white; }
-
-        .modal-header-social { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px;}
-        .modal-header-social h3 { margin: 0; color: var(--accent-orange); font-size: 1.5em; display: flex; align-items: center; gap: 10px;}
-        .modal-kpi-container { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;}
-        .modal-kpi-box { background: #2A2A2A; padding: 15px; border-radius: 8px; flex: 1; text-align: center; border-bottom: 3px solid var(--accent-blue); min-width: 120px;}
-        .modal-kpi-box h4 { margin: 0 0 5px 0; color: #AAA; font-size: 12px; text-transform: uppercase;}
-        .modal-kpi-box p { margin: 0; color: white; font-size: 24px; font-weight: bold;}
-        .modal-chart-area { display: flex; justify-content: center; align-items: center; background: #252525; border-radius: 12px; padding: 20px; margin-bottom: 25px; height: 280px;}
-        .modal-table-area { overflow-x: auto; }
-
+        .modal-content { background-color: var(--card-bg); margin: 5% auto; padding: 25px; border: 1px solid #444; width: 90%; max-width: 750px; border-radius: 12px; }
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; color: var(--accent-orange); font-size: 0.85em; font-weight: bold; text-transform: uppercase; margin-bottom: 6px; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; background: #121212; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; font-size: 1em; outline: none;}
-        .form-submit-btn { width: 100%; background: var(--accent-green); border: none; padding: 15px; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 1.1em; margin-top: 10px; transition: 0.3s;}
-        .form-submit-btn:hover { background: #2d8a00; }
-        .form-submit-btn:disabled { background: #555; cursor: not-allowed; }
+        .form-group label { display: block; color: var(--accent-orange); font-size: 0.85em; font-weight: bold; margin-bottom: 6px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; background: #121212; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; outline: none;}
+        .form-submit-btn { width: 100%; background: var(--accent-green); border: none; padding: 15px; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px;}
     </style>
 </head>
 <body>
@@ -152,733 +97,318 @@
     <div id="login-screen">
         <div class="login-box">
             <h1><i class="fas fa-lock"></i> Sala de Comando</h1>
-            <p>Insira suas credenciais de acesso fornecidas na área de membros.</p>
-            <input type="email" id="input-email" class="login-input" placeholder="Seu E-mail" required>
-            <input type="password" id="input-senha" class="login-input" placeholder="Sua Senha" required>
-            <button class="btn-login" onclick="login()"><i class="fas fa-sign-in-alt"></i> ACESSAR PAINEL</button>
+            <p>Acesse seu centro tático de estudos.</p>
+            <input type="email" id="log-email" class="login-input" placeholder="Seu E-mail">
+            <input type="password" id="log-pass" class="login-input" placeholder="Sua Senha">
+            <button class="btn-access" onclick="login()">ENTRAR</button>
+            <div class="access-links">
+                <a onclick="showScreen('register')">Criar Conta</a>
+                <a onclick="showScreen('reset')">Trocar Senha</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="register-screen" style="display:none;">
+        <div class="login-box" style="border-color: var(--accent-green);">
+            <h1><i class="fas fa-user-plus" style="color:var(--accent-green)"></i> Cadastrar</h1>
+            <p>Crie sua conta para iniciar a jornada.</p>
+            <input type="email" id="reg-email" class="login-input" placeholder="Seu E-mail">
+            <input type="password" id="reg-pass" class="login-input" placeholder="Crie uma Senha">
+            <button class="btn-access" style="background:var(--accent-green)" onclick="register()">CADASTRAR</button>
+            <div class="access-links" style="justify-content:center">
+                <a onclick="showScreen('login')">Voltar para Login</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="reset-screen" style="display:none;">
+        <div class="login-box" style="border-color: var(--accent-orange);">
+            <h1><i class="fas fa-key" style="color:var(--accent-orange)"></i> Nova Senha</h1>
+            <p>Confirme seu e-mail para atualizar a senha.</p>
+            <input type="email" id="res-email" class="login-input" placeholder="E-mail Cadastrado">
+            <input type="password" id="res-pass" class="login-input" placeholder="Nova Senha">
+            <button class="btn-access" style="background:var(--accent-orange)" onclick="changePassword()">ATUALIZAR SENHA</button>
+            <div class="access-links" style="justify-content:center">
+                <a onclick="showScreen('login')">Voltar para Login</a>
+            </div>
         </div>
     </div>
 
     <div id="app-content">
         <div class="header">
-            <h1><i class="fas fa-landmark"></i> Sala de Comando: <span style="font-size: 0.6em; color: var(--accent-blue); margin-left: 10px;" id="user-email-display"></span></h1>
+            <h1><i class="fas fa-landmark"></i> Sala de Comando: <span id="user-display" style="font-size:0.6em; color:var(--accent-blue)"></span></h1>
             <div class="controls">
-                <select id="subjectFilter" class="btn" onchange="updateDashboard(this.value)">
-                    <option value="all">Visão Geral (Todas)</option>
-                </select>
-                <button class="btn btn-forms" onclick="openEntryModal()"><i class="fas fa-pen-nib"></i> Lançar Missão</button>
-                <button class="btn btn-sync" id="btn-sync" onclick="loadGoogleSheetsData()"><i class="fas fa-sync-alt"></i> Sincronizar Base</button>
-                <button class="btn btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+                <select id="subjectFilter" class="btn" onchange="updateDashboard(this.value)"><option value="all">Geral</option></select>
+                <button class="btn" onclick="openEntryModal()"><i class="fas fa-pen-nib"></i> Lançar Missão</button>
+                <button class="btn btn-sync" id="btn-sync" onclick="loadGoogleSheetsData()"><i class="fas fa-sync-alt"></i> Sincronizar</button>
+                <button class="btn btn-logout" onclick="logout()">Sair</button>
             </div>
         </div>
 
-        <div class="rank-container" id="rank-panel" style="display: none;">
-            <div class="rank-info">
-                <i class="fas fa-hammer rank-icon" id="rank-icon"></i>
-                <div class="rank-details">
-                    <h2 id="rank-title">Ferro</h2>
-                    <p id="rank-subtitle">Iniciando a jornada</p>
-                </div>
-            </div>
+        <div class="rank-container" id="rank-panel">
+            <div class="rank-info"><i class="fas fa-hammer rank-icon" id="rank-icon"></i><div class="rank-details"><h2 id="rank-title">Ferro</h2><p id="rank-subtitle">Iniciando</p></div></div>
             <div class="xp-bar-container">
-                <div style="display: flex; justify-content: space-between; font-size: 0.8em; color: #aaa; font-weight: bold;">
-                    <span>Nível de XP (Questões)</span>
-                    <span id="rank-progress-text">0 / 1000 Q</span>
-                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.8em; color:#aaa;"><span>XP Questões</span><span id="rank-progress-text">0 / 1000 Q</span></div>
                 <div class="xp-bar-bg"><div class="xp-bar-fill" id="rank-bar"></div></div>
-                
                 <div class="bonus-badges">
-                    <div class="badge" id="badge-q">
-                        <i class="fas fa-fire"></i> Questões Hoje: <span id="txt-daily-q">0</span> / 100
-                    </div>
-                    <div class="badge" id="badge-h">
-                        <i class="fas fa-clock"></i> Horas Hoje: <span id="txt-daily-h">0.0</span> / 2h
-                    </div>
+                    <div class="badge" id="badge-q"><i class="fas fa-fire"></i> Questões: <span id="txt-dq">0</span>/100</div>
+                    <div class="badge" id="badge-h"><i class="fas fa-clock"></i> Horas: <span id="txt-dh">0</span>/2h</div>
                 </div>
             </div>
         </div>
 
         <div class="focus-section">
-            <div class="datetime-container">
-                <div id="date-display">--/--/----</div>
-                <div id="clock-display">--:--:--</div>
-            </div>
-            <div class="timer-container">
-                <div class="timer-display" id="timer-display">00:00:00</div>
-                <div class="timer-controls">
-                    <button class="play-btn" onclick="startTimer()" title="Iniciar Foco"><i class="fas fa-play"></i></button>
-                    <button onclick="pauseTimer()" title="Pausar"><i class="fas fa-pause"></i></button>
-                    <button class="stop-btn" onclick="resetTimer()" title="Zerar"><i class="fas fa-stop"></i></button>
+            <div class="datetime-container"><div id="date-display">--</div><div id="clock-display">--</div></div>
+            <div class="timer-container"><div class="timer-display" id="timer-display">00:00:00</div>
+                <div style="display:flex; gap:20px; justify-content:center; margin-top:10px;">
+                    <button class="btn" onclick="startTimer()"><i class="fas fa-play"></i></button>
+                    <button class="btn" onclick="pauseTimer()"><i class="fas fa-pause"></i></button>
+                    <button class="btn btn-logout" onclick="resetTimer()"><i class="fas fa-stop"></i></button>
                 </div>
             </div>
         </div>
 
-        <div class="gps-container" id="gps-panel" style="display: none;">
-            <div class="gps-card">
-                <h3><i class="fas fa-bullseye"></i> Metas da Semana</h3>
-                <div class="goal-row">
-                    <div class="goal-labels">
-                        <span>Horas Líquidas: <span id="lbl-hrs-feito">0</span> / <input type="number" id="meta-hrs" value="20" class="goal-inputs" onchange="saveGoals()"></span>
-                        <span id="lbl-hrs-pct">0%</span>
-                    </div>
-                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-hrs"></div></div>
-                </div>
-                <div class="goal-row">
-                    <div class="goal-labels">
-                        <span>Questões MB: <span id="lbl-q-feito">0</span> / <input type="number" id="meta-q" value="500" class="goal-inputs" onchange="saveGoals()"></span>
-                        <span id="lbl-q-pct">0%</span>
-                    </div>
-                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-q"></div></div>
-                </div>
+        <div class="gps-container" id="gps-panel">
+            <div class="gps-card"><h3>Metas da Semana</h3>
+                <div class="goal-row"><div class="goal-labels"><span>Horas Líquidas: <span id="lbl-hf">0</span> / <input type="number" id="meta-hrs" value="20" onchange="saveGoals()" style="width:40px; background:#333; color:white; border:none;"></span><span id="lbl-hp">0%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-hrs"></div></div></div>
+                <div class="goal-row"><div class="goal-labels"><span>Questões MB: <span id="lbl-qf">0</span> / <input type="number" id="meta-q" value="500" onchange="saveGoals()" style="width:40px; background:#333; color:white; border:none;"></span><span id="lbl-qp">0%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-q"></div></div></div>
             </div>
-
-            <div class="gps-card" style="border-top-color: var(--accent-blue);">
-                <h3><i class="fas fa-map-marked-alt"></i> Missão Dinâmica & Revisão</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; flex-grow: 1;">
-                    <div class="action-box">
-                        <h4><i class="fas fa-route"></i> Próximos Alvos</h4>
-                        <div id="gps-missao-hoje">
-                            <p class="mission-day" id="mission-title">Sequência Atual</p>
-                            <ul class="mission-list">
-                                <li class="now"><i class="fas fa-angle-double-right"></i> <strong>Agora:</strong> <span id="mission-t1">--</span></li>
-                                <li><i class="fas fa-angle-right"></i> <strong>Passo 2:</strong> <span id="mission-t2">--</span></li>
-                                <li><i class="fas fa-angle-right"></i> <strong>Passo 3:</strong> <span id="mission-t3">--</span></li>
-                                <li><i class="fas fa-angle-right"></i> <strong>Passo 4:</strong> <span id="mission-t4">--</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="action-box">
-                        <h4><i class="fas fa-external-link-alt"></i> Último Caderno</h4>
-                        <div id="gps-ultimo-caderno" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%;">
-                            <p>Aguardando Sincronização...</p>
-                        </div>
-                    </div>
+            <div class="gps-card" style="border-top-color: var(--accent-blue);"><h3>Missão Dinâmica</h3>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; flex-grow:1;">
+                    <div class="action-box"><h4>Próximos Alvos</h4><ul class="mission-list" id="mission-list"><li>Sincronizando...</li></ul></div>
+                    <div class="action-box" id="gps-ultimo-caderno" style="text-align:center;">Aguardando...</div>
                 </div>
             </div>
         </div>
-
-        <div id="dynamic-title" style="display: none;"><i class="fas fa-search"></i> Analisando: <span id="title-text">Visão Geral</span></div>
 
         <div class="cards-container">
-            <div class="card card-q"><div class="card-icon"><i class="fas fa-tasks"></i></div><div class="card-content"><h3>Questões Resolvidas</h3><p id="kpi-q">0</p></div></div>
-            <div class="card card-acc"><div class="card-icon"><i class="fas fa-bullseye"></i></div><div class="card-content"><h3>Precisão Média</h3><p id="kpi-acc">0.0%</p></div></div>
-            <div class="card card-hrs"><div class="card-icon"><i class="fas fa-hourglass-half"></i></div><div class="card-content"><h3>Horas Líquidas</h3><p id="kpi-hrs">0.0h</p></div></div>
-            <div class="card card-vel"><div class="card-icon"><i class="fas fa-tachometer-alt"></i></div><div class="card-content"><h3>Velocidade Média</h3><p id="kpi-vel">0 Q/h</p></div></div>
+            <div class="card card-q"><div class="card-icon"><i class="fas fa-tasks"></i></div><div class="card-content"><h3>Questões</h3><p id="kpi-q">0</p></div></div>
+            <div class="card card-acc"><div class="card-icon"><i class="fas fa-bullseye"></i></div><div class="card-content"><h3>Precisão</h3><p id="kpi-acc">0%</p></div></div>
+            <div class="card card-hrs"><div class="card-icon"><i class="fas fa-hourglass-half"></i></div><div class="card-content"><h3>Horas</h3><p id="kpi-hrs">0.0h</p></div></div>
+            <div class="card card-vel"><div class="card-icon"><i class="fas fa-tachometer-alt"></i></div><div class="card-content"><h3>Velocidade</h3><p id="kpi-vel">0 Q/h</p></div></div>
         </div>
 
-        <div class="charts-row">
-            <div class="chart-box"><canvas id="chart1"></canvas></div>
-            <div class="chart-box"><canvas id="chart2"></canvas></div>
-        </div>
-        <div class="charts-row">
-            <div class="chart-box full-width"><canvas id="chart3"></canvas></div>
-        </div>
+        <div class="charts-row"><div class="chart-box"><canvas id="chart1"></canvas></div><div class="chart-box"><canvas id="chart2"></canvas></div></div>
+        <div class="charts-row full-width"><div class="chart-box"><canvas id="chart3"></canvas></div></div>
 
         <div class="report-section" id="reportSection">
-            <div class="report-header">
-                <h2><i class="fas fa-list-alt"></i> Relatório de Andamento</h2>
-                <div class="toggle-report">
-                    <button class="toggle-btn active" id="btnDiario" onclick="switchReport('diario')">Visão Diária</button>
-                    <button class="toggle-btn" id="btnSemanal" onclick="switchReport('semanal')">Visão Semanal</button>
-                </div>
-            </div>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr><th id="col-periodo">Data</th><th>Questões Feitas</th><th>Acertos</th><th>% Acerto</th><th>Tempo Líquido</th><th>Velocidade</th><th>Raio-X</th></tr>
-                    </thead>
-                    <tbody id="report-body"></tbody>
-                </table>
-            </div>
-        </div>
-    </div> <div id="detailsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header-social">
-                <h3 id="modalTitle"><i class="fas fa-camera-retro"></i> Raio-X do Ciclo</h3>
-                <span class="close-btn" onclick="closeDetailsModal()">&times;</span>
-            </div>
-            <div class="modal-kpi-container">
-                <div class="modal-kpi-box" style="border-bottom-color: var(--accent-orange);"><h4>Total de Horas</h4><p id="m-kpi-hrs">0.0h</p></div>
-                <div class="modal-kpi-box" style="border-bottom-color: var(--accent-blue);"><h4>Questões Realizadas</h4><p id="m-kpi-q">0</p></div>
-                <div class="modal-kpi-box" style="border-bottom-color: var(--accent-green);"><h4>Precisão Geral</h4><p id="m-kpi-acc">0%</p></div>
-            </div>
-            <div class="modal-chart-area"><canvas id="modalChartPie"></canvas></div>
-            <div class="modal-table-area">
-                <table id="modalTable">
-                    <thead><tr><th>Matéria</th><th>Tempo (h)</th><th>Questões</th><th>Acertos</th><th>% Acerto</th></tr></thead>
-                    <tbody id="modalBody"></tbody>
-                </table>
-            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;"><h2>Relatório</h2><div><button class="toggle-btn active" id="btnD" onclick="switchR('diario')">Diário</button><button class="toggle-btn" id="btnS" onclick="switchR('semanal')">Semanal</button></div></div>
+            <table><thead><tr><th id="col-p">Data</th><th>Q</th><th>A</th><th>%</th><th>Tempo</th><th>Ações</th></tr></thead><tbody id="report-body"></tbody></table>
         </div>
     </div>
 
-    <div id="entryModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeEntryModal()">&times;</span>
-            <h2 style="color: var(--accent-blue); margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px;"><i class="fas fa-pen-nib"></i> Diário de Batalha</h2>
-            <form id="studyForm" onsubmit="submitEntry(event)">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div class="form-group"><label>Data</label><input type="date" id="f-data" required></div>
-                    <div class="form-group"><label>Matéria</label><select id="f-materia" required></select></div>
-                </div>
-                <div class="form-group"><label>Assunto / Tópico</label><input type="text" id="f-topico" required></div>
-                <div class="form-group"><label>Tipo de Estudo / Link</label><input type="text" id="f-tipo-link" required></div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                    <div class="form-group"><label>Tempo (Min)</label><input type="number" id="f-tempo" required min="0" value="0"></div>
-                    <div class="form-group"><label>Questões</label><input type="number" id="f-q" required min="0" value="0"></div>
-                    <div class="form-group"><label>Acertos</label><input type="number" id="f-a" required min="0" value="0"></div>
-                </div>
-                <div class="form-group">
-                    <label>Fase</label>
-                    <select id="f-fase" required>
-                        <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
-                    </select>
-                </div>
-                <button type="submit" id="btn-submit-form" class="form-submit-btn">ENVIAR PARA BASE_DASHBOARD</button>
-            </form>
-        </div>
-    </div>
+    <div id="entryModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeEntryModal()">&times;</span><h2>Diário de Batalha</h2>
+        <form id="studyForm" onsubmit="submitEntry(event)">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"><div class="form-group"><label>Data</label><input type="date" id="f-data" required></div><div class="form-group"><label>Matéria</label><select id="f-materia" required></select></div></div>
+            <div class="form-group"><label>Tópico</label><input type="text" id="f-topico" required></div>
+            <div class="form-group"><label>Link do Caderno</label><input type="text" id="f-tipo-link" required></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;"><div class="form-group"><label>Minutos</label><input type="number" id="f-tempo" value="0"></div><div class="form-group"><label>Questões</label><input type="number" id="f-q" value="0"></div><div class="form-group"><label>Acertos</label><input type="number" id="f-a" value="0"></div></div>
+            <div class="form-group"><label>Fase</label><select id="f-fase"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+            <button type="submit" id="btn-sub" class="form-submit-btn">SALVAR NA NUVEM</button>
+        </form>
+    </div></div>
 
     <script>
-        // ==============================================================================
-        // WEBHOOK DO APPS SCRIPT
-        // ==============================================================================
         const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz1vLMkc_dklbl7AxBHKBF8j1amLTAHwrUwknmLAZJxuXXaL1ra-LBjqCihay9RbX4_Qw/exec";
 
-        // ==============================================================================
-        // SISTEMA DE LOGIN DE SEGURANÇA
-        // ==============================================================================
-        let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
-        let loggedUserSenha = localStorage.getItem('pqdtSenha') || "";
+        let loggedEmail = localStorage.getItem('pqdtEmail') || "";
+        let loggedPass = localStorage.getItem('pqdtPass') || "";
+
+        // CONTROLE DE TELAS
+        function showScreen(type) {
+            document.getElementById('login-screen').style.display = type === 'login' ? 'flex' : 'none';
+            document.getElementById('register-screen').style.display = type === 'register' ? 'flex' : 'none';
+            document.getElementById('reset-screen').style.display = type === 'reset' ? 'flex' : 'none';
+        }
 
         function checkLogin() {
-            let loginScreen = document.getElementById('login-screen');
-            let appContent = document.getElementById('app-content');
-            if(loginScreen && appContent) {
-                if (loggedUserEmail && loggedUserSenha) {
-                    loginScreen.style.display = 'none';
-                    appContent.style.display = 'block';
-                    document.getElementById('user-email-display').innerText = loggedUserEmail;
-                    initApp();
-                } else {
-                    loginScreen.style.display = 'flex';
-                    appContent.style.display = 'none';
-                }
+            if (loggedEmail && loggedPass) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('register-screen').style.display = 'none';
+                document.getElementById('reset-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+                document.getElementById('user-display').innerText = loggedEmail;
+                initApp();
+            } else {
+                showScreen('login');
             }
         }
 
+        // CADASTRO
+        function register() {
+            let e = document.getElementById('reg-email').value.trim();
+            let s = document.getElementById('reg-pass').value.trim();
+            if(!e || !s) return alert("Preencha tudo!");
+            fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "cadastro", email: e, senha: s})})
+            .then(() => { alert("Solicitação de cadastro enviada! Tente logar."); showScreen('login'); });
+        }
+
+        // LOGIN
         function login() {
-            let emailInput = document.getElementById('input-email').value.trim().toLowerCase();
-            let senhaInput = document.getElementById('input-senha').value.trim();
-
-            if (!emailInput || !senhaInput) {
-                alert("Por favor, preencha o E-mail e a Senha.");
-                return;
-            }
-
-            let btn = document.querySelector('.btn-login');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando...';
-            btn.disabled = true;
-
-            let fetchUrl = WEBHOOK_URL + "?acao=login&email=" + encodeURIComponent(emailInput) + "&senha=" + encodeURIComponent(senhaInput);
-
-            fetch(fetchUrl)
-                .then(async response => {
-                    let text = await response.text();
-                    try { return JSON.parse(text); } 
-                    catch (e) { throw new Error("Erro de comunicação com o servidor."); }
-                })
-                .then(data => {
-                    if(data.status === "sucesso") {
-                        localStorage.setItem('pqdtEmail', emailInput);
-                        localStorage.setItem('pqdtSenha', senhaInput);
-                        loggedUserEmail = emailInput;
-                        loggedUserSenha = senhaInput;
-                        checkLogin();
-                    } else {
-                        alert(data.mensagem || "Acesso Negado: E-mail ou Senha incorretos.");
-                        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ACESSAR PAINEL';
-                        btn.disabled = false;
-                    }
-                })
-                .catch(err => {
-                    alert("Erro ao validar login: " + err.message);
-                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ACESSAR PAINEL';
-                    btn.disabled = false;
-                });
+            let e = document.getElementById('log-email').value.trim().toLowerCase();
+            let s = document.getElementById('log-pass').value.trim();
+            if(!e || !s) return alert("Preencha tudo!");
+            
+            fetch(`${WEBHOOK_URL}?acao=login&email=${encodeURIComponent(e)}&senha=${encodeURIComponent(s)}`)
+            .then(res => res.json()).then(data => {
+                if(data.status === "sucesso") {
+                    localStorage.setItem('pqdtEmail', e); localStorage.setItem('pqdtPass', s);
+                    loggedEmail = e; loggedPass = s;
+                    checkLogin();
+                } else { alert(data.mensagem); }
+            });
         }
 
-        function logout() {
-            localStorage.removeItem('pqdtEmail');
-            localStorage.removeItem('pqdtSenha');
-            location.reload();
+        // TROCAR SENHA
+        function changePassword() {
+            let e = document.getElementById('res-email').value.trim();
+            let s = document.getElementById('res-pass').value.trim();
+            if(!e || !s) return alert("Preencha tudo!");
+            fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "trocarSenha", email: e, novaSenha: s})})
+            .then(() => { alert("Senha atualizada! Faça login."); showScreen('login'); });
         }
 
-        window.onload = function() { checkLogin(); };
+        function logout() { localStorage.clear(); location.reload(); }
 
-        // ==============================================================================
-        // CONFIGURAÇÕES BASE E GAMIFICAÇÃO
-        // ==============================================================================
-        Chart.defaults.color = '#E0E0E0'; Chart.defaults.borderColor = '#333';
+        // --- DASHBOARD LOGIC (RESTAURADA E AJUSTADA) ---
+        Chart.defaults.color = '#E0E0E0';
         let globalData = []; let groupedDaily = {}, groupedWeekly = {}; 
-        let chart1Obj, chart2Obj, chart3Obj, modalPieChartObj; 
-        let currentReportMode = 'diario'; let currentWeekStr = "";
-        let totalQHistory = 0; let dailyQ = 0; let dailyMins = 0;
+        let chart1, chart2, chart3; let currentR = 'diario';
+        let totalQ = 0; let dq = 0, dh = 0;
 
-        const GAMER_RANKS = [
-            { threshold: 0, title: "Ferro", icon: "fa-hammer", desc: "Iniciando a jornada" },
-            { threshold: 1000, title: "Bronze", icon: "fa-medal", desc: "Ganhando consistência" },
-            { threshold: 3000, title: "Prata", icon: "fa-shield-alt", desc: "Concurseiro focado" },
-            { threshold: 6000, title: "Ouro", icon: "fa-trophy", desc: "Desempenho de elite" },
-            { threshold: 10000, title: "Platina", icon: "fa-star", desc: "Rumo à aprovação" },
-            { threshold: 15000, title: "Diamante", icon: "fa-gem", desc: "Mente brilhante" },
-            { threshold: 20000, title: "Mestre", icon: "fa-crown", desc: "Domínio absoluto" },
-            { threshold: 30000, title: "Grão-Mestre", icon: "fa-dragon", desc: "O terror das bancas" },
-            { threshold: 50000, title: "Desafiante", icon: "fa-fire", desc: "Disputando as cabeças" },
-            { threshold: 75000, title: "Lenda", icon: "fa-bolt", desc: "Nome no Diário Oficial" },
-            { threshold: 100000, title: "Mito", icon: "fa-meteor", desc: "Deus dos Concursos!" }
+        const RANKS = [
+            { t: 0, title: "Ferro", icon: "fa-hammer" }, { t: 1000, title: "Bronze", icon: "fa-medal" },
+            { t: 3000, title: "Prata", icon: "fa-shield-alt" }, { t: 6000, title: "Ouro", icon: "fa-trophy" },
+            { t: 10000, title: "Platina", icon: "fa-star" }, { t: 15000, title: "Diamante", icon: "fa-gem" },
+            { t: 20000, title: "Mestre", icon: "fa-crown" }, { t: 100000, title: "Mito", icon: "fa-meteor" }
         ];
 
-        const cicloMaster = [
-            { nome: "Eng: Planejamento de Obras", chaves: ["PNFL"] }, { nome: "AFO / Orçamento Público", chaves: ["AFO"] }, { nome: "Direito Constitucional", chaves: ["DCO"] }, { nome: "Controle Externo (TCE-SP)", chaves: ["CEX"] }, { nome: "Contabilidade Pública", chaves: ["CASP"] }, { nome: "Contabilidade Geral", chaves: ["CTG"] }, { nome: "Eng: Edificações/Estruturas", chaves: ["EDF"] }, { nome: "Eng: Ambiental", chaves: ["AMB"] }, { nome: "Direito Administrativo", chaves: ["DAD"] }, { nome: "Português", chaves: ["POR"] }, { nome: "Eng: Rodoviária", chaves: ["OR"] }, { nome: "Eng: Hídrica", chaves: ["OH"] }, { nome: "Raciocínio Lógico", chaves: ["RLM"] }, { nome: "Informática", chaves: ["INF"] }, { nome: "Auditoria Governamental", chaves: ["AUDG"] }, { nome: "Peça Técnica / Parecer", chaves: ["PARECER", "PEÇA", "DISCURSIVA"] }, { nome: "Treino: Redação", chaves: ["RED", "REDAÇÃO"] }
+        const CICLO = [
+            { n: "Eng: Planejamento", c: ["PNFL"] }, { n: "AFO / Orçamento", c: ["AFO"] }, { n: "D. Constitucional", c: ["DCO"] }, { n: "C. Externo", c: ["CEX"] }, { n: "Contab. Pública", c: ["CASP"] }, { n: "Contab. Geral", c: ["CTG"] }, { n: "Eng: Estruturas", c: ["EDF"] }, { n: "Eng: Ambiental", c: ["AMB"] }, { n: "D. Administrativo", c: ["DAD"] }, { n: "Português", c: ["POR"] }, { n: "Eng: Rodoviária", c: ["OR"] }, { n: "Eng: Hídrica", c: ["OH"] }, { n: "RLM", c: ["RLM"] }, { n: "Informática", c: ["INF"] }, { n: "Auditoria Gov.", c: ["AUDG"] }, { n: "Parecer Técnico", c: ["PARECER"] }, { n: "Redação", c: ["RED"] }
         ];
 
         function initApp() {
-            updateTimerDisplay();
-            let select = document.getElementById('f-materia');
-            if(select) {
-                select.innerHTML = ""; 
-                cicloMaster.forEach(d => { 
-                    let opt = document.createElement('option'); 
-                    opt.value = d.chaves[0]; opt.innerText = d.nome; 
-                    select.appendChild(opt); 
-                });
-            }
-            if(document.getElementById('f-data')) document.getElementById('f-data').valueAsDate = new Date();
-            if(localStorage.getItem('metaHrs') && document.getElementById('meta-hrs')) document.getElementById('meta-hrs').value = localStorage.getItem('metaHrs');
-            if(localStorage.getItem('metaQ') && document.getElementById('meta-q')) document.getElementById('meta-q').value = localStorage.getItem('metaQ');
-            
+            let sel = document.getElementById('f-materia'); sel.innerHTML = "";
+            CICLO.forEach(d => { let o = document.createElement('option'); o.value = d.c[0]; o.innerText = d.n; sel.appendChild(o); });
+            document.getElementById('f-data').valueAsDate = new Date();
             loadGoogleSheetsData();
         }
 
-        // RELÓGIO
-        function updateClock() {
-            const now = new Date();
-            const optionsDate = { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' };
-            let elDate = document.getElementById('date-display');
-            let elClock = document.getElementById('clock-display');
-            if(elDate) elDate.innerText = now.toLocaleDateString('pt-BR', optionsDate).replace('.', '');
-            if(elClock) elClock.innerText = now.toLocaleTimeString('pt-BR');
-        }
-        setInterval(updateClock, 1000); updateClock();
-
-        let timerInterval; let timerSeconds = 0; let isTimerRunning = false;
-        if(localStorage.getItem('pqdtTimer')) { timerSeconds = parseInt(localStorage.getItem('pqdtTimer')); }
-        function updateTimerDisplay() {
-            let h = Math.floor(timerSeconds / 3600).toString().padStart(2, '0');
-            let m = Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0');
-            let s = (timerSeconds % 60).toString().padStart(2, '0');
-            let elTimer = document.getElementById('timer-display');
-            if(elTimer) elTimer.innerText = `${h}:${m}:${s}`;
-            localStorage.setItem('pqdtTimer', timerSeconds);
-        }
-        function startTimer() { if(!isTimerRunning) { isTimerRunning = true; timerInterval = setInterval(() => { timerSeconds++; updateTimerDisplay(); }, 1000); } }
-        function pauseTimer() { isTimerRunning = false; clearInterval(timerInterval); }
-        function resetTimer() { pauseTimer(); timerSeconds = 0; updateTimerDisplay(); }
-
-        function getWeekNumber(d) {
-            let tempD = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-            tempD.setUTCDate(tempD.getUTCDate() + 4 - (tempD.getUTCDay()||7));
-            let yearStart = new Date(Date.UTC(tempD.getUTCFullYear(),0,1));
-            let weekNo = Math.ceil(( ( (tempD - yearStart) / 86400000) + 1)/7);
-            return `${tempD.getUTCFullYear()} - Semana ${weekNo.toString().padStart(2, '0')}`;
-        }
-
-        // ==============================================================================
-        // FETCH DO APPS SCRIPT (COM VERIFICAÇÃO DE SESSÃO)
-        // ==============================================================================
         function loadGoogleSheetsData() {
-            let btn = document.getElementById('btn-sync');
-            if(btn) {
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
-                btn.style.backgroundColor = "var(--accent-orange)";
-            }
-            
-            let fetchUrl = WEBHOOK_URL + "?email=" + encodeURIComponent(loggedUserEmail) + "&senha=" + encodeURIComponent(loggedUserSenha);
-
-            fetch(fetchUrl)
-                .then(async response => {
-                    let text = await response.text(); 
-                    try { return JSON.parse(text); } 
-                    catch (e) { throw new Error("Erro do Servidor."); }
-                })
-                .then(data => {
-                    if(data.erro) {
-                        alert("Sua sessão expirou ou as credenciais foram alteradas.");
-                        logout();
-                        return;
-                    }
-                    processData(data);
-                    if(btn) {
-                        btn.innerHTML = '<i class="fas fa-check-circle"></i> Sincronizado';
-                        btn.style.backgroundColor = "var(--accent-green)";
-                    }
-                })
-                .catch(err => {
-                    console.error("Erro na API: ", err);
-                    if(btn) {
-                        btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro Conexão';
-                        btn.style.backgroundColor = "var(--accent-red)";
-                    }
-                });
+            let btn = document.getElementById('btn-sync'); btn.innerHTML = "Lendo...";
+            fetch(`${WEBHOOK_URL}?email=${encodeURIComponent(loggedEmail)}&senha=${encodeURIComponent(loggedPass)}`)
+            .then(res => res.json()).then(data => { processData(data); btn.innerHTML = "Sincronizado"; });
         }
 
         function processData(data) {
-            globalData = []; groupedDaily = {}; groupedWeekly = {}; totalQHistory = 0; dailyQ = 0; dailyMins = 0;
-            currentWeekStr = getWeekNumber(new Date());
-            let uniqueSubjects = new Set();
-            let startRow = (data.length > 0 && String(data[0][2]).toLowerCase().includes('mat')) ? 1 : 0;
-            let todayStr = new Date().toLocaleDateString('pt-BR');
+            globalData = []; groupedDaily = {}; groupedWeekly = {}; totalQ = 0; dq = 0; dh = 0;
+            let today = new Date().toLocaleDateString('pt-BR');
+            let uniqueS = new Set();
+            
+            for(let i = 1; i < data.length; i++) {
+                let r = data[i]; if(!r[2]) continue;
+                let q = parseFloat(r[6]) || 0; let a = parseFloat(r[7]) || 0; let t = parseFloat(r[5]) || 0;
+                let mat = r[2]; totalQ += q; uniqueS.add(mat);
+                let dParts = r[1].split('/'); let dObj = new Date(dParts[2], dParts[1]-1, dParts[0]);
+                let dKey = dObj.toLocaleDateString('pt-BR');
+                if(dKey === today) { dq += q; dh += t; }
 
-            for(let i = startRow; i < data.length; i++) {
-                let r = data[i]; if(!r || r.length < 8) continue;
+                globalData.push({ mat: mat, q: q, a: a, t: t, date: dObj, link: r[4], fase: r[8], k: r[10], l: r[11] });
                 
-                let q = parseFloat(String(r[6]).replace(',','.')) || 0;
-                let a = parseFloat(String(r[7]).replace(',','.')) || 0;
-                let t = parseFloat(String(r[5]).replace(',','.')) || 0;
-                let mat = r[2] ? String(r[2]).trim() : 'Sem Disciplina';
-                let topico = r[3] ? String(r[3]).trim() : 'Sem Tópico';
-                let link = r[4] ? String(r[4]).trim() : '';
-                
-                let fase = r[8] ? String(r[8]).trim() : '';
-                let perc = r[9] ? String(r[9]).trim() : '';
-                let statusK = r[10] ? String(r[10]).trim() : '';
-                let statusL = r[11] ? String(r[11]).trim() : '';
-                
-                if(q > 0 || t > 0) {
-                    uniqueSubjects.add(mat); totalQHistory += q;
-                    
-                    let dateObj = new Date();
-                    let dateStr = r[1] ? String(r[1]).trim() : '';
-                    let dParts = dateStr.split('/');
-                    if(dParts.length === 3) dateObj = new Date(dParts[2], dParts[1] - 1, dParts[0]);
-
-                    if(dateObj.toLocaleDateString('pt-BR') === todayStr) { dailyQ += q; dailyMins += t; }
-
-                    globalData.push({ 
-                        rowData: r, dataReal: dateObj, mat: mat, topico: topico, link: link, 
-                        q: q, a: a, t: t, originalIndex: i, 
-                        fase: fase, perc: perc, statusK: statusK, statusL: statusL 
-                    });
-
-                    let dayKey = dateObj.toLocaleDateString('pt-BR');
-                    let weekKey = getWeekNumber(dateObj);
-
-                    if(!groupedDaily[dayKey]) groupedDaily[dayKey] = { q:0, a:0, t:0, dateObj: dateObj, subjects: {} };
-                    groupedDaily[dayKey].q += q; groupedDaily[dayKey].a += a; groupedDaily[dayKey].t += t;
-                    if(!groupedDaily[dayKey].subjects[mat]) groupedDaily[dayKey].subjects[mat] = {q:0, a:0, t:0};
-                    groupedDaily[dayKey].subjects[mat].q += q; groupedDaily[dayKey].subjects[mat].a += a; groupedDaily[dayKey].subjects[mat].t += t;
-
-                    if(!groupedWeekly[weekKey]) groupedWeekly[weekKey] = { q:0, a:0, t:0, weekStr: weekKey, subjects: {} };
-                    groupedWeekly[weekKey].q += q; groupedWeekly[weekKey].a += a; groupedWeekly[weekKey].t += t;
-                    if(!groupedWeekly[weekKey].subjects[mat]) groupedWeekly[weekKey].subjects[mat] = {q:0, a:0, t:0};
-                    groupedWeekly[weekKey].subjects[mat].q += q; groupedWeekly[weekKey].subjects[mat].a += a; groupedWeekly[weekKey].subjects[mat].t += t;
-                }
+                if(!groupedDaily[dKey]) groupedDaily[dKey] = { q:0, a:0, t:0, subjects: {} };
+                groupedDaily[dKey].q += q; groupedDaily[dKey].a += a; groupedDaily[dKey].t += t;
             }
-
-            globalData.sort((A, B) => {
-                let diff = B.dataReal.getTime() - A.dataReal.getTime();
-                return diff !== 0 ? diff : B.originalIndex - A.originalIndex;
-            });
-
-            let filter = document.getElementById('subjectFilter');
-            if(filter) {
-                filter.innerHTML = '<option value="all">Visão Geral (Todas as Disciplinas)</option>';
-                Array.from(uniqueSubjects).sort().forEach(s => { filter.innerHTML += `<option value="${s}">${s}</option>`; });
-            }
-
-            if(document.getElementById('rank-panel')) document.getElementById('rank-panel').style.display = 'flex';
-            if(document.getElementById('gps-panel')) document.getElementById('gps-panel').style.display = 'grid';
-            if(document.getElementById('dynamic-title')) document.getElementById('dynamic-title').style.display = 'block';
-            if(document.getElementById('reportSection')) document.getElementById('reportSection').style.display = 'block';
-
+            globalData.sort((a,b) => b.date - a.date);
             updateRank(); updateGPS(); updateDashboard('all'); renderReport();
         }
 
         function updateRank() {
-            let rank = GAMER_RANKS[0]; let next = GAMER_RANKS[1];
-            for(let i = 0; i < GAMER_RANKS.length; i++) { if(totalQHistory >= GAMER_RANKS[i].threshold) { rank = GAMER_RANKS[i]; next = GAMER_RANKS[i+1] || rank; } }
-            
-            if(document.getElementById('rank-title')) document.getElementById('rank-title').innerText = rank.title;
-            if(document.getElementById('rank-subtitle')) document.getElementById('rank-subtitle').innerText = rank.desc;
-            if(document.getElementById('rank-icon')) document.getElementById('rank-icon').className = `fas ${rank.icon} rank-icon`;
-            
-            let pct = rank === next ? 100 : ((totalQHistory - rank.threshold) / (next.threshold - rank.threshold)) * 100;
-            if(document.getElementById('rank-progress-text')) document.getElementById('rank-progress-text').innerText = `${totalQHistory.toLocaleString()} / ${next.threshold.toLocaleString()} Q`;
-            if(document.getElementById('rank-bar')) document.getElementById('rank-bar').style.width = Math.min(pct, 100) + '%';
-
-            let dailyH = (dailyMins / 60).toFixed(1);
-            if(document.getElementById('txt-daily-q')) document.getElementById('txt-daily-q').innerText = dailyQ;
-            if(document.getElementById('txt-daily-h')) document.getElementById('txt-daily-h').innerText = dailyH;
-
-            if(document.getElementById('badge-q')) document.getElementById('badge-q').className = dailyQ >= 100 ? "badge active-q" : "badge";
-            if(document.getElementById('badge-h')) document.getElementById('badge-h').className = dailyH >= 2 ? "badge active-h" : "badge";
+            let r = RANKS[0]; let n = RANKS[1];
+            for(let i=0; i<RANKS.length; i++) { if(totalQ >= RANKS[i].t) { r = RANKS[i]; n = RANKS[i+1] || r; } }
+            document.getElementById('rank-title').innerText = r.title;
+            document.getElementById('rank-icon').className = `fas ${r.icon} rank-icon`;
+            let p = ((totalQ - r.t) / (n.t - r.t)) * 100;
+            document.getElementById('rank-progress-text').innerText = `${totalQ} / ${n.t} Q`;
+            document.getElementById('rank-bar').style.width = Math.min(p, 100) + '%';
+            document.getElementById('txt-dq').innerText = dq; document.getElementById('txt-dh').innerText = (dh/60).toFixed(1);
+            document.getElementById('badge-q').className = dq >= 100 ? "badge active-q" : "badge";
+            document.getElementById('badge-h').className = dh >= 120 ? "badge active-h" : "badge";
         }
-
-        function saveGoals() { localStorage.setItem('metaHrs', document.getElementById('meta-hrs').value); localStorage.setItem('metaQ', document.getElementById('meta-q').value); updateGPS(); }
 
         function updateGPS() {
-            let metaHrs = parseFloat(document.getElementById('meta-hrs') ? document.getElementById('meta-hrs').value : 20) || 20; 
-            let metaQ = parseFloat(document.getElementById('meta-q') ? document.getElementById('meta-q').value : 500) || 500;
-            let currentWeekData = groupedWeekly[currentWeekStr] || { q: 0, t: 0 };
+            if(globalData.length === 0) return;
+            let last = globalData[0];
+            let isOk = (last.fase == "4" && last.k == "OK" && last.l.includes("CONSOLIDADO"));
+            let idx = CICLO.findIndex(d => last.mat === d.c[0]);
+            let p1 = isOk ? CICLO[(idx+1)%CICLO.length] : CICLO[idx];
             
-            let hrsFeitas = (currentWeekData.t / 60).toFixed(1); let qFeitas = currentWeekData.q;
-            let pctHrs = Math.min((hrsFeitas / metaHrs) * 100, 100).toFixed(0);
-            let pctQ = Math.min((qFeitas / metaQ) * 100, 100).toFixed(0);
-
-            if(document.getElementById('lbl-hrs-feito')) {
-                document.getElementById('lbl-hrs-feito').innerText = hrsFeitas; 
-                document.getElementById('lbl-hrs-pct').innerText = pctHrs + '%'; 
-                document.getElementById('bar-hrs').style.width = pctHrs + '%';
-                document.getElementById('lbl-q-feito').innerText = qFeitas; 
-                document.getElementById('lbl-q-pct').innerText = pctQ + '%'; 
-                document.getElementById('bar-q').style.width = pctQ + '%';
-            }
-
-            if(globalData.length > 0) {
-                let last = globalData[0]; 
-                
-                let isConsolidated = (
-                    last.fase == "4" && 
-                    last.statusK.toUpperCase() === "OK" && 
-                    last.statusL.toUpperCase().includes("CONSOLIDADO")
-                );
-                
-                let idx = cicloMaster.findIndex(d => last.mat === d.chaves[0] || last.mat.includes(d.nome)); 
-                if(idx === -1) idx = 0;
-                
-                let p1, p2, p3, p4;
-                let missionTitleEl = document.getElementById('mission-title');
-
-                if (isConsolidated) {
-                    p1 = cicloMaster[(idx + 1) % cicloMaster.length]; 
-                    p2 = cicloMaster[(idx + 2) % cicloMaster.length];
-                    p3 = cicloMaster[(idx + 3) % cicloMaster.length];
-                    p4 = cicloMaster[(idx + 4) % cicloMaster.length];
-                    if(missionTitleEl) {
-                        missionTitleEl.innerText = "Missão Cumprida! Próximo Alvo:";
-                        missionTitleEl.style.color = "var(--accent-green)";
-                    }
-                } else {
-                    p1 = cicloMaster[idx]; 
-                    p2 = cicloMaster[(idx + 1) % cicloMaster.length];
-                    p3 = cicloMaster[(idx + 2) % cicloMaster.length];
-                    p4 = cicloMaster[(idx + 3) % cicloMaster.length];
-                    if(missionTitleEl) {
-                        missionTitleEl.innerText = "Matéria Não Consolidada! Foque nela:";
-                        missionTitleEl.style.color = "var(--accent-red)";
-                    }
-                }
-
-                if(document.getElementById('mission-t1')) {
-                    document.getElementById('mission-t1').innerText = p1.nome;
-                    document.getElementById('mission-t2').innerText = p2.nome;
-                    document.getElementById('mission-t3').innerText = p3.nome;
-                    document.getElementById('mission-t4').innerText = p4.nome;
-                }
-
-                let linkCaderno = ""; let dataUltimaMissao = "--/--/----";
-
-                for(let i = 0; i < globalData.length; i++) {
-                    let item = globalData[i];
-                    if(item.mat === p1.chaves[0] || item.mat.includes(p1.nome)) {
-                        if(dataUltimaMissao === "--/--/----") dataUltimaMissao = item.dataReal.toLocaleDateString('pt-BR');
-                        if(item.link && (item.link.includes("http") || item.link.includes("www"))) {
-                            linkCaderno = item.link; break; 
-                        }
-                    }
-                }
-
-                let container = document.getElementById('gps-ultimo-caderno');
-                if(container) {
-                    let badgeHTML = "";
-                    if (!isConsolidated) {
-                        badgeHTML = `
-                        <div style="display:flex; gap: 5px; margin-top: 10px; justify-content: center; flex-wrap: wrap;">
-                            <span class="badge info" style="font-size: 10px;">Fase Atual: ${last.fase}</span>
-                            <span class="badge warning" style="font-size: 10px;">Status: ${last.statusL || "Em andamento"}</span>
-                        </div>`;
-                    }
-
-                    if(linkCaderno !== "") {
-                        let urlRegex = /(https?:\/\/[^\s]+)/g; let extractedLink = linkCaderno.match(urlRegex); let finalUrl = extractedLink ? extractedLink[0] : linkCaderno;
-                        container.innerHTML = `<a href="${finalUrl}" target="_blank" class="btn" style="background:var(--accent-orange); color:black; font-size:13px; width:100%; justify-content:center; padding:12px; margin-bottom: 8px;"><i class="fas fa-external-link-alt"></i> Retomar: ${p1.chaves[0]}</a>
-                        <span style="font-size:12px; color:#888;">Último acesso: <strong>${dataUltimaMissao}</strong></span>
-                        ${badgeHTML}`;
-                    } else { 
-                        container.innerHTML = `<span style="font-size:13px; color:#E0E0E0; background:#333; padding:10px; border-radius:8px; display:block; width:100%; box-sizing:border-box;">Alvo atual: <strong>${p1.chaves[0]}</strong><br><span style="color:#FFBE0B; font-size:11px;">Nenhum link web salvo.</span></span>
-                        <span style="font-size:11px; color:#aaa; margin-top:8px; display:block;">Última vez estudada: <strong>${dataUltimaMissao !== "--/--/----" ? dataUltimaMissao : "Nunca"}</strong></span>
-                        ${badgeHTML}`; 
-                    }
-                }
+            document.getElementById('mission-list').innerHTML = `
+                <li class="now"><strong>Agora:</strong> ${p1.n}</li>
+                <li><strong>Próximo:</strong> ${CICLO[(idx+2)%CICLO.length].n}</li>
+            `;
+            
+            let cad = globalData.find(x => x.mat === p1.c[0]);
+            let container = document.getElementById('gps-ultimo-caderno');
+            if(cad && cad.link && cad.link.includes('http')) {
+                container.innerHTML = `<a href="${cad.link}" target="_blank" class="btn" style="background:var(--accent-orange); color:black; width:100%"><i class="fas fa-external-link-alt"></i> RETOMAR CADERNO</a><br><small>Acesso: ${cad.date.toLocaleDateString()}</small>`;
             } else {
-                let mTitle = document.getElementById('mission-title');
-                if(mTitle) mTitle.innerText = "Bem-vindo! Inicie o seu Ciclo";
+                container.innerHTML = `<span>Sem link para ${p1.c[0]}</span>`;
             }
         }
 
-        function updateDashboard(subjectFilter) {
-            let filteredData = subjectFilter !== 'all' ? globalData.filter(item => item.mat === subjectFilter) : globalData;
-            let tQ = 0, tA = 0, tM = 0; let groups = {};
-            
-            filteredData.forEach(item => { 
-                tQ += item.q; tA += item.a; tM += item.t; 
-                let gKey = subjectFilter === 'all' ? item.mat : item.topico;
-                if(gKey.length > 50) gKey = gKey.substring(0, 47) + "..."; 
-                if(!groups[gKey]) groups[gKey] = { q:0, a:0, t:0 }; 
-                groups[gKey].q += item.q; groups[gKey].a += item.a; groups[gKey].t += item.t;
+        function updateDashboard(f) {
+            let d = f === 'all' ? globalData : globalData.filter(x => x.mat === f);
+            let tQ=0, tA=0, tM=0;
+            d.forEach(x => { tQ+=x.q; tA+=x.a; tM+=x.t; });
+            document.getElementById('kpi-q').innerText = tQ;
+            document.getElementById('kpi-acc').innerText = tQ>0 ? ((tA/tQ)*100).toFixed(1)+'%' : '0%';
+            document.getElementById('kpi-hrs').innerText = (tM/60).toFixed(1)+'h';
+            document.getElementById('kpi-vel').innerText = tM>0 ? ((tQ/tM)*60).toFixed(0) : '0';
+        }
+
+        function renderReport() {
+            let body = document.getElementById('report-body'); body.innerHTML = "";
+            Object.keys(groupedDaily).forEach(k => {
+                let r = groupedDaily[k];
+                let row = `<tr><td>${k}</td><td>${r.q}</td><td>${r.a}</td><td>${((r.a/r.q)*100).toFixed(1)}%</td><td>${(r.t/60).toFixed(1)}h</td><td>--</td></tr>`;
+                body.innerHTML += row;
             });
-            
-            if(document.getElementById('kpi-q')) document.getElementById('kpi-q').innerText = tQ.toLocaleString('pt-BR');
-            if(document.getElementById('kpi-acc')) document.getElementById('kpi-acc').innerText = tQ > 0 ? ((tA/tQ)*100).toFixed(1) + '%' : '0%';
-            if(document.getElementById('kpi-hrs')) document.getElementById('kpi-hrs').innerText = (tM/60).toFixed(1) + 'h';
-            if(document.getElementById('kpi-vel')) document.getElementById('kpi-vel').innerText = tM > 0 ? ((tQ/tM)*60).toFixed(0) + ' Q/h' : '0 Q/h';
-            
-            let labels = Object.keys(groups); 
-            if(subjectFilter !== 'all') { labels.sort((k1, k2) => (groups[k1].a/groups[k1].q) - (groups[k2].a/groups[k2].q)); } else { labels.sort(); } 
-            
-            let accData = labels.map(l => groups[l].q > 0 ? ((groups[l].a/groups[l].q)*100).toFixed(1) : 0); 
-            let hrsData = labels.map(l => (groups[l].t/60).toFixed(1)); 
-            let volData = labels.map(l => groups[l].q); 
-            
-            renderCharts(subjectFilter, labels, accData, hrsData, volData); 
         }
 
-        function renderCharts(mode, labels, accData, hrsData, volData) { 
-            if(chart1Obj) chart1Obj.destroy(); if(chart2Obj) chart2Obj.destroy(); if(chart3Obj) chart3Obj.destroy(); 
-            
-            let canvas1 = document.getElementById('chart1'); let canvas2 = document.getElementById('chart2'); let canvas3 = document.getElementById('chart3');
-            if(!canvas1 || !canvas2 || !canvas3) return;
-
-            const ctx1 = canvas1.getContext('2d'); const ctx2 = canvas2.getContext('2d'); const ctx3 = canvas3.getContext('2d'); 
-            
-            if(mode === 'all') { 
-                chart1Obj = new Chart(ctx1, { type: 'radar', data: { labels: labels, datasets: [{ label: '% de Acerto', data: accData, backgroundColor: 'rgba(56, 176, 0, 0.2)', borderColor: '#38B000', pointBackgroundColor: '#38B000' }] }, options: { plugins: { title: { display: true, text: 'PRECISÃO GLOBAL', font: { size: 16 } } }, scales: { r: { min: 0, max: 100, ticks: { backdropColor: 'transparent', stepSize: 20 } } }, maintainAspectRatio: false } }); 
-                chart2Obj = new Chart(ctx2, { type: 'radar', data: { labels: labels, datasets: [{ label: 'Horas Gastas', data: hrsData, backgroundColor: 'rgba(131, 56, 236, 0.2)', borderColor: '#8338EC', pointBackgroundColor: '#8338EC' }] }, options: { plugins: { title: { display: true, text: 'ESFORÇO GASTO (H)', font: { size: 16 } } }, scales: { r: { beginAtZero: true, ticks: { backdropColor: 'transparent' } } }, maintainAspectRatio: false } }); 
-                chart3Obj = new Chart(ctx3, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Nº de Questões', data: volData, backgroundColor: 'rgba(58, 134, 255, 0.7)', borderColor: '#3A86FF', borderWidth: 1 }] }, options: { plugins: { title: { display: true, text: 'VOLUME POR DISCIPLINA', font: { size: 16 } } }, scales: { y: { beginAtZero: true } }, maintainAspectRatio: false } }); 
-            } else { 
-                let colorArray = accData.map(val => val < 75 ? 'rgba(208, 0, 0, 0.8)' : 'rgba(56, 176, 0, 0.8)'); 
-                chart1Obj = new Chart(ctx1, { type: 'bar', data: { labels: labels, datasets: [{ label: '% de Acerto (Atenção aos Vermelhos)', data: accData, backgroundColor: colorArray }] }, options: { indexAxis: 'y', plugins: { title: { display: true, text: 'CAÇADOR DE PONTOS FRACOS', font: { size: 16 } } }, scales: { x: { min: 0, max: 100 } }, maintainAspectRatio: false } }); 
-                chart2Obj = new Chart(ctx2, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Horas Dedicadas', data: hrsData, backgroundColor: 'rgba(131, 56, 236, 0.7)' }] }, options: { indexAxis: 'y', plugins: { title: { display: true, text: 'DISTRIBUIÇÃO DO TEMPO', font: { size: 16 } } }, scales: { x: { beginAtZero: true } }, maintainAspectRatio: false } }); 
-                chart3Obj = new Chart(ctx3, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Questões Resolvidas', data: volData, backgroundColor: 'rgba(58, 134, 255, 0.7)' }] }, options: { indexAxis: 'y', plugins: { title: { display: true, text: 'VOLUME POR TÓPICO', font: { size: 16 } } }, scales: { x: { beginAtZero: true } }, maintainAspectRatio: false } }); 
-            } 
+        // TIMER SIMPLE
+        let timerSeconds = 0; let timerInt;
+        function startTimer() { timerInt = setInterval(() => { timerSeconds++; updateTimerDisplay(); }, 1000); }
+        function pauseTimer() { clearInterval(timerInt); }
+        function resetTimer() { timerSeconds = 0; updateTimerDisplay(); }
+        function updateTimerDisplay() {
+            let h = Math.floor(timerSeconds/3600).toString().padStart(2,'0');
+            let m = Math.floor((timerSeconds%3600)/60).toString().padStart(2,'0');
+            let s = (timerSeconds%60).toString().padStart(2,'0');
+            document.getElementById('timer-display').innerText = `${h}:${m}:${s}`;
         }
 
-        function switchReport(mode) { 
-            currentReportMode = mode; 
-            if(document.getElementById('btnDiario')) document.getElementById('btnDiario').classList.remove('active'); 
-            if(document.getElementById('btnSemanal')) document.getElementById('btnSemanal').classList.remove('active'); 
-            if(mode === 'diario') {
-                if(document.getElementById('btnDiario')) document.getElementById('btnDiario').classList.add('active'); 
-            } else {
-                if(document.getElementById('btnSemanal')) document.getElementById('btnSemanal').classList.add('active'); 
-            }
-            renderReport(); 
-        }
-        
-        function renderReport() { 
-            let tbody = document.getElementById('report-body'); let colPeriodo = document.getElementById('col-periodo'); 
-            if(!tbody || !colPeriodo) return;
+        function openEntryModal() { document.getElementById('entryModal').style.display='block'; if(timerSeconds>0) document.getElementById('f-tempo').value = Math.floor(timerSeconds/60); }
+        function closeEntryModal() { document.getElementById('entryModal').style.display='none'; }
 
-            tbody.innerHTML = ''; let dataArray = []; 
-            if (currentReportMode === 'diario') { 
-                colPeriodo.innerText = 'Data do Estudo'; 
-                dataArray = Object.keys(groupedDaily).map(k => { return { key: k, sortDate: groupedDaily[k].dateObj, ...groupedDaily[k] }; }); 
-                dataArray.sort((a, b) => b.sortDate - a.sortDate); 
-            } else { 
-                colPeriodo.innerText = 'Semana do Ano'; 
-                dataArray = Object.keys(groupedWeekly).map(k => { return { key: k, ...groupedWeekly[k] }; }); 
-                dataArray.sort((a, b) => b.key.localeCompare(a.key)); 
-            } 
-            dataArray.forEach(row => { 
-                let acc = row.q > 0 ? ((row.a / row.q) * 100).toFixed(1) : 0; let accClass = acc >= 75 ? 'good-acc' : 'bad-acc'; 
-                let horas = (row.t / 60).toFixed(1); let vel = row.t > 0 ? ((row.q / row.t) * 60).toFixed(0) : 0; 
-                let tr = document.createElement('tr'); 
-                tr.innerHTML = `<td><strong>${row.key}</strong></td><td>${row.q}</td><td>${row.a}</td><td class="${accClass}">${acc}%</td><td>${horas}h</td><td>${vel} Q/h</td><td><a class="details-link" onclick="openDetailsModal('${row.key}')"><i class="fas fa-camera"></i> Print</a></td>`; 
-                tbody.appendChild(tr); 
-            }); 
-        }
-
-        function openDetailsModal(key) { 
-            let data = currentReportMode === 'diario' ? groupedDaily[key] : groupedWeekly[key]; 
-            if(!data) return; 
-            
-            document.getElementById('modalTitle').innerHTML = `<i class="fas fa-camera-retro"></i> Raio-X do Ciclo: ${key}`; 
-            document.getElementById('m-kpi-hrs').innerText = (data.t / 60).toFixed(1) + 'h';
-            document.getElementById('m-kpi-q').innerText = data.q;
-            document.getElementById('m-kpi-acc').innerText = data.q > 0 ? ((data.a / data.q) * 100).toFixed(1) + '%' : '0%';
-
-            let tbody = document.getElementById('modalBody'); tbody.innerHTML = ''; 
-            let subjectsSorted = Object.keys(data.subjects).sort((a, b) => data.subjects[b].t - data.subjects[a].t); 
-            let chartLabels = []; let chartData = []; 
-            let chartColors = ['#3A86FF', '#FFBE0B', '#38B000', '#8338EC', '#FF006E', '#00B4D8', '#FB5607', '#E0E0E0', '#7209B7', '#4CC9F0'];
-
-            subjectsSorted.forEach((mat) => { 
-                let s = data.subjects[mat]; let acc = s.q > 0 ? ((s.a / s.q) * 100).toFixed(1) : 0; let accClass = acc >= 75 ? 'good-acc' : 'bad-acc'; let horasDisciplina = (s.t / 60).toFixed(1);
-                chartLabels.push(mat); chartData.push(s.t > 0 ? horasDisciplina : s.q);
-                let tr = document.createElement('tr'); 
-                tr.innerHTML = `<td>${mat}</td><td><strong>${horasDisciplina}h</strong></td><td>${s.q}</td><td>${s.a}</td><td class="${accClass}">${acc}%</td>`; 
-                tbody.appendChild(tr); 
-            }); 
-            
-            document.getElementById('detailsModal').style.display = "block"; 
-            if(modalPieChartObj) modalPieChartObj.destroy();
-            const ctxM = document.getElementById('modalChartPie').getContext('2d');
-            modalPieChartObj = new Chart(ctxM, { type: 'doughnut', data: { labels: chartLabels, datasets: [{ data: chartData, backgroundColor: chartColors.slice(0, chartLabels.length), borderColor: '#252525', borderWidth: 3, hoverOffset: 8 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#E0E0E0', font: { size: 12 } } } }, cutout: '65%' } });
-        }
-        function closeDetailsModal() { document.getElementById('detailsModal').style.display = 'none'; } 
-        
-        function openEntryModal() { 
-            if(timerSeconds > 0 && document.getElementById('f-tempo')) {
-                document.getElementById('f-tempo').value = Math.floor(timerSeconds/60); 
-            }
-            if(document.getElementById('entryModal')) document.getElementById('entryModal').style.display = 'block'; 
-        }
-        function closeEntryModal() { if(document.getElementById('entryModal')) document.getElementById('entryModal').style.display = 'none'; }
-        
-        function submitEntry(e) {
-            e.preventDefault(); 
-            let btn = document.getElementById('btn-submit-form'); 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...'; btn.disabled = true;
-            
-            let parts = document.getElementById('f-data').value.split('-');
-            
-            let payload = { 
-                dataEstudo: `${parts[2]}/${parts[1]}/${parts[0]}`, 
-                materia: document.getElementById('f-materia').value, 
-                topico: document.getElementById('f-topico').value, 
-                tipoLink: document.getElementById('f-tipo-link').value, 
-                tempo: document.getElementById('f-tempo').value, 
-                questoes: document.getElementById('f-q').value, 
-                acertos: document.getElementById('f-a').value, 
-                fase: document.getElementById('f-fase').value,
-                email: loggedUserEmail 
+        function submitEntry(ev) {
+            ev.preventDefault();
+            let payload = {
+                acao: "lancamento",
+                email: loggedEmail,
+                dataEstudo: document.getElementById('f-data').value.split('-').reverse().join('/'),
+                materia: document.getElementById('f-materia').value,
+                topico: document.getElementById('f-topico').value,
+                tipoLink: document.getElementById('f-tipo-link').value,
+                tempo: document.getElementById('f-tempo').value,
+                questoes: document.getElementById('f-q').value,
+                acertos: document.getElementById('f-a').value,
+                fase: document.getElementById('f-fase').value
             };
-            
-            fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-            .then(() => { 
-                alert("🎯 Missão Registrada com Sucesso na Nuvem!"); 
-                document.getElementById('studyForm').reset(); 
-                document.getElementById('f-data').valueAsDate = new Date(); 
-                closeEntryModal(); 
-                btn.innerHTML = 'ENVIAR PARA BASE_DASHBOARD'; btn.disabled = false; 
-                setTimeout(loadGoogleSheetsData, 1500); 
-            })
-            .catch(err => {
-                alert("Falha de comunicação.");
-                btn.innerHTML = 'ENVIAR PARA BASE_DASHBOARD'; btn.disabled = false;
-            });
+            fetch(WEBHOOK_URL, {method: 'POST', mode: 'no-cors', body: JSON.stringify(payload)})
+            .then(() => { alert("Missão Registrada!"); closeEntryModal(); loadGoogleSheetsData(); });
         }
+
+        window.onload = checkLogin;
     </script>
 </body>
 </html>
