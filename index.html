@@ -115,7 +115,7 @@
         .toggle-btn { background-color: #333; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
         .toggle-btn.active { background-color: var(--accent-purple); }
 
-        /* MODAIS */
+        /* MODAIS E FORMS */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); overflow-y: auto; padding: 15px; box-sizing: border-box;}
         .modal-content { background-color: var(--card-bg); margin: 5% auto; padding: 25px; border: 1px solid #444; width: 100%; max-width: 850px; border-radius: 12px; box-sizing: border-box; position: relative;}
         .close-btn { color: #aaa; position: absolute; right: 20px; top: 20px; font-size: 28px; font-weight: bold; cursor: pointer; z-index: 10; line-height: 1;}
@@ -127,11 +127,17 @@
         .form-submit-btn { width: 100%; background: var(--accent-green); border: none; padding: 15px; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px;}
         .modal-chart-area { display: flex; justify-content: center; align-items: center; background: #252525; border-radius: 12px; padding: 20px; margin-bottom: 25px; height: 280px; width: 100%; box-sizing: border-box;}
 
-        /* CHECKBOXES CONFIGURAÇÃO */
-        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 15px; max-height: 400px; overflow-y: auto; padding: 10px; background: #121212; border-radius: 8px; border: 1px solid #333;}
+        /* CONFIGURADOR DE ORDEM (NOVO CSS) */
+        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 15px; max-height: 200px; overflow-y: auto; padding: 10px; background: #121212; border-radius: 8px; border: 1px solid #333;}
         .checkbox-label { display: flex; align-items: center; gap: 8px; color: #E0E0E0; font-size: 0.9em; cursor: pointer; padding: 5px; border-radius: 4px;}
         .checkbox-label:hover { background: #2A2A2A; }
         
+        .sortable-list { background: #121212; border: 1px solid #333; border-radius: 8px; padding: 10px; max-height: 250px; overflow-y: auto; margin-bottom: 20px; }
+        .sortable-item { display: flex; justify-content: space-between; align-items: center; background: #2A2A2A; padding: 8px 15px; margin-bottom: 6px; border-radius: 6px; border-left: 3px solid var(--accent-blue); }
+        .sortable-actions button { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2em; padding: 5px; transition: 0.2s; }
+        .sortable-actions button:hover { color: white; transform: scale(1.1); }
+        .sortable-actions button:disabled { opacity: 0.2; cursor: default; transform: none; }
+
         /* TUTORIAL STYLES */
         .tutorial-phase { background: #1a1a1a; border-left: 4px solid var(--accent-blue); padding: 15px; margin-bottom: 15px; border-radius: 8px; }
         .tutorial-phase h4 { margin: 0 0 5px 0; color: var(--accent-blue); }
@@ -282,13 +288,21 @@
     </div>
 
     <div id="configModal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-content" style="max-width: 650px;">
             <span class="close-btn" onclick="document.getElementById('configModal').style.display='none'">&times;</span>
-            <h2 style="color: var(--accent-orange); margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px;"><i class="fas fa-cog"></i> Montar o seu Ciclo</h2>
-            <p style="color: #aaa; font-size: 0.9em;">Selecione as disciplinas que caem no seu edital. O GPS da Missão Dinâmica guiará seus estudos apenas nas matérias marcadas abaixo.</p>
+            <h2 style="color: var(--accent-orange); margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px;"><i class="fas fa-cogs"></i> Estratégia de Ciclo</h2>
+            
+            <p style="color: #E0E0E0; font-size: 0.9em; margin-bottom: 5px;"><strong>1. Selecione as matérias do seu edital:</strong></p>
             <div class="checkbox-grid" id="config-checkboxes">
                 </div>
-            <button class="form-submit-btn" style="background:var(--accent-orange); color:black;" onclick="saveConfig()">SALVAR MEU CICLO</button>
+
+            <p style="color: #E0E0E0; font-size: 0.9em; margin-top: 25px; margin-bottom: 5px;"><strong>2. Organize a Ordem de Estudo:</strong></p>
+            <p style="color: #888; font-size: 0.8em; margin-top: 0;">Utilize as setas para ditar exatamente como o GPS guiará a sua Missão Dinâmica.</p>
+            
+            <div class="sortable-list" id="sortable-list">
+                </div>
+
+            <button class="form-submit-btn" style="background:var(--accent-orange); color:black; margin-top: 5px;" onclick="saveConfig()">SALVAR MEU CICLO ESTRATÉGICO</button>
         </div>
     </div>
 
@@ -369,7 +383,7 @@ Segue a lista de questões:
                     <div class="form-group"><label>Acertos</label><input type="number" id="f-a" value="0"></div>
                 </div>
                 <div class="form-group"><label>Fase</label><select id="f-fase"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-                <button type="submit" id="btn-submit-form" class="form-submit-btn">ENVIAR</button>
+                <button type="submit" id="btn-submit-form" class="form-submit-btn">ENVIAR PARA A NUVEM</button>
             </form>
         </div>
     </div>
@@ -381,7 +395,7 @@ Segue a lista de questões:
         const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz1vLMkc_dklbl7AxBHKBF8j1amLTAHwrUwknmLAZJxuXXaL1ra-LBjqCihay9RbX4_Qw/exec";
 
         // ==============================================================================
-        // VARIÁVEIS GLOBAIS E DICIONÁRIO DE MATÉRIAS (FORMATO UNIFICADO)
+        // VARIÁVEIS GLOBAIS E DICIONÁRIO DE MATÉRIAS
         // ==============================================================================
         let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
         let loggedUserSenha = localStorage.getItem('pqdtSenha') || "";
@@ -402,12 +416,11 @@ Segue a lista de questões:
             { threshold: 10000, title: "Platina", icon: "fa-star", desc: "Rumo à aprovação" },
             { threshold: 15000, title: "Diamante", icon: "fa-gem", desc: "Mente brilhante" },
             { threshold: 20000, title: "Mestre", icon: "fa-crown", desc: "Domínio absoluto" },
-            { threshold: 30000, title: "Mito", icon: "fa-meteor", desc: "Deus dos Concursos!" }
+            { threshold: 100000, title: "Mito", icon: "fa-meteor", desc: "Deus dos Concursos!" }
         ];
 
-        // BASE DE DADOS DE TODAS AS MATÉRIAS POSSÍVEIS (ORDEM DO CICLO)
+        // BASE DE DADOS DE TODAS AS MATÉRIAS POSSÍVEIS (Pode adicionar novas aqui no futuro)
         const TODAS_MATERIAS = [
-            // Sequência Original (Engenharia intercalada com Controle)
             { chaves: ["PNFL"], nome: "Eng: Planejamento de Obras" },
             { chaves: ["AFO"], nome: "AFO / Orçamento Público" },
             { chaves: ["DCO"], nome: "Direito Constitucional" },
@@ -425,25 +438,27 @@ Segue a lista de questões:
             { chaves: ["AUDG"], nome: "Auditoria Governamental" },
             { chaves: ["PARECER"], nome: "Peça Técnica / Parecer" },
             { chaves: ["RED"], nome: "Treino: Redação" },
-            
-            // Matérias Adicionais (Ficam no final da lista de seleção)
             { chaves: ["ADM"], nome: "Administração Pública" },
             { chaves: ["ECO"], nome: "Economia" },
             { chaves: ["CIV"], nome: "Direito Civil" },
-            { chaves: ["PEN"], nome: "Direito Penal" }
+            { chaves: ["PEN"], nome: "Direito Penal" },
+            { chaves: ["EST"], nome: "Estatística" },
+            { chaves: ["DPC"], nome: "Direito Processual Civil" },
+            { chaves: ["DPP"], nome: "Direito Processual Penal" }
         ];
 
         let cicloMaster = []; // Ciclo dinâmico do usuário
+        let tempCiclo = [];   // Array temporário para a tela de configuração
 
         // ==============================================================================
-        // CONFIGURADOR DE CICLO
+        // CONFIGURADOR DE CICLO (SELEÇÃO E ORDENAÇÃO)
         // ==============================================================================
         function loadCiclo() {
             let saved = localStorage.getItem('pqdtCicloCustom');
             if(saved) {
                 cicloMaster = JSON.parse(saved);
             } else {
-                // Monta o ciclo padrão mantendo a exata ordem da lista mestre
+                // Ciclo Padrão de Engenheiro se for o 1º acesso
                 let chavesPadrao = ["PNFL", "AFO", "DCO", "CEX", "CASP", "CTG", "EDF", "DAD", "POR", "OR"];
                 cicloMaster = [];
                 chavesPadrao.forEach(sigla => {
@@ -455,25 +470,67 @@ Segue a lista de questões:
         }
 
         function openConfigModal() {
-            let container = document.getElementById('config-checkboxes');
-            container.innerHTML = '';
-            TODAS_MATERIAS.forEach(m => {
-                let isChecked = cicloMaster.some(c => c.chaves[0] === m.chaves[0]) ? 'checked' : '';
-                container.innerHTML += `<label class="checkbox-label"><input type="checkbox" value="${m.chaves[0]}" data-nome="${m.nome}" ${isChecked}> ${m.nome}</label>`;
-            });
+            tempCiclo = JSON.parse(JSON.stringify(cicloMaster)); // Clona para edição segura
+            renderConfigUI();
             document.getElementById('configModal').style.display = 'block';
         }
 
-        function saveConfig() {
-            let checkboxes = document.querySelectorAll('#config-checkboxes input:checked');
-            let novoCiclo = [];
-            checkboxes.forEach(cb => {
-                novoCiclo.push({ nome: cb.getAttribute('data-nome'), chaves: [cb.value] });
+        function renderConfigUI() {
+            let containerCB = document.getElementById('config-checkboxes');
+            let containerList = document.getElementById('sortable-list');
+            containerCB.innerHTML = '';
+            containerList.innerHTML = '';
+
+            // 1. Renderiza Checkboxes
+            TODAS_MATERIAS.forEach(m => {
+                let isChecked = tempCiclo.some(c => c.chaves[0] === m.chaves[0]) ? 'checked' : '';
+                containerCB.innerHTML += `<label class="checkbox-label"><input type="checkbox" value="${m.chaves[0]}" data-nome="${m.nome}" ${isChecked} onchange="toggleMateria(this)"> ${m.nome}</label>`;
             });
+
+            // 2. Renderiza Lista Ordenável
+            if(tempCiclo.length === 0) {
+                containerList.innerHTML = '<p style="color:#666; text-align:center; font-size:0.9em; margin:0;">Nenhuma matéria selecionada. Marque acima.</p>';
+                return;
+            }
+
+            tempCiclo.forEach((m, index) => {
+                containerList.innerHTML += `
+                    <div class="sortable-item">
+                        <span style="color:#E0E0E0; font-size:0.9em;"><strong>${index + 1}.</strong> ${m.nome}</span>
+                        <div class="sortable-actions">
+                            <button onclick="moveItem(${index}, -1)" title="Subir" ${index === 0 ? 'disabled' : ''}><i class="fas fa-chevron-up"></i></button>
+                            <button onclick="moveItem(${index}, 1)" title="Descer" ${index === tempCiclo.length - 1 ? 'disabled' : ''}><i class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function toggleMateria(checkbox) {
+            let sigla = checkbox.value;
+            let nome = checkbox.getAttribute('data-nome');
             
-            if(novoCiclo.length === 0) return alert("Comandante, você precisa selecionar pelo menos uma matéria!");
+            if(checkbox.checked) {
+                tempCiclo.push({ nome: nome, chaves: [sigla] }); // Adiciona no fim do ciclo
+            } else {
+                tempCiclo = tempCiclo.filter(c => c.chaves[0] !== sigla); // Remove do ciclo
+            }
+            renderConfigUI();
+        }
+
+        function moveItem(index, direction) {
+            if(index + direction < 0 || index + direction >= tempCiclo.length) return;
+            // Troca de posição no array
+            let temp = tempCiclo[index];
+            tempCiclo[index] = tempCiclo[index + direction];
+            tempCiclo[index + direction] = temp;
+            renderConfigUI();
+        }
+
+        function saveConfig() {
+            if(tempCiclo.length === 0) return alert("Comandante, selecione pelo menos uma matéria para gerar o ciclo!");
             
-            cicloMaster = novoCiclo;
+            cicloMaster = JSON.parse(JSON.stringify(tempCiclo));
             localStorage.setItem('pqdtCicloCustom', JSON.stringify(cicloMaster));
             updateSelects();
             updateGPS();
@@ -496,7 +553,9 @@ Segue a lista de questões:
         function copyPrompt() {
             let textToCopy = document.getElementById('ai-prompt').innerText;
             navigator.clipboard.writeText(textToCopy).then(() => {
-                alert("Prompt copiado para a área de transferência! Vá para a IA e inicie os estudos.");
+                alert("Prompt copiado com sucesso! Abra o ChatGPT ou Gemini e inicie sua fase 1.");
+            }).catch(err => {
+                alert("Erro ao copiar o texto. Por favor, selecione e copie manualmente.");
             });
         }
 
