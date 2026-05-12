@@ -127,7 +127,7 @@
         .form-submit-btn { width: 100%; background: var(--accent-green); border: none; padding: 15px; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px;}
         .modal-chart-area { display: flex; justify-content: center; align-items: center; background: #252525; border-radius: 12px; padding: 20px; margin-bottom: 25px; height: 280px; width: 100%; box-sizing: border-box;}
 
-        /* CONFIGURADOR DE ORDEM (NOVO CSS) */
+        /* CONFIGURADOR DE ORDEM E MATÉRIAS CUSTOMIZADAS */
         .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 15px; max-height: 200px; overflow-y: auto; padding: 10px; background: #121212; border-radius: 8px; border: 1px solid #333;}
         .checkbox-label { display: flex; align-items: center; gap: 8px; color: #E0E0E0; font-size: 0.9em; cursor: pointer; padding: 5px; border-radius: 4px;}
         .checkbox-label:hover { background: #2A2A2A; }
@@ -137,6 +137,8 @@
         .sortable-actions button { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2em; padding: 5px; transition: 0.2s; }
         .sortable-actions button:hover { color: white; transform: scale(1.1); }
         .sortable-actions button:disabled { opacity: 0.2; cursor: default; transform: none; }
+
+        .custom-subject-box { background: #1a1a1a; border-left: 4px solid var(--accent-green); padding: 15px; margin-top: 20px; border-radius: 8px; margin-bottom: 25px;}
 
         /* TUTORIAL STYLES */
         .tutorial-phase { background: #1a1a1a; border-left: 4px solid var(--accent-blue); padding: 15px; margin-bottom: 15px; border-radius: 8px; }
@@ -162,6 +164,8 @@
             .grid-2-col, .grid-3-col { grid-template-columns: 1fr; }
             .charts-row { grid-template-columns: 1fr; }
             .modal-content { padding: 15px; margin: 10% auto; }
+            .custom-inputs { flex-direction: column; }
+            .custom-inputs input { width: 100% !important; }
         }
     </style>
 </head>
@@ -213,7 +217,7 @@
             <h1><i class="fas fa-landmark"></i> Sala de Comando <span id="user-email-display" style="font-size:0.5em; color:var(--accent-blue); display: block; width: 100%;"></span></h1>
             <div class="controls">
                 <button class="btn" onclick="document.getElementById('tutorialModal').style.display='block'"><i class="fas fa-book-open"></i> Método</button>
-                <button class="btn btn-config" onclick="openConfigModal()"><i class="fas fa-cog"></i> Configurar Ciclo</button>
+                <button class="btn btn-config" onclick="openConfigModal()"><i class="fas fa-cog"></i> Estratégia de Ciclo</button>
                 <select id="subjectFilter" class="btn" onchange="updateDashboard(this.value)"><option value="all">Visão Geral (Todas)</option></select>
                 <button class="btn btn-forms" onclick="openEntryModal()"><i class="fas fa-pen-nib"></i> Lançar Missão</button>
                 <button class="btn btn-sync" id="btn-sync" onclick="loadGoogleSheetsData()"><i class="fas fa-sync-alt"></i> Sincronizar Base</button>
@@ -288,7 +292,7 @@
     </div>
 
     <div id="configModal" class="modal">
-        <div class="modal-content" style="max-width: 650px;">
+        <div class="modal-content" style="max-width: 700px;">
             <span class="close-btn" onclick="document.getElementById('configModal').style.display='none'">&times;</span>
             <h2 style="color: var(--accent-orange); margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px;"><i class="fas fa-cogs"></i> Estratégia de Ciclo</h2>
             
@@ -296,8 +300,17 @@
             <div class="checkbox-grid" id="config-checkboxes">
                 </div>
 
+            <div class="custom-subject-box">
+                <p style="color: #E0E0E0; font-size: 0.9em; margin-top: 0; margin-bottom: 10px;"><strong>Faltou alguma matéria? Adicione você mesmo:</strong></p>
+                <div class="custom-inputs" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <input type="text" id="custom-sigla" placeholder="Sigla (Ex: CRIM)" style="flex: 1; min-width: 100px; padding: 10px; background: #121212; border: 1px solid #444; color: white; border-radius: 5px; text-transform: uppercase;">
+                    <input type="text" id="custom-nome" placeholder="Nome da Matéria (Ex: Criminologia)" style="flex: 3; min-width: 200px; padding: 10px; background: #121212; border: 1px solid #444; color: white; border-radius: 5px;">
+                    <button onclick="addCustomSubject()" class="btn" style="background: var(--accent-green); border: none;"><i class="fas fa-plus"></i> Adicionar ao Ciclo</button>
+                </div>
+            </div>
+
             <p style="color: #E0E0E0; font-size: 0.9em; margin-top: 25px; margin-bottom: 5px;"><strong>2. Organize a Ordem de Estudo:</strong></p>
-            <p style="color: #888; font-size: 0.8em; margin-top: 0;">Utilize as setas para ditar exatamente como o GPS guiará a sua Missão Dinâmica.</p>
+            <p style="color: #888; font-size: 0.8em; margin-top: 0;">Utilize as setas para ditar a sequência exata da sua Missão Dinâmica.</p>
             
             <div class="sortable-list" id="sortable-list">
                 </div>
@@ -383,7 +396,7 @@ Segue a lista de questões:
                     <div class="form-group"><label>Acertos</label><input type="number" id="f-a" value="0"></div>
                 </div>
                 <div class="form-group"><label>Fase</label><select id="f-fase"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-                <button type="submit" id="btn-submit-form" class="form-submit-btn">ENVIAR</button>
+                <button type="submit" id="btn-submit-form" class="form-submit-btn">ENVIAR PARA A NUVEM</button>
             </form>
         </div>
     </div>
@@ -395,7 +408,7 @@ Segue a lista de questões:
         const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz1vLMkc_dklbl7AxBHKBF8j1amLTAHwrUwknmLAZJxuXXaL1ra-LBjqCihay9RbX4_Qw/exec";
 
         // ==============================================================================
-        // VARIÁVEIS GLOBAIS E DICIONÁRIO DE MATÉRIAS
+        // VARIÁVEIS GLOBAIS
         // ==============================================================================
         let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
         let loggedUserSenha = localStorage.getItem('pqdtSenha') || "";
@@ -419,7 +432,7 @@ Segue a lista de questões:
             { threshold: 30000, title: "Mito", icon: "fa-meteor", desc: "Deus dos Concursos!" }
         ];
 
-        // BASE DE DADOS DE TODAS AS MATÉRIAS POSSÍVEIS (Pode adicionar novas aqui no futuro)
+        // BASE MESTRE DE MATÉRIAS (Padronizadas)
         const TODAS_MATERIAS = [
             { chaves: ["PNFL"], nome: "Eng: Planejamento de Obras" },
             { chaves: ["AFO"], nome: "AFO / Orçamento Público" },
@@ -442,23 +455,21 @@ Segue a lista de questões:
             { chaves: ["ECO"], nome: "Economia" },
             { chaves: ["CIV"], nome: "Direito Civil" },
             { chaves: ["PEN"], nome: "Direito Penal" },
-            { chaves: ["EST"], nome: "Estatística" },
-            { chaves: ["DPC"], nome: "Direito Processual Civil" },
-            { chaves: ["DPP"], nome: "Direito Processual Penal" }
+            { chaves: ["EST"], nome: "Estatística" }
         ];
 
-        let cicloMaster = []; // Ciclo dinâmico do usuário
-        let tempCiclo = [];   // Array temporário para a tela de configuração
+        let customSubjects = JSON.parse(localStorage.getItem('pqdtCustomSubjects')) || [];
+        let cicloMaster = []; 
+        let tempCiclo = [];   
 
         // ==============================================================================
-        // CONFIGURADOR DE CICLO (SELEÇÃO E ORDENAÇÃO)
+        // CONFIGURADOR DE CICLO (SELEÇÃO, ORDENAÇÃO E CRIAÇÃO)
         // ==============================================================================
         function loadCiclo() {
             let saved = localStorage.getItem('pqdtCicloCustom');
             if(saved) {
                 cicloMaster = JSON.parse(saved);
             } else {
-                // Ciclo Padrão de Engenheiro se for o 1º acesso
                 let chavesPadrao = ["PNFL", "AFO", "DCO", "CEX", "CASP", "CTG", "EDF", "DAD", "POR", "OR"];
                 cicloMaster = [];
                 chavesPadrao.forEach(sigla => {
@@ -470,7 +481,7 @@ Segue a lista de questões:
         }
 
         function openConfigModal() {
-            tempCiclo = JSON.parse(JSON.stringify(cicloMaster)); // Clona para edição segura
+            tempCiclo = JSON.parse(JSON.stringify(cicloMaster)); 
             renderConfigUI();
             document.getElementById('configModal').style.display = 'block';
         }
@@ -481,15 +492,16 @@ Segue a lista de questões:
             containerCB.innerHTML = '';
             containerList.innerHTML = '';
 
-            // 1. Renderiza Checkboxes
-            TODAS_MATERIAS.forEach(m => {
+            // Junta a Base Mestre com as matérias que o aluno criou
+            let allSubjects = [...TODAS_MATERIAS, ...customSubjects];
+
+            allSubjects.forEach(m => {
                 let isChecked = tempCiclo.some(c => c.chaves[0] === m.chaves[0]) ? 'checked' : '';
                 containerCB.innerHTML += `<label class="checkbox-label"><input type="checkbox" value="${m.chaves[0]}" data-nome="${m.nome}" ${isChecked} onchange="toggleMateria(this)"> ${m.nome}</label>`;
             });
 
-            // 2. Renderiza Lista Ordenável
             if(tempCiclo.length === 0) {
-                containerList.innerHTML = '<p style="color:#666; text-align:center; font-size:0.9em; margin:0;">Nenhuma matéria selecionada. Marque acima.</p>';
+                containerList.innerHTML = '<p style="color:#666; text-align:center; font-size:0.9em; margin:0;">Nenhuma matéria selecionada.</p>';
                 return;
             }
 
@@ -509,21 +521,41 @@ Segue a lista de questões:
         function toggleMateria(checkbox) {
             let sigla = checkbox.value;
             let nome = checkbox.getAttribute('data-nome');
-            
             if(checkbox.checked) {
-                tempCiclo.push({ nome: nome, chaves: [sigla] }); // Adiciona no fim do ciclo
+                tempCiclo.push({ nome: nome, chaves: [sigla] });
             } else {
-                tempCiclo = tempCiclo.filter(c => c.chaves[0] !== sigla); // Remove do ciclo
+                tempCiclo = tempCiclo.filter(c => c.chaves[0] !== sigla);
             }
             renderConfigUI();
         }
 
         function moveItem(index, direction) {
             if(index + direction < 0 || index + direction >= tempCiclo.length) return;
-            // Troca de posição no array
             let temp = tempCiclo[index];
             tempCiclo[index] = tempCiclo[index + direction];
             tempCiclo[index + direction] = temp;
+            renderConfigUI();
+        }
+
+        function addCustomSubject() {
+            let sigla = document.getElementById('custom-sigla').value.toUpperCase().trim();
+            let nome = document.getElementById('custom-nome').value.trim();
+            
+            if(!sigla || !nome) return alert("Preencha a Sigla e o Nome da matéria.");
+            
+            let allSubjects = [...TODAS_MATERIAS, ...customSubjects];
+            if(allSubjects.some(m => m.chaves[0] === sigla)) {
+                return alert("Esta sigla já existe no sistema! Use outra sigla.");
+            }
+
+            let novaMateria = { chaves: [sigla], nome: nome };
+            customSubjects.push(novaMateria);
+            localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects));
+            
+            // Adiciona automaticamente ao ciclo do aluno e recarrega a tela
+            tempCiclo.push(novaMateria);
+            document.getElementById('custom-sigla').value = '';
+            document.getElementById('custom-nome').value = '';
             renderConfigUI();
         }
 
@@ -554,8 +586,6 @@ Segue a lista de questões:
             let textToCopy = document.getElementById('ai-prompt').innerText;
             navigator.clipboard.writeText(textToCopy).then(() => {
                 alert("Prompt copiado com sucesso! Abra o ChatGPT ou Gemini e inicie sua fase 1.");
-            }).catch(err => {
-                alert("Erro ao copiar o texto. Por favor, selecione e copie manualmente.");
             });
         }
 
@@ -626,7 +656,7 @@ Segue a lista de questões:
         // INICIALIZAÇÃO E RELÓGIO
         // ==============================================================================
         function initApp() {
-            loadCiclo(); // Carrega as disciplinas salvas pelo usuário e monta os selects
+            loadCiclo(); 
             document.getElementById('f-data').valueAsDate = new Date();
             if(localStorage.getItem('metaHrs')) document.getElementById('meta-hrs').value = localStorage.getItem('metaHrs');
             if(localStorage.getItem('metaQ')) document.getElementById('meta-q').value = localStorage.getItem('metaQ');
@@ -868,7 +898,7 @@ Segue a lista de questões:
             let payload = { acao: "lancamento", email: loggedUserEmail, dataEstudo: `${p[2]}/${p[1]}/${p[0]}`, materia: document.getElementById('f-materia').value, topico: document.getElementById('f-topico').value, tipoLink: document.getElementById('f-tipo-link').value, tempo: document.getElementById('f-tempo').value, questoes: document.getElementById('f-q').value, acertos: document.getElementById('f-a').value, fase: document.getElementById('f-fase').value };
             
             fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-            .then(() => { alert("Missão Cumprida!"); document.getElementById('studyForm').reset(); document.getElementById('entryModal').style.display='none'; btn.innerHTML='ENVIAR PARA A NUVEM'; btn.disabled=false; setTimeout(loadGoogleSheetsData, 1000); });
+            .then(() => { alert("Missão Cumprida!"); document.getElementById('studyForm').reset(); document.getElementById('entryModal').style.display='none'; btn.innerHTML='ENVIAR'; btn.disabled=false; setTimeout(loadGoogleSheetsData, 1000); });
         }
     </script>
 </body>
