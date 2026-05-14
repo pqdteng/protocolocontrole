@@ -98,7 +98,11 @@
         .progress-bar-bg { width: 100%; background-color: var(--border-color); border-radius: 10px; overflow: hidden; height: 12px; }
         .progress-bar-fill { height: 100%; background-color: var(--accent-green); width: 0%; transition: 1s ease-in-out; }
         
-        .action-box { background: var(--hover-bg); padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent-blue); display: flex; flex-direction: column; justify-content: center; flex-grow: 1; box-sizing: border-box;}
+        /* CLASSES DE GRID GENÉRICAS (CORRIGIDAS) */
+        .grid-2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; min-width: 0;}
+        .grid-3-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+        .action-box { background: var(--hover-bg); padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent-blue); display: flex; flex-direction: column; justify-content: center; flex-grow: 1; box-sizing: border-box; min-width: 0;}
         .mission-list { list-style: none; padding: 0; margin: 0; }
         .mission-list li { margin-bottom: 8px; font-size: 14px; color: var(--text-color); }
         .mission-list li strong { display: inline-block; width: 85px; font-weight: bold;}
@@ -183,6 +187,7 @@
 </head>
 <body>
 
+    <!-- TELA LOGIN -->
     <div id="login-screen">
         <div class="login-box">
             <h1><i class="fas fa-lock"></i> Sala de Comando</h1>
@@ -198,6 +203,7 @@
         </div>
     </div>
 
+    <!-- TELA ATIVAÇÃO -->
     <div id="register-screen" style="display:none;">
         <div class="login-box" style="border-color: var(--accent-green);">
             <h1><i class="fas fa-user-check" style="color:var(--accent-green)"></i> Ativação</h1>
@@ -211,6 +217,7 @@
         </div>
     </div>
 
+    <!-- TELA TROCA SENHA -->
     <div id="reset-screen" style="display:none;">
         <div class="login-box" style="border-color: var(--accent-orange);">
             <h1><i class="fas fa-key" style="color:var(--accent-orange)"></i> Nova Senha</h1>
@@ -223,6 +230,7 @@
         </div>
     </div>
 
+    <!-- CONTEÚDO PRINCIPAL -->
     <div id="app-content">
         <div class="header">
             <div>
@@ -247,10 +255,10 @@
             <a class="view-ranks-link" onclick="openRanksModal()"><i class="fas fa-list-ol"></i> Ver todas as Patentes</a>
             
             <div class="rank-info">
-                <i class="fas fa-egg rank-icon" id="rank-icon"></i>
+                <i class="fas fa-book-open rank-icon" id="rank-icon"></i>
                 <div class="rank-details">
-                    <h2 id="rank-title">Pintinho</h2>
-                    <p id="rank-subtitle">Recruta</p>
+                    <h2 id="rank-title">Iniciante</h2>
+                    <p id="rank-subtitle">Começando a jornada</p>
                     <div class="coin-badge"><i class="fas fa-coins"></i> <span id="coin-display">0</span> Moedas</div>
                 </div>
             </div>
@@ -319,6 +327,7 @@
         </div>
     </div>
 
+    <!-- MODAL PERFIL (NICKNAME E VIGÊNCIA) -->
     <div id="profileModal" class="modal">
         <div class="modal-content" style="max-width: 400px; text-align:center;">
             <span class="close-btn" onclick="document.getElementById('profileModal').style.display='none'">&times;</span>
@@ -335,6 +344,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE LISTA DE PATENTES -->
     <div id="ranksModal" class="modal">
         <div class="modal-content" style="max-width: 550px;">
             <span class="close-btn" onclick="document.getElementById('ranksModal').style.display='none'">&times;</span>
@@ -344,6 +354,7 @@
         </div>
     </div>
 
+    <!-- MODAL RANKING GLOBAL -->
     <div id="leaderboardModal" class="modal">
         <div class="modal-content" style="max-width: 600px;">
             <span class="close-btn" onclick="document.getElementById('leaderboardModal').style.display='none'">&times;</span>
@@ -357,6 +368,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE CONFIGURAÇÃO DE CICLO AVANÇADA -->
     <div id="configModal" class="modal">
         <div class="modal-content" style="max-width: 700px;">
             <span class="close-btn" onclick="document.getElementById('configModal').style.display='none'">&times;</span>
@@ -379,6 +391,7 @@
         </div>
     </div>
 
+    <!-- MODAL DO TUTORIAL (MÉTODO) -->
     <div id="tutorialModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="document.getElementById('tutorialModal').style.display='none'">&times;</span>
@@ -399,6 +412,7 @@ Gostaria que você:
         </div>
     </div>
 
+    <!-- MODAL DO RAIO-X -->
     <div id="detailsModal" class="modal">
         <div class="modal-content">
             <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:15px; margin-bottom:20px;">
@@ -412,6 +426,7 @@ Gostaria que você:
         </div>
     </div>
 
+    <!-- MODAL LANÇAMENTO -->
     <div id="entryModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="document.getElementById('entryModal').style.display='none'">&times;</span>
@@ -429,11 +444,12 @@ Gostaria que você:
                     <div class="form-group"><label>Acertos</label><input type="number" id="f-a" value="0"></div>
                 </div>
                 <div class="form-group"><label>Fase</label><select id="f-fase"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-                <button type="submit" id="btn-submit-form" class="form-submit-btn">ENVIAR PARA A NUVEM</button>
+                <button type="submit" id="btn-submit-form" class="form-submit-btn">ENVIAR</button>
             </form>
         </div>
     </div>
 
+    <!-- BLINDAGEM FRONT-END -->
     <script>
         document.addEventListener('contextmenu', event => event.preventDefault());
         document.onkeydown = function(e) {
@@ -450,7 +466,6 @@ Gostaria que você:
         let globalNickname = "Recruta";
         let globalLeaderboard = [];
 
-        // TEMA INICIAL
         if(localStorage.getItem('pqdtTheme') === 'light') document.body.classList.add('light-mode');
         function updateChartColors() {
             let isLight = document.body.classList.contains('light-mode');
@@ -464,17 +479,17 @@ Gostaria que você:
         let currentReportMode = 'diario'; let currentWeekStr = ""; 
         let totalQHistory = 0; let dailyQ = 0; let dailyMins = 0; let totalMoedas = 0;
 
-        // PATENTES GUNBOUND
+        // PATENTES FOCADAS EM CONCURSO PÚBLICO
         const GAMER_RANKS = [
-            { threshold: 0, title: "Pintinho", icon: "fa-egg", desc: "Recruta iniciando" },
-            { threshold: 1000, title: "Martelo de Madeira", icon: "fa-gavel", desc: "Criando calos" },
-            { threshold: 3000, title: "Machado de Batalha", icon: "fa-hammer", desc: "Batedor de Metas" },
-            { threshold: 6000, title: "Machado Duplo", icon: "fa-khanda", desc: "Guerreiro focado" },
-            { threshold: 10000, title: "Estrela de Prata", icon: "fa-star", desc: "Elite da Banca" },
-            { threshold: 15000, title: "Estrela de Ouro", icon: "fa-star", desc: "Aprovado em Potencial" },
-            { threshold: 20000, title: "Cetro de Safira", icon: "fa-magic", desc: "Mestre dos Concursos" },
-            { threshold: 30000, title: "Dragão Azul", icon: "fa-dragon", desc: "Nome no Diário Oficial" },
-            { threshold: 50000, title: "Dragão Vermelho", icon: "fa-meteor", desc: "Deus dos Concursos!" }
+            { threshold: 0, title: "Iniciante", icon: "fa-book-open", desc: "Começando a jornada" },
+            { threshold: 1000, title: "Estudante Focado", icon: "fa-pencil-alt", desc: "Pegando o ritmo" },
+            { threshold: 3000, title: "Concurseiro Tático", icon: "fa-crosshairs", desc: "Batendo metas" },
+            { threshold: 6000, title: "Especialista", icon: "fa-brain", desc: "Dominando o edital" },
+            { threshold: 10000, title: "Analista", icon: "fa-chart-line", desc: "Alta performance" },
+            { threshold: 15000, title: "Auditor Júnior", icon: "fa-search", desc: "Na lista de aprovados" },
+            { threshold: 20000, title: "Auditor Pleno", icon: "fa-stamp", desc: "Nomeado no Diário Oficial" },
+            { threshold: 30000, title: "Auditor Sênior", icon: "fa-gem", desc: "Mestre do Controle Externo" },
+            { threshold: 50000, title: "Conselheiro", icon: "fa-landmark", desc: "Autoridade Máxima!" }
         ];
 
         const TODAS_MATERIAS = [
@@ -680,14 +695,13 @@ Gostaria que você:
             .then(res => res.json()).then(data => { 
                 if(data.erro) { alert(data.mensagem); logout(); return; }
                 
-                // NOVO FORMATO DE RESPOSTA DO BACKEND
                 globalExpiration = data.expiration || "Vitalício";
                 globalNickname = data.nickname || "Recruta";
                 globalLeaderboard = data.leaderboard || [];
                 
                 document.getElementById('input-nickname').value = globalNickname;
                 
-                if(data.dados) processData(data.dados); else processData(data); // Retrocompatibilidade
+                if(data.dados) processData(data.dados); else processData(data);
                 btn.innerHTML = '<i class="fas fa-check-circle"></i> Sinc'; 
             }).catch(err => { btn.innerHTML = "Erro"; console.log(err); });
         }
@@ -789,7 +803,7 @@ Gostaria que você:
             GAMER_RANKS.forEach((r, i) => {
                 let isC = i === currentIdx; let isL = i > currentIdx;
                 let bg = isC ? 'background:var(--hover-bg); border:1px solid var(--accent-gold); border-left:5px solid var(--accent-gold);' : (isL ? 'opacity:0.5;' : 'border-bottom:1px solid var(--border-color);');
-                container.innerHTML += `<div style="display:flex; align-items:center; gap:15px; padding:12px; margin-bottom:8px; border-radius:8px; ${bg}"><div style="width:40px; text-align:center;"><i class="fas ${r.icon}" style="font-size:1.8em; color:${isC?'var(--accent-gold)':(isL?'#555':'#aaa')};"></i></div><div style="flex-grow:1;"><div style="font-weight:bold; font-size:1.1em;">${r.title} ${isC?'<span style="font-size:0.7em; color:var(--accent-gold);">(Atual)</span>':''}</div><div style="font-size:0.85em; color:#888;">Desbloqueia com ${r.threshold.toLocaleString('pt-BR')} Qs</div></div></div>`;
+                container.innerHTML += `<div style="display:flex; align-items:center; gap:15px; padding:12px; margin-bottom:8px; border-radius:8px; ${bg}"><div style="width:40px; text-align:center;"><i class="fas ${r.icon}" style="font-size:1.8em; color:${isC?'var(--accent-gold)':(isL?'#555':'#aaa')};"></i></div><div style="flex-grow:1;"><div style="font-weight:bold; font-size:1.1em; color:var(--text-color);">${r.title} ${isC?'<span style="font-size:0.7em; color:var(--accent-gold);">(Atual)</span>':''}</div><div style="font-size:0.85em; color:#888;">Desbloqueia com ${r.threshold.toLocaleString('pt-BR')} Qs</div></div></div>`;
             });
             document.getElementById('ranksModal').style.display = 'block';
         }
@@ -912,7 +926,7 @@ Gostaria que você:
             let payload = { acao: "lancamento", email: loggedUserEmail, dataEstudo: `${p[2]}/${p[1]}/${p[0]}`, materia: document.getElementById('f-materia').value, topico: document.getElementById('f-topico').value, tipoLink: document.getElementById('f-tipo-link').value, tempo: document.getElementById('f-tempo').value, questoes: document.getElementById('f-q').value, acertos: document.getElementById('f-a').value, fase: document.getElementById('f-fase').value };
             
             fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-            .then(() => { alert("Missão Cumprida!"); document.getElementById('studyForm').reset(); document.getElementById('entryModal').style.display='none'; btn.innerHTML='ENVIAR'; btn.disabled=false; loadGoogleSheetsData(); });
+            .then(() => { alert("Missão Cumprida!"); document.getElementById('studyForm').reset(); document.getElementById('entryModal').style.display='none'; btn.innerHTML='ENVIAR PARA A NUVEM'; btn.disabled=false; loadGoogleSheetsData(); });
         }
     </script>
 </body>
