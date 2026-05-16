@@ -903,7 +903,7 @@ Gostaria que fizesse:
             let payload = { acao: "lancamento", email: loggedUserEmail, dataEstudo: `${p[2]}/${p[1]}/${p[0]}`, materia: document.getElementById('f-materia').value, topico: document.getElementById('f-topico').value, tipoLink: document.getElementById('f-tipo-link').value, tempo: document.getElementById('f-tempo').value, questoes: document.getElementById('f-q').value, acertos: document.getElementById('f-a').value, fase: document.getElementById('f-fase').value };
             
             fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-            .then(() => { alert("Missão Cumprida!"); document.getElementById('studyForm').reset(); document.getElementById('entryModal').style.display='none'; btn.innerHTML='ENVIAR PARA A NUVEM'; btn.disabled=false; loadGoogleSheetsData(); });
+            .then(() => { alert("Missão Cumprida!"); document.getElementById('studyForm').reset(); document.getElementById('entryModal').style.display='none'; btn.innerHTML='ENVIAR'; btn.disabled=false; loadGoogleSheetsData(); });
         }
 
         window.onload = function() {
