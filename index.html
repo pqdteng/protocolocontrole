@@ -35,23 +35,29 @@
         /* DASHBOARD */
         #app-content { display: none; max-width: 1400px; margin: 0 auto;}
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; flex-wrap: wrap; gap: 15px;}
+        .header h1 { margin: 0; color: var(--text-color); font-size: 1.5em; display: flex; align-items: center; gap: 10px;}
+        
         .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;}
         .btn { border: 1px solid var(--input-border); color: white; background-color: var(--accent-blue); padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;}
         .btn-light { background-color: var(--card-bg); color: var(--text-color); }
         .btn-light:hover { background-color: var(--hover-bg); color: var(--text-color); }
         .btn-forms { background-color: var(--accent-purple); border-color: var(--accent-purple); }
-        .btn-sync { background-color: var(--accent-green); border-color: var(--accent-green); }
-        .btn-config { background-color: var(--hover-bg); color: var(--accent-orange); border-color: var(--accent-orange); }
-        .btn-logout { background-color: var(--border-color); color: var(--text-color); }
         select.btn { background-color: var(--hover-bg); color: var(--text-color); outline: none; }
-        .user-email-btn { font-size: 0.5em; color: var(--accent-blue); display: block; width: 100%; cursor: pointer; background: none; border: none; text-align: left; padding: 0; margin-top: 5px; font-family: inherit;}
-        .user-email-btn:hover { text-decoration: underline; }
+
+        /* MENU HAMBÚRGUER */
+        .menu-container { position: relative; display: inline-block; }
+        .hamburger-btn { background: var(--card-bg); border: 1px solid var(--input-border); color: var(--text-color); font-size: 1.3em; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: 0.3s; }
+        .hamburger-btn:hover { background: var(--hover-bg); }
+        .dropdown-menu { display: none; position: absolute; right: 0; top: 110%; background: var(--card-bg); min-width: 220px; box-shadow: 0 8px 20px rgba(0,0,0,0.6); border: 1px solid var(--border-color); border-radius: 8px; z-index: 1000; flex-direction: column; overflow: hidden;}
+        .dropdown-menu.show { display: flex; }
+        .dropdown-item { padding: 15px; border-bottom: 1px solid var(--border-color); color: var(--text-color); cursor: pointer; display: flex; align-items: center; gap: 12px; background: none; text-align: left; font-size: 14px; transition: 0.2s; border-left: 3px solid transparent;}
+        .dropdown-item:hover { background: var(--hover-bg); border-left: 3px solid var(--accent-blue); }
+        .dropdown-item:last-child { border-bottom: none; }
 
         /* GAMIFICAÇÃO & RANKING */
         .rank-container { background: linear-gradient(135deg, var(--hover-bg), var(--card-bg)); border: 2px solid var(--accent-gold); border-radius: 15px; padding: 20px 30px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; position: relative; flex-wrap: wrap; gap: 20px;}
         .view-ranks-link { position: absolute; top: 15px; right: 30px; color: var(--accent-blue); font-size: 0.85em; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; }
         
-        /* EFEITO DE LÍDER (GLOW) */
         .is-leader-glow { box-shadow: 0 0 25px var(--accent-gold); border-color: var(--accent-gold); animation: pulse-gold 2s infinite; }
         @keyframes pulse-gold { 0% { box-shadow: 0 0 10px var(--accent-gold); } 50% { box-shadow: 0 0 30px var(--accent-gold); } 100% { box-shadow: 0 0 10px var(--accent-gold); } }
 
@@ -87,11 +93,10 @@
         #clock-display { font-family: 'Courier New', monospace; font-size: 3.5em; font-weight: bold; color: var(--accent-blue); letter-spacing: 3px; line-height: 1; text-align: center;}
         .timer-display { font-family: 'Courier New', monospace; font-size: 5em; font-weight: bold; color: var(--accent-orange); letter-spacing: 5px; text-align: center;}
         
-        /* MODO FOCO CSS */
-        body.focus-mode .header h1, body.focus-mode .controls > :not(#btn-foco), body.focus-mode .rank-container, body.focus-mode .gps-container, body.focus-mode .cards-container, body.focus-mode .charts-row, body.focus-mode .report-section { display: none !important; }
+        body.focus-mode .header h1, body.focus-mode .controls > :not(.menu-container), body.focus-mode .rank-container, body.focus-mode .gps-container, body.focus-mode .cards-container, body.focus-mode .charts-row, body.focus-mode .report-section { display: none !important; }
         body.focus-mode .focus-section { height: 80vh; display: flex; align-items: center; justify-content: center; }
 
-        /* GPS E LAYOUT LADO A LADO RESTAURADO */
+        /* GPS E LAYOUT */
         .gps-container { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 30px; align-items: stretch;}
         .gps-card { background-color: var(--card-bg); border-radius: 12px; padding: 20px; border-top: 4px solid var(--accent-orange); display: flex; flex-direction: column; box-sizing: border-box; box-shadow: 0 4px 6px rgba(0,0,0,0.05);}
         .gps-card h3 { margin-top: 0; color: var(--accent-orange); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
@@ -141,25 +146,22 @@
         .form-group input, .form-group select { width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-color); border-radius: 5px; box-sizing: border-box; outline: none;}
         .form-submit-btn { width: 100%; background: var(--accent-green); border: none; padding: 15px; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px;}
 
-        /* CONFIGURADOR DE ORDEM E MATÉRIAS CUSTOMIZADAS */
+        /* CONFIGURADOR DE ORDEM */
         .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 15px; max-height: 200px; overflow-y: auto; padding: 10px; background: var(--input-bg); border-radius: 8px; border: 1px solid var(--border-color);}
         .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 0.9em; cursor: pointer; padding: 5px; border-radius: 4px;}
         .checkbox-label:hover { background: var(--hover-bg); }
-        
         .sortable-list { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; max-height: 250px; overflow-y: auto; margin-bottom: 20px; }
         .sortable-item { display: flex; justify-content: space-between; align-items: center; background: var(--hover-bg); padding: 8px 15px; margin-bottom: 6px; border-radius: 6px; border-left: 3px solid var(--accent-blue); }
         .sortable-actions button { background: none; border: none; color: #888; cursor: pointer; font-size: 1.2em; padding: 5px; transition: 0.2s; }
         .sortable-actions button:hover { color: var(--accent-blue); transform: scale(1.1); }
-        .sortable-actions button:disabled { opacity: 0.2; cursor: default; transform: none; }
-        
         .custom-subject-box { background: var(--hover-bg); border-left: 4px solid var(--accent-green); padding: 15px; margin-top: 20px; border-radius: 8px; margin-bottom: 25px;}
 
-        /* RESPONSIVIDADE */
         @media (max-width: 768px) {
             body { padding: 10px; }
             .header { flex-direction: column; align-items: stretch; text-align: center; }
             .controls { flex-direction: column; width: 100%; }
-            .controls select, .controls button { width: 100%; }
+            .controls select, .controls button, .menu-container { width: 100%; }
+            .dropdown-menu { width: 100%; text-align: center; }
             .rank-container { flex-direction: column; text-align: center; padding-top: 40px;}
             .view-ranks-link { top: 10px; right: 10px; width: 100%; justify-content: center; }
             .rank-info { flex-direction: column; gap: 10px;}
@@ -168,8 +170,7 @@
             #clock-display { font-size: 2.5em; }
             .timer-display { font-size: 3.5em; }
             .gps-container { grid-template-columns: 1fr; }
-            .grid-gps-inner { grid-template-columns: 1fr; }
-            .grid-2-col, .grid-3-col { grid-template-columns: 1fr; }
+            .grid-gps-inner, .grid-2-col, .grid-3-col { grid-template-columns: 1fr; }
             .charts-row { grid-template-columns: 1fr; }
             .modal-content { padding: 15px; margin: 10% auto; }
             .custom-inputs { flex-direction: column; }
@@ -186,7 +187,7 @@
             <input type="email" id="log-email" class="login-input" placeholder="Seu E-mail">
             <input type="password" id="log-pass" class="login-input" placeholder="Sua Senha">
             <button class="btn-access" onclick="login()">ENTRAR</button>
-            <button class="btn-access btn-tutorial" onclick="document.getElementById('tutorialModal').style.display='block'" style="background: #333; color: #E0E0E0; margin-top: 15px; border: 1px solid var(--input-border);"><i class="fas fa-book-open"></i> Conhecer o Método</button>
+            <button class="btn-access btn-tutorial" onclick="document.getElementById('tutorialModal').style.display='block'" style="background: var(--input-border); color: #E0E0E0; margin-top: 15px; border: 1px solid var(--border-color);"><i class="fas fa-book-open"></i> Conhecer o Método</button>
             <div class="access-links">
                 <a onclick="showScreen('register')">Ativar Primeiro Acesso</a>
                 <a onclick="showScreen('reset')">Esqueci a Senha</a>
@@ -201,9 +202,7 @@
             <input type="email" id="reg-email" class="login-input" placeholder="E-mail da Compra">
             <input type="password" id="reg-pass" class="login-input" placeholder="Crie sua Senha">
             <button class="btn-access" style="background:var(--accent-green)" onclick="register()">ATIVAR CONTA</button>
-            <div class="access-links" style="justify-content:center">
-                <a onclick="showScreen('login')">Voltar para Login</a>
-            </div>
+            <div class="access-links" style="justify-content:center"><a onclick="showScreen('login')">Voltar para Login</a></div>
         </div>
     </div>
 
@@ -213,9 +212,7 @@
             <input type="email" id="res-email" class="login-input" placeholder="E-mail Cadastrado">
             <input type="password" id="res-pass" class="login-input" placeholder="Nova Senha">
             <button class="btn-access" style="background:var(--accent-orange)" onclick="changePassword()">ATUALIZAR SENHA</button>
-            <div class="access-links" style="justify-content:center">
-                <a onclick="showScreen('login')">Voltar para Login</a>
-            </div>
+            <div class="access-links" style="justify-content:center"><a onclick="showScreen('login')">Voltar para Login</a></div>
         </div>
     </div>
 
@@ -223,19 +220,25 @@
         <div class="header">
             <div>
                 <h1><i class="fas fa-landmark"></i> Sala de Comando</h1>
-                <button class="user-email-btn" onclick="openProfileModal()">👤 <span id="user-email-display"></span></button>
             </div>
             <div class="controls">
-                <button class="btn btn-light" onclick="showVerse()" title="Palavra do Dia"><i class="fas fa-bible" style="color:var(--accent-gold)"></i></button>
-                <button class="btn btn-light" onclick="toggleTheme()" title="Trocar Tema"><i class="fas fa-adjust"></i></button>
-                <button class="btn btn-light" onclick="document.getElementById('tutorialModal').style.display='block'" title="Método"><i class="fas fa-book-open"></i></button>
-                <button class="btn" id="btn-foco" onclick="toggleFocus()" style="border-color: var(--accent-red); color: var(--accent-red); background: none;"><i class="fas fa-crosshairs"></i> MODO FOCO</button>
-                <button class="btn" style="background: var(--accent-gold); color: black; border: none;" onclick="openLeaderboardModal()"><i class="fas fa-trophy"></i> RANKING</button>
-                <button class="btn btn-config" onclick="openConfigModal()"><i class="fas fa-cog"></i> CICLO</button>
                 <select id="subjectFilter" class="btn" onchange="updateDashboard(this.value)"><option value="all">Visão Geral</option></select>
-                <button class="btn btn-forms" onclick="openEntryModal()"><i class="fas fa-pen-nib"></i> LANÇAR</button>
-                <button class="btn btn-sync" id="btn-sync" onclick="loadGoogleSheetsData()"><i class="fas fa-sync-alt"></i> SINC</button>
-                <button class="btn btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+                <button class="btn btn-forms" onclick="openEntryModal()"><i class="fas fa-pen-nib"></i> LANÇAR MISSÃO</button>
+                <button class="btn" style="background: var(--accent-gold); color: black; border: none;" onclick="openLeaderboardModal()"><i class="fas fa-trophy"></i> RANKING</button>
+                
+                <div class="menu-container">
+                    <button class="hamburger-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+                    <div class="dropdown-menu" id="main-menu">
+                        <button class="dropdown-item" onclick="openProfileModal(); toggleMenu();"><i class="fas fa-user-circle"></i> Meu Perfil</button>
+                        <button class="dropdown-item" onclick="openConfigModal(); toggleMenu();"><i class="fas fa-cogs"></i> Configurar Ciclo</button>
+                        <button class="dropdown-item" onclick="document.getElementById('tutorialModal').style.display='block'; toggleMenu();"><i class="fas fa-book-reader"></i> O Método</button>
+                        <button class="dropdown-item" onclick="showVerse(); toggleMenu();"><i class="fas fa-bible" style="color:var(--accent-gold);"></i> Palavra do Dia</button>
+                        <button class="dropdown-item" id="btn-foco" onclick="toggleFocus(); toggleMenu();"><i class="fas fa-crosshairs"></i> Modo Foco</button>
+                        <button class="dropdown-item" onclick="toggleTheme(); toggleMenu();"><i class="fas fa-adjust"></i> Trocar Tema</button>
+                        <button class="dropdown-item" id="btn-sync" onclick="loadGoogleSheetsData(); toggleMenu();"><i class="fas fa-sync-alt"></i> Sincronizar Base</button>
+                        <button class="dropdown-item" style="color: var(--accent-red);" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair da Conta</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -329,7 +332,7 @@
 
             <div style="overflow-x: auto;">
                 <table class="leaderboard-table" style="width:100%; border-collapse:collapse; text-align:left;">
-                    <thead><tr style="color:var(--accent-gold); border-bottom:1px solid #444;"><th style="padding:10px;">#</th><th>Nickname</th><th>Questões</th></tr></thead>
+                    <thead><tr style="color:var(--accent-gold); border-bottom:1px solid #444;"><th style="padding:10px;">#</th><th>Nickname</th><th>Questões</th><th>Precisão</th></tr></thead>
                     <tbody id="leaderboard-body"></tbody>
                 </table>
             </div>
@@ -337,17 +340,22 @@
     </div>
 
     <div id="profileModal" class="modal">
-        <div class="modal-content" style="max-width: 400px; text-align:center;">
+        <div class="modal-content" style="max-width: 450px; text-align:center;">
             <span class="close-btn" onclick="document.getElementById('profileModal').style.display='none'">&times;</span>
             <h2><i class="fas fa-id-badge"></i> Perfil do Comandante</h2>
-            <div style="background: var(--hover-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <p style="margin:0; font-size:0.9em; color:#888;">Status da Assinatura:</p>
-                <strong style="color: var(--accent-green); font-size: 1.2em;" id="profile-expiration">Lendo...</strong>
+            
+            <div style="background: var(--hover-bg); padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+                <p style="margin:5px 0; color:#888;"><i class="fas fa-envelope"></i> E-mail Cadastrado:</p>
+                <strong style="color: var(--text-color); font-size: 1.1em; display:block; margin-bottom:15px;" id="profile-email">Carregando...</strong>
+                
+                <p style="margin:5px 0; color:#888;"><i class="fas fa-calendar-check"></i> Status da Assinatura:</p>
+                <strong style="color: var(--accent-green); font-size: 1.1em;" id="profile-expiration">Carregando...</strong>
             </div>
-            <div class="form-group" style="text-align:left;">
-                <label style="font-size:0.8em; color:var(--accent-orange); font-weight:bold;">NICKNAME NO RANKING</label>
-                <input type="text" id="input-nickname" class="login-input" placeholder="Ex: Sargento_TCE" maxlength="15" style="margin-top:5px;">
-                <button class="btn-access" onclick="saveNickname()">SALVAR ALTERAÇÃO</button>
+            
+            <div class="form-group" style="text-align:left; background: var(--hover-bg); padding: 20px; border-radius: 8px;">
+                <label style="font-size:0.8em; color:var(--accent-orange); font-weight:bold;"><i class="fas fa-user-edit"></i> NICKNAME NO RANKING</label>
+                <input type="text" id="input-nickname" class="login-input" placeholder="Ex: Sargento_TCE" maxlength="15" style="margin-top:10px;">
+                <button class="btn-access" onclick="saveNickname()">SALVAR NICKNAME</button>
             </div>
         </div>
     </div>
@@ -490,6 +498,18 @@ Gostaria que fizesse:
         let customSubjects = JSON.parse(localStorage.getItem('pqdtCustomSubjects')) || [];
         let cicloMaster = []; let tempCiclo = [];   
 
+        /* LÓGICA DO MENU HAMBÚRGUER */
+        function toggleMenu() { document.getElementById('main-menu').classList.toggle('show'); }
+        window.onclick = function(event) {
+            if (!event.target.matches('.hamburger-btn') && !event.target.matches('.hamburger-btn *')) {
+                var dropdowns = document.getElementsByClassName("dropdown-menu");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) { openDropdown.classList.remove('show'); }
+                }
+            }
+        }
+
         function toggleTheme() { document.body.classList.toggle('light-mode'); localStorage.setItem('pqdtTheme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); location.reload(); }
         function toggleFocus() { document.body.classList.toggle('focus-mode'); }
         function showVerse() { alert("📖 Palavra do Dia:\n\n" + BIBLE_VERSES[Math.floor(Math.random() * BIBLE_VERSES.length)]); }
@@ -596,7 +616,7 @@ Gostaria que fizesse:
                 document.getElementById('register-screen').style.display = 'none';
                 document.getElementById('reset-screen').style.display = 'none';
                 document.getElementById('app-content').style.display = 'block';
-                document.getElementById('user-email-display').innerText = loggedUserEmail;
+                document.getElementById('profile-email').innerText = loggedUserEmail;
                 initApp();
             } else { showScreen('login'); }
         }
@@ -661,14 +681,14 @@ Gostaria que fizesse:
         }
 
         function loadGoogleSheetsData() {
-            let btn = document.getElementById('btn-sync'); btn.innerHTML = "Lendo...";
+            let btn = document.getElementById('btn-sync'); btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo...';
             fetch(`${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&senha=${encodeURIComponent(loggedUserSenha)}`)
             .then(res => res.json()).then(data => {
                 if(data.erro) { alert(data.mensagem); logout(); return; }
                 globalExpiration = data.expiration; globalNickname = data.nickname; globalLeaderboards = data.leaderboards;
                 processData(data.dados);
                 updateLeaderEffects();
-                btn.innerHTML = '<i class="fas fa-check-circle"></i> SINC';
+                btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizar Base';
             });
         }
 
@@ -685,20 +705,28 @@ Gostaria que fizesse:
             let list = globalLeaderboards[type] || [];
             let body = document.getElementById('leaderboard-body');
             if(list.length === 0) {
-                body.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:15px;">Nenhum registro lançado para este período ainda.</td></tr>';
+                body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px;">Nenhum registro lançado para este período ainda.</td></tr>';
                 return;
             }
-            body.innerHTML = list.map((u, i) => `
+            body.innerHTML = list.map((u, i) => {
+                let acc = u.a > 0 && u.q > 0 ? ((u.a / u.q) * 100).toFixed(1) + '%' : '--';
+                return `
                 <tr class="${u.nick === globalNickname ? 'leader-item' : ''}">
                     <td style="padding:10px;">#${i+1}</td>
-                    <td style="font-weight:bold;">${u.nick === globalNickname ? 'VOCÊ ('+u.nick+')' : u.nick}</td>
+                    <td style="font-weight:bold; color: ${u.nick === globalNickname ? 'var(--accent-gold)' : 'var(--text-color)'};">${u.nick === globalNickname ? 'VOCÊ ('+u.nick+')' : u.nick}</td>
                     <td>${u.q.toLocaleString()} Qs</td>
+                    <td style="color: ${parseFloat(acc) >= 75 ? 'var(--accent-green)' : (acc === '--' ? '#888' : 'var(--accent-red)')}; font-weight:bold;">${acc}</td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
         function openLeaderboardModal() { switchLeaderboard('diario'); document.getElementById('leaderboardModal').style.display='block'; }
-        function openProfileModal() { document.getElementById('profile-expiration').innerText = globalExpiration; document.getElementById('input-nickname').value = globalNickname; document.getElementById('profileModal').style.display='block'; }
+        
+        function openProfileModal() { 
+            document.getElementById('profile-expiration').innerText = globalExpiration; 
+            document.getElementById('input-nickname').value = globalNickname; 
+            document.getElementById('profileModal').style.display='block'; 
+        }
 
         function saveNickname() {
             let n = document.getElementById('input-nickname').value.trim();
@@ -903,14 +931,14 @@ Gostaria que fizesse:
             let payload = { acao: "lancamento", email: loggedUserEmail, dataEstudo: `${p[2]}/${p[1]}/${p[0]}`, materia: document.getElementById('f-materia').value, topico: document.getElementById('f-topico').value, tipoLink: document.getElementById('f-tipo-link').value, tempo: document.getElementById('f-tempo').value, questoes: document.getElementById('f-q').value, acertos: document.getElementById('f-a').value, fase: document.getElementById('f-fase').value };
             
             fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-            .then(() => { alert("Missão Cumprida!"); document.getElementById('studyForm').reset(); document.getElementById('entryModal').style.display='none'; btn.innerHTML='ENVIAR'; btn.disabled=false; loadGoogleSheetsData(); });
+            .then(() => { alert("Missão Cumprida!"); document.getElementById('studyForm').reset(); document.getElementById('entryModal').style.display='none'; btn.innerHTML='ENVIAR PARA A NUVEM'; btn.disabled=false; loadGoogleSheetsData(); });
         }
 
         window.onload = function() {
             if(loggedUserEmail && loggedUserSenha) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-content').style.display = 'block';
-                document.getElementById('user-email-display').innerText = loggedUserEmail;
+                document.getElementById('profile-email').innerText = loggedUserEmail;
                 initApp();
             }
         };
