@@ -9,7 +9,6 @@
     
     <style>
         :root {
-            /* TEMA DARK DE SINALIZAÇÃO (BASE) */
             --bg-color: #0E1116; --card-bg: #161B22; --text-color: #C9D1D9; --border-color: #30363D;
             --input-bg: #0D1117; --input-border: #30363D; --hover-bg: #21262D;
             --accent-blue: #58A6FF; --accent-green: #238636; --accent-red: #DA3633;
@@ -18,28 +17,23 @@
         }
 
         body.light-mode {
-            /* TEMA LIGHT DE ALTA PRECISÃO */
             --bg-color: #F6F8FA; --card-bg: #FFFFFF; --text-color: #24292F; --border-color: #D0D7DE;
             --input-bg: #FFFFFF; --input-border: #B0B7BE; --hover-bg: #F3F4F6;
         }
 
         body { font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; transition: 0.3s; overflow-x: hidden;}
         
-        /* BOTÕES GERAIS E INPUTS */
         .btn { padding: 10px 15px; border-radius: 6px; border: none; cursor: pointer; color: white; font-weight: bold; font-size: 14px; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;}
         .btn:hover { opacity: 0.85; transform: translateY(-1px); }
         .login-input { width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-color); border-radius: 6px; margin-bottom: 12px; outline: none; text-align: center; box-sizing: border-box;}
         
-        /* TELAS DE ACESSO */
         #login-screen, #register-screen, #reset-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--bg-color); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box;}
         .login-box { background-color: var(--card-bg); padding: 35px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; width: 100%; max-width: 400px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); box-sizing: border-box;}
         .access-links { margin-top: 20px; display: flex; justify-content: space-between; font-size: 0.85em; flex-wrap: wrap; gap: 10px;}
         .access-links a { color: var(--accent-blue); text-decoration: none; cursor: pointer; font-weight: bold;}
 
-        /* WRAPPER DA APLICAÇÃO (LAYOUT FOCADO NO PAPIRO) */
         #app-wrapper { display: none; width: 100%; min-height: 100vh; }
         
-        /* SIDEBAR (MENU LATERAL) */
         .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: fixed; height: 100vh; top: 0; left: 0; z-index: 900; transition: transform 0.3s ease;}
         .sidebar-brand { padding: 25px 20px; font-size: 1.3em; font-weight: bold; border-bottom: 1px solid var(--border-color); color: var(--text-color); display: flex; align-items: center; gap: 12px;}
         .sidebar-menu { padding: 15px 0; display: flex; flex-direction: column; flex-grow: 1; overflow-y: auto;}
@@ -48,7 +42,6 @@
         .nav-item.active { background-color: var(--hover-bg); color: var(--text-color); border-left-color: var(--accent-blue); }
         .sidebar-footer { padding: 20px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; background-color: rgba(0,0,0,0.1);}
 
-        /* CONTEÚDO PRINCIPAL */
         .main-content { margin-left: var(--sidebar-width); flex-grow: 1; padding: 30px; box-sizing: border-box; transition: margin-left 0.3s ease; width: calc(100% - var(--sidebar-width)); min-height: 100vh;}
         
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;}
@@ -58,12 +51,10 @@
         
         .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-color); font-size: 1.5em; cursor: pointer; padding: 0 10px 0 0;}
 
-        /* SEÇÕES DE VISÃO (TABS) */
         .app-view { display: none; animation: fadeIn 0.3s ease-in-out; }
         .app-view.active-view { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* CARDS KPI ESTILO DASHBOARD PREMIUM */
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .card { background-color: var(--card-bg); border-radius: 8px; padding: 20px; border: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden;}
         .card::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 4px; }
@@ -74,11 +65,11 @@
         .card h3 { margin: 0; font-size: 12px; color: #888; text-transform: uppercase; font-weight: 600; display: flex; align-items: center; gap: 8px;}
         .card p { margin: 10px 0 0 0; font-size: 28px; font-weight: bold; color: var(--text-color);}
 
-        /* GAMIFICAÇÃO & RANKING HEADER */
-        .rank-container { background: linear-gradient(to right, var(--card-bg), var(--hover-bg)); border: 1px solid var(--accent-gold); border-radius: 12px; padding: 25px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;}
+        .rank-container { background: linear-gradient(to right, var(--card-bg), var(--hover-bg)); border: 1px solid var(--accent-gold); border-radius: 12px; padding: 25px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; position: relative;}
         .is-leader-glow { box-shadow: 0 0 20px rgba(242, 201, 76, 0.4); border-color: var(--accent-gold); animation: pulse-gold 2s infinite; }
         @keyframes pulse-gold { 0% { box-shadow: 0 0 5px rgba(242, 201, 76, 0.2); } 50% { box-shadow: 0 0 25px rgba(242, 201, 76, 0.6); } 100% { box-shadow: 0 0 5px rgba(242, 201, 76, 0.2); } }
         
+        .view-ranks-link { position: absolute; top: 15px; right: 25px; color: var(--accent-blue); font-size: 0.85em; cursor: pointer; font-weight: bold; text-decoration: none;}
         .rank-info { display: flex; align-items: center; gap: 20px;}
         .rank-icon { font-size: 3.5em; color: var(--accent-gold); }
         .rank-details h2 { margin: 0; color: var(--accent-gold); text-transform: uppercase; font-size: 1.4em; }
@@ -89,7 +80,6 @@
         .xp-bar-bg { width: 100%; height: 10px; background-color: var(--border-color); border-radius: 5px; overflow: hidden;}
         .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent-orange), var(--accent-gold)); width: 0%; transition: 1s ease-out; }
 
-        /* GPS CRÍTICO E METAS */
         .gps-container { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 30px; align-items: stretch;}
         .gps-card { background-color: var(--card-bg); border-radius: 12px; padding: 20px; border: 1px solid var(--border-color); display: flex; flex-direction: column; box-sizing: border-box;}
         .gps-card h3 { margin-top: 0; color: var(--text-color); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; font-size: 1.1em;}
@@ -107,7 +97,6 @@
         .mission-list li.now { color: var(--text-color); font-weight: bold;}
         .mission-list li.now strong { color: var(--accent-green); }
 
-        /* GRÁFICOS E TABELAS */
         .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
         .chart-box { background-color: var(--card-bg); border-radius: 12px; padding: 20px; min-height: 380px; width: 100%; box-sizing: border-box; border: 1px solid var(--border-color);}
         .full-width { grid-column: 1 / -1; }
@@ -118,7 +107,6 @@
         th, td { padding: 12px 15px; border-bottom: 1px solid var(--border-color); }
         th { color: #888; font-weight: 600; text-transform: uppercase; font-size: 12px;}
 
-        /* MODAIS E FORMS */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.75); overflow-y: auto; padding: 20px; box-sizing: border-box; backdrop-filter: blur(3px);}
         .modal-content { background-color: var(--card-bg); margin: 2% auto; padding: 30px; border: 1px solid var(--border-color); width: 100%; max-width: 800px; border-radius: 12px; box-sizing: border-box; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.5);}
         .close-btn { color: #888; position: absolute; right: 20px; top: 20px; font-size: 24px; cursor: pointer; line-height: 1;}
@@ -141,13 +129,22 @@
         body.focus-mode .focus-section { height: 70vh; display: flex; align-items: center; justify-content: center; }
         body.focus-mode #btn-exit-foco { display: block; }
 
-        /* RANKING TABS */
         .rank-tabs { display: flex; gap: 5px; margin-bottom: 20px; background: var(--input-bg); padding: 5px; border-radius: 8px; border: 1px solid var(--border-color);}
         .rank-tab-btn { flex: 1; padding: 10px; border: none; background: none; color: #888; cursor: pointer; border-radius: 6px; font-weight: bold; font-size: 0.9em; transition: 0.2s;}
         .rank-tab-btn.active { background: var(--hover-bg); color: var(--text-color); box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
         .leader-item { background: rgba(242, 201, 76, 0.05); border-left: 3px solid var(--accent-gold) !important; }
 
-        /* RESPONSIVIDADE MOBILE */
+        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 15px; max-height: 200px; overflow-y: auto; padding: 10px; background: var(--input-bg); border-radius: 8px; border: 1px solid var(--border-color);}
+        .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 0.9em; cursor: pointer; padding: 5px; border-radius: 4px;}
+        .checkbox-label:hover { background: var(--hover-bg); }
+        .sortable-list { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; max-height: 250px; overflow-y: auto; margin-bottom: 20px; }
+        .sortable-item { display: flex; justify-content: space-between; align-items: center; background: var(--hover-bg); padding: 8px 15px; margin-bottom: 6px; border-radius: 6px; border-left: 3px solid var(--accent-blue); }
+        .sortable-actions button { background: none; border: none; color: #888; cursor: pointer; font-size: 1.1em; padding: 4px; transition: 0.2s; }
+        .sortable-actions button:hover { color: var(--accent-blue); }
+
+        .btn-action-top { border: 1px solid var(--input-border); background: var(--card-bg); color: var(--text-color); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; display: inline-flex; align-items: center; gap: 8px;}
+        .btn-action-top:hover { background: var(--hover-bg); }
+
         .sidebar-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:899; }
         @media (max-width: 992px) {
             .sidebar { transform: translateX(-100%); }
@@ -239,11 +236,11 @@
                     <p id="current-date-text">Carregando data...</p>
                 </div>
                 <div class="header-actions">
-                    <button class="btn" style="background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color);" onclick="showVerse()" title="Palavra"><i class="fas fa-bible" style="color:var(--accent-gold)"></i></button>
-                    <button class="btn" style="background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color);" onclick="toggleTheme()" title="Tema"><i class="fas fa-adjust"></i></button>
-                    <button class="btn" style="background: rgba(218, 54, 51, 0.1); border: 1px solid var(--accent-red); color: var(--accent-red);" onclick="toggleFocus()"><i class="fas fa-crosshairs"></i> FOCO</button>
+                    <button class="btn-action-top" onclick="showVerse()" title="Palavra Bíblica"><i class="fas fa-bible" style="color:var(--accent-gold)"></i></button>
+                    <button class="btn-action-top" onclick="toggleTheme()" title="Trocar Tema"><i class="fas fa-adjust"></i></button>
+                    <button class="btn-action-top" onclick="toggleFocus()" style="border-color:var(--accent-red); color:var(--accent-red);"><i class="fas fa-crosshairs"></i> FOCO</button>
                     <button class="btn" style="background: var(--accent-green);" onclick="openEntryModal()"><i class="fas fa-pen-nib"></i> LANÇAR MISSÃO</button>
-                    <button class="btn" style="background: var(--accent-blue);" id="btn-sync" onclick="loadGoogleSheetsData()"><i class="fas fa-sync-alt"></i> SINC</button>
+                    <button class="btn" style="background: var(--accent-blue);" id="btn-sync" onclick="loadGoogleSheetsData()"><i class="fas fa-sync-alt"></i> SINC DATA</button>
                 </div>
             </div>
             
@@ -343,7 +340,7 @@
                     <p style="font-weight:bold; font-size:14px; margin-top:30px; margin-bottom:10px;">Ordem de Batalha (Arraste nas setas):</p>
                     <div class="sortable-list" id="sortable-list"></div>
                     
-                    <button class="btn" style="background:var(--accent-orange); color:black; width:100%; padding:15px; font-size:16px;" onclick="saveConfig()">SALVAR ASSINATURA DO CICLO NA NUVEM</button>
+                    <button class="btn form-submit-btn" style="background:var(--accent-orange); color:black; width:100%; padding:15px; font-size:16px;" onclick="saveConfig()">SALVAR ASSINATURA DO CICLO NA NUVEM</button>
                 </div>
             </div>
 
@@ -351,7 +348,7 @@
                 <div class="chart-box" style="padding:0; overflow:hidden;">
                     <div style="background:var(--hover-bg); padding:20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color);">
                         <h2 style="margin:0; color:var(--accent-gold); font-size:1.4em;"><i class="fas fa-trophy"></i> Hall da Fama</h2>
-                        <button class="btn" style="background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-color);" onclick="loadGoogleSheetsData()"><i class="fas fa-sync"></i> Atualizar Placar</button>
+                        <button class="btn-action-top" onclick="loadGoogleSheetsData()"><i class="fas fa-sync"></i> Atualizar Placar</button>
                     </div>
                     <div style="padding:20px;">
                         <div class="rank-tabs">
@@ -374,7 +371,7 @@
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
                         <h2 style="margin:0; font-size:1.4em;"><i class="fas fa-list-alt" style="color:var(--accent-purple)"></i> Extrato de Missões</h2>
                         <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                            <select id="reportFilterMateria" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:8px 12px; border-radius:6px; outline:none;" onchange="renderReport()"><option value="all">Todas as Matérias</option></select>
+                            <select id="reportFilterMateria" class="btn-action-top" onchange="renderReport()"><option value="all">Todas as Matérias</option></select>
                             <div style="display:flex; background:var(--input-bg); border:1px solid var(--border-color); border-radius:6px; overflow:hidden;">
                                 <button class="btn" id="btnDiario" style="background:var(--accent-purple); border-radius:0; border:none; padding:8px 15px;" onclick="switchReport('diario')">Diário</button>
                                 <button class="btn" id="btnSemanal" style="background:transparent; color:var(--text-color); border-radius:0; border:none; padding:8px 15px;" onclick="switchReport('semanal')">Semanal</button>
@@ -502,8 +499,8 @@ Gostaria que fizesse:
     </script>
 
     <script>
-        // CONFIGURAÇÕES GERAIS
         const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz1vLMkc_dklbl7AxBHKBF8j1amLTAHwrUwknmLAZJxuXXaL1ra-LBjqCihay9RbX4_Qw/exec";
+        
         let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
         let loggedUserSenha = localStorage.getItem('pqdtSenha') || "";
         let globalExpiration = ""; let globalNickname = "Recruta"; let globalLeaderboards = {};
@@ -514,7 +511,6 @@ Gostaria que fizesse:
         let currentReportMode = 'diario'; let currentWeekStr = ""; 
         let totalQHistory = 0; let dailyQ = 0; let dailyMins = 0; let totalMoedas = 0;
 
-        // INICIALIZAÇÃO E TEMA
         if(localStorage.getItem('pqdtTheme') === 'light') document.body.classList.add('light-mode');
         function updateChartColors() {
             let isLight = document.body.classList.contains('light-mode');
@@ -523,7 +519,6 @@ Gostaria que fizesse:
         }
         updateChartColors();
 
-        // 22 DISCIPLINAS ORIGINAIS DE ENGENHARIA/CONTROLE (INTACTAS)
         const TODAS_MATERIAS = [
             { chaves: ["PNFL"], nome: "Eng: Planejamento de Obras" }, { chaves: ["AFO"], nome: "AFO / Orçamento Público" }, { chaves: ["DCO"], nome: "Direito Constitucional" }, { chaves: ["CEX"], nome: "Controle Externo" }, { chaves: ["CASP"], nome: "Contabilidade Pública" }, { chaves: ["CTG"], nome: "Contabilidade Geral" }, { chaves: ["EDF"], nome: "Eng: Edificações/Estruturas" }, { chaves: ["AMB"], nome: "Eng: Ambiental" }, { chaves: ["DAD"], nome: "Direito Administrativo" }, { chaves: ["POR"], nome: "Português" }, { chaves: ["OR"], nome: "Eng: Rodoviária" }, { chaves: ["OH"], nome: "Eng: Hídrica" }, { chaves: ["RLM"], nome: "Raciocínio Lógico" }, { chaves: ["INF"], nome: "Informática / TI" }, { chaves: ["AUDG"], nome: "Auditoria Governamental" }, { chaves: ["PARECER"], nome: "Peça Técnica / Parecer" }, { chaves: ["RED"], nome: "Treino: Redação" }, { chaves: ["ADM"], nome: "Administração Pública" }, { chaves: ["ECO"], nome: "Economia" }, { chaves: ["CIV"], nome: "Direito Civil" }, { chaves: ["PEN"], nome: "Direito Penal" }, { chaves: ["EST"], nome: "Estatística" }
         ];
@@ -547,44 +542,19 @@ Gostaria que fizesse:
         let customSubjects = JSON.parse(localStorage.getItem('pqdtCustomSubjects')) || [];
         let cicloMaster = []; let tempCiclo = [];   
 
-        // FUNÇÕES DE NAVEGAÇÃO INTERFACE
-        function toggleMobileMenu() { 
-            if(window.innerWidth <= 992) {
-                document.getElementById('app-sidebar').classList.toggle('open'); 
-                document.getElementById('sidebar-overlay').classList.toggle('open');
-            }
-        }
-
-        function switchView(viewId, element) {
-            document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active-view'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById('view-' + viewId).classList.add('active-view');
-            if(element) element.classList.add('active');
-            if(viewId === 'painel' && globalData.length > 0) updateDashboard('all');
-        }
-
+        function toggleMobileMenu() { if(window.innerWidth <= 992) { document.getElementById('app-sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('open'); } }
+        function switchView(viewId, element) { document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active-view')); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); document.getElementById('view-' + viewId).classList.add('active-view'); if(element) element.classList.add('active'); if(viewId === 'painel' && globalData.length > 0) updateDashboard('all'); }
         function toggleTheme() { document.body.classList.toggle('light-mode'); localStorage.setItem('pqdtTheme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); updateChartColors(); if(globalData.length>0) updateDashboard('all'); }
         function toggleFocus() { document.body.classList.toggle('focus-mode'); }
         function showVerse() { alert("📖 Palavra de Força:\n\n" + BIBLE_VERSES[Math.floor(Math.random() * BIBLE_VERSES.length)]); }
         function copyPrompt() { navigator.clipboard.writeText(document.getElementById('ai-prompt').innerText).then(() => alert("Prompt Copiado!")); }
-        function showScreen(type) {
-            document.getElementById('login-screen').style.display = type === 'login' ? 'flex' : 'none';
-            document.getElementById('register-screen').style.display = type === 'register' ? 'flex' : 'none';
-            document.getElementById('reset-screen').style.display = type === 'reset' ? 'flex' : 'none';
-        }
+        function showScreen(type) { document.getElementById('login-screen').style.display = type === 'login' ? 'flex' : 'none'; document.getElementById('register-screen').style.display = type === 'register' ? 'flex' : 'none'; document.getElementById('reset-screen').style.display = type === 'reset' ? 'flex' : 'none'; }
 
-        // SISTEMA DE CICLO NA NUVEM
         function loadCiclo(nuvemJson) {
-            if(nuvemJson && nuvemJson.trim() !== "") {
-                cicloMaster = JSON.parse(nuvemJson);
-                localStorage.setItem('pqdtCicloCustom', nuvemJson);
-            } else {
+            if(nuvemJson && nuvemJson.trim() !== "") { cicloMaster = JSON.parse(nuvemJson); localStorage.setItem('pqdtCicloCustom', nuvemJson); } 
+            else {
                 let saved = localStorage.getItem('pqdtCicloCustom');
-                if(saved) cicloMaster = JSON.parse(saved);
-                else {
-                    let chavesPadrao = ["PNFL", "AFO", "DCO", "CEX", "CASP", "CTG", "EDF", "DAD", "POR", "OR"];
-                    cicloMaster = chavesPadrao.map(sigla => TODAS_MATERIAS.find(m => m.chaves[0] === sigla)).filter(Boolean);
-                }
+                if(saved) cicloMaster = JSON.parse(saved); else { let chavesPadrao = ["PNFL", "AFO", "DCO", "CEX", "CASP", "CTG", "EDF", "DAD", "POR", "OR"]; cicloMaster = chavesPadrao.map(sigla => TODAS_MATERIAS.find(m => m.chaves[0] === sigla)).filter(Boolean); }
             }
             updateSelects();
         }
@@ -609,7 +579,7 @@ Gostaria que fizesse:
 
         function toggleMateria(cb) { if(cb.checked) tempCiclo.push({ nome: cb.getAttribute('data-nome'), chaves: [cb.value] }); else tempCiclo = tempCiclo.filter(c => c.chaves[0] !== cb.value); renderConfigUI(); }
         function moveItem(i, dir) { if(i+dir < 0 || i+dir >= tempCiclo.length) return; let temp = tempCiclo[i]; tempCiclo[i] = tempCiclo[i+dir]; tempCiclo[i+dir] = temp; renderConfigUI(); }
-        function deleteCustomSubject(sigla) { if(!confirm("Excluir matéria customizada do banco de dados local?")) return; customSubjects = customSubjects.filter(m => m.chaves[0] !== sigla); localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects)); tempCiclo = tempCiclo.filter(m => m.chaves[0] !== sigla); renderConfigUI(); }
+        function deleteCustomSubject(sigla) { if(!confirm("Excluir matéria customizada?")) return; customSubjects = customSubjects.filter(m => m.chaves[0] !== sigla); localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects)); tempCiclo = tempCiclo.filter(m => m.chaves[0] !== sigla); renderConfigUI(); }
         function updateSelects() { let sel = document.getElementById('f-materia'); if(sel) { sel.innerHTML = ""; cicloMaster.forEach(d => { let o = document.createElement('option'); o.value = d.chaves[0]; o.innerText = d.nome; sel.appendChild(o); }); } }
 
         function addCustomSubject() {
@@ -621,23 +591,23 @@ Gostaria que fizesse:
         }
 
         function saveConfig() {
-            if(tempCiclo.length === 0) return alert("É obrigatório selecionar pelo menos uma matéria para o ciclo tático!");
+            if(tempCiclo.length === 0) return alert("Selecione pelo menos uma matéria!");
             let btn = document.querySelector('.form-submit-btn'); let originalTxt = btn.innerText; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando no Google Sheets...'; btn.disabled = true;
             cicloMaster = JSON.parse(JSON.stringify(tempCiclo));
             let cicloStr = JSON.stringify(cicloMaster); localStorage.setItem('pqdtCicloCustom', cicloStr); updateSelects(); updateGPS();
             
             fetch(WEBHOOK_URL, {method: 'POST', mode: 'no-cors', body: JSON.stringify({acao: "salvar_ciclo_nuvem", email: loggedUserEmail, cicloJson: cicloStr})})
             .then(() => { alert("Ciclo sincronizado na Nuvem com sucesso!"); btn.innerHTML = originalTxt; btn.disabled = false; switchView('painel', document.querySelector('.nav-item')); })
-            .catch(() => { alert("Ciclo salvo apenas no cache local devido a instabilidade da rede."); btn.innerHTML = originalTxt; btn.disabled = false; switchView('painel', document.querySelector('.nav-item')); });
+            .catch(() => { alert("Ciclo salvo apenas no cache local."); btn.innerHTML = originalTxt; btn.disabled = false; switchView('painel', document.querySelector('.nav-item')); });
         }
 
-        // SISTEMA DE AUTENTICAÇÃO
+        // LOGIN E CONEXÃO
         function checkLogin() {
             if (loggedUserEmail && loggedUserSenha) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('register-screen').style.display = 'none';
                 document.getElementById('reset-screen').style.display = 'none';
-                document.getElementById('app-wrapper').style.display = 'flex'; // ATIVA O WRAPPER DA SIDEBAR
+                document.getElementById('app-wrapper').style.display = 'flex';
                 document.getElementById('profile-email').innerText = loggedUserEmail;
                 document.getElementById('sidebar-user-email').innerText = loggedUserEmail;
                 initApp();
@@ -654,26 +624,26 @@ Gostaria que fizesse:
                 if(data.status === "sucesso") {
                     localStorage.setItem('pqdtEmail', e); localStorage.setItem('pqdtSenha', s); loggedUserEmail = e; loggedUserSenha = s; checkLogin();
                 } else { alert(data.mensagem); btn.innerHTML = originalText; btn.disabled = false; }
-            }).catch(err => { alert("Falha ao comunicar com os servidores do Google. Tente novamente."); btn.innerHTML = originalText; btn.disabled = false; });
+            }).catch(err => { alert("Falha ao comunicar com os servidores do Google."); btn.innerHTML = originalText; btn.disabled = false; });
         }
 
         function register() {
             let e = document.getElementById('reg-email').value.trim(); let s = document.getElementById('reg-pass').value.trim();
             if(!e || !s) return alert("Preencha tudo!");
             fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "cadastro", email: e, senha: s})})
-            .then(() => { alert("Verificação enviada para a central! Você já pode fazer login."); showScreen('login'); });
+            .then(() => { alert("Verificação enviada! Você já pode fazer login."); showScreen('login'); });
         }
 
         function changePassword() {
             let e = document.getElementById('res-email').value.trim(); let s = document.getElementById('res-pass').value.trim();
             if(!e || !s) return alert("Preencha tudo!");
             fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "trocarSenha", email: e, novaSenha: s})})
-            .then(() => { alert("Senha atualizada na base! Volte e faça o login."); showScreen('login'); });
+            .then(() => { alert("Senha atualizada! Volte e faça o login."); showScreen('login'); });
         }
 
         function logout() { localStorage.clear(); location.reload(); }
 
-        // MÓDULO CRONÔMETRO E DATAS
+        // TIMER 
         function initApp() {
             document.getElementById('f-data').valueAsDate = new Date();
             if(localStorage.getItem('metaHrs')) document.getElementById('meta-hrs').value = localStorage.getItem('metaHrs');
@@ -682,7 +652,6 @@ Gostaria que fizesse:
             let today = new Date();
             let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('current-date-text').innerText = today.toLocaleDateString('pt-BR', options);
-
             loadGoogleSheetsData();
         }
 
@@ -708,26 +677,36 @@ Gostaria que fizesse:
             return `${tempD.getUTCFullYear()} - Sem ${Math.ceil((((tempD - yearStart) / 86400000) + 1)/7).toString().padStart(2, '0')}`;
         }
 
-        // MOTOR DE SINCRONIZAÇÃO DE DADOS 
+        // --- SINCRONIZAÇÃO BLINDADA COM ALERTA DETALHADO ---
         function loadGoogleSheetsData() {
             let btn = document.getElementById('btn-sync'); if(btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo...';
+            
             fetch(`${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&senha=${encodeURIComponent(loggedUserSenha)}`)
-            .then(res => res.json()).then(data => {
-                if(data.erro) { alert(data.mensagem); logout(); return; }
+            .then(res => res.json())
+            .then(data => {
+                if(data.erro || data.status === "erro") { 
+                    alert("ALERTA DA BASE DE DADOS:\n" + data.mensagem); 
+                    if(btn) btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro';
+                    if(data.mensagem.includes("Credenciais")) logout(); 
+                    return; 
+                }
+                
                 globalExpiration = data.expiration || "Vitalício"; 
                 globalNickname = data.nickname || "Recruta"; 
                 globalLeaderboards = data.leaderboards || {diario:[], mensal:[], geral:[]};
                 
-                // Trata a retrocompatibilidade (se for Array antigo ou Objeto novo)
+                // Aceita o formato antigo e o novo
                 let dataToProcess = data.dados ? data.dados : data;
                 
                 loadCiclo(data.cicloNuvem); 
                 processData(dataToProcess);
                 updateLeaderEffects();
                 
-                if(btn) { btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado'; setTimeout(() => btn.innerHTML = '<i class="fas fa-sync-alt"></i> SINC', 2000); }
-            }).catch(err => { 
-                console.log(err); alert("Falha na sincronização local. Verifique sua conexão."); 
+                if(btn) { btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado'; setTimeout(() => btn.innerHTML = '<i class="fas fa-sync-alt"></i> SINC DATA', 2000); }
+            })
+            .catch(err => { 
+                console.error("Erro no Fetch:", err);
+                alert("⚠️ FALHA DE COMUNICAÇÃO COM O GOOGLE SHEETS!\n\nSe você atualizou o Apps Script, certifique-se de que publicou com a opção 'Qualquer pessoa' (Anyone).\n\nDetalhe do Erro: " + err.message); 
                 if(btn) btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro'; 
             });
         }
