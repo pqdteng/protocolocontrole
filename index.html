@@ -232,12 +232,12 @@
             
             <div class="top-header">
                 <div class="greeting">
-                    <h2 style="display: flex; align-items: center; gap: 10px;">
-                        <button class="mobile-menu-btn" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
-                        Olá, Comandante! 👋
-                    </h2>
-                    <p id="current-date-text">Carregando data...</p>
-                </div>
+                    <h2 style="display: flex; align-items: center; gap: 10px; margin: 0; font-size: 1.5em; color: var(--text-color);">
+                    <button class="mobile-menu-btn" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+                    Olá, <span id="greeting-name" style="color: var(--accent-blue);">Comandante</span>! 👋
+                </h2>
+           <p id="current-date-text" style="margin: 5px 0 0 0; color: #888; font-size: 0.9em;"></p>
+        </div>
                 <div class="header-actions">
                     <button class="btn-action-top" onclick="showVerse()" title="Palavra Bíblica"><i class="fas fa-bible" style="color:var(--accent-gold)"></i></button>
                     <button class="btn-action-top" onclick="toggleTheme()" title="Trocar Tema"><i class="fas fa-adjust"></i></button>
@@ -672,6 +672,9 @@ Gostaria que fizesse:
             globalNickname = data.nickname || "Recruta"; 
             globalLeaderboards = data.leaderboards || {diario:[], mensal:[], geral:[]};
             
+            // ATUALIZA O NOME DO USUÁRIO NA TELA DE BOAS-VINDAS
+            setSafeText('greeting-name', globalNickname);
+            
             loadCiclo(data.cicloNuvem); 
             processData(data.dados || []);
             updateLeaderEffects();
@@ -680,10 +683,11 @@ Gostaria que fizesse:
             setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizar Base'), 2000);
         } catch (err) {
             console.error("Erro na Sincronização:", err);
+            alert("⚠️ FALHA DE SINCRONIZAÇÃO:\n" + err.message);
             btns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro');
         }
     }
-
+        
     function processData(data) {
         globalData = []; groupedDaily = {}; groupedWeekly = {}; totalQHistory = 0; dailyQ = 0; dailyMins = 0; totalMoedas = 0;
         currentWeekStr = getWeekNumber(new Date()); let uniqueS = new Set(); let todayStr = new Date().toLocaleDateString('pt-BR');
