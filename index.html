@@ -499,32 +499,18 @@ Gostaria que fizesse:
     </div>
 
     <script>
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.onkeydown = function(e) { if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 67 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false; }
-    </script>
-
-    <script>
-        const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz1vLMkc_dklbl7AxBHKBF8j1amLTAHwrUwknmLAZJxuXXaL1ra-LBjqCihay9RbX4_Qw/exec";
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz1vLMkc_dklbl7AxBHKBF8j1amLTAHwrUwknmLAZJxuXXaL1ra-LBjqCihay9RbX4_Qw/exec";
     
     let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
     let loggedUserSenha = localStorage.getItem('pqdtSenha') || "";
     let globalExpiration = ""; let globalNickname = "Recruta"; let globalLeaderboards = {diario:[], mensal:[], geral:[]};
     let isEditingMode = false;
-
     let globalData = []; let groupedDaily = {}; let groupedWeekly = {}; 
     let chart1Obj, chart2Obj, chart3Obj, modalPieChartObj; 
     let currentReportMode = 'diario'; let currentWeekStr = ""; 
     let totalQHistory = 0; let dailyQ = 0; let dailyMins = 0; let totalMoedas = 0;
 
-    // --- FUNÇÕES DE UTILIDADE E CONFIGURAÇÃO ---
-    if(localStorage.getItem('pqdtTheme') === 'light') document.body.classList.add('light-mode');
-    function updateChartColors() {
-        let isLight = document.body.classList.contains('light-mode');
-        Chart.defaults.color = isLight ? '#24292F' : '#C9D1D9'; 
-        Chart.defaults.borderColor = isLight ? '#D0D7DE' : '#30363D';
-    }
-    updateChartColors();
-
+    // --- CONSTANTES ---
     const TODAS_MATERIAS = [
         { chaves: ["PNFL"], nome: "Eng: Planejamento de Obras" }, { chaves: ["AFO"], nome: "AFO / Orçamento Público" }, { chaves: ["DCO"], nome: "Direito Constitucional" }, { chaves: ["CEX"], nome: "Controle Externo" }, { chaves: ["CASP"], nome: "Contabilidade Pública" }, { chaves: ["CTG"], nome: "Contabilidade Geral" }, { chaves: ["EDF"], nome: "Eng: Edificações/Estruturas" }, { chaves: ["AMB"], nome: "Eng: Ambiental" }, { chaves: ["DAD"], nome: "Direito Administrativo" }, { chaves: ["POR"], nome: "Português" }, { chaves: ["OR"], nome: "Eng: Rodoviária" }, { chaves: ["OH"], nome: "Eng: Hídrica" }, { chaves: ["RLM"], nome: "Raciocínio Lógico" }, { chaves: ["INF"], nome: "Informática / TI" }, { chaves: ["AUDG"], nome: "Auditoria Governamental" }, { chaves: ["PARECER"], nome: "Peça Técnica / Parecer" }, { chaves: ["RED"], nome: "Treino: Redação" }, { chaves: ["ADM"], nome: "Administração Pública" }, { chaves: ["ECO"], nome: "Economia" }, { chaves: ["CIV"], nome: "Direito Civil" }, { chaves: ["PEN"], nome: "Direito Penal" }, { chaves: ["EST"], nome: "Estatística" }
     ];
@@ -546,7 +532,16 @@ Gostaria que fizesse:
     let customSubjects = JSON.parse(localStorage.getItem('pqdtCustomSubjects')) || [];
     let cicloMaster = []; let tempCiclo = [];   
 
-    // --- FUNÇÕES DE NAVEGAÇÃO E LÓGICA ---
+    // --- FUNÇÕES CORE ---
+    if(localStorage.getItem('pqdtTheme') === 'light') document.body.classList.add('light-mode');
+    function updateChartColors() {
+        let isLight = document.body.classList.contains('light-mode');
+        Chart.defaults.color = isLight ? '#24292F' : '#C9D1D9'; 
+        Chart.defaults.borderColor = isLight ? '#D0D7DE' : '#30363D';
+    }
+    updateChartColors();
+
+    function setSafeText(id, value) { let el = document.getElementById(id); if (el) el.innerText = value; }
     function toggleMobileMenu() { if(window.innerWidth <= 992) { document.getElementById('app-sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('open'); } }
     function switchView(viewId, element) { document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active-view')); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); document.getElementById('view-' + viewId).classList.add('active-view'); if(element) element.classList.add('active'); if(viewId === 'painel' && globalData.length > 0) updateDashboard('all'); }
     function toggleTheme() { document.body.classList.toggle('light-mode'); localStorage.setItem('pqdtTheme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); updateChartColors(); if(globalData.length>0) updateDashboard('all'); }
@@ -554,7 +549,119 @@ Gostaria que fizesse:
     function showVerse() { alert("📖 Palavra de Força:\n\n" + BIBLE_VERSES[Math.floor(Math.random() * BIBLE_VERSES.length)]); }
     function copyPrompt() { navigator.clipboard.writeText(document.getElementById('ai-prompt').innerText).then(() => alert("Prompt Copiado!")); }
     function showScreen(type) { document.getElementById('login-screen').style.display = type === 'login' ? 'flex' : 'none'; document.getElementById('register-screen').style.display = type === 'register' ? 'flex' : 'none'; document.getElementById('reset-screen').style.display = type === 'reset' ? 'flex' : 'none'; }
-    function setSafeText(id, value) { let el = document.getElementById(id); if (el) el.innerText = value; }
+
+    // --- LÓGICA DO CICLO TÁTICO ---
+    function loadCiclo(nuvemJson) {
+        if(nuvemJson && nuvemJson.trim() !== "") { cicloMaster = JSON.parse(nuvemJson); localStorage.setItem('pqdtCicloCustom', nuvemJson); } 
+        else {
+            let saved = localStorage.getItem('pqdtCicloCustom');
+            if(saved) cicloMaster = JSON.parse(saved); else { let chavesPadrao = ["PNFL", "AFO", "DCO", "CEX", "CASP", "CTG", "EDF", "DAD", "POR", "OR"]; cicloMaster = chavesPadrao.map(sigla => TODAS_MATERIAS.find(m => m.chaves[0] === sigla)).filter(Boolean); }
+        }
+        updateSelects();
+    }
+
+    function openConfigModal() { switchView('ciclo-view', document.querySelector('.nav-item:nth-child(2)')); tempCiclo = JSON.parse(JSON.stringify(cicloMaster)); renderConfigUI(); }
+
+    function renderConfigUI() {
+        let containerCB = document.getElementById('config-checkboxes'); let containerList = document.getElementById('sortable-list');
+        containerCB.innerHTML = ''; containerList.innerHTML = '';
+        let allSubjects = [...TODAS_MATERIAS, ...customSubjects];
+        allSubjects.forEach(m => {
+            let isChecked = tempCiclo.some(c => c.chaves[0] === m.chaves[0]) ? 'checked' : '';
+            containerCB.innerHTML += `<label class="checkbox-label"><input type="checkbox" value="${m.chaves[0]}" data-nome="${m.nome}" ${isChecked} onchange="toggleMateria(this)"> ${m.nome}</label>`;
+        });
+        if(tempCiclo.length === 0) { containerList.innerHTML = '<p style="color:#888; text-align:center; padding:10px;">O ciclo está vazio.</p>'; return; }
+        tempCiclo.forEach((m, index) => {
+            let isCustom = customSubjects.some(cs => cs.chaves[0] === m.chaves[0]);
+            let deleteBtn = isCustom ? `<button type="button" onclick="deleteCustomSubject('${m.chaves[0]}')" style="color:var(--accent-red); background:none; border:none; cursor:pointer;"><i class="fas fa-trash"></i></button>` : '';
+            containerList.innerHTML += `<div class="sortable-item"><span style="font-size:13px;"><strong>${index + 1}.</strong> ${m.nome}</span><div class="sortable-actions" style="display:flex; gap:5px;">${deleteBtn}<button type="button" onclick="moveItem(${index}, -1)" ${index === 0 ? 'disabled' : ''}><i class="fas fa-chevron-up"></i></button><button type="button" onclick="moveItem(${index}, 1)" ${index === tempCiclo.length - 1 ? 'disabled' : ''}><i class="fas fa-chevron-down"></i></button></div></div>`;
+        });
+    }
+
+    function toggleMateria(cb) { if(cb.checked) tempCiclo.push({ nome: cb.getAttribute('data-nome'), chaves: [cb.value] }); else tempCiclo = tempCiclo.filter(c => c.chaves[0] !== cb.value); renderConfigUI(); }
+    function moveItem(i, dir) { if(i+dir < 0 || i+dir >= tempCiclo.length) return; let temp = tempCiclo[i]; tempCiclo[i] = tempCiclo[i+dir]; tempCiclo[i+dir] = temp; renderConfigUI(); }
+    function deleteCustomSubject(sigla) { if(!confirm("Excluir matéria customizada do banco de dados local?")) return; customSubjects = customSubjects.filter(m => m.chaves[0] !== sigla); localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects)); tempCiclo = tempCiclo.filter(m => m.chaves[0] !== sigla); renderConfigUI(); }
+    function updateSelects() { let sel = document.getElementById('f-materia'); if(sel) { sel.innerHTML = ""; cicloMaster.forEach(d => { let o = document.createElement('option'); o.value = d.chaves[0]; o.innerText = d.nome; sel.appendChild(o); }); } }
+    function addCustomSubject() {
+        let sigla = document.getElementById('custom-sigla').value.toUpperCase().trim(); let nome = document.getElementById('custom-nome').value.trim();
+        if(!sigla || !nome) return alert("Preencha Sigla e Nome.");
+        if([...TODAS_MATERIAS, ...customSubjects].some(m => m.chaves[0] === sigla)) return alert("Essa sigla já existe na plataforma!");
+        let nm = { chaves: [sigla], nome: nome }; customSubjects.push(nm); localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects)); tempCiclo.push(nm);
+        document.getElementById('custom-sigla').value = ''; document.getElementById('custom-nome').value = ''; renderConfigUI();
+    }
+
+    function saveConfig() {
+        if(tempCiclo.length === 0) return alert("É obrigatório selecionar pelo menos uma matéria!");
+        let btn = document.querySelector('.form-submit-btn'); let originalTxt = btn.innerText; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando na Nuvem...'; btn.disabled = true;
+        cicloMaster = JSON.parse(JSON.stringify(tempCiclo));
+        let cicloStr = JSON.stringify(cicloMaster); localStorage.setItem('pqdtCicloCustom', cicloStr); updateSelects(); updateGPS();
+        fetch(WEBHOOK_URL, {method: 'POST', mode: 'no-cors', body: JSON.stringify({acao: "salvar_ciclo_nuvem", email: loggedUserEmail, cicloJson: cicloStr})})
+        .then(() => { alert("Ciclo sincronizado na Nuvem!"); btn.innerHTML = originalTxt; btn.disabled = false; switchView('painel', document.querySelector('.nav-item')); })
+        .catch(() => { alert("Erro ao salvar."); btn.innerHTML = originalTxt; btn.disabled = false; });
+    }
+
+    // --- AUTENTICAÇÃO ---
+    function checkLogin() {
+        if (loggedUserEmail && loggedUserSenha) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-wrapper').style.display = 'flex';
+            document.getElementById('profile-email').innerText = loggedUserEmail;
+            document.getElementById('sidebar-user-email').innerText = loggedUserEmail;
+            initApp();
+        } else { showScreen('login'); }
+    }
+
+    function login() {
+        let e = document.getElementById('log-email').value.trim().toLowerCase(); let s = document.getElementById('log-pass').value.trim();
+        if(!e || !s) return alert("Preencha E-mail e Senha!");
+        let btn = document.querySelector('#login-screen .btn-access'); let originalText = btn.innerText; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando...'; btn.disabled = true;
+        fetch(`${WEBHOOK_URL}?acao=login&email=${encodeURIComponent(e)}&senha=${encodeURIComponent(s)}`)
+        .then(res => res.json()).then(data => {
+            if(data.status === "sucesso") {
+                localStorage.setItem('pqdtEmail', e); localStorage.setItem('pqdtSenha', s); loggedUserEmail = e; loggedUserSenha = s; checkLogin();
+            } else { alert(data.mensagem); btn.innerHTML = originalText; btn.disabled = false; }
+        }).catch(() => { alert("Falha na conexão."); btn.innerHTML = originalText; btn.disabled = false; });
+    }
+
+    function register() {
+        let e = document.getElementById('reg-email').value.trim(); let s = document.getElementById('reg-pass').value.trim();
+        if(!e || !s) return alert("Preencha tudo!");
+        fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "cadastro", email: e, senha: s})})
+        .then(() => { alert("Verificação enviada! Pode logar."); showScreen('login'); });
+    }
+
+    function changePassword() {
+        let e = document.getElementById('res-email').value.trim(); let s = document.getElementById('res-pass').value.trim();
+        if(!e || !s) return alert("Preencha tudo!");
+        fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "trocarSenha", email: e, novaSenha: s})})
+        .then(() => { alert("Senha atualizada! Faça o login."); showScreen('login'); });
+    }
+
+    function logout() { localStorage.clear(); location.reload(); }
+
+    // --- TIMERS E INICIALIZAÇÃO ---
+    function initApp() {
+        document.getElementById('f-data').valueAsDate = new Date();
+        if(localStorage.getItem('metaHrs')) document.getElementById('meta-hrs').value = localStorage.getItem('metaHrs');
+        if(localStorage.getItem('metaQ')) document.getElementById('meta-q').value = localStorage.getItem('metaQ');
+        loadGoogleSheetsData();
+    }
+
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('date-display').innerText = now.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '');
+        document.getElementById('clock-display').innerText = now.toLocaleTimeString('pt-BR');
+    }, 1000);
+
+    let timerSeconds = localStorage.getItem('pqdtTimer') ? parseInt(localStorage.getItem('pqdtTimer')) : 0; let timerInt;
+    function updateTimerDisplay() {
+        let h = Math.floor(timerSeconds/3600).toString().padStart(2,'0'); let m = Math.floor((timerSeconds%3600)/60).toString().padStart(2,'0'); let s = (timerSeconds%60).toString().padStart(2,'0');
+        document.getElementById('timer-display').innerText = `${h}:${m}:${s}`; localStorage.setItem('pqdtTimer', timerSeconds);
+    }
+    function startTimer() { clearInterval(timerInt); timerInt = setInterval(() => { timerSeconds++; updateTimerDisplay(); }, 1000); }
+    function pauseTimer() { clearInterval(timerInt); }
+    function resetTimer() { pauseTimer(); timerSeconds = 0; updateTimerDisplay(); }
+    updateTimerDisplay();
 
     function getWeekNumber(d) {
         let tempD = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); 
@@ -563,7 +670,7 @@ Gostaria que fizesse:
         return `${tempD.getUTCFullYear()} - Sem ${Math.ceil((((tempD - yearStart) / 86400000) + 1)/7).toString().padStart(2, '0')}`;
     }
 
-    // --- SINCRONIZAÇÃO E PROCESSAMENTO ---
+    // --- DADOS E RANKING ---
     async function loadGoogleSheetsData() {
         let btns = document.querySelectorAll('.sync-btn-ui');
         btns.forEach(b => b.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo...');
@@ -571,29 +678,17 @@ Gostaria que fizesse:
             let response = await fetch(`${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&senha=${encodeURIComponent(loggedUserSenha)}`);
             let data = await response.json();
             if (data.status === "erro") throw new Error(data.mensagem);
-            
-            globalExpiration = data.expiration || "Vitalício"; 
-            globalNickname = data.nickname || "Recruta"; 
-            globalLeaderboards = data.leaderboards || {diario:[], mensal:[], geral:[]};
-            
-            loadCiclo(data.cicloNuvem); 
-            processData(data.dados || []);
-            updateLeaderEffects();
-            
+            globalExpiration = data.expiration || "Vitalício"; globalNickname = data.nickname || "Recruta"; globalLeaderboards = data.leaderboards || {diario:[], mensal:[], geral:[]};
+            loadCiclo(data.cicloNuvem); processData(data.dados || []); updateLeaderEffects();
             btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado');
-            setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizar Base'), 2000);
-        } catch (err) {
-            console.error("Erro na Sincronização:", err);
-            alert("⚠️ FALHA DE SINCRONIZAÇÃO:\n" + err.message);
-            btns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro');
-        }
+            setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> SINC DATA'), 2000);
+        } catch (err) { alert("⚠️ ERRO: " + err.message); btns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro'); }
     }
 
     function processData(data) {
         globalData = []; groupedDaily = {}; groupedWeekly = {}; totalQHistory = 0; dailyQ = 0; dailyMins = 0; totalMoedas = 0;
         currentWeekStr = getWeekNumber(new Date()); let uniqueS = new Set(); let todayStr = new Date().toLocaleDateString('pt-BR');
-        let startRow = (data.length > 0 && String(data[0][2]).toLowerCase().includes('mat')) ? 1 : 0;
-        for(let i = startRow; i < data.length; i++) {
+        for(let i = (data.length > 0 && String(data[0][2]).toLowerCase().includes('mat')) ? 1 : 0; i < data.length; i++) {
             let r = data[i]; if(!r || !r[2]) continue;
             let q = parseFloat(String(r[6]).replace(',','.')) || 0; let a = parseFloat(String(r[7]).replace(',','.')) || 0; let t = parseFloat(String(r[5]).replace(',','.')) || 0;
             let mat = String(r[2]).trim(); totalQHistory += q; uniqueS.add(mat);
@@ -620,222 +715,142 @@ Gostaria que fizesse:
         updateRank(); updateGPS(); updateDashboard('all'); renderReport();
     }
 
-        function updateRank() {
-            let r = GAMER_RANKS[0]; let n = GAMER_RANKS[1];
-            for(let i=0; i<GAMER_RANKS.length; i++) { if(totalQHistory >= GAMER_RANKS[i].threshold) { r = GAMER_RANKS[i]; n = GAMER_RANKS[i+1] || r; } }
-            setSafeText('rank-title', r.title);
-            setSafeText('rank-subtitle', r.desc);
-            let icon = document.getElementById('rank-icon'); if(icon) icon.className = `fas ${r.icon} rank-icon`;
-            let p = ((totalQHistory - r.threshold) / (n.threshold - r.threshold)) * 100;
-            setSafeText('rank-progress-text', `${totalQHistory.toLocaleString()} / ${n.threshold.toLocaleString()} Q`);
-            let bar = document.getElementById('rank-bar'); if(bar) bar.style.width = Math.min(p, 100) + '%';
-            setSafeText('coin-display', totalMoedas.toLocaleString('pt-BR'));
-            setSafeText('txt-daily-q', dailyQ); setSafeText('txt-daily-h', (dailyMins/60).toFixed(1));
-            let bq = document.getElementById('badge-q'); if(bq) bq.className = dailyQ >= 100 ? "badge active-q" : "badge";
-            let bh = document.getElementById('badge-h'); if(bh) bh.className = dailyMins >= 120 ? "badge active-h" : "badge";
+    function updateRank() {
+        let r = GAMER_RANKS[0]; let n = GAMER_RANKS[1];
+        for(let i=0; i<GAMER_RANKS.length; i++) { if(totalQHistory >= GAMER_RANKS[i].threshold) { r = GAMER_RANKS[i]; n = GAMER_RANKS[i+1] || r; } }
+        setSafeText('rank-title', r.title); setSafeText('rank-subtitle', r.desc);
+        let icon = document.getElementById('rank-icon'); if(icon) icon.className = `fas ${r.icon} rank-icon`;
+        let p = ((totalQHistory - r.threshold) / (n.threshold - r.threshold)) * 100;
+        setSafeText('rank-progress-text', `${totalQHistory.toLocaleString()} / ${n.threshold.toLocaleString()} Q`);
+        let bar = document.getElementById('rank-bar'); if(bar) bar.style.width = Math.min(p, 100) + '%';
+        setSafeText('coin-display', totalMoedas.toLocaleString('pt-BR'));
+        setSafeText('txt-daily-q', dailyQ); setSafeText('txt-daily-h', (dailyMins/60).toFixed(1));
+        let bq = document.getElementById('badge-q'); if(bq) bq.className = dailyQ >= 100 ? "badge active-q" : "badge";
+        let bh = document.getElementById('badge-h'); if(bh) bh.className = dailyMins >= 120 ? "badge active-h" : "badge";
+    }
+
+    function calcularDiasOfensiva() {
+        let datasUnicas = Object.keys(groupedDaily).map(d => { let p = d.split('/'); return new Date(p[2], p[1]-1, p[0]); }).sort((a,b) => b - a);
+        if(datasUnicas.length === 0) return 0;
+        let streak = 0; let hoje = new Date(); hoje.setHours(0,0,0,0); let checkDate = new Date(datasUnicas[0]); checkDate.setHours(0,0,0,0);
+        if(Math.floor((hoje - checkDate) / 86400000) > 1) return 0;
+        let lastDate = null;
+        for(let d of datasUnicas) {
+            d.setHours(0,0,0,0);
+            if(lastDate === null) { streak = 1; } else {
+                let diff = Math.floor((lastDate - d) / 86400000);
+                if(diff === 1) streak++; else if(diff > 1) break;
+            } lastDate = d;
+        } return streak;
+    }
+
+    function switchLeaderboard(type) {
+        document.querySelectorAll('.rank-tab-btn').forEach(b => b.classList.remove('active'));
+        let tab = document.getElementById('tab-'+(type==='diario'?'hoje':(type==='mensal'?'mes':'geral')));
+        if(tab) tab.classList.add('active');
+        let list = globalLeaderboards[type] || []; let body = document.getElementById('leaderboard-body');
+        if(list.length === 0) { body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px; color:#888;">Nenhum registro para este período.</td></tr>'; return; }
+        body.innerHTML = list.map((u, i) => {
+            let acc = u.a > 0 && u.q > 0 ? ((u.a / u.q) * 100).toFixed(1) + '%' : '--';
+            return `<tr class="${u.nick === globalNickname ? 'leader-item' : ''}"><td style="padding:12px; color:#888;">#${i+1}</td><td style="font-weight:bold; color: ${u.nick === globalNickname ? 'var(--accent-gold)' : 'var(--text-color)'};">${u.nick === globalNickname ? 'VOCÊ ('+u.nick+')' : u.nick}</td><td>${u.q.toLocaleString()} Qs</td><td style="color: ${parseFloat(acc) >= 75 ? 'var(--accent-green)' : (acc === '--' ? '#888' : 'var(--accent-red)')}; font-weight:bold;">${acc}</td></tr>`;
+        }).join('');
+    }
+
+    function updateLeaderEffects() {
+        let isLeader = (globalLeaderboards.diario && globalLeaderboards.diario[0]?.nick === globalNickname) || 
+                       (globalLeaderboards.mensal && globalLeaderboards.mensal[0]?.nick === globalNickname) || 
+                       (globalLeaderboards.geral && globalLeaderboards.geral[0]?.nick === globalNickname);
+        if(isLeader) document.getElementById('rank-panel').classList.add('is-leader-glow'); else document.getElementById('rank-panel').classList.remove('is-leader-glow');
+    }
+
+    function updateDashboard(f) {
+        let d = f === 'all' ? globalData : globalData.filter(x => x.mat === f);
+        let tQ=0, tA=0, tM=0; let g = {};
+        d.forEach(x => { tQ+=x.q; tA+=x.a; tM+=x.t; let k = x.mat; if(!g[k]) g[k]={q:0,a:0,t:0}; g[k].q+=x.q; g[k].a+=x.a; g[k].t+=x.t; });
+        setSafeText('kpi-q', tQ.toLocaleString('pt-BR')); setSafeText('kpi-acc', tQ>0 ? ((tA/tQ)*100).toFixed(1)+'%' : '0%'); setSafeText('kpi-hrs', (tM/60).toFixed(1)+'h'); setSafeText('kpi-vel', tM>0 ? ((tQ/tM)*60).toFixed(0) : '0');
+        renderCharts(f, Object.keys(g), Object.keys(g).map(l => g[l].q>0 ? ((g[l].a/g[l].q)*100).toFixed(1) : 0), Object.keys(g).map(l => (g[l].t/60).toFixed(1)), Object.keys(g).map(l => g[l].q));
+    }
+
+    function renderCharts(m, l, a, h, v) {
+        if(chart1Obj) chart1Obj.destroy(); if(chart2Obj) chart2Obj.destroy(); if(chart3Obj) chart3Obj.destroy();
+        const c1 = document.getElementById('chart1').getContext('2d'); const c2 = document.getElementById('chart2').getContext('2d'); const c3 = document.getElementById('chart3').getContext('2d');
+        let isLight = document.body.classList.contains('light-mode');
+        let gridColor = isLight ? '#D0D7DE' : '#30363D';
+        let chartOptions = { maintainAspectRatio: false, scales: m === 'all' ? { r: { grid: { color: gridColor }, angleLines: { color: gridColor } } } : { x: { grid: { color: gridColor } }, y: { grid: { color: gridColor } } } };
+        if(m === 'all') {
+            chart1Obj = new Chart(c1, { type:'radar', data:{labels:l, datasets:[{label:'% Acerto', data:a, borderColor:'#238636', backgroundColor:'rgba(35, 134, 54, 0.2)'}]}, options: chartOptions });
+            chart2Obj = new Chart(c2, { type:'radar', data:{labels:l, datasets:[{label:'Horas', data:h, borderColor:'#8957E5', backgroundColor:'rgba(137, 87, 229, 0.2)'}]}, options: chartOptions });
+            chart3Obj = new Chart(c3, { type:'bar', data:{labels:l, datasets:[{label:'Questões', data:v, backgroundColor:'#58A6FF'}]}, options: { maintainAspectRatio: false, scales: { x: { grid: { color: gridColor } }, y: { grid: { color: gridColor } } } } });
+        } else {
+            let cols = a.map(x => x < 75 ? 'rgba(218, 54, 51, 0.8)' : 'rgba(35, 134, 54, 0.8)');
+            chart1Obj = new Chart(c1, { type:'bar', data:{labels:l, datasets:[{label:'% Acerto', data:a, backgroundColor:cols}]}, options: { indexAxis:'y', ...chartOptions } });
+            chart2Obj = new Chart(c2, { type:'bar', data:{labels:l, datasets:[{label:'Horas', data:h, backgroundColor:'#8957E5'}]}, options: { indexAxis:'y', ...chartOptions } });
+            chart3Obj = new Chart(c3, { type:'bar', data:{labels:l, datasets:[{label:'Questões', data:v, backgroundColor:'#58A6FF'}]}, options: { indexAxis:'y', ...chartOptions } });
         }
+    }
 
-        function updateLeaderEffects() {
-            let isLeader = (globalLeaderboards.diario && globalLeaderboards.diario[0]?.nick === globalNickname) || 
-                           (globalLeaderboards.mensal && globalLeaderboards.mensal[0]?.nick === globalNickname) || 
-                           (globalLeaderboards.geral && globalLeaderboards.geral[0]?.nick === globalNickname);
-            if(isLeader) document.getElementById('rank-panel').classList.add('is-leader-glow'); else document.getElementById('rank-panel').classList.remove('is-leader-glow');
-        }
+    function switchReport(m) { 
+        currentReportMode = m; document.getElementById('btnDiario').className = m==='diario' ? 'toggle-btn active' : 'toggle-btn'; document.getElementById('btnSemanal').className = m==='semanal' ? 'toggle-btn active' : 'toggle-btn'; renderReport(); 
+    }
 
-        function switchLeaderboard(type) {
-            document.querySelectorAll('.rank-tab-btn').forEach(b => b.classList.remove('active'));
-            if(document.getElementById('tab-'+(type==='diario'?'hoje':(type==='mensal'?'mes':'geral')))) document.getElementById('tab-'+(type==='diario'?'hoje':(type==='mensal'?'mes':'geral'))).classList.add('active');
-            let list = globalLeaderboards[type] || []; let body = document.getElementById('leaderboard-body');
-            if(list.length === 0) { body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px; color:#888;">Nenhum registro para este período.</td></tr>'; return; }
-            body.innerHTML = list.map((u, i) => {
-                let acc = u.a > 0 && u.q > 0 ? ((u.a / u.q) * 100).toFixed(1) + '%' : '--';
-                return `<tr class="${u.nick === globalNickname ? 'leader-item' : ''}"><td style="padding:12px; color:#888;">#${i+1}</td><td style="font-weight:bold; color: ${u.nick === globalNickname ? 'var(--accent-gold)' : 'var(--text-color)'};">${u.nick === globalNickname ? 'VOCÊ ('+u.nick+')' : u.nick}</td><td>${u.q.toLocaleString()} Qs</td><td style="color: ${parseFloat(acc) >= 75 ? 'var(--accent-green)' : (acc === '--' ? '#888' : 'var(--accent-red)')}; font-weight:bold;">${acc}</td></tr>`;
-            }).join('');
-        }
+    function renderReport() {
+        let isD = currentReportMode === 'diario'; document.getElementById('col-periodo').innerText = isD ? 'Data' : 'Semana';
+        let filterMat = document.getElementById('reportFilterMateria').value;
+        let body = document.getElementById('report-body'); body.innerHTML = '';
+        let arr = Object.keys(isD ? groupedDaily : groupedWeekly).map(k => ({ key: k, ...(isD ? groupedDaily[k] : groupedWeekly[k]) }));
+        arr.sort((a, b) => isD ? b.dateObj - a.dateObj : b.key.localeCompare(a.key));
+        arr.forEach(r => {
+            let q = r.q, a = r.a, t = r.t;
+            if(filterMat !== 'all') { let sub = r.subjects[filterMat] || {q:0, a:0, t:0}; q = sub.q; a = sub.a; t = sub.t; }
+            if(q === 0 && t === 0) return;
+            let ac = q > 0 ? ((a/q)*100).toFixed(1) : 0; let cl = ac >= 75 ? 'color:var(--accent-green)' : 'color:var(--accent-red)';
+            body.innerHTML += `<tr><td style="color:#888;"><strong>${r.key}</strong></td><td>${q}</td><td>${a}</td><td style="${cl}; font-weight:bold;">${ac}%</td><td>${(t/60).toFixed(1)}h</td><td>${t>0 ? ((q/t)*60).toFixed(0) : 0} Q/h</td><td><button class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); padding:6px 10px;" onclick="openDetailsModal('${r.key}')"><i class="fas fa-camera"></i></button></td></tr>`;
+        });
+    }
 
-        function openLeaderboardModal() { switchView('ranking-view', document.querySelector('.nav-item:nth-child(3)')); switchLeaderboard('diario'); }
-        function openProfileModal() { document.getElementById('profile-expiration').innerText = globalExpiration; document.getElementById('input-nickname').value = globalNickname; document.getElementById('profileModal').style.display='block'; }
-        
-        function saveNickname() {
-            let n = document.getElementById('input-nickname').value.trim(); if(!n) return alert("Digite um Nickname.");
-            fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "updateProfile", email: loggedUserEmail, nickname: n})})
-            .then(() => { alert("Codinome registrado! Dê um Sincronizar Base para atualizar o placar."); document.getElementById('profileModal').style.display='none'; loadGoogleSheetsData(); });
-        }
+    function openDetailsModal(k) {
+        let d = currentReportMode === 'diario' ? groupedDaily[k] : groupedWeekly[k]; if(!d) return;
+        document.getElementById('detailsModal').style.display = 'block';
+        let b = document.getElementById('modalBody'); b.innerHTML = '';
+        let chartLabels = []; let chartData = []; let chartColors = ['#58A6FF', '#F2C94C', '#238636', '#8957E5', '#DA3633', '#00B4D8', '#F0883E', '#C9D1D9', '#7209B7', '#4CC9F0'];
+        let subjectsSorted = Object.keys(d.subjects).sort((s1, s2) => d.subjects[s2].t - d.subjects[s1].t);
+        subjectsSorted.forEach(s => {
+            let v = d.subjects[s]; let ac = v.q>0 ? ((v.a/v.q)*100).toFixed(1) : 0; let h = (v.t/60).toFixed(1);
+            chartLabels.push(s); chartData.push(v.t>0 ? h : v.q);
+            b.innerHTML += `<tr><td>${s}</td><td><strong>${h}h</strong></td><td>${v.q}</td><td>${v.a}</td><td>${ac}%</td></tr>`;
+        });
+        if(modalPieChartObj) modalPieChartObj.destroy();
+        const ctxM = document.getElementById('modalChartPie').getContext('2d');
+        modalPieChartObj = new Chart(ctxM, { type: 'doughnut', data: { labels: chartLabels, datasets: [{ data: chartData, backgroundColor: chartColors.slice(0, chartLabels.length), borderColor: document.body.classList.contains('light-mode') ? '#fff' : '#161B22', borderWidth: 3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: Chart.defaults.color } } }, cutout: '65%' } });
+    }
 
-        function openRanksModal() {
-            let container = document.getElementById('ranks-list-container'); let info = document.getElementById('next-rank-info');
-            container.innerHTML = ''; info.innerHTML = '';
-            let currentIdx = 0; for(let i=0; i<GAMER_RANKS.length; i++) { if(totalQHistory >= GAMER_RANKS[i].threshold) currentIdx = i; }
+    function openEntryModal() { 
+        isEditingMode = false; document.getElementById('studyForm').reset(); document.getElementById('f-data').valueAsDate = new Date();
+        document.getElementById('btn-submit-form').innerText = "ENVIAR PARA A NUVEM"; document.getElementById('btn-submit-form').style.background = "var(--accent-green)"; document.getElementById('btn-submit-form').style.color = "white";
+        if(timerSeconds>0) document.getElementById('f-tempo').value = Math.floor(timerSeconds/60);
+        document.getElementById('entryModal').style.display='block'; 
+    }
 
-            let nR = GAMER_RANKS[currentIdx + 1];
-            if (nR) info.innerHTML = `<div style="background:rgba(88, 166, 255, 0.1); border:1px solid var(--accent-blue); padding:15px; border-radius:8px; text-align:center;"><strong style="color:var(--accent-blue);">Próxima Patente: ${nR.title}</strong><br><span style="font-size:0.95em; color:#888;">Faltam <strong>${(nR.threshold - totalQHistory).toLocaleString('pt-BR')}</strong> questões para a promoção.</span></div>`;
-            else info.innerHTML = `<div style="background:rgba(242, 201, 76, 0.1); border:1px solid var(--accent-gold); padding:15px; border-radius:8px; text-align:center;"><strong style="color:var(--accent-gold);"><i class="fas fa-crown"></i> Você atingiu a Patente Máxima!</strong></div>`;
+    function loadLastEntryToEdit() {
+        if(globalData.length === 0) return alert("Você ainda não tem lançamentos!");
+        let last = globalData[0]; 
+        let d = last.date; let yyyy = d.getFullYear(); let mm = String(d.getMonth() + 1).padStart(2, '0'); let dd = String(d.getDate()).padStart(2, '0');
+        document.getElementById('f-data').value = `${yyyy}-${mm}-${dd}`; document.getElementById('f-materia').value = last.mat; document.getElementById('f-topico').value = last.topico || '';
+        document.getElementById('f-tipo-link').value = last.link || ''; document.getElementById('f-tempo').value = last.t; document.getElementById('f-q').value = last.q;
+        document.getElementById('f-a').value = last.a; document.getElementById('f-fase').value = last.fase || '1';
+        isEditingMode = true; document.getElementById('btn-submit-form').innerText = "SALVAR RETIFICAÇÃO"; document.getElementById('btn-submit-form').style.background = "var(--accent-orange)"; document.getElementById('btn-submit-form').style.color = "black";
+    }
 
-            GAMER_RANKS.forEach((r, i) => {
-                let isC = i === currentIdx; let isL = i > currentIdx;
-                let bg = isC ? 'background:var(--hover-bg); border:1px solid var(--accent-gold); border-left:4px solid var(--accent-gold);' : (isL ? 'opacity:0.4;' : 'border-bottom:1px solid var(--border-color);');
-                container.innerHTML += `<div style="display:flex; align-items:center; gap:15px; padding:12px; margin-bottom:8px; border-radius:8px; ${bg}"><div style="width:40px; text-align:center;"><i class="fas ${r.icon}" style="font-size:1.8em; color:${isC?'var(--accent-gold)':(isL?'#555':'#888')};"></i></div><div style="flex-grow:1;"><div style="font-weight:bold; font-size:1.1em; color:var(--text-color);">${r.title} ${isC?'<span style="font-size:0.7em; color:var(--accent-gold);">(Atual)</span>':''}</div><div style="font-size:0.85em; color:#888;">Desbloqueia com ${r.threshold.toLocaleString('pt-BR')} Qs</div></div></div>`;
-            }); document.getElementById('ranksModal').style.display = 'block';
-        }
-
-        // GPS E METAS
-        function saveGoals() { localStorage.setItem('metaHrs', document.getElementById('meta-hrs').value); localStorage.setItem('metaQ', document.getElementById('meta-q').value); updateGPS(); }
-
-        function updateGPS() {
-            let metaHrs = parseFloat(document.getElementById('meta-hrs').value) || 20; let metaQ = parseFloat(document.getElementById('meta-q').value) || 500;
-            let currentWeekData = groupedWeekly[currentWeekStr] || { q: 0, t: 0 };
-            let hrsFeitas = (currentWeekData.t / 60).toFixed(1); let qFeitas = currentWeekData.q;
-            let pctHrs = Math.min((hrsFeitas / metaHrs) * 100, 100).toFixed(0); let pctQ = Math.min((qFeitas / metaQ) * 100, 100).toFixed(0);
-
-            document.getElementById('lbl-hrs-feito').innerText = hrsFeitas; document.getElementById('lbl-hrs-pct').innerText = pctHrs + '%'; document.getElementById('bar-hrs').style.width = pctHrs + '%';
-            document.getElementById('lbl-q-feito').innerText = qFeitas; document.getElementById('lbl-q-pct').innerText = pctQ + '%'; document.getElementById('bar-q').style.width = pctQ + '%';
-
-            if(globalData.length > 0) {
-                let last = globalData[0]; 
-                let valFase = String(last.fase).trim(); let valK = String(last.k).toUpperCase().trim(); let valL = String(last.l).toUpperCase().trim();
-                let isConsolidated = (valFase === "4" && valK === "OK" && valL.includes("CONSOLIDADO"));
-                let idx = cicloMaster.findIndex(d => last.mat === d.chaves[0] || String(last.mat).includes(d.nome)); if(idx === -1) idx = 0;
-                
-                let p1 = cicloMaster[idx] || cicloMaster[0]; let p2 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0];
-                if (isConsolidated) {
-                    p1 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0]; p2 = cicloMaster[(idx + 2) % cicloMaster.length] || cicloMaster[0];
-                    document.getElementById('mission-list').innerHTML = `<li style="color:var(--accent-green); margin-bottom:10px;">Missão Cumprida! Próximo Alvo:</li><li class="now"><strong>Agora:</strong> ${p1.nome}</li><li><strong>Passo 2:</strong> ${p2.nome}</li>`;
-                } else {
-                    document.getElementById('mission-list').innerHTML = `<li style="color:var(--accent-red); margin-bottom:10px;">Não Consolidada! Retome:</li><li class="now"><strong>Agora:</strong> ${p1.nome}</li><li><strong>Próximo:</strong> ${p2.nome}</li>`;
-                }
-
-                let cad = globalData.find(x => x.mat === p1.chaves[0] || String(x.mat).includes(p1.nome));
-                let container = document.getElementById('gps-ultimo-caderno');
-                let badgeHTML = !isConsolidated ? `<div style="display:flex; gap:5px; margin-top:10px; justify-content:center;"><span class="badge" style="font-size:10px; background:rgba(88,166,255,0.1); border:1px solid var(--accent-blue); color:var(--accent-blue)">Fase Atual: ${valFase||"?"}</span></div>` : "";
-
-                if(cad && cad.link && cad.link.includes('http')) {
-                    let ext = cad.link.match(/(https?:\/\/[^\s]+)/g); let finalUrl = ext ? ext[0] : cad.link;
-                    container.innerHTML = `<a href="${finalUrl}" target="_blank" class="btn" style="background:var(--accent-orange); color:black; width:100%; justify-content:center; margin-bottom:8px; text-decoration:none;"><i class="fas fa-external-link-alt"></i> RETOMAR CADERNO</a><div style="font-size:11px; color:#888;">Acesso: <strong>${cad.date.toLocaleDateString()}</strong></div>${badgeHTML}`;
-                } else {
-                    container.innerHTML = `<div style="background:var(--bg-color); border: 1px solid var(--border-color); padding:10px; border-radius:8px; width:100%; box-sizing:border-box;">Alvo: <strong style="color:white;">${p1.chaves[0]}</strong><br><span style="color:var(--accent-orange); font-size:11px;">Sem link anexado.</span></div><div style="font-size:11px; color:#888; margin-top:8px;">Aguardando primeiro acesso.</div>${badgeHTML}`;
-                }
-            } else {
-                let p1 = cicloMaster[0] || {nome: "Ciclo Vazio", chaves: ["-"]};
-                document.getElementById('mission-list').innerHTML = `<li style="color:var(--accent-green); margin-bottom:10px;">Inicie o seu Ciclo:</li><li class="now"><strong>Agora:</strong> ${p1.nome}</li>`;
-                document.getElementById('gps-ultimo-caderno').innerHTML = `<div style="background:var(--bg-color); border: 1px solid var(--border-color); padding:10px; border-radius:8px; width:100%; box-sizing:border-box; margin-bottom:8px;">Alvo: <strong style="color:white;">${p1.chaves[0]}</strong><br><span style="color:var(--accent-orange); font-size:11px;">Pendente.</span></div>`;
-            }
-        }
-
-        // GRÁFICOS E RELATÓRIOS
-        function updateDashboard(f) {
-            let d = f === 'all' ? globalData : globalData.filter(x => x.mat === f);
-            let tQ=0, tA=0, tM=0; let g = {};
-            d.forEach(x => { tQ+=x.q; tA+=x.a; tM+=x.t; let k = x.mat; if(!g[k]) g[k]={q:0,a:0,t:0}; g[k].q+=x.q; g[k].a+=x.a; g[k].t+=x.t; });
-            
-            document.getElementById('kpi-q').innerText = tQ.toLocaleString('pt-BR');
-            document.getElementById('kpi-acc').innerText = tQ>0 ? ((tA/tQ)*100).toFixed(1)+'%' : '0%';
-            document.getElementById('kpi-hrs').innerText = (tM/60).toFixed(1)+'h';
-            document.getElementById('kpi-vel').innerText = tM>0 ? ((tQ/tM)*60).toFixed(0) : '0';
-            
-            let lbl = Object.keys(g); let accD = lbl.map(l => g[l].q>0 ? ((g[l].a/g[l].q)*100).toFixed(1) : 0); let hrsD = lbl.map(l => (g[l].t/60).toFixed(1)); let volD = lbl.map(l => g[l].q);
-            renderCharts(f, lbl, accD, hrsD, volD);
-        }
-
-        function renderCharts(m, l, a, h, v) {
-            if(chart1Obj) chart1Obj.destroy(); if(chart2Obj) chart2Obj.destroy(); if(chart3Obj) chart3Obj.destroy();
-            const c1 = document.getElementById('chart1').getContext('2d'); const c2 = document.getElementById('chart2').getContext('2d'); const c3 = document.getElementById('chart3').getContext('2d');
-            let isLight = document.body.classList.contains('light-mode');
-            let gridColor = isLight ? '#D0D7DE' : '#30363D';
-            let chartOptions = { maintainAspectRatio: false, scales: m === 'all' ? { r: { grid: { color: gridColor }, angleLines: { color: gridColor } } } : { x: { grid: { color: gridColor } }, y: { grid: { color: gridColor } } } };
-
-            if(m === 'all') {
-                chart1Obj = new Chart(c1, { type:'radar', data:{labels:l, datasets:[{label:'% Acerto', data:a, borderColor:'#238636', backgroundColor:'rgba(35, 134, 54, 0.2)'}]}, options: chartOptions });
-                chart2Obj = new Chart(c2, { type:'radar', data:{labels:l, datasets:[{label:'Horas', data:h, borderColor:'#8957E5', backgroundColor:'rgba(137, 87, 229, 0.2)'}]}, options: chartOptions });
-                chart3Obj = new Chart(c3, { type:'bar', data:{labels:l, datasets:[{label:'Questões', data:v, backgroundColor:'#58A6FF'}]}, options: { maintainAspectRatio: false, scales: { x: { grid: { color: gridColor } }, y: { grid: { color: gridColor } } } } });
-            } else {
-                let cols = a.map(x => x < 75 ? 'rgba(218, 54, 51, 0.8)' : 'rgba(35, 134, 54, 0.8)');
-                chart1Obj = new Chart(c1, { type:'bar', data:{labels:l, datasets:[{label:'% Acerto', data:a, backgroundColor:cols}]}, options: { indexAxis:'y', ...chartOptions } });
-                chart2Obj = new Chart(c2, { type:'bar', data:{labels:l, datasets:[{label:'Horas', data:h, backgroundColor:'#8957E5'}]}, options: { indexAxis:'y', ...chartOptions } });
-                chart3Obj = new Chart(c3, { type:'bar', data:{labels:l, datasets:[{label:'Questões', data:v, backgroundColor:'#58A6FF'}]}, options: { indexAxis:'y', ...chartOptions } });
-            }
-        }
-
-        function switchReport(m) { 
-            currentReportMode = m; document.getElementById('btnDiario').className = m==='diario' ? 'toggle-btn active' : 'toggle-btn'; document.getElementById('btnSemanal').className = m==='semanal' ? 'toggle-btn active' : 'toggle-btn'; renderReport(); 
-        }
-
-        function renderReport() {
-            let isD = currentReportMode === 'diario'; document.getElementById('col-periodo').innerText = isD ? 'Data' : 'Semana';
-            let filterMat = document.getElementById('reportFilterMateria').value;
-            let body = document.getElementById('report-body'); body.innerHTML = '';
-            
-            let arr = Object.keys(isD ? groupedDaily : groupedWeekly).map(k => ({ key: k, ...(isD ? groupedDaily[k] : groupedWeekly[k]) }));
-            arr.sort((a, b) => isD ? b.dateObj - a.dateObj : b.key.localeCompare(a.key));
-            
-            arr.forEach(r => {
-                let q = r.q, a = r.a, t = r.t;
-                if(filterMat !== 'all') { let sub = r.subjects[filterMat] || {q:0, a:0, t:0}; q = sub.q; a = sub.a; t = sub.t; }
-                if(q === 0 && t === 0) return;
-                let ac = q > 0 ? ((a/q)*100).toFixed(1) : 0; let cl = ac >= 75 ? 'color:var(--accent-green)' : 'color:var(--accent-red)';
-                body.innerHTML += `<tr><td style="color:#888;"><strong>${r.key}</strong></td><td>${q}</td><td>${a}</td><td style="${cl}; font-weight:bold;">${ac}%</td><td>${(t/60).toFixed(1)}h</td><td>${t>0 ? ((q/t)*60).toFixed(0) : 0} Q/h</td><td><button class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); padding:6px 10px;" onclick="openDetailsModal('${r.key}')"><i class="fas fa-camera"></i></button></td></tr>`;
-            });
-        }
-
-        function openDetailsModal(k) {
-            let d = currentReportMode === 'diario' ? groupedDaily[k] : groupedWeekly[k]; if(!d) return;
-            document.getElementById('detailsModal').style.display = 'block';
-            let b = document.getElementById('modalBody'); b.innerHTML = '';
-            let chartLabels = []; let chartData = []; let chartColors = ['#58A6FF', '#F2C94C', '#238636', '#8957E5', '#DA3633', '#00B4D8', '#F0883E', '#C9D1D9', '#7209B7', '#4CC9F0'];
-            let subjectsSorted = Object.keys(d.subjects).sort((s1, s2) => d.subjects[s2].t - d.subjects[s1].t);
-
-            subjectsSorted.forEach(s => {
-                let v = d.subjects[s]; let ac = v.q>0 ? ((v.a/v.q)*100).toFixed(1) : 0; let h = (v.t/60).toFixed(1);
-                chartLabels.push(s); chartData.push(v.t>0 ? h : v.q);
-                b.innerHTML += `<tr><td>${s}</td><td><strong>${h}h</strong></td><td>${v.q}</td><td>${v.a}</td><td>${ac}%</td></tr>`;
-            });
-
-            if(modalPieChartObj) modalPieChartObj.destroy();
-            const ctxM = document.getElementById('modalChartPie').getContext('2d');
-            modalPieChartObj = new Chart(ctxM, { type: 'doughnut', data: { labels: chartLabels, datasets: [{ data: chartData, backgroundColor: chartColors.slice(0, chartLabels.length), borderColor: document.body.classList.contains('light-mode') ? '#fff' : '#161B22', borderWidth: 3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: Chart.defaults.color } } }, cutout: '65%' } });
-        }
-
-        // LANÇAMENTO DE MISSÃO E RETIFICAÇÃO
-        function openEntryModal() { 
-            isEditingMode = false; document.getElementById('studyForm').reset(); document.getElementById('f-data').valueAsDate = new Date();
-            document.getElementById('btn-submit-form').innerText = "ENVIAR PARA A NUVEM"; document.getElementById('btn-submit-form').style.background = "var(--accent-green)"; document.getElementById('btn-submit-form').style.color = "white";
-            if(timerSeconds>0) document.getElementById('f-tempo').value = Math.floor(timerSeconds/60);
-            document.getElementById('entryModal').style.display='block'; 
-        }
-
-        function loadLastEntryToEdit() {
-            if(globalData.length === 0) return alert("Você ainda não tem lançamentos!");
-            let last = globalData[0]; 
-            let d = last.date; let yyyy = d.getFullYear(); let mm = String(d.getMonth() + 1).padStart(2, '0'); let dd = String(d.getDate()).padStart(2, '0');
-
-            document.getElementById('f-data').value = `${yyyy}-${mm}-${dd}`; document.getElementById('f-materia').value = last.mat; document.getElementById('f-topico').value = last.topico || '';
-            document.getElementById('f-tipo-link').value = last.link || ''; document.getElementById('f-tempo').value = last.t; document.getElementById('f-q').value = last.q;
-            document.getElementById('f-a').value = last.a; document.getElementById('f-fase').value = last.fase || '1';
-
-            isEditingMode = true; document.getElementById('btn-submit-form').innerText = "SALVAR RETIFICAÇÃO"; document.getElementById('btn-submit-form').style.background = "var(--accent-orange)"; document.getElementById('btn-submit-form').style.color = "black";
-        }
-
-        function submitEntry(e) {
-            e.preventDefault();
-            let btn = document.getElementById('btn-submit-form'); btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...'; btn.disabled = true;
-            let p = document.getElementById('f-data').value.split('-');
-            let actionStr = isEditingMode ? "retificar_ultimo" : "lancamento";
-
-            let payload = { acao: actionStr, email: loggedUserEmail, dataEstudo: `${p[2]}/${p[1]}/${p[0]}`, materia: document.getElementById('f-materia').value, topico: document.getElementById('f-topico').value, tipoLink: document.getElementById('f-tipo-link').value, tempo: document.getElementById('f-tempo').value, questoes: document.getElementById('f-q').value, acertos: document.getElementById('f-a').value, fase: document.getElementById('f-fase').value };
-            
-            fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-            .then(() => { alert(isEditingMode ? "Lançamento Corrigido!" : "Missão Cumprida!"); document.getElementById('studyForm').reset(); document.getElementById('entryModal').style.display='none'; btn.disabled=false; loadGoogleSheetsData(); })
-            .catch(err => { alert("Erro de conexão com o banco de dados."); btn.innerText = "TENTAR NOVAMENTE"; btn.disabled=false; });
-        }
-
-        window.onload = function() {
-            if(loggedUserEmail && loggedUserSenha) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('app-wrapper').style.display = 'flex';
-                document.getElementById('profile-email').innerText = loggedUserEmail;
-                document.getElementById('sidebar-user-email').innerText = loggedUserEmail;
-                initApp();
-            }
-        };
-                  </script>
+    function submitEntry(e) {
+        e.preventDefault();
+        let btn = document.getElementById('btn-submit-form'); btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...'; btn.disabled = true;
+        let p = document.getElementById('f-data').value.split('-');
+        let actionStr = isEditingMode ? "retificar_ultimo" : "lancamento";
+        let payload = { acao: actionStr, email: loggedUserEmail, dataEstudo: `${p[2]}/${p[1]}/${p[0]}`, materia: document.getElementById('f-materia').value, topico: document.getElementById('f-topico').value, tipoLink: document.getElementById('f-tipo-link').value, tempo: document.getElementById('f-tempo').value, questoes: document.getElementById('f-q').value, acertos: document.getElementById('f-a').value, fase: document.getElementById('f-fase').value };
+        fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+        .then(() => { alert(isEditingMode ? "Lançamento Corrigido!" : "Missão Cumprida!"); document.getElementById('studyForm').reset(); document.getElementById('entryModal').style.display='none'; btn.disabled=false; loadGoogleSheetsData(); })
+        .catch(err => { alert("Erro de conexão com o banco de dados."); btn.innerText = "TENTAR NOVAMENTE"; btn.disabled=false; });
+    }
+</script>
 </body>
 </html>
