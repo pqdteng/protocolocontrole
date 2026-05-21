@@ -73,8 +73,12 @@
         .rank-info { display: flex; align-items: center; gap: 20px;}
         .rank-icon { font-size: 3.5em; color: var(--accent-gold); }
         .rank-details h2 { margin: 0; color: var(--accent-gold); text-transform: uppercase; font-size: 1.4em; }
-        .streak-badge { background: rgba(240, 136, 62, 0.15); color: var(--accent-orange); font-weight: bold; font-size: 0.85em; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(240, 136, 62, 0.3); display: inline-flex; align-items: center; gap: 5px; margin-top: 8px;}
-        .coin-badge { color: var(--accent-gold); font-weight: bold; font-size: 0.85em; background: rgba(242, 201, 76, 0.15); padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(242, 201, 76, 0.3); margin-top: 8px; margin-left: 5px;}
+        
+        /* AQUI ESTÁ A CORREÇÃO PRINCIPAL: DEVOLVENDO O SUBTÍTULO */
+        .rank-details p { margin: 4px 0 8px 0; color: #888; font-size: 0.85em; font-weight: bold;}
+        
+        .streak-badge { background: rgba(240, 136, 62, 0.15); color: var(--accent-orange); font-weight: bold; font-size: 0.85em; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(240, 136, 62, 0.3); display: inline-flex; align-items: center; gap: 5px;}
+        .coin-badge { color: var(--accent-gold); font-weight: bold; font-size: 0.85em; background: rgba(242, 201, 76, 0.15); padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(242, 201, 76, 0.3); margin-left: 5px;}
 
         .xp-bar-container { flex-grow: 1; max-width: 400px; width: 100%; display: flex; flex-direction: column; gap: 8px;}
         .xp-bar-bg { width: 100%; height: 10px; background-color: var(--border-color); border-radius: 5px; overflow: hidden;}
@@ -116,7 +120,6 @@
         .form-group label { display: block; color: #888; font-size: 0.85em; font-weight: 600; margin-bottom: 6px;}
         .form-group input, .form-group select { width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-color); border-radius: 6px; box-sizing: border-box; outline: none;}
 
-        /* MODO FOCO ABSOLUTO */
         #btn-exit-foco { display: none; position: fixed; top: 20px; right: 20px; z-index: 10000; background: var(--accent-red); color: white; border: none; padding: 12px 25px; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         body.focus-mode #app-sidebar { transform: translateX(-100%); }
         body.focus-mode .main-content { margin-left: 0; width: 100%; padding-top: 10vh; }
@@ -240,7 +243,7 @@
                     <button class="btn-action-top" onclick="toggleTheme()" title="Trocar Tema"><i class="fas fa-adjust"></i></button>
                     <button class="btn-action-top" onclick="toggleFocus()" style="border-color:var(--accent-red); color:var(--accent-red);"><i class="fas fa-crosshairs"></i> FOCO</button>
                     <button class="btn" style="background: var(--accent-green);" onclick="openEntryModal()"><i class="fas fa-pen-nib"></i> LANÇAR MISSÃO</button>
-                    <button class="btn" style="background: var(--accent-blue);" id="btn-sync" onclick="loadGoogleSheetsData()"><i class="fas fa-sync-alt"></i> SINC DATA</button>
+                    <button class="btn sync-btn-ui" style="background: var(--accent-blue);" id="btn-sync" onclick="loadGoogleSheetsData()"><i class="fas fa-sync-alt"></i> SINC DATA</button>
                 </div>
             </div>
             
@@ -251,6 +254,8 @@
                         <i class="fas fa-book-open rank-icon" id="rank-icon"></i>
                         <div class="rank-details">
                             <h2 id="rank-title">Iniciante</h2>
+                            <p id="rank-subtitle">Começando a jornada</p>
+                            
                             <div style="display:flex; flex-wrap:wrap; gap:8px;">
                                 <div class="streak-badge" id="streak-container"><i class="fas fa-fire"></i> <span id="streak-display">0</span> Dias de Ofensiva</div>
                                 <div class="coin-badge"><i class="fas fa-coins"></i> <span id="coin-display">0</span> Moedas</div>
@@ -348,7 +353,7 @@
                 <div class="chart-box" style="padding:0; overflow:hidden;">
                     <div style="background:var(--hover-bg); padding:20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color);">
                         <h2 style="margin:0; color:var(--accent-gold); font-size:1.4em;"><i class="fas fa-trophy"></i> Hall da Fama</h2>
-                        <button class="btn-action-top" onclick="loadGoogleSheetsData()"><i class="fas fa-sync"></i> Atualizar Placar</button>
+                        <button class="btn sync-btn-ui" style="background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-color);" onclick="loadGoogleSheetsData()"><i class="fas fa-sync"></i> Atualizar Placar</button>
                     </div>
                     <div style="padding:20px;">
                         <div class="rank-tabs">
@@ -371,7 +376,7 @@
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
                         <h2 style="margin:0; font-size:1.4em;"><i class="fas fa-list-alt" style="color:var(--accent-purple)"></i> Extrato de Missões</h2>
                         <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                            <select id="reportFilterMateria" class="btn-action-top" onchange="renderReport()"><option value="all">Todas as Matérias</option></select>
+                            <select id="reportFilterMateria" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:8px 12px; border-radius:6px; outline:none;" onchange="renderReport()"><option value="all">Todas as Matérias</option></select>
                             <div style="display:flex; background:var(--input-bg); border:1px solid var(--border-color); border-radius:6px; overflow:hidden;">
                                 <button class="btn" id="btnDiario" style="background:var(--accent-purple); border-radius:0; border:none; padding:8px 15px;" onclick="switchReport('diario')">Diário</button>
                                 <button class="btn" id="btnSemanal" style="background:transparent; color:var(--text-color); border-radius:0; border:none; padding:8px 15px;" onclick="switchReport('semanal')">Semanal</button>
@@ -579,7 +584,7 @@ Gostaria que fizesse:
 
         function toggleMateria(cb) { if(cb.checked) tempCiclo.push({ nome: cb.getAttribute('data-nome'), chaves: [cb.value] }); else tempCiclo = tempCiclo.filter(c => c.chaves[0] !== cb.value); renderConfigUI(); }
         function moveItem(i, dir) { if(i+dir < 0 || i+dir >= tempCiclo.length) return; let temp = tempCiclo[i]; tempCiclo[i] = tempCiclo[i+dir]; tempCiclo[i+dir] = temp; renderConfigUI(); }
-        function deleteCustomSubject(sigla) { if(!confirm("Excluir matéria customizada?")) return; customSubjects = customSubjects.filter(m => m.chaves[0] !== sigla); localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects)); tempCiclo = tempCiclo.filter(m => m.chaves[0] !== sigla); renderConfigUI(); }
+        function deleteCustomSubject(sigla) { if(!confirm("Excluir matéria customizada do banco de dados local?")) return; customSubjects = customSubjects.filter(m => m.chaves[0] !== sigla); localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects)); tempCiclo = tempCiclo.filter(m => m.chaves[0] !== sigla); renderConfigUI(); }
         function updateSelects() { let sel = document.getElementById('f-materia'); if(sel) { sel.innerHTML = ""; cicloMaster.forEach(d => { let o = document.createElement('option'); o.value = d.chaves[0]; o.innerText = d.nome; sel.appendChild(o); }); } }
 
         function addCustomSubject() {
@@ -591,17 +596,16 @@ Gostaria que fizesse:
         }
 
         function saveConfig() {
-            if(tempCiclo.length === 0) return alert("Selecione pelo menos uma matéria!");
+            if(tempCiclo.length === 0) return alert("É obrigatório selecionar pelo menos uma matéria para o ciclo tático!");
             let btn = document.querySelector('.form-submit-btn'); let originalTxt = btn.innerText; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando no Google Sheets...'; btn.disabled = true;
             cicloMaster = JSON.parse(JSON.stringify(tempCiclo));
             let cicloStr = JSON.stringify(cicloMaster); localStorage.setItem('pqdtCicloCustom', cicloStr); updateSelects(); updateGPS();
             
             fetch(WEBHOOK_URL, {method: 'POST', mode: 'no-cors', body: JSON.stringify({acao: "salvar_ciclo_nuvem", email: loggedUserEmail, cicloJson: cicloStr})})
             .then(() => { alert("Ciclo sincronizado na Nuvem com sucesso!"); btn.innerHTML = originalTxt; btn.disabled = false; switchView('painel', document.querySelector('.nav-item')); })
-            .catch(() => { alert("Ciclo salvo apenas no cache local."); btn.innerHTML = originalTxt; btn.disabled = false; switchView('painel', document.querySelector('.nav-item')); });
+            .catch(() => { alert("Ciclo salvo apenas no cache local devido a instabilidade da rede."); btn.innerHTML = originalTxt; btn.disabled = false; switchView('painel', document.querySelector('.nav-item')); });
         }
 
-        // LOGIN E CONEXÃO
         function checkLogin() {
             if (loggedUserEmail && loggedUserSenha) {
                 document.getElementById('login-screen').style.display = 'none';
@@ -624,26 +628,25 @@ Gostaria que fizesse:
                 if(data.status === "sucesso") {
                     localStorage.setItem('pqdtEmail', e); localStorage.setItem('pqdtSenha', s); loggedUserEmail = e; loggedUserSenha = s; checkLogin();
                 } else { alert(data.mensagem); btn.innerHTML = originalText; btn.disabled = false; }
-            }).catch(err => { alert("Falha ao comunicar com os servidores do Google."); btn.innerHTML = originalText; btn.disabled = false; });
+            }).catch(err => { alert("Falha ao comunicar com os servidores do Google. Tente novamente."); btn.innerHTML = originalText; btn.disabled = false; });
         }
 
         function register() {
             let e = document.getElementById('reg-email').value.trim(); let s = document.getElementById('reg-pass').value.trim();
             if(!e || !s) return alert("Preencha tudo!");
             fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "cadastro", email: e, senha: s})})
-            .then(() => { alert("Verificação enviada! Você já pode fazer login."); showScreen('login'); });
+            .then(() => { alert("Verificação enviada para a central! Você já pode fazer login."); showScreen('login'); });
         }
 
         function changePassword() {
             let e = document.getElementById('res-email').value.trim(); let s = document.getElementById('res-pass').value.trim();
             if(!e || !s) return alert("Preencha tudo!");
             fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "trocarSenha", email: e, novaSenha: s})})
-            .then(() => { alert("Senha atualizada! Volte e faça o login."); showScreen('login'); });
+            .then(() => { alert("Senha atualizada na base! Volte e faça o login."); showScreen('login'); });
         }
 
         function logout() { localStorage.clear(); location.reload(); }
 
-        // TIMER 
         function initApp() {
             document.getElementById('f-data').valueAsDate = new Date();
             if(localStorage.getItem('metaHrs')) document.getElementById('meta-hrs').value = localStorage.getItem('metaHrs');
@@ -652,6 +655,7 @@ Gostaria que fizesse:
             let today = new Date();
             let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('current-date-text').innerText = today.toLocaleDateString('pt-BR', options);
+
             loadGoogleSheetsData();
         }
 
@@ -677,17 +681,18 @@ Gostaria que fizesse:
             return `${tempD.getUTCFullYear()} - Sem ${Math.ceil((((tempD - yearStart) / 86400000) + 1)/7).toString().padStart(2, '0')}`;
         }
 
-        // --- SINCRONIZAÇÃO BLINDADA COM ALERTA DETALHADO ---
+        // MOTOR DE SINCRONIZAÇÃO DE DADOS (AGORA TOTALMENTE ESTÁVEL E RETROCOMPATÍVEL)
         function loadGoogleSheetsData() {
-            let btn = document.getElementById('btn-sync'); if(btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo...';
+            let btns = document.querySelectorAll('.sync-btn-ui');
+            btns.forEach(b => b.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo...');
             
             fetch(`${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&senha=${encodeURIComponent(loggedUserSenha)}`)
             .then(res => res.json())
             .then(data => {
                 if(data.erro || data.status === "erro") { 
                     alert("ALERTA DA BASE DE DADOS:\n" + data.mensagem); 
-                    if(btn) btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro';
                     if(data.mensagem.includes("Credenciais")) logout(); 
+                    btns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro');
                     return; 
                 }
                 
@@ -695,19 +700,19 @@ Gostaria que fizesse:
                 globalNickname = data.nickname || "Recruta"; 
                 globalLeaderboards = data.leaderboards || {diario:[], mensal:[], geral:[]};
                 
-                // Aceita o formato antigo e o novo
                 let dataToProcess = data.dados ? data.dados : data;
                 
                 loadCiclo(data.cicloNuvem); 
                 processData(dataToProcess);
                 updateLeaderEffects();
                 
-                if(btn) { btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado'; setTimeout(() => btn.innerHTML = '<i class="fas fa-sync-alt"></i> SINC DATA', 2000); }
+                btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado');
+                setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> SINC DATA'), 2000);
             })
             .catch(err => { 
                 console.error("Erro no Fetch:", err);
-                alert("⚠️ FALHA DE COMUNICAÇÃO COM O GOOGLE SHEETS!\n\nSe você atualizou o Apps Script, certifique-se de que publicou com a opção 'Qualquer pessoa' (Anyone).\n\nDetalhe do Erro: " + err.message); 
-                if(btn) btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro'; 
+                alert("⚠️ FALHA DE COMUNICAÇÃO COM O GOOGLE SHEETS!\n\nSe você atualizou o Apps Script, certifique-se de que publicou a 'Nova Versão' com a opção 'Qualquer pessoa' (Anyone)."); 
+                btns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro'); 
             });
         }
 
@@ -715,7 +720,7 @@ Gostaria que fizesse:
             let datasUnicas = Object.keys(groupedDaily).map(d => { let p = d.split('/'); return new Date(p[2], p[1]-1, p[0]); }).sort((a,b) => b - a);
             if(datasUnicas.length === 0) return 0;
             let streak = 0; let hoje = new Date(); hoje.setHours(0,0,0,0); let checkDate = new Date(datasUnicas[0]); checkDate.setHours(0,0,0,0);
-            if(Math.floor((hoje - checkDate) / 86400000) > 1) return 0; // Perdeu a ofensiva ontem
+            if(Math.floor((hoje - checkDate) / 86400000) > 1) return 0; 
             let lastDate = null;
             for(let d of datasUnicas) {
                 d.setHours(0,0,0,0);
@@ -769,12 +774,17 @@ Gostaria que fizesse:
             updateRank(); updateGPS(); updateDashboard('all'); renderReport();
         }
 
-        // RANKINGS MULTIPLAYER & EFEITOS
+        // RANKINGS E GAMIFICAÇÃO
         function updateRank() {
             let r = GAMER_RANKS[0]; let n = GAMER_RANKS[1];
             for(let i=0; i<GAMER_RANKS.length; i++) { if(totalQHistory >= GAMER_RANKS[i].threshold) { r = GAMER_RANKS[i]; n = GAMER_RANKS[i+1] || r; } }
             
-            document.getElementById('rank-title').innerText = r.title; document.getElementById('rank-subtitle').innerText = r.desc; document.getElementById('rank-icon').className = `fas ${r.icon} rank-icon`;
+            document.getElementById('rank-title').innerText = r.title; 
+            
+            // AQUI ESTAVA O SEU ERRO, O HTML ESTÁ COM O ELEMENTO E O JS ESTÁ CHAMANDO!
+            document.getElementById('rank-subtitle').innerText = r.desc; 
+            
+            document.getElementById('rank-icon').className = `fas ${r.icon} rank-icon`;
             let p = ((totalQHistory - r.threshold) / (n.threshold - r.threshold)) * 100;
             document.getElementById('rank-progress-text').innerText = `${totalQHistory.toLocaleString()} / ${n.threshold.toLocaleString()} Q`;
             document.getElementById('rank-bar').style.width = Math.min(p, 100) + '%';
@@ -829,7 +839,7 @@ Gostaria que fizesse:
             }); document.getElementById('ranksModal').style.display = 'block';
         }
 
-        // GPS E INTELIGÊNCIA DO CICLO
+        // GPS E METAS
         function saveGoals() { localStorage.setItem('metaHrs', document.getElementById('meta-hrs').value); localStorage.setItem('metaQ', document.getElementById('meta-q').value); updateGPS(); }
 
         function updateGPS() {
