@@ -577,33 +577,45 @@ Gostaria que fizesse:
             if(tempCiclo.length === 0) { containerList.innerHTML = '<p style="color:#888; text-align:center; padding:10px;">O ciclo está vazio.</p>'; return; }
             tempCiclo.forEach((m, index) => {
                 let isCustom = customSubjects.some(cs => cs.chaves[0] === m.chaves[0]);
-                let deleteBtn = isCustom ? `<button type="button" onclick="deleteCustomSubject('${m.chaves[0]}')" style="color:var(--accent-red);"><i class="fas fa-trash"></i></button>` : '';
+                let deleteBtn = isCustom ? `<button type="button" onclick="deleteCustomSubject('${m.chaves[0]}')" style="color:var(--accent-red); background:none; border:none; cursor:pointer;"><i class="fas fa-trash"></i></button>` : '';
                 containerList.innerHTML += `<div class="sortable-item"><span style="font-size:13px;"><strong>${index + 1}.</strong> ${m.nome}</span><div class="sortable-actions" style="display:flex; gap:5px;">${deleteBtn}<button type="button" onclick="moveItem(${index}, -1)" ${index === 0 ? 'disabled' : ''}><i class="fas fa-chevron-up"></i></button><button type="button" onclick="moveItem(${index}, 1)" ${index === tempCiclo.length - 1 ? 'disabled' : ''}><i class="fas fa-chevron-down"></i></button></div></div>`;
             });
         }
 
         function toggleMateria(cb) { if(cb.checked) tempCiclo.push({ nome: cb.getAttribute('data-nome'), chaves: [cb.value] }); else tempCiclo = tempCiclo.filter(c => c.chaves[0] !== cb.value); renderConfigUI(); }
         function moveItem(i, dir) { if(i+dir < 0 || i+dir >= tempCiclo.length) return; let temp = tempCiclo[i]; tempCiclo[i] = tempCiclo[i+dir]; tempCiclo[i+dir] = temp; renderConfigUI(); }
-        function deleteCustomSubject(sigla) { if(!confirm("Excluir matéria customizada do banco de dados local?")) return; customSubjects = customSubjects.filter(m => m.chaves[0] !== sigla); localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects)); tempCiclo = tempCiclo.filter(m => m.chaves[0] !== sigla); renderConfigUI(); }
+        function deleteCustomSubject(sigla) { if(!confirm("Excluir matéria?")) return; customSubjects = customSubjects.filter(m => m.chaves[0] !== sigla); localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects)); tempCiclo = tempCiclo.filter(m => m.chaves[0] !== sigla); renderConfigUI(); }
         function updateSelects() { let sel = document.getElementById('f-materia'); if(sel) { sel.innerHTML = ""; cicloMaster.forEach(d => { let o = document.createElement('option'); o.value = d.chaves[0]; o.innerText = d.nome; sel.appendChild(o); }); } }
 
         function addCustomSubject() {
             let sigla = document.getElementById('custom-sigla').value.toUpperCase().trim(); let nome = document.getElementById('custom-nome').value.trim();
             if(!sigla || !nome) return alert("Preencha Sigla e Nome.");
-            if([...TODAS_MATERIAS, ...customSubjects].some(m => m.chaves[0] === sigla)) return alert("Essa sigla já existe na plataforma!");
+            if([...TODAS_MATERIAS, ...customSubjects].some(m => m.chaves[0] === sigla)) return alert("Sigla já existe!");
             let nm = { chaves: [sigla], nome: nome }; customSubjects.push(nm); localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects)); tempCiclo.push(nm);
             document.getElementById('custom-sigla').value = ''; document.getElementById('custom-nome').value = ''; renderConfigUI();
         }
 
         function saveConfig() {
-            if(tempCiclo.length === 0) return alert("É obrigatório selecionar pelo menos uma matéria para o ciclo tático!");
+            if(tempCiclo.length === 0) return alert("Selecione pelo menos uma matéria!");
             let btn = document.querySelector('.form-submit-btn'); let originalTxt = btn.innerText; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando no Google Sheets...'; btn.disabled = true;
             cicloMaster = JSON.parse(JSON.stringify(tempCiclo));
             let cicloStr = JSON.stringify(cicloMaster); localStorage.setItem('pqdtCicloCustom', cicloStr); updateSelects(); updateGPS();
             
             fetch(WEBHOOK_URL, {method: 'POST', mode: 'no-cors', body: JSON.stringify({acao: "salvar_ciclo_nuvem", email: loggedUserEmail, cicloJson: cicloStr})})
-            .then(() => { alert("Ciclo sincronizado na Nuvem com sucesso!"); btn.innerHTML = originalTxt; btn.disabled = false; switchView('painel', document.querySelector('.nav-item')); })
-            .catch(() => { alert("Ciclo salvo apenas no cache local devido a instabilidade da rede."); btn.innerHTML = originalTxt; btn.disabled = false; switchView('painel', document.querySelector('.nav-item')); });
+            .then(() => { alert("Ciclo sincronizado na Nuvem!"); btn.innerHTML = originalTxt; btn.disabled = false; switchView('painel', document.querySelector('.nav-item')); })
+            .catch(() => { alert("Ciclo salvo apenas no cache local."); btn.innerHTML = originalTxt; btn.disabled = false; switchView('painel', document.querySelector('.nav-item')); });
+        }
+
+        function login() {
+            let e = document.getElementById('log-email').value.trim().toLowerCase(); let s = document.getElementById('log-pass').value.trim();
+            if(!e || !s) return alert("Preencha E-mail e Senha!");
+            let btn = document.querySelector('#login-screen .btn-access'); let originalText = btn.innerText; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando...'; btn.disabled = true;
+            fetch(`${WEBHOOK_URL}?acao=login&email=${encodeURIComponent(e)}&senha=${encodeURIComponent(s)}`)
+            .then(res => res.json()).then(data => {
+                if(data.status === "sucesso") {
+                    localStorage.setItem('pqdtEmail', e); localStorage.setItem('pqdtSenha', s); loggedUserEmail = e; loggedUserSenha = s; checkLogin();
+                } else { alert(data.mensagem); btn.innerHTML = originalText; btn.disabled = false; }
+            }).catch(err => { alert("Falha na conexão."); btn.innerHTML = originalText; btn.disabled = false; });
         }
 
         function checkLogin() {
@@ -618,131 +630,79 @@ Gostaria que fizesse:
             } else { showScreen('login'); }
         }
 
-        function login() {
-            let e = document.getElementById('log-email').value.trim().toLowerCase(); let s = document.getElementById('log-pass').value.trim();
-            if(!e || !s) return alert("Preencha E-mail e Senha!");
-            let btn = document.querySelector('#login-screen .btn-access'); let originalText = btn.innerText; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando base...'; btn.disabled = true;
-            
-            fetch(`${WEBHOOK_URL}?acao=login&email=${encodeURIComponent(e)}&senha=${encodeURIComponent(s)}`)
-            .then(res => res.json()).then(data => {
-                if(data.status === "sucesso") {
-                    localStorage.setItem('pqdtEmail', e); localStorage.setItem('pqdtSenha', s); loggedUserEmail = e; loggedUserSenha = s; checkLogin();
-                } else { alert(data.mensagem); btn.innerHTML = originalText; btn.disabled = false; }
-            }).catch(err => { alert("Falha ao comunicar com os servidores do Google. Tente novamente."); btn.innerHTML = originalText; btn.disabled = false; });
-        }
-
-        function register() {
-            let e = document.getElementById('reg-email').value.trim(); let s = document.getElementById('reg-pass').value.trim();
-            if(!e || !s) return alert("Preencha tudo!");
-            fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "cadastro", email: e, senha: s})})
-            .then(() => { alert("Verificação enviada para a central! Você já pode fazer login."); showScreen('login'); });
-        }
-
-        function changePassword() {
-            let e = document.getElementById('res-email').value.trim(); let s = document.getElementById('res-pass').value.trim();
-            if(!e || !s) return alert("Preencha tudo!");
-            fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "trocarSenha", email: e, novaSenha: s})})
-            .then(() => { alert("Senha atualizada na base! Volte e faça o login."); showScreen('login'); });
-        }
-
-        function logout() { localStorage.clear(); location.reload(); }
-
         function initApp() {
             document.getElementById('f-data').valueAsDate = new Date();
             if(localStorage.getItem('metaHrs')) document.getElementById('meta-hrs').value = localStorage.getItem('metaHrs');
             if(localStorage.getItem('metaQ')) document.getElementById('meta-q').value = localStorage.getItem('metaQ');
-            
             let today = new Date();
-            let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('current-date-text').innerText = today.toLocaleDateString('pt-BR', options);
-
+            document.getElementById('current-date-text').innerText = today.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             loadGoogleSheetsData();
         }
 
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('date-display').innerText = now.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '');
-            document.getElementById('clock-display').innerText = now.toLocaleTimeString('pt-BR');
-        }, 1000);
+        function setSafeText(id, value) { let el = document.getElementById(id); if (el) el.innerText = value; }
 
-        let timerSeconds = localStorage.getItem('pqdtTimer') ? parseInt(localStorage.getItem('pqdtTimer')) : 0; let timerInt;
-        function updateTimerDisplay() {
-            let h = Math.floor(timerSeconds/3600).toString().padStart(2,'0'); let m = Math.floor((timerSeconds%3600)/60).toString().padStart(2,'0'); let s = (timerSeconds%60).toString().padStart(2,'0');
-            document.getElementById('timer-display').innerText = `${h}:${m}:${s}`; localStorage.setItem('pqdtTimer', timerSeconds);
-        }
-        function startTimer() { clearInterval(timerInt); timerInt = setInterval(() => { timerSeconds++; updateTimerDisplay(); }, 1000); }
-        function pauseTimer() { clearInterval(timerInt); }
-        function resetTimer() { pauseTimer(); timerSeconds = 0; updateTimerDisplay(); }
-        updateTimerDisplay();
-
-        function getWeekNumber(d) {
-            let tempD = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); tempD.setUTCDate(tempD.getUTCDate() + 4 - (tempD.getUTCDay()||7));
-            let yearStart = new Date(Date.UTC(tempD.getUTCFullYear(),0,1));
-            return `${tempD.getUTCFullYear()} - Sem ${Math.ceil((((tempD - yearStart) / 86400000) + 1)/7).toString().padStart(2, '0')}`;
-        }
-        
-        // FUNÇÃO DE SEGURANÇA: Só escreve se o elemento existir
-        function setSafeText(id, value) {
-            let el = document.getElementById(id);
-            if (el) el.innerText = value;
-        }        
-
-        // MOTOR DE SINCRONIZAÇÃO BLINDADO
         async function loadGoogleSheetsData() {
-            let btn = document.getElementById('btn-sync'); 
-            if(btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo...';
-            
+            let btns = document.querySelectorAll('.sync-btn-ui');
+            btns.forEach(b => b.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo...');
             try {
                 let response = await fetch(`${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&senha=${encodeURIComponent(loggedUserSenha)}`);
                 let data = await response.json();
-                
-                if (data.status === "erro") {
-                    throw new Error(data.mensagem);
-                }
-                
+                if (data.status === "erro") throw new Error(data.mensagem);
                 globalExpiration = data.expiration || "Vitalício"; 
                 globalNickname = data.nickname || "Recruta"; 
                 globalLeaderboards = data.leaderboards || {diario:[], mensal:[], geral:[]};
-                
-                let dataToProcess = data.dados || [];
-                
                 loadCiclo(data.cicloNuvem); 
-                processData(dataToProcess);
+                processData(data.dados || []);
                 updateLeaderEffects();
-                
-                if(btn) { btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado'; setTimeout(() => btn.innerHTML = '<i class="fas fa-sync-alt"></i> SINC DATA', 2000); }
-            } catch (err) {
-                console.error("Erro na Sincronização:", err);
-                alert("⚠️ FALHA DE SINCRONIZAÇÃO:\n" + err.message);
-                if(btn) btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro';
-            }
+                btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado');
+                setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> SINC DATA'), 2000);
+            } catch (err) { alert("⚠️ FALHA DE SINCRONIZAÇÃO:\n" + err.message); btns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro'); }
         }
 
-        // ATUALIZAÇÃO DE RANK COM SEGURANÇA
+        function processData(data) {
+            globalData = []; groupedDaily = {}; groupedWeekly = {}; totalQHistory = 0; dailyQ = 0; dailyMins = 0; totalMoedas = 0;
+            currentWeekStr = getWeekNumber(new Date()); let uniqueS = new Set(); let todayStr = new Date().toLocaleDateString('pt-BR');
+            let startRow = (data.length > 0 && String(data[0][2]).toLowerCase().includes('mat')) ? 1 : 0;
+            for(let i = startRow; i < data.length; i++) {
+                let r = data[i]; if(!r || !r[2]) continue;
+                let q = parseFloat(String(r[6]).replace(',','.')) || 0; let a = parseFloat(String(r[7]).replace(',','.')) || 0; let t = parseFloat(String(r[5]).replace(',','.')) || 0;
+                let mat = String(r[2]).trim(); totalQHistory += q; uniqueS.add(mat);
+                let dParts = String(r[1]).split('/'); let dateObj = new Date();
+                if(dParts.length === 3) dateObj = new Date(dParts[2], dParts[1]-1, dParts[0]);
+                let dayKey = dateObj.toLocaleDateString('pt-BR'); let weekKey = getWeekNumber(dateObj);
+                if(dayKey === todayStr) { dailyQ += q; dailyMins += t; }
+                globalData.push({ date: dateObj, mat: mat, topico: r[3]?String(r[3]).trim():'', link: r[4] ? String(r[4]).trim() : '', q: q, a: a, t: t, fase: r[8] ? String(r[8]).trim() : '', k: r[10] ? String(r[10]).trim() : '', l: r[11] ? String(r[11]).trim() : '', origIdx: i });
+                if(!groupedDaily[dayKey]) groupedDaily[dayKey] = { q:0, a:0, t:0, dateObj: dateObj, subjects: {} };
+                groupedDaily[dayKey].q += q; groupedDaily[dayKey].a += a; groupedDaily[dayKey].t += t;
+                if(!groupedDaily[dayKey].subjects[mat]) groupedDaily[dayKey].subjects[mat] = {q:0, a:0, t:0};
+                groupedDaily[dayKey].subjects[mat].q += q; groupedDaily[dayKey].subjects[mat].a += a; groupedDaily[dayKey].subjects[mat].t += t;
+                if(!groupedWeekly[weekKey]) groupedWeekly[weekKey] = { q:0, a:0, t:0, weekStr: weekKey, subjects: {} };
+                groupedWeekly[weekKey].q += q; groupedWeekly[weekKey].a += a; groupedWeekly[weekKey].t += t;
+                if(!groupedWeekly[weekKey].subjects[mat]) groupedWeekly[weekKey].subjects[mat] = {q:0, a:0, t:0};
+                groupedWeekly[weekKey].subjects[mat].q += q; groupedWeekly[weekKey].subjects[mat].a += a; groupedWeekly[weekKey].subjects[mat].t += t;
+            }
+            for(let day in groupedDaily) { if(groupedDaily[day].q >= 100) totalMoedas += 50; if(groupedDaily[day].t >= 120) totalMoedas += 50; }
+            globalData.sort((a,b) => b.date - a.date !== 0 ? b.date - a.date : b.origIdx - a.origIdx);
+            let filter = document.getElementById('subjectFilter'); filter.innerHTML = '<option value="all">Visão Geral</option>';
+            let filterReport = document.getElementById('reportFilterMateria'); filterReport.innerHTML = '<option value="all">Todas as Matérias</option>';
+            Array.from(uniqueS).sort().forEach(s => { filter.innerHTML += `<option value="${s}">${s}</option>`; filterReport.innerHTML += `<option value="${s}">${s}</option>`; });
+            document.getElementById('streak-display').innerText = calcularDiasOfensiva();
+            updateRank(); updateGPS(); updateDashboard('all'); renderReport();
+        }
+
         function updateRank() {
             let r = GAMER_RANKS[0]; let n = GAMER_RANKS[1];
             for(let i=0; i<GAMER_RANKS.length; i++) { if(totalQHistory >= GAMER_RANKS[i].threshold) { r = GAMER_RANKS[i]; n = GAMER_RANKS[i+1] || r; } }
-            
             setSafeText('rank-title', r.title);
             setSafeText('rank-subtitle', r.desc);
-            let icon = document.getElementById('rank-icon');
-            if(icon) icon.className = `fas ${r.icon} rank-icon`;
-            
+            let icon = document.getElementById('rank-icon'); if(icon) icon.className = `fas ${r.icon} rank-icon`;
             let p = ((totalQHistory - r.threshold) / (n.threshold - r.threshold)) * 100;
             setSafeText('rank-progress-text', `${totalQHistory.toLocaleString()} / ${n.threshold.toLocaleString()} Q`);
-            
-            let bar = document.getElementById('rank-bar');
-            if(bar) bar.style.width = Math.min(p, 100) + '%';
-            
+            let bar = document.getElementById('rank-bar'); if(bar) bar.style.width = Math.min(p, 100) + '%';
             setSafeText('coin-display', totalMoedas.toLocaleString('pt-BR'));
-            let dh = (dailyMins/60).toFixed(1);
-            setSafeText('txt-daily-q', dailyQ);
-            setSafeText('txt-daily-h', dh);
-            
-            let badgeQ = document.getElementById('badge-q');
-            if(badgeQ) badgeQ.className = dailyQ >= 100 ? "badge active-q" : "badge";
-            let badgeH = document.getElementById('badge-h');
-            if(badgeH) badgeH.className = dailyMins >= 120 ? "badge active-h" : "badge";
+            setSafeText('txt-daily-q', dailyQ); setSafeText('txt-daily-h', (dailyMins/60).toFixed(1));
+            let bq = document.getElementById('badge-q'); if(bq) bq.className = dailyQ >= 100 ? "badge active-q" : "badge";
+            let bh = document.getElementById('badge-h'); if(bh) bh.className = dailyMins >= 120 ? "badge active-h" : "badge";
         }
 
         function updateLeaderEffects() {
@@ -946,6 +906,6 @@ Gostaria que fizesse:
                 initApp();
             }
         };
-                </script>
+                  </script>
 </body>
 </html>
