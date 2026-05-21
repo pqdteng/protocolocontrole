@@ -508,7 +508,7 @@ Gostaria que fizesse:
         
         let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
         let loggedUserSenha = localStorage.getItem('pqdtSenha') || "";
-        let globalExpiration = ""; let globalNickname = "Recruta"; let globalLeaderboards = {};
+        let globalExpiration = ""; let globalNickname = "Recruta"; let globalLeaderboards = {diario:[], mensal:[], geral:[]};
         let isEditingMode = false;
 
         let globalData = []; let groupedDaily = {}; let groupedWeekly = {}; 
@@ -680,120 +680,69 @@ Gostaria que fizesse:
             let yearStart = new Date(Date.UTC(tempD.getUTCFullYear(),0,1));
             return `${tempD.getUTCFullYear()} - Sem ${Math.ceil((((tempD - yearStart) / 86400000) + 1)/7).toString().padStart(2, '0')}`;
         }
+        
+        // FUNÇÃO DE SEGURANÇA: Só escreve se o elemento existir
+        function setSafeText(id, value) {
+            let el = document.getElementById(id);
+            if (el) el.innerText = value;
+        }        
 
-        // MOTOR DE SINCRONIZAÇÃO DE DADOS (AGORA TOTALMENTE ESTÁVEL E RETROCOMPATÍVEL)
-        function loadGoogleSheetsData() {
-            let btns = document.querySelectorAll('.sync-btn-ui');
-            btns.forEach(b => b.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo...');
+        // MOTOR DE SINCRONIZAÇÃO BLINDADO
+        async function loadGoogleSheetsData() {
+            let btn = document.getElementById('btn-sync'); 
+            if(btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo...';
             
-            fetch(`${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&senha=${encodeURIComponent(loggedUserSenha)}`)
-            .then(res => res.json())
-            .then(data => {
-                if(data.erro || data.status === "erro") { 
-                    alert("ALERTA DA BASE DE DADOS:\n" + data.mensagem); 
-                    if(data.mensagem.includes("Credenciais")) logout(); 
-                    btns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro');
-                    return; 
+            try {
+                let response = await fetch(`${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&senha=${encodeURIComponent(loggedUserSenha)}`);
+                let data = await response.json();
+                
+                if (data.status === "erro") {
+                    throw new Error(data.mensagem);
                 }
                 
                 globalExpiration = data.expiration || "Vitalício"; 
                 globalNickname = data.nickname || "Recruta"; 
                 globalLeaderboards = data.leaderboards || {diario:[], mensal:[], geral:[]};
                 
-                let dataToProcess = data.dados ? data.dados : data;
+                let dataToProcess = data.dados || [];
                 
                 loadCiclo(data.cicloNuvem); 
                 processData(dataToProcess);
                 updateLeaderEffects();
                 
-                btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado');
-                setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> SINC DATA'), 2000);
-            })
-            .catch(err => { 
-                console.error("Erro no Fetch:", err);
-                alert("⚠️ FALHA DE COMUNICAÇÃO COM O GOOGLE SHEETS!\n\nSe você atualizou o Apps Script, certifique-se de que publicou a 'Nova Versão' com a opção 'Qualquer pessoa' (Anyone)."); 
-                btns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro'); 
-            });
-        }
-
-        function calcularDiasOfensiva() {
-            let datasUnicas = Object.keys(groupedDaily).map(d => { let p = d.split('/'); return new Date(p[2], p[1]-1, p[0]); }).sort((a,b) => b - a);
-            if(datasUnicas.length === 0) return 0;
-            let streak = 0; let hoje = new Date(); hoje.setHours(0,0,0,0); let checkDate = new Date(datasUnicas[0]); checkDate.setHours(0,0,0,0);
-            if(Math.floor((hoje - checkDate) / 86400000) > 1) return 0; 
-            let lastDate = null;
-            for(let d of datasUnicas) {
-                d.setHours(0,0,0,0);
-                if(lastDate === null) { streak = 1; } else {
-                    let diff = Math.floor((lastDate - d) / 86400000);
-                    if(diff === 1) streak++; else if(diff > 1) break;
-                } lastDate = d;
-            } return streak;
-        }
-
-        function processData(data) {
-            globalData = []; groupedDaily = {}; groupedWeekly = {}; totalQHistory = 0; dailyQ = 0; dailyMins = 0; totalMoedas = 0;
-            currentWeekStr = getWeekNumber(new Date()); let uniqueS = new Set(); let todayStr = new Date().toLocaleDateString('pt-BR');
-            let startRow = (data.length > 0 && String(data[0][2]).toLowerCase().includes('mat')) ? 1 : 0;
-
-            for(let i = startRow; i < data.length; i++) {
-                let r = data[i]; if(!r || !r[2]) continue;
-                let q = parseFloat(String(r[6]).replace(',','.')) || 0; let a = parseFloat(String(r[7]).replace(',','.')) || 0; let t = parseFloat(String(r[5]).replace(',','.')) || 0;
-                let mat = String(r[2]).trim(); totalQHistory += q; uniqueS.add(mat);
-                
-                let dParts = String(r[1]).split('/'); let dateObj = new Date();
-                if(dParts.length === 3) dateObj = new Date(dParts[2], dParts[1]-1, dParts[0]);
-                let dayKey = dateObj.toLocaleDateString('pt-BR'); let weekKey = getWeekNumber(dateObj);
-                if(dayKey === todayStr) { dailyQ += q; dailyMins += t; }
-
-                globalData.push({ date: dateObj, mat: mat, topico: r[3]?String(r[3]).trim():'', link: r[4] ? String(r[4]).trim() : '', q: q, a: a, t: t, fase: r[8] ? String(r[8]).trim() : '', k: r[10] ? String(r[10]).trim() : '', l: r[11] ? String(r[11]).trim() : '', origIdx: i });
-
-                if(!groupedDaily[dayKey]) groupedDaily[dayKey] = { q:0, a:0, t:0, dateObj: dateObj, subjects: {} };
-                groupedDaily[dayKey].q += q; groupedDaily[dayKey].a += a; groupedDaily[dayKey].t += t;
-                if(!groupedDaily[dayKey].subjects[mat]) groupedDaily[dayKey].subjects[mat] = {q:0, a:0, t:0};
-                groupedDaily[dayKey].subjects[mat].q += q; groupedDaily[dayKey].subjects[mat].a += a; groupedDaily[dayKey].subjects[mat].t += t;
-
-                if(!groupedWeekly[weekKey]) groupedWeekly[weekKey] = { q:0, a:0, t:0, weekStr: weekKey, subjects: {} };
-                groupedWeekly[weekKey].q += q; groupedWeekly[weekKey].a += a; groupedWeekly[weekKey].t += t;
-                if(!groupedWeekly[weekKey].subjects[mat]) groupedWeekly[weekKey].subjects[mat] = {q:0, a:0, t:0};
-                groupedWeekly[weekKey].subjects[mat].q += q; groupedWeekly[weekKey].subjects[mat].a += a; groupedWeekly[weekKey].subjects[mat].t += t;
+                if(btn) { btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado'; setTimeout(() => btn.innerHTML = '<i class="fas fa-sync-alt"></i> SINC DATA', 2000); }
+            } catch (err) {
+                console.error("Erro na Sincronização:", err);
+                alert("⚠️ FALHA DE SINCRONIZAÇÃO:\n" + err.message);
+                if(btn) btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro';
             }
-
-            for(let day in groupedDaily) {
-                if(groupedDaily[day].q >= 100) totalMoedas += 50;
-                if(groupedDaily[day].t >= 120) totalMoedas += 50;
-            }
-            
-            globalData.sort((a,b) => b.date - a.date !== 0 ? b.date - a.date : b.origIdx - a.origIdx);
-            
-            let filter = document.getElementById('subjectFilter'); filter.innerHTML = '<option value="all">Visão Geral</option>';
-            let filterReport = document.getElementById('reportFilterMateria'); filterReport.innerHTML = '<option value="all">Todas as Matérias</option>';
-            Array.from(uniqueS).sort().forEach(s => { filter.innerHTML += `<option value="${s}">${s}</option>`; filterReport.innerHTML += `<option value="${s}">${s}</option>`; });
-
-            document.getElementById('streak-display').innerText = calcularDiasOfensiva();
-            updateRank(); updateGPS(); updateDashboard('all'); renderReport();
         }
 
-        // RANKINGS E GAMIFICAÇÃO
+        // ATUALIZAÇÃO DE RANK COM SEGURANÇA
         function updateRank() {
             let r = GAMER_RANKS[0]; let n = GAMER_RANKS[1];
             for(let i=0; i<GAMER_RANKS.length; i++) { if(totalQHistory >= GAMER_RANKS[i].threshold) { r = GAMER_RANKS[i]; n = GAMER_RANKS[i+1] || r; } }
             
-            document.getElementById('rank-title').innerText = r.title; 
+            setSafeText('rank-title', r.title);
+            setSafeText('rank-subtitle', r.desc);
+            let icon = document.getElementById('rank-icon');
+            if(icon) icon.className = `fas ${r.icon} rank-icon`;
             
-            // AQUI ESTAVA O SEU ERRO, O HTML ESTÁ COM O ELEMENTO E O JS ESTÁ CHAMANDO!
-            document.getElementById('rank-subtitle').innerText = r.desc; 
-            
-            document.getElementById('rank-icon').className = `fas ${r.icon} rank-icon`;
             let p = ((totalQHistory - r.threshold) / (n.threshold - r.threshold)) * 100;
-            document.getElementById('rank-progress-text').innerText = `${totalQHistory.toLocaleString()} / ${n.threshold.toLocaleString()} Q`;
-            document.getElementById('rank-bar').style.width = Math.min(p, 100) + '%';
-            document.getElementById('coin-display').innerText = totalMoedas.toLocaleString('pt-BR');
-
+            setSafeText('rank-progress-text', `${totalQHistory.toLocaleString()} / ${n.threshold.toLocaleString()} Q`);
+            
+            let bar = document.getElementById('rank-bar');
+            if(bar) bar.style.width = Math.min(p, 100) + '%';
+            
+            setSafeText('coin-display', totalMoedas.toLocaleString('pt-BR'));
             let dh = (dailyMins/60).toFixed(1);
-            document.getElementById('txt-daily-q').innerText = dailyQ; document.getElementById('txt-daily-h').innerText = dh;
-            document.getElementById('badge-q').className = dailyQ >= 100 ? "badge active-q" : "badge";
-            document.getElementById('badge-h').className = dailyMins >= 120 ? "badge active-h" : "badge";
+            setSafeText('txt-daily-q', dailyQ);
+            setSafeText('txt-daily-h', dh);
+            
+            let badgeQ = document.getElementById('badge-q');
+            if(badgeQ) badgeQ.className = dailyQ >= 100 ? "badge active-q" : "badge";
+            let badgeH = document.getElementById('badge-h');
+            if(badgeH) badgeH.className = dailyMins >= 120 ? "badge active-h" : "badge";
         }
 
         function updateLeaderEffects() {
@@ -997,6 +946,6 @@ Gostaria que fizesse:
                 initApp();
             }
         };
-    </script>
+                </script>
 </body>
 </html>
