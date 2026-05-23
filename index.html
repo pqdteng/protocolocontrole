@@ -120,14 +120,15 @@
 
         #btn-exit-foco { display: none; position: fixed; top: 20px; right: 20px; z-index: 10000; background: var(--accent-red); color: white; border: none; padding: 12px 25px; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         
-        /* ATUALIZAÇÃO 5 - Engenharia de Layout do Modo Foco via Flexbox e CSS Orders */
         body.focus-mode #app-sidebar { transform: translateX(-100%); }
         body.focus-mode .main-content { margin-left: 0; width: 100%; padding: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh;}
+        /* ATUALIZAÇÃO 2: Escondendo o chart-header e o filtro no Modo Foco */
         body.focus-mode .top-header, 
         body.focus-mode .rank-container, 
         body.focus-mode .gps-container, 
         body.focus-mode .cards-container, 
         body.focus-mode .charts-row, 
+        body.focus-mode .chart-header,
         body.focus-mode .report-section { display: none !important; }
         body.focus-mode .focus-section { flex-direction: column; align-items: center; justify-content: center; width: 100%; height: auto; gap: 40px; }
         body.focus-mode #timer-container { order: 1; transform: scale(1.4); border: none !important; background: transparent !important; padding: 0; margin: 0; }
@@ -188,8 +189,9 @@
     <div id="register-screen" style="display:none;">
         <div class="login-box" style="border-top: 4px solid var(--accent-green);">
             <h2><i class="fas fa-user-check" style="color:var(--accent-green)"></i> Ativação</h2>
-            <p style="color:#888; font-size:0.9em;">Crie sua credencial com o e-mail da compra.</p>
-            <input type="email" id="reg-email" class="login-input" placeholder="E-mail da Compra">
+            <!-- ATUALIZAÇÃO 1: Alteração do Placeholder visual -->
+            <p style="color:#888; font-size:0.9em;">Crie sua credencial com seu e-mail.</p>
+            <input type="email" id="reg-email" class="login-input" placeholder="Seu E-mail">
             <input type="password" id="reg-pass" class="login-input" placeholder="Crie uma Senha">
             <button class="btn" style="background:var(--accent-green); width:100%;" onclick="register()">ATIVAR CONTA</button>
             <div class="access-links" style="justify-content:center"><a onclick="showScreen('login')">Voltar ao Login</a></div>
@@ -280,14 +282,12 @@
 
                 <div class="focus-section" style="display:flex; justify-content:center; gap:20px; margin-bottom:30px; flex-wrap:wrap;">
                     
-                    <!-- ATUALIZAÇÃO 3: Relógio Local + Data formatada -->
                     <div id="clock-container" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:25px; text-align:center; flex:1; min-width:280px;">
                         <div id="clock-display" style="font-family:monospace; font-size:3.5em; font-weight:bold; color:var(--accent-blue); line-height:1; margin-bottom:5px;">00:00:00</div>
                         <div id="clock-date-display" style="color:var(--accent-blue); font-size:0.95em; font-weight:600; margin-bottom:10px; text-transform:uppercase;"></div>
                         <div style="color:#888; font-size:12px; text-transform:uppercase; letter-spacing:2px;">Horário Local</div>
                     </div>
                     
-                    <!-- ATUALIZAÇÕES 1 e 2: Abas de Pomodoro/Cronômetro e Botão de Salvar -->
                     <div id="timer-container" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:25px; text-align:center; flex:2; min-width:300px;">
                         
                         <div class="timer-tabs" style="display:flex; justify-content:center; gap:5px; margin-bottom:15px; background:var(--input-bg); border-radius:8px; padding:5px; width: fit-content; margin-left: auto; margin-right: auto; border: 1px solid var(--border-color);">
@@ -333,7 +333,8 @@
                     <div class="card card-vel"><h3><i class="fas fa-tachometer-alt"></i> Velocidade Média</h3><p id="kpi-vel">0 Q/h</p></div>
                 </div>
 
-                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                <!-- ATUALIZAÇÃO 2: Div class="chart-header" para gerenciar ocultação no modo Foco -->
+                <div class="chart-header" style="display:flex; justify-content:space-between; margin-bottom:15px;">
                     <h3 style="margin:0; font-size:1.2em;">Análise Gráfica</h3>
                     <select id="subjectFilter" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:5px 10px; border-radius:6px; outline:none;" onchange="updateDashboard(this.value)"><option value="all">Visão Geral</option></select>
                 </div>
@@ -398,6 +399,13 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- ATUALIZAÇÃO 6: Botões de Extração e Deleção -->
+                    <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+                        <button class="btn" style="background:var(--accent-blue);" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Exportar Dados CSV</button>
+                        <button class="btn" style="background:transparent; border:1px solid var(--accent-red); color:var(--accent-red);" onclick="confirmDeleteHistory()"><i class="fas fa-trash-alt"></i> Apagar Meu Histórico</button>
+                    </div>
+
                     <div style="overflow-x: auto;">
                         <table style="width:100%; border-collapse:collapse;">
                             <thead><tr style="border-bottom:1px solid var(--border-color);"><th id="col-periodo">Data</th><th>Questões</th><th>Acertos</th><th>Precisão</th><th>Tempo Estudado</th><th>Velocidade</th><th>Raio-X</th></tr></thead>
@@ -907,7 +915,6 @@ Gostaria que fizesse:
 
             if(cad && cad.link && cad.link.includes('http')) {
                 let ext = cad.link.match(/(https?:\/\/[^\s]+)/g); let finalUrl = ext ? ext[0] : cad.link;
-                // Blindagem do botão para manter nos limites via box-sizing
                 if(guc) guc.innerHTML = `<a href="${finalUrl}" target="_blank" class="btn" style="background:var(--accent-orange); color:black; width:100%; box-sizing:border-box; justify-content:center; margin-bottom:8px; text-decoration:none; white-space:normal; text-align:center;"><i class="fas fa-external-link-alt"></i> RETOMAR CADERNO</a><div style="font-size:11px; color:#888;">Acesso: <strong>${cad.date.toLocaleDateString()}</strong></div>${badgeHTML}`;
             } else {
                 if(guc) guc.innerHTML = `<div style="background:var(--bg-color); border: 1px solid var(--border-color); padding:10px; border-radius:8px; width:100%; box-sizing:border-box;">Alvo: <strong style="color:white;">${p1.chaves[0]}</strong><br><span style="color:var(--accent-orange); font-size:11px;">Sem link anexado.</span></div><div style="font-size:11px; color:#888; margin-top:8px;">Aguardando primeiro acesso.</div>${badgeHTML}`;
@@ -973,6 +980,47 @@ Gostaria que fizesse:
         });
     }
 
+    // ATUALIZAÇÃO 6: Função de exportação para CSV
+    function exportCSV() {
+        if(globalData.length === 0) return alert("Não há dados para exportar.");
+        let csvContent = "data:text/csv;charset=utf-8,Data,Materia,Topico,Questoes,Acertos,Tempo_Min,Fase\n";
+        globalData.forEach(r => {
+            let d = r.date.toLocaleDateString('pt-BR');
+            let topicoSafe = r.topico.replace(/,/g, " "); 
+            csvContent += `${d},${r.mat},${topicoSafe},${r.q},${r.a},${r.t},${r.fase}\n`;
+        });
+        let encodedUri = encodeURI(csvContent);
+        let link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "meu_historico_tce.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // ATUALIZAÇÃO 6: Função para apagar todo o histórico via API
+    function confirmDeleteHistory() {
+        if(confirm("ALERTA DE SEGURANÇA: Tem certeza que deseja APAGAR TODO o seu histórico de lançamentos? Esta ação não pode ser desfeita e sua pontuação retornará a zero.")) {
+            let btn = document.querySelector('button[onclick="confirmDeleteHistory()"]');
+            let oldTxt = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Apagando...';
+            btn.disabled = true;
+
+            fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({acao: "apagar_historico", email: loggedUserEmail}) })
+            .then(() => {
+                alert("Seu histórico foi completamente apagado.");
+                loadGoogleSheetsData();
+                btn.innerHTML = oldTxt;
+                btn.disabled = false;
+            })
+            .catch(err => {
+                alert("Erro ao apagar histórico.");
+                btn.innerHTML = oldTxt;
+                btn.disabled = false;
+            });
+        }
+    }
+
     function openDetailsModal(k) {
         let d = currentReportMode === 'diario' ? groupedDaily[k] : groupedWeekly[k]; if(!d) return;
         let dm = document.getElementById('detailsModal'); if(dm) dm.style.display = 'block';
@@ -998,7 +1046,8 @@ Gostaria que fizesse:
         if(nuvemJson && nuvemJson.trim() !== "") { cicloMaster = JSON.parse(nuvemJson); localStorage.setItem('pqdtCicloCustom', nuvemJson); } 
         else {
             let saved = localStorage.getItem('pqdtCicloCustom');
-            if(saved) cicloMaster = JSON.parse(saved); else { let chavesPadrao = ["PNFL", "AFO", "DCO", "CEX", "CASP", "CTG", "EDF", "DAD", "POR", "OR"]; cicloMaster = chavesPadrao.map(sigla => TODAS_MATERIAS.find(m => m.chaves[0] === sigla)).filter(Boolean); }
+            // ATUALIZAÇÃO 4: Caso o usuário não tenha nada salvo, carrega as 22 disciplinas originais do const para ele organizar.
+            if(saved) cicloMaster = JSON.parse(saved); else { cicloMaster = JSON.parse(JSON.stringify(TODAS_MATERIAS)); }
         }
         updateSelects();
     }
@@ -1097,8 +1146,9 @@ Gostaria que fizesse:
             let em = document.getElementById('entryModal'); if(em) em.style.display='none'; 
             if(btn) btn.disabled=false; 
             
-            // Reseta o cronômetro para o próximo bloco de estudo após o lançamento
-            resetTimer();
+            // ATUALIZAÇÃO 3: Retirada da chamada resetTimer()
+            // O cronômetro não zera mais após salvar a sessão.
+            
             loadGoogleSheetsData(); 
         })
         .catch(err => { alert("Erro de conexão com o banco de dados."); if(btn) { btn.innerText = "TENTAR NOVAMENTE"; btn.disabled=false; } });
