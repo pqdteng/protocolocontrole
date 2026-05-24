@@ -153,10 +153,6 @@
 
         .sidebar-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:899; }
         
-        .dossie-item { display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid var(--border-color); }
-        .dossie-item:last-child { border-bottom: none; }
-        .dossie-item i { width: 30px; font-size: 1.2em; color: var(--accent-blue); text-align: center; }
-
         @media (max-width: 992px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
@@ -232,7 +228,6 @@
                 <button class="nav-item" onclick="openProfileModal(); toggleMobileMenu();"><i class="fas fa-user-circle"></i> Ficha do Aluno</button>
                 <button class="nav-item" onclick="document.getElementById('platformTutorialModal').style.display='block'; toggleMobileMenu();"><i class="fas fa-laptop-code"></i> Guia da Plataforma</button>
                 <button class="nav-item" onclick="document.getElementById('tutorialModal').style.display='block'; toggleMobileMenu();"><i class="fas fa-book-reader"></i> Metodologias de Estudo</button>
-                <button class="nav-item" onclick="document.getElementById('dossieModal').style.display='block'; toggleMobileMenu();"><i class="fas fa-id-card"></i> Dossiê do Comandante</button>
             </div>
             <div class="sidebar-footer">
                 <div style="font-size: 11px; color: #888; text-align:center; margin-bottom:10px;">Autenticado como:<br><strong style="color:var(--accent-blue);" id="sidebar-user-email">--</strong></div>
@@ -422,30 +417,6 @@
         </div>
     </div>
 
-    <!-- DOSSIÊ DO COMANDANTE (NOVO MODAL) -->
-    <div id="dossieModal" class="modal">
-        <div class="modal-content" style="max-width: 500px; padding: 0; overflow: hidden;">
-            <div style="background: var(--card-bg); border-bottom: 1px solid var(--border-color); padding: 25px; text-align: center; position: relative;">
-                <span class="close-btn" onclick="document.getElementById('dossieModal').style.display='none'" style="top: 15px; right: 15px;">&times;</span>
-                <div style="width: 80px; height: 80px; background: var(--hover-bg); border: 2px solid var(--accent-blue); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 15px auto; font-size: 2em; color: var(--accent-blue);">
-                    <i class="fas fa-user-shield"></i>
-                </div>
-                <h2 style="margin: 0; color: var(--text-color);">Fernando Vale</h2>
-                <p style="margin: 5px 0 0 0; color: var(--accent-orange); font-weight: bold; font-size: 0.9em; text-transform: uppercase;">Codinome: Pqdt Engenheiro</p>
-            </div>
-            <div style="padding: 20px;">
-                <div class="dossie-item"><i class="fas fa-id-badge"></i><div><span style="font-size: 0.8em; color: #888; display: block;">Idade & Família</span><strong style="color: var(--text-color);">33 anos. Casado com a Priscila, e pai.</strong></div></div>
-                <div class="dossie-item"><i class="fas fa-hard-hat"></i><div><span style="font-size: 0.8em; color: #888; display: block;">Formação Acadêmica</span><strong style="color: var(--text-color);">Engenheiro Civil. Pós-graduado em estruturas de concreto armado.</strong></div></div>
-                <div class="dossie-item"><i class="fas fa-balance-scale"></i><div><span style="font-size: 0.8em; color: #888; display: block;">Cargo Atual</span><strong style="color: var(--text-color);">Técnico Judiciário (Eng. Civil) no TJMS.</strong></div></div>
-                <div class="dossie-item"><i class="fas fa-plane"></i><div><span style="font-size: 0.8em; color: #888; display: block;">Histórico Militar</span><strong style="color: var(--text-color);">Ex-militar de carreira da FAB. Formação Básica Paraquedista.</strong></div></div>
-                <div class="dossie-item"><i class="fas fa-crosshairs" style="color: var(--accent-red);"></i><div><span style="font-size: 0.8em; color: #888; display: block;">Alvo Atual (Concursos)</span><strong style="color: var(--accent-red);">Área de Controle (TCE-MS / TCU).</strong></div></div>
-            </div>
-            <div style="background: rgba(0,0,0,0.2); padding: 15px; text-align: center; border-top: 1px solid var(--border-color);">
-                <span style="font-size: 0.85em; color: #888;">"Desenvolvedor e Idealizador da Sala de Comando"</span>
-            </div>
-        </div>
-    </div>
-
     <!-- FICHA CADASTRAL -->
     <div id="profileModal" class="modal">
         <div class="modal-content" style="max-width: 450px;">
@@ -547,7 +518,6 @@ Gostaria que fizesse:
                     <div class="form-group" style="margin:0;"><label>Matéria</label><select id="f-materia" required></select></div>
                 </div>
                 
-                <!-- ATUALIZAÇÃO 3 E 4: INCLUSÃO DE SELEÇÃO DE METODOLOGIA -->
                 <div class="form-group">
                     <label>Modo de Operação Tática (Metodologia)</label>
                     <select id="f-metodo" style="border-left: 4px solid var(--accent-blue);">
@@ -819,7 +789,6 @@ Gostaria que fizesse:
             let dayKey = dateObj.toLocaleDateString('pt-BR'); let weekKey = getWeekNumber(dateObj);
             if(dayKey === todayStr) { dailyQ += q; dailyMins += t; }
             
-            // Lendo a Metodologia (Índice 9)
             globalData.push({ 
                 date: dateObj, mat: mat, topico: r[3]?String(r[3]).trim():'', 
                 link: r[4] ? String(r[4]).trim() : '', q: q, a: a, t: t, 
@@ -960,7 +929,6 @@ Gostaria que fizesse:
             let valK = String(last.k).toUpperCase().trim(); 
             let valL = String(last.l).toUpperCase().trim();
             
-            // LÓGICA DE ENGENHARIA: Máquina de Estados baseada na Metodologia
             let metodoUsado = last.metodologia ? String(last.metodologia).trim() : "Método MB (Questões)";
             let isConsolidated = false;
 
@@ -986,7 +954,6 @@ Gostaria que fizesse:
 
             let cad = globalData.find(x => x.mat === p1.chaves[0] || String(x.mat).includes(p1.nome));
             
-            // Criação das badges visuais no dashboard
             let badgeMetodoHtml = `<span class="badge" style="font-size:10px; background:rgba(240, 136, 62, 0.1); border:1px solid var(--accent-orange); color:var(--accent-orange)">${metodoUsado}</span>`;
             let badgeHTML = !isConsolidated ? `<div style="display:flex; gap:5px; margin-top:10px; justify-content:center;"><span class="badge" style="font-size:10px; background:rgba(88,166,255,0.1); border:1px solid var(--accent-blue); color:var(--accent-blue)">Fase Atual: ${valFase||"?"}</span>${badgeMetodoHtml}</div>` : `<div style="display:flex; gap:5px; margin-top:10px; justify-content:center;">${badgeMetodoHtml}</div>`;
 
@@ -1188,7 +1155,6 @@ Gostaria que fizesse:
         let elD = document.getElementById('f-data'); if(elD) elD.value = `${yyyy}-${mm}-${dd}`; 
         let elM = document.getElementById('f-materia'); if(elM) elM.value = last.mat; 
         
-        // Carrega a metodologia (adicionado)
         let elMet = document.getElementById('f-metodo'); if(elMet) elMet.value = last.metodologia || 'Método MB (Questões)';
 
         let elT = document.getElementById('f-topico'); if(elT) elT.value = last.topico || '';
@@ -1210,7 +1176,7 @@ Gostaria que fizesse:
         
         let dt = document.getElementById('f-data'); let p = dt ? dt.value.split('-') : [];
         let mat = document.getElementById('f-materia'); 
-        let met = document.getElementById('f-metodo'); // Captura da metodologia
+        let met = document.getElementById('f-metodo'); 
         let top = document.getElementById('f-topico');
         let tlnk = document.getElementById('f-tipo-link'); 
         let temp = document.getElementById('f-tempo');
@@ -1220,7 +1186,6 @@ Gostaria que fizesse:
 
         let actionStr = isEditingMode ? "retificar_ultimo" : "lancamento";
         
-        // Payload enriquecido com a chave metodologia
         let payload = { 
             acao: actionStr, email: loggedUserEmail, 
             dataEstudo: `${p[2]}/${p[1]}/${p[0]}`, 
