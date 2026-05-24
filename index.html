@@ -35,7 +35,7 @@
         #app-wrapper { display: none; width: 100%; min-height: 100vh; }
         
         .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: fixed; height: 100vh; top: 0; left: 0; z-index: 900; transition: transform 0.3s ease;}
-        .sidebar-brand { padding: 25px 20px; font-size: 1.3em; font-weight: bold; border-bottom: 1px solid var(--border-color); color: var(--text-color); display: flex; align-items: center; gap: 12px;}
+        .sidebar-brand { padding: 25px 20px; font-size: 1.3em; font-weight: bold; border-bottom: 1px solid var(--border-color); color: var(--text-color); display: flex; flex-direction: column; align-items: flex-start; gap: 4px;}
         .sidebar-menu { padding: 15px 0; display: flex; flex-direction: column; flex-grow: 1; overflow-y: auto;}
         .nav-item { width: 100%; background: none; border: none; padding: 14px 25px; color: #8B949E; text-align: left; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; border-left: 4px solid transparent;}
         .nav-item:hover { color: var(--text-color); background-color: var(--hover-bg); }
@@ -122,7 +122,6 @@
         
         body.focus-mode #app-sidebar { transform: translateX(-100%); }
         body.focus-mode .main-content { margin-left: 0; width: 100%; padding: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh;}
-        /* ATUALIZAÇÃO 2: Escondendo o chart-header e o filtro no Modo Foco */
         body.focus-mode .top-header, 
         body.focus-mode .rank-container, 
         body.focus-mode .gps-container, 
@@ -153,6 +152,11 @@
         .btn-action-top:hover { background: var(--hover-bg); }
 
         .sidebar-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:899; }
+        
+        .dossie-item { display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid var(--border-color); }
+        .dossie-item:last-child { border-bottom: none; }
+        .dossie-item i { width: 30px; font-size: 1.2em; color: var(--accent-blue); text-align: center; }
+
         @media (max-width: 992px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
@@ -178,7 +182,7 @@
             <input type="email" id="log-email" class="login-input" placeholder="E-mail de acesso">
             <input type="password" id="log-pass" class="login-input" placeholder="Senha">
             <button class="btn btn-access" style="background:var(--accent-blue); width:100%; padding:14px; margin-top:10px;" onclick="login()">ENTRAR NO PAINEL</button>
-            <button class="btn" style="background:var(--hover-bg); color:var(--text-color); border:1px solid var(--border-color); width:100%; margin-top:10px;" onclick="document.getElementById('tutorialModal').style.display='block'"><i class="fas fa-book-open"></i> Conhecer o Método</button>
+            <button class="btn" style="background:var(--hover-bg); color:var(--text-color); border:1px solid var(--border-color); width:100%; margin-top:10px;" onclick="document.getElementById('tutorialModal').style.display='block'"><i class="fas fa-book-open"></i> Metodologias</button>
             <div class="access-links">
                 <a onclick="showScreen('register')">Ativar Primeiro Acesso</a>
                 <a onclick="showScreen('reset')">Esqueci a Senha</a>
@@ -189,7 +193,6 @@
     <div id="register-screen" style="display:none;">
         <div class="login-box" style="border-top: 4px solid var(--accent-green);">
             <h2><i class="fas fa-user-check" style="color:var(--accent-green)"></i> Ativação</h2>
-            <!-- ATUALIZAÇÃO 1: Alteração do Placeholder visual -->
             <p style="color:#888; font-size:0.9em;">Crie sua credencial com seu e-mail.</p>
             <input type="email" id="reg-email" class="login-input" placeholder="Seu E-mail">
             <input type="password" id="reg-pass" class="login-input" placeholder="Crie uma Senha">
@@ -212,8 +215,11 @@
         
         <div class="sidebar" id="app-sidebar">
             <div class="sidebar-brand">
-                <i class="fas fa-shield-alt" style="color:var(--accent-blue); font-size:1.4em;"></i>
-                Sala de Comando
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-shield-alt" style="color:var(--accent-blue); font-size:1.2em;"></i>
+                    Sala de Comando
+                </div>
+                <span style="font-size: 11px; color:#888; font-weight: normal; margin-left: 32px;">por Fernando Vale - Pqdt</span>
             </div>
             <div class="sidebar-menu">
                 <button class="nav-item active" onclick="switchView('painel', this); toggleMobileMenu();"><i class="fas fa-chart-pie"></i> Painel de Controle</button>
@@ -225,7 +231,8 @@
                 
                 <button class="nav-item" onclick="openProfileModal(); toggleMobileMenu();"><i class="fas fa-user-circle"></i> Ficha do Aluno</button>
                 <button class="nav-item" onclick="document.getElementById('platformTutorialModal').style.display='block'; toggleMobileMenu();"><i class="fas fa-laptop-code"></i> Guia da Plataforma</button>
-                <button class="nav-item" onclick="document.getElementById('tutorialModal').style.display='block'; toggleMobileMenu();"><i class="fas fa-book-reader"></i> O Método MB</button>
+                <button class="nav-item" onclick="document.getElementById('tutorialModal').style.display='block'; toggleMobileMenu();"><i class="fas fa-book-reader"></i> Metodologias de Estudo</button>
+                <button class="nav-item" onclick="document.getElementById('dossieModal').style.display='block'; toggleMobileMenu();"><i class="fas fa-id-card"></i> Dossiê do Comandante</button>
             </div>
             <div class="sidebar-footer">
                 <div style="font-size: 11px; color: #888; text-align:center; margin-bottom:10px;">Autenticado como:<br><strong style="color:var(--accent-blue);" id="sidebar-user-email">--</strong></div>
@@ -319,7 +326,7 @@
                                 <ul class="mission-list" id="mission-list"><li>Aguardando Sincronização...</li></ul>
                             </div>
                             <div class="action-box">
-                                <h4 style="margin:0 0 10px 0; color:#888; font-size:12px; text-transform:uppercase;"><i class="fas fa-link"></i> Último Caderno</h4>
+                                <h4 style="margin:0 0 10px 0; color:#888; font-size:12px; text-transform:uppercase;"><i class="fas fa-link"></i> Última Operação</h4>
                                 <div id="gps-ultimo-caderno" style="text-align:center; font-size:13px;">Aguardando...</div>
                             </div>
                         </div>
@@ -333,7 +340,6 @@
                     <div class="card card-vel"><h3><i class="fas fa-tachometer-alt"></i> Velocidade Média</h3><p id="kpi-vel">0 Q/h</p></div>
                 </div>
 
-                <!-- ATUALIZAÇÃO 2: Div class="chart-header" para gerenciar ocultação no modo Foco -->
                 <div class="chart-header" style="display:flex; justify-content:space-between; margin-bottom:15px;">
                     <h3 style="margin:0; font-size:1.2em;">Análise Gráfica</h3>
                     <select id="subjectFilter" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:5px 10px; border-radius:6px; outline:none;" onchange="updateDashboard(this.value)"><option value="all">Visão Geral</option></select>
@@ -400,7 +406,6 @@
                         </div>
                     </div>
                     
-                    <!-- ATUALIZAÇÃO 6: Botões de Extração e Deleção -->
                     <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
                         <button class="btn" style="background:var(--accent-blue);" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Exportar Dados CSV</button>
                         <button class="btn" style="background:transparent; border:1px solid var(--accent-red); color:var(--accent-red);" onclick="confirmDeleteHistory()"><i class="fas fa-trash-alt"></i> Apagar Meu Histórico</button>
@@ -417,6 +422,31 @@
         </div>
     </div>
 
+    <!-- DOSSIÊ DO COMANDANTE (NOVO MODAL) -->
+    <div id="dossieModal" class="modal">
+        <div class="modal-content" style="max-width: 500px; padding: 0; overflow: hidden;">
+            <div style="background: var(--card-bg); border-bottom: 1px solid var(--border-color); padding: 25px; text-align: center; position: relative;">
+                <span class="close-btn" onclick="document.getElementById('dossieModal').style.display='none'" style="top: 15px; right: 15px;">&times;</span>
+                <div style="width: 80px; height: 80px; background: var(--hover-bg); border: 2px solid var(--accent-blue); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 15px auto; font-size: 2em; color: var(--accent-blue);">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h2 style="margin: 0; color: var(--text-color);">Fernando Vale</h2>
+                <p style="margin: 5px 0 0 0; color: var(--accent-orange); font-weight: bold; font-size: 0.9em; text-transform: uppercase;">Codinome: Pqdt Engenheiro</p>
+            </div>
+            <div style="padding: 20px;">
+                <div class="dossie-item"><i class="fas fa-id-badge"></i><div><span style="font-size: 0.8em; color: #888; display: block;">Idade & Família</span><strong style="color: var(--text-color);">33 anos. Casado com a Priscila, e pai.</strong></div></div>
+                <div class="dossie-item"><i class="fas fa-hard-hat"></i><div><span style="font-size: 0.8em; color: #888; display: block;">Formação Acadêmica</span><strong style="color: var(--text-color);">Engenheiro Civil. Pós-graduado em estruturas de concreto armado.</strong></div></div>
+                <div class="dossie-item"><i class="fas fa-balance-scale"></i><div><span style="font-size: 0.8em; color: #888; display: block;">Cargo Atual</span><strong style="color: var(--text-color);">Técnico Judiciário (Eng. Civil) no TJMS.</strong></div></div>
+                <div class="dossie-item"><i class="fas fa-plane"></i><div><span style="font-size: 0.8em; color: #888; display: block;">Histórico Militar</span><strong style="color: var(--text-color);">Ex-militar de carreira da FAB. Formação Básica Paraquedista.</strong></div></div>
+                <div class="dossie-item"><i class="fas fa-crosshairs" style="color: var(--accent-red);"></i><div><span style="font-size: 0.8em; color: #888; display: block;">Alvo Atual (Concursos)</span><strong style="color: var(--accent-red);">Área de Controle (TCE-MS / TCU).</strong></div></div>
+            </div>
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; text-align: center; border-top: 1px solid var(--border-color);">
+                <span style="font-size: 0.85em; color: #888;">"Desenvolvedor e Idealizador da Sala de Comando"</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- FICHA CADASTRAL -->
     <div id="profileModal" class="modal">
         <div class="modal-content" style="max-width: 450px;">
             <span class="close-btn" onclick="document.getElementById('profileModal').style.display='none'">&times;</span>
@@ -444,38 +474,46 @@
         </div>
     </div>
 
+    <!-- GUIA DA PLATAFORMA ATUALIZADO -->
     <div id="platformTutorialModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="document.getElementById('platformTutorialModal').style.display='none'">&times;</span>
-            <h2 style="color: var(--accent-blue); margin-top: 0;"><i class="fas fa-laptop-code"></i> Manual da Plataforma</h2>
-            <p style="font-size: 14px; line-height: 1.6; color: #888; margin-bottom:20px;">Compreenda as engrenagens da sua Sala de Comando:</p>
+            <h2 style="color: var(--accent-blue); margin-top: 0;"><i class="fas fa-laptop-code"></i> Guia da Plataforma</h2>
+            <p style="font-size: 14px; line-height: 1.6; color: #888; margin-bottom:20px;">Compreenda as engrenagens táticas da sua Sala de Comando:</p>
             <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-orange);">
-                <strong style="color:var(--text-color); font-size:15px;">1. Ciclo Blindado na Nuvem</strong><br>
-                <span style="font-size:13px; color:#888;">Suas matérias são salvas na nuvem. Pode limpar o cache do navegador sem medo.</span>
+                <strong style="color:var(--text-color); font-size:15px;">1. Ciclo e Nuvem</strong><br>
+                <span style="font-size:13px; color:#888;">Suas matérias e a ordem de batalha são salvas na nuvem. Formate seu edital verticalizado na aba "Meu Ciclo Tático".</span>
             </div>
-            <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-purple);">
-                <strong style="color:var(--text-color); font-size:15px;">2. Retificação de Dados</strong><br>
-                <span style="font-size:13px; color:#888;">Lançou errado? Vá em "Lançar Missão" e clique em "Corrigir Último Lançamento".</span>
+            <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-green);">
+                <strong style="color:var(--text-color); font-size:15px;">2. GPS Inteligente e Metodologias</strong><br>
+                <span style="font-size:13px; color:#888;">O GPS avalia o seu Método. Se for Questões (MB), exige meta de acertos para avançar a fase. Se for Leitura (PDF/Vídeo), ele registra a teoria consumida e avança o seu ciclo.</span>
             </div>
             <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-red);">
-                <strong style="color:var(--text-color); font-size:15px;">3. Dias de Ofensiva (Streak) 🔥</strong><br>
-                <span style="font-size:13px; color:#888;">O sistema detecta automaticamente se você estudou ontem e hoje e aumenta o seu fogo da consistência.</span>
+                <strong style="color:var(--text-color); font-size:15px;">3. Gamificação e Ofensiva 🔥</strong><br>
+                <span style="font-size:13px; color:#888;">O sistema detecta sua frequência. Estude todos os dias para não perder o fogo da ofensiva. Atingir 100 Qs ou 2h/dia gera Moedas bônus.</span>
             </div>
             <button class="btn" style="background:var(--accent-blue); width:100%;" onclick="document.getElementById('platformTutorialModal').style.display='none'">ENTENDIDO</button>
         </div>
     </div>
 
+    <!-- METODOLOGIAS DE ESTUDO ATUALIZADO -->
     <div id="tutorialModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="document.getElementById('tutorialModal').style.display='none'">&times;</span>
-            <h2 style="color: var(--accent-green); margin-top: 0;"><i class="fas fa-book-reader"></i> Engenharia Reversa (Método MB)</h2>
+            <h2 style="color: var(--accent-green); margin-top: 0;"><i class="fas fa-book-reader"></i> Metodologias de Estudo</h2>
             <div style="background: var(--input-bg); padding:20px; border-radius:8px; font-size:14px; margin-bottom: 20px; border: 1px solid var(--border-color);">
-                <p><strong>FASE 1: Ambientação</strong> - Imprima 20-30 Qs do assunto, peça explicação à IA. Meta: 75%+</p>
+                <h4 style="margin: 0 0 10px 0; color: var(--accent-blue);"><i class="fas fa-tasks"></i> Engenharia Reversa (Método MB)</h4>
+                <p style="margin-top: 0;"><strong>FASE 1: Ambientação</strong> - Imprima 20-30 Qs do assunto, peça explicação à IA. Meta: 75%+</p>
                 <p><strong>FASE 2: Sequencial</strong> - Resolva na sequência. Meta: 80%+</p>
                 <p><strong>FASE 3: Aleatória</strong> - Faça a bateria embaralhada. Meta: 80%+</p>
                 <p><strong>FASE 4: Consolidação</strong> - Repita focando na excelência. Meta: 85%+ para liberar no GPS.</p>
+                
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
+                
+                <h4 style="margin: 0 0 10px 0; color: var(--accent-orange);"><i class="fas fa-file-pdf"></i> Estudo Teórico (PDF / Vídeo)</h4>
+                <p style="margin-top: 0;">Leitura ativa e grifos para consolidar a base teórica antes de atacar a bateria de questões. O GPS avança o ciclo automaticamente após o registro de tempo.</p>
             </div>
-            <h3 style="color: var(--accent-gold); font-size:15px;"><i class="fas fa-robot"></i> Prompt Estratégico (FASE 1)</h3>
+            <h3 style="color: var(--accent-gold); font-size:15px;"><i class="fas fa-robot"></i> Prompt Estratégico (Para Fase 1 - MB)</h3>
             <div style="background: #000; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; font-family: monospace; font-size: 12px; color: var(--accent-orange); white-space: pre-wrap;" id="ai-prompt">RESUMO DE ASSUNTO.
 Aja como um professor especialista em concursos públicos. Estou estudando [INSERIR DISCIPLINA], o assunto [INSERIR ASSUNTO], banca [INSERIR BANCA].
 Gostaria que fizesse:
@@ -508,14 +546,25 @@ Gostaria que fizesse:
                     <div class="form-group" style="margin:0;"><label>Data</label><input type="date" id="f-data" required></div>
                     <div class="form-group" style="margin:0;"><label>Matéria</label><select id="f-materia" required></select></div>
                 </div>
+                
+                <!-- ATUALIZAÇÃO 3 E 4: INCLUSÃO DE SELEÇÃO DE METODOLOGIA -->
+                <div class="form-group">
+                    <label>Modo de Operação Tática (Metodologia)</label>
+                    <select id="f-metodo" style="border-left: 4px solid var(--accent-blue);">
+                        <option value="Método MB (Questões)">Engenharia Reversa - Método MB (Questões)</option>
+                        <option value="Leitura (PDF)">Estudo Teórico - Leitura Ativa (PDF)</option>
+                        <option value="Videoaula">Estudo Teórico - Videoaula</option>
+                    </select>
+                </div>
+
                 <div class="form-group"><label>Assunto / Tópico</label><input type="text" id="f-topico" required placeholder="Ex: Licitações"></div>
-                <div class="form-group"><label>Link do Caderno (Opcional)</label><input type="text" id="f-tipo-link" placeholder="https://tecconcursos..."></div>
+                <div class="form-group"><label>Link do Caderno / Material (Opcional)</label><input type="text" id="f-tipo-link" placeholder="https://tecconcursos... ou Drive"></div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px;">
                     <div class="form-group" style="margin:0;"><label>Minutos</label><input type="number" id="f-tempo" value="0"></div>
                     <div class="form-group" style="margin:0;"><label>Questões</label><input type="number" id="f-q" value="0"></div>
                     <div class="form-group" style="margin:0;"><label>Acertos</label><input type="number" id="f-a" value="0"></div>
                 </div>
-                <div class="form-group"><label>Fase de Estudo</label><select id="f-fase"><option value="1">Fase 1 (Ambientação)</option><option value="2">Fase 2 (Sequencial)</option><option value="3">Fase 3 (Aleatória)</option><option value="4">Fase 4 (Consolidação)</option></select></div>
+                <div class="form-group"><label>Fase de Estudo (Apenas p/ Método MB)</label><select id="f-fase"><option value="1">Fase 1 (Ambientação)</option><option value="2">Fase 2 (Sequencial)</option><option value="3">Fase 3 (Aleatória)</option><option value="4">Fase 4 (Consolidação)</option></select></div>
                 <button type="submit" id="btn-submit-form" class="btn" style="background: var(--accent-green); width:100%; padding:15px; font-size:16px;">ENVIAR PARA A NUVEM</button>
             </form>
         </div>
@@ -534,7 +583,6 @@ Gostaria que fizesse:
     let currentReportMode = 'diario'; let currentWeekStr = ""; 
     let totalQHistory = 0; let dailyQ = 0; let dailyMins = 0; let totalMoedas = 0;
 
-    // --- FUNÇÕES DE UTILIDADE E SEGURANÇA ---
     if(localStorage.getItem('pqdtTheme') === 'light') document.body.classList.add('light-mode');
     function updateChartColors() {
         let isLight = document.body.classList.contains('light-mode');
@@ -569,7 +617,6 @@ Gostaria que fizesse:
     let customSubjects = JSON.parse(localStorage.getItem('pqdtCustomSubjects')) || [];
     let cicloMaster = []; let tempCiclo = [];   
 
-    // --- FUNÇÕES DE INTERFACE ---
     function toggleMobileMenu() { if(window.innerWidth <= 992) { let sb = document.getElementById('app-sidebar'); let ov = document.getElementById('sidebar-overlay'); if(sb) sb.classList.toggle('open'); if(ov) ov.classList.toggle('open'); } }
     function switchView(viewId, element) { document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active-view')); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); let v = document.getElementById('view-' + viewId); if(v) v.classList.add('active-view'); if(element) element.classList.add('active'); if(viewId === 'painel' && globalData.length > 0) updateDashboard('all'); }
     function toggleTheme() { document.body.classList.toggle('light-mode'); localStorage.setItem('pqdtTheme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); updateChartColors(); if(globalData.length>0) updateDashboard('all'); }
@@ -590,7 +637,6 @@ Gostaria que fizesse:
         return `${tempD.getUTCFullYear()} - Sem ${Math.ceil((((tempD - yearStart) / 86400000) + 1)/7).toString().padStart(2, '0')}`;
     }
 
-    // --- LÓGICA DE LOGIN E INICIALIZAÇÃO ---
     function checkLogin() {
         if (loggedUserEmail && loggedUserSenha) {
             let loginScreen = document.getElementById('login-screen');
@@ -658,7 +704,6 @@ Gostaria que fizesse:
 
     function logout() { localStorage.clear(); location.reload(); }
 
-    // --- ENGENHARIA DE TIMERS E POMODORO ---
     function initApp() {
         let fData = document.getElementById('f-data'); if(fData) fData.valueAsDate = new Date();
         let mHrs = document.getElementById('meta-hrs'); if(mHrs && localStorage.getItem('metaHrs')) mHrs.value = localStorage.getItem('metaHrs');
@@ -670,15 +715,13 @@ Gostaria que fizesse:
         const now = new Date();
         setSafeText('current-date-text', now.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }).replace('.', ''));
         setSafeText('clock-display', now.toLocaleTimeString('pt-BR'));
-        
-        // Atualizando o texto longo de data e dia da semana na central de foco
         let dtStr = now.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
         setSafeText('clock-date-display', dtStr);
     }, 1000);
 
-    let timerMode = 'crono'; // Controle de estado entre cronômetro e pomodoro
+    let timerMode = 'crono'; 
     let timerSeconds = localStorage.getItem('pqdtTimer') ? parseInt(localStorage.getItem('pqdtTimer')) : 0; 
-    let pomoSeconds = 25 * 60; // 25 Minutos de foco
+    let pomoSeconds = 25 * 60; 
     let timerInt;
     let isTimerRunning = false;
 
@@ -696,11 +739,8 @@ Gostaria que fizesse:
         let h = Math.floor(secs/3600).toString().padStart(2,'0'); 
         let m = Math.floor((secs%3600)/60).toString().padStart(2,'0'); 
         let s = (secs%60).toString().padStart(2,'0');
-        
-        // Exibe horas apenas se necessário no cronômetro
         let displayStr = (timerMode === 'crono' && h !== '00') ? `${h}:${m}:${s}` : `${m}:${s}`;
         setSafeText('timer-display', displayStr); 
-        
         if(timerMode === 'crono') localStorage.setItem('pqdtTimer', timerSeconds);
     }
 
@@ -713,7 +753,6 @@ Gostaria que fizesse:
         isTimerRunning = true;
         let btnPlay = document.getElementById('btn-play-pause');
         if(btnPlay) btnPlay.innerHTML = '<i class="fas fa-pause"></i>';
-        
         clearInterval(timerInt); 
         timerInt = setInterval(() => { 
             if(timerMode === 'crono') {
@@ -740,7 +779,6 @@ Gostaria que fizesse:
     }
     updateTimerDisplay();
 
-    // --- DADOS E SINCRONIZAÇÃO ---
     async function loadGoogleSheetsData() {
         let btns = document.querySelectorAll('.sync-btn-ui');
         btns.forEach(b => b.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo...');
@@ -780,7 +818,16 @@ Gostaria que fizesse:
             if(dParts.length === 3) dateObj = new Date(dParts[2], dParts[1]-1, dParts[0]);
             let dayKey = dateObj.toLocaleDateString('pt-BR'); let weekKey = getWeekNumber(dateObj);
             if(dayKey === todayStr) { dailyQ += q; dailyMins += t; }
-            globalData.push({ date: dateObj, mat: mat, topico: r[3]?String(r[3]).trim():'', link: r[4] ? String(r[4]).trim() : '', q: q, a: a, t: t, fase: r[8] ? String(r[8]).trim() : '', k: r[10] ? String(r[10]).trim() : '', l: r[11] ? String(r[11]).trim() : '', origIdx: i });
+            
+            // Lendo a Metodologia (Índice 9)
+            globalData.push({ 
+                date: dateObj, mat: mat, topico: r[3]?String(r[3]).trim():'', 
+                link: r[4] ? String(r[4]).trim() : '', q: q, a: a, t: t, 
+                fase: r[8] ? String(r[8]).trim() : '', 
+                metodologia: r[9] ? String(r[9]).trim() : '',
+                k: r[10] ? String(r[10]).trim() : '', l: r[11] ? String(r[11]).trim() : '', origIdx: i 
+            });
+            
             if(!groupedDaily[dayKey]) groupedDaily[dayKey] = { q:0, a:0, t:0, dateObj: dateObj, subjects: {} };
             groupedDaily[dayKey].q += q; groupedDaily[dayKey].a += a; groupedDaily[dayKey].t += t;
             if(!groupedDaily[dayKey].subjects[mat]) groupedDaily[dayKey].subjects[mat] = {q:0, a:0, t:0};
@@ -884,38 +931,68 @@ Gostaria que fizesse:
     }
 
     function updateGPS() {
-        let mh = document.getElementById('meta-hrs'); let mq = document.getElementById('meta-q');
-        let metaHrs = (mh ? parseFloat(mh.value) : 0) || 20; let metaQ = (mq ? parseFloat(mq.value) : 0) || 500;
+        let mh = document.getElementById('meta-hrs'); 
+        let mq = document.getElementById('meta-q');
+        let metaHrs = (mh ? parseFloat(mh.value) : 0) || 20; 
+        let metaQ = (mq ? parseFloat(mq.value) : 0) || 500;
         let currentWeekData = groupedWeekly[currentWeekStr] || { q: 0, t: 0 };
-        let hrsFeitas = (currentWeekData.t / 60).toFixed(1); let qFeitas = currentWeekData.q;
-        let pctHrs = Math.min((hrsFeitas / metaHrs) * 100, 100).toFixed(0); let pctQ = Math.min((qFeitas / metaQ) * 100, 100).toFixed(0);
+        let hrsFeitas = (currentWeekData.t / 60).toFixed(1); 
+        let qFeitas = currentWeekData.q;
+        let pctHrs = Math.min((hrsFeitas / metaHrs) * 100, 100).toFixed(0); 
+        let pctQ = Math.min((qFeitas / metaQ) * 100, 100).toFixed(0);
 
-        setSafeText('lbl-hrs-feito', hrsFeitas); setSafeText('lbl-hrs-pct', pctHrs + '%'); 
-        let bh = document.getElementById('bar-hrs'); if(bh) bh.style.width = pctHrs + '%';
-        setSafeText('lbl-q-feito', qFeitas); setSafeText('lbl-q-pct', pctQ + '%'); 
-        let bq = document.getElementById('bar-q'); if(bq) bq.style.width = pctQ + '%';
+        setSafeText('lbl-hrs-feito', hrsFeitas); 
+        setSafeText('lbl-hrs-pct', pctHrs + '%'); 
+        let bh = document.getElementById('bar-hrs'); 
+        if(bh) bh.style.width = pctHrs + '%';
+        
+        setSafeText('lbl-q-feito', qFeitas); 
+        setSafeText('lbl-q-pct', pctQ + '%'); 
+        let bq = document.getElementById('bar-q'); 
+        if(bq) bq.style.width = pctQ + '%';
 
-        let ml = document.getElementById('mission-list'); let guc = document.getElementById('gps-ultimo-caderno');
+        let ml = document.getElementById('mission-list'); 
+        let guc = document.getElementById('gps-ultimo-caderno');
+        
         if(globalData.length > 0) {
             let last = globalData[0]; 
-            let valFase = String(last.fase).trim(); let valK = String(last.k).toUpperCase().trim(); let valL = String(last.l).toUpperCase().trim();
-            let isConsolidated = (valFase === "4" && valK === "OK" && valL.includes("CONSOLIDADO"));
-            let idx = cicloMaster.findIndex(d => last.mat === d.chaves[0] || String(last.mat).includes(d.nome)); if(idx === -1) idx = 0;
+            let valFase = String(last.fase).trim(); 
+            let valK = String(last.k).toUpperCase().trim(); 
+            let valL = String(last.l).toUpperCase().trim();
             
-            let p1 = cicloMaster[idx] || cicloMaster[0]; let p2 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0];
+            // LÓGICA DE ENGENHARIA: Máquina de Estados baseada na Metodologia
+            let metodoUsado = last.metodologia ? String(last.metodologia).trim() : "Método MB (Questões)";
+            let isConsolidated = false;
+
+            if (metodoUsado === "Leitura (PDF)" || metodoUsado === "Videoaula") {
+                isConsolidated = true; 
+            } else {
+                isConsolidated = (valFase === "4" && valK === "OK" && valL.includes("CONSOLIDADO"));
+            }
+
+            let idx = cicloMaster.findIndex(d => last.mat === d.chaves[0] || String(last.mat).includes(d.nome)); 
+            if(idx === -1) idx = 0;
+            
+            let p1 = cicloMaster[idx] || cicloMaster[0]; 
+            let p2 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0];
+            
             if (isConsolidated) {
-                p1 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0]; p2 = cicloMaster[(idx + 2) % cicloMaster.length] || cicloMaster[0];
+                p1 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0]; 
+                p2 = cicloMaster[(idx + 2) % cicloMaster.length] || cicloMaster[0];
                 if(ml) ml.innerHTML = `<li style="color:var(--accent-green); margin-bottom:10px;">Missão Cumprida! Próximo Alvo:</li><li class="now"><strong>Agora:</strong> ${p1.nome}</li><li><strong>Passo 2:</strong> ${p2.nome}</li>`;
             } else {
                 if(ml) ml.innerHTML = `<li style="color:var(--accent-red); margin-bottom:10px;">Não Consolidada! Retome:</li><li class="now"><strong>Agora:</strong> ${p1.nome}</li><li><strong>Próximo:</strong> ${p2.nome}</li>`;
             }
 
             let cad = globalData.find(x => x.mat === p1.chaves[0] || String(x.mat).includes(p1.nome));
-            let badgeHTML = !isConsolidated ? `<div style="display:flex; gap:5px; margin-top:10px; justify-content:center;"><span class="badge" style="font-size:10px; background:rgba(88,166,255,0.1); border:1px solid var(--accent-blue); color:var(--accent-blue)">Fase Atual: ${valFase||"?"}</span></div>` : "";
+            
+            // Criação das badges visuais no dashboard
+            let badgeMetodoHtml = `<span class="badge" style="font-size:10px; background:rgba(240, 136, 62, 0.1); border:1px solid var(--accent-orange); color:var(--accent-orange)">${metodoUsado}</span>`;
+            let badgeHTML = !isConsolidated ? `<div style="display:flex; gap:5px; margin-top:10px; justify-content:center;"><span class="badge" style="font-size:10px; background:rgba(88,166,255,0.1); border:1px solid var(--accent-blue); color:var(--accent-blue)">Fase Atual: ${valFase||"?"}</span>${badgeMetodoHtml}</div>` : `<div style="display:flex; gap:5px; margin-top:10px; justify-content:center;">${badgeMetodoHtml}</div>`;
 
             if(cad && cad.link && cad.link.includes('http')) {
                 let ext = cad.link.match(/(https?:\/\/[^\s]+)/g); let finalUrl = ext ? ext[0] : cad.link;
-                if(guc) guc.innerHTML = `<a href="${finalUrl}" target="_blank" class="btn" style="background:var(--accent-orange); color:black; width:100%; box-sizing:border-box; justify-content:center; margin-bottom:8px; text-decoration:none; white-space:normal; text-align:center;"><i class="fas fa-external-link-alt"></i> RETOMAR CADERNO</a><div style="font-size:11px; color:#888;">Acesso: <strong>${cad.date.toLocaleDateString()}</strong></div>${badgeHTML}`;
+                if(guc) guc.innerHTML = `<a href="${finalUrl}" target="_blank" class="btn" style="background:var(--accent-orange); color:black; width:100%; box-sizing:border-box; justify-content:center; margin-bottom:8px; text-decoration:none; white-space:normal; text-align:center;"><i class="fas fa-external-link-alt"></i> RETOMAR MATERIAL</a><div style="font-size:11px; color:#888;">Acesso: <strong>${cad.date.toLocaleDateString()}</strong></div>${badgeHTML}`;
             } else {
                 if(guc) guc.innerHTML = `<div style="background:var(--bg-color); border: 1px solid var(--border-color); padding:10px; border-radius:8px; width:100%; box-sizing:border-box;">Alvo: <strong style="color:white;">${p1.chaves[0]}</strong><br><span style="color:var(--accent-orange); font-size:11px;">Sem link anexado.</span></div><div style="font-size:11px; color:#888; margin-top:8px;">Aguardando primeiro acesso.</div>${badgeHTML}`;
             }
@@ -980,14 +1057,14 @@ Gostaria que fizesse:
         });
     }
 
-    // ATUALIZAÇÃO 6: Função de exportação para CSV
     function exportCSV() {
         if(globalData.length === 0) return alert("Não há dados para exportar.");
-        let csvContent = "data:text/csv;charset=utf-8,Data,Materia,Topico,Questoes,Acertos,Tempo_Min,Fase\n";
+        let csvContent = "data:text/csv;charset=utf-8,Data,Materia,Topico,Metodologia,Questoes,Acertos,Tempo_Min,Fase\n";
         globalData.forEach(r => {
             let d = r.date.toLocaleDateString('pt-BR');
             let topicoSafe = r.topico.replace(/,/g, " "); 
-            csvContent += `${d},${r.mat},${topicoSafe},${r.q},${r.a},${r.t},${r.fase}\n`;
+            let metodoSafe = r.metodologia.replace(/,/g, " ");
+            csvContent += `${d},${r.mat},${topicoSafe},${metodoSafe},${r.q},${r.a},${r.t},${r.fase}\n`;
         });
         let encodedUri = encodeURI(csvContent);
         let link = document.createElement("a");
@@ -998,7 +1075,6 @@ Gostaria que fizesse:
         document.body.removeChild(link);
     }
 
-    // ATUALIZAÇÃO 6: Função para apagar todo o histórico via API
     function confirmDeleteHistory() {
         if(confirm("ALERTA DE SEGURANÇA: Tem certeza que deseja APAGAR TODO o seu histórico de lançamentos? Esta ação não pode ser desfeita e sua pontuação retornará a zero.")) {
             let btn = document.querySelector('button[onclick="confirmDeleteHistory()"]');
@@ -1041,12 +1117,10 @@ Gostaria que fizesse:
         }
     }
 
-    // --- FUNÇÕES DE CICLO E CONFIGURAÇÃO ---
     function loadCiclo(nuvemJson) {
         if(nuvemJson && nuvemJson.trim() !== "") { cicloMaster = JSON.parse(nuvemJson); localStorage.setItem('pqdtCicloCustom', nuvemJson); } 
         else {
             let saved = localStorage.getItem('pqdtCicloCustom');
-            // ATUALIZAÇÃO 4: Caso o usuário não tenha nada salvo, carrega as 22 disciplinas originais do const para ele organizar.
             if(saved) cicloMaster = JSON.parse(saved); else { cicloMaster = JSON.parse(JSON.stringify(TODAS_MATERIAS)); }
         }
         updateSelects();
@@ -1100,7 +1174,6 @@ Gostaria que fizesse:
         if(btn) { btn.innerText = "ENVIAR PARA A NUVEM"; btn.style.background = "var(--accent-green)"; btn.style.color = "white"; }
         
         let t = document.getElementById('f-tempo');
-        // Se houver tempo contabilizado no cronômetro ou pomodoro concluído, preenchemos o form automaticamente!
         let secs = timerMode === 'crono' ? timerSeconds : (25 * 60 - pomoSeconds);
         if(t && secs > 0) t.value = Math.floor(secs / 60);
         
@@ -1114,6 +1187,10 @@ Gostaria que fizesse:
         
         let elD = document.getElementById('f-data'); if(elD) elD.value = `${yyyy}-${mm}-${dd}`; 
         let elM = document.getElementById('f-materia'); if(elM) elM.value = last.mat; 
+        
+        // Carrega a metodologia (adicionado)
+        let elMet = document.getElementById('f-metodo'); if(elMet) elMet.value = last.metodologia || 'Método MB (Questões)';
+
         let elT = document.getElementById('f-topico'); if(elT) elT.value = last.topico || '';
         let elL = document.getElementById('f-tipo-link'); if(elL) elL.value = last.link || ''; 
         let elTe = document.getElementById('f-tempo'); if(elTe) elTe.value = last.t; 
@@ -1132,12 +1209,30 @@ Gostaria que fizesse:
         if(btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...'; btn.disabled = true; }
         
         let dt = document.getElementById('f-data'); let p = dt ? dt.value.split('-') : [];
-        let mat = document.getElementById('f-materia'); let top = document.getElementById('f-topico');
-        let tlnk = document.getElementById('f-tipo-link'); let temp = document.getElementById('f-tempo');
-        let q = document.getElementById('f-q'); let a = document.getElementById('f-a'); let fas = document.getElementById('f-fase');
+        let mat = document.getElementById('f-materia'); 
+        let met = document.getElementById('f-metodo'); // Captura da metodologia
+        let top = document.getElementById('f-topico');
+        let tlnk = document.getElementById('f-tipo-link'); 
+        let temp = document.getElementById('f-tempo');
+        let q = document.getElementById('f-q'); 
+        let a = document.getElementById('f-a'); 
+        let fas = document.getElementById('f-fase');
 
         let actionStr = isEditingMode ? "retificar_ultimo" : "lancamento";
-        let payload = { acao: actionStr, email: loggedUserEmail, dataEstudo: `${p[2]}/${p[1]}/${p[0]}`, materia: mat?mat.value:"", topico: top?top.value:"", tipoLink: tlnk?tlnk.value:"", tempo: temp?temp.value:"", questoes: q?q.value:"", acertos: a?a.value:"", fase: fas?fas.value:"" };
+        
+        // Payload enriquecido com a chave metodologia
+        let payload = { 
+            acao: actionStr, email: loggedUserEmail, 
+            dataEstudo: `${p[2]}/${p[1]}/${p[0]}`, 
+            materia: mat?mat.value:"", 
+            topico: top?top.value:"", 
+            tipoLink: tlnk?tlnk.value:"", 
+            tempo: temp?temp.value:"", 
+            questoes: q?q.value:"", 
+            acertos: a?a.value:"", 
+            fase: fas?fas.value:"",
+            metodologia: met?met.value:"" 
+        };
         
         fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
         .then(() => { 
@@ -1146,15 +1241,11 @@ Gostaria que fizesse:
             let em = document.getElementById('entryModal'); if(em) em.style.display='none'; 
             if(btn) btn.disabled=false; 
             
-            // ATUALIZAÇÃO 3: Retirada da chamada resetTimer()
-            // O cronômetro não zera mais após salvar a sessão.
-            
             loadGoogleSheetsData(); 
         })
         .catch(err => { alert("Erro de conexão com o banco de dados."); if(btn) { btn.innerText = "TENTAR NOVAMENTE"; btn.disabled=false; } });
     }
 
-    // --- CARREGAMENTO INICIAL ---
     window.onload = function() {
         checkLogin();
     };
