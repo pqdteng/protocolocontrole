@@ -171,14 +171,18 @@
 
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMobileMenu()"></div>
 
-    <div id="login-screen">
+<div id="login-screen">
         <div class="login-box">
             <h1><i class="fas fa-shield-alt" style="color:var(--accent-blue)"></i> Protocolo Controle</h1>
             <p style="color:#888; font-size:0.9em; margin-bottom:25px;">Versão Beta</p>
             <input type="email" id="log-email" class="login-input" placeholder="E-mail de acesso">
             <input type="password" id="log-pass" class="login-input" placeholder="Senha">
-            <button class="btn btn-access" style="background:var(--accent-blue); width:100%; padding:14px; margin-top:10px;" onclick="login()">ENTRAR NO PAINEL</button>
-            <button class="btn" style="background:var(--hover-bg); color:var(--text-color); border:1px solid var(--border-color); width:100%; margin-top:10px;" onclick="document.getElementById('tutorialModal').style.display='block'"><i class="fas fa-book-open"></i> Metodologias</button>
+            <button class="btn btn-access" style="background:var(--accent-blue); width:100%; padding:14px; margin-top:10px;"
+                onclick="login()">ENTRAR NO PAINEL</button>
+            
+            <button class="btn" style="background:var(--hover-bg); color:var(--accent-blue); border:1px solid var(--accent-blue); width:100%; margin-top:10px;"
+                onclick="window.open('https://t.me/protocolocontrole', '_blank')"><i class="fab fa-telegram-plane"></i> Comunidade no Telegram</button>
+            
             <div class="access-links">
                 <a onclick="showScreen('register')">Ativar Primeiro Acesso</a>
                 <a onclick="showScreen('reset')">Esqueci a Senha</a>
@@ -228,6 +232,8 @@
                 <button class="nav-item" onclick="openProfileModal(); toggleMobileMenu();"><i class="fas fa-user-circle"></i> Ficha do Aluno</button>
                 <button class="nav-item" onclick="document.getElementById('platformTutorialModal').style.display='block'; toggleMobileMenu();"><i class="fas fa-laptop-code"></i> Guia da Plataforma</button>
                 <button class="nav-item" onclick="document.getElementById('tutorialModal').style.display='block'; toggleMobileMenu();"><i class="fas fa-book-reader"></i> Metodologias de Estudo</button>
+                
+                <button class="nav-item" style="color: var(--accent-blue);" onclick="window.open('https://t.me/protocolocontrole', '_blank'); toggleMobileMenu();"><i class="fab fa-telegram-plane"></i> Grupo do Telegram</button>
             </div>
             <div class="sidebar-footer">
                 <div style="font-size: 11px; color: #888; text-align:center; margin-bottom:10px;">Autenticado como:<br><strong style="color:var(--accent-blue);" id="sidebar-user-email">--</strong></div>
