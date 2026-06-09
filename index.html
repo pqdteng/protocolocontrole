@@ -1239,64 +1239,41 @@ Gostaria que fizesse:
         .catch(() => { alert("Erro ao salvar."); if(btn) { btn.innerHTML = originalTxt; btn.disabled = false; } });
     }
 
-   // LOGICA DO RADAR LITE (FRONT-END API)
-    function carregarRadarRSS() {
+   // LOGICA DO RADAR LITE (FRONT-END -> BACK-END PROPRIO)
+function carregarRadarRSS() {
     let container = document.getElementById('radar-cards-container');
     
-    // Blindagem de DOM: Só executa se o container existir
+    // Blindagem de DOM
     if (!container) return;
     
-    container.innerHTML = '<p style="color:#888; text-align:center; grid-column: 1 / -1;"><i class="fas fa-spinner fa-spin"></i> Estabelecendo conexão via rota alternativa...</p>';
+    container.innerHTML = '<p style="color:#888; text-align:center; grid-column: 1 / -1;"><i class="fas fa-satellite fa-spin"></i> Acionando servidor militar próprio...</p>';
     
-    let targetUrl = 'https://www.pciconcursos.com.br/rss/';
-    
-    // MUDANÇA TÁTICA: Usamos o proxy CodeTabs, que é mais furtivo e devolve o texto/XML direto, sem encapsular em JSON.
-    let proxyUrl = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(targetUrl)}`;
+    // Chamamos a nossa própria API (Google Apps Script) para burlar o firewall
+    fetch(`${WEBHOOK_URL}?acao=radar`)
+    .then(res => res.json())
+    .then(data => {
+        // Blindagem contra erros vindos do Apps Script
+        if (data.status !== "sucesso") throw new Error(data.mensagem || 'Falha na ponte.');
 
-    fetch(proxyUrl)
-    .then(response => {
-        if (!response.ok) throw new Error('Falha na ponte HTTP do proxy.');
-        return response.text(); // Lemos a resposta como texto puro
-    })
-    .then(strXml => {
-        // Blindagem: Se vier vazio, aborta
-        if (!strXml || strXml.trim() === '') throw new Error('Sinal vazio recebido.');
-
-        // O motor do navegador converte o texto em uma árvore XML manipulável
-        let parser = new DOMParser();
-        let xmlDoc = parser.parseFromString(strXml, "text/xml");
-        
-        // Buscamos todas as notícias (tags <item>)
-        let items = xmlDoc.querySelectorAll("item"); 
-        
-        // Se retornar 0, significa que o firewall bloqueou e devolveu um HTML genérico de erro
-        if (items.length === 0) {
-            throw new Error('Bloqueio de firewall detectado. Nenhum edital lido.');
+        if (!data.noticias || data.noticias.length === 0) {
+            container.innerHTML = '<p style="color:#888; grid-column: 1 / -1;">Nenhum edital encontrado no satélite.</p>';
+            return;
         }
 
         feedNoticiasGlobal = [];
         
-        items.forEach(item => {
-            let titleNode = item.querySelector("title");
-            let linkNode = item.querySelector("link");
-            let dateNode = item.querySelector("pubDate");
-
-            let titulo = titleNode ? titleNode.textContent : "Aviso Oficial";
-            let link = linkNode ? linkNode.textContent : "#";
-            let pubDate = dateNode ? dateNode.textContent : "";
-            
-            let dateObj = new Date(pubDate);
+        data.noticias.forEach(item => {
+            let dateObj = new Date(item.pubDate);
             let dateStr = isNaN(dateObj) ? "Data Recente" : dateObj.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
-            
-            feedNoticiasGlobal.push({ titulo: titulo, link: link, data: dateStr });
+            feedNoticiasGlobal.push({ titulo: item.titulo, link: item.link, data: dateStr });
         });
         
-        // Renderiza os cards aplicando os filtros de área
+        // Aplica filtros e desenha os cards
         aplicarFiltroRadar(); 
     })
     .catch(err => {
         console.error("Erro Tático no Radar:", err);
-        container.innerHTML = '<p style="color:var(--accent-red); grid-column: 1 / -1; text-align:center; padding: 20px;"><i class="fas fa-exclamation-triangle"></i> Satélite temporariamente fora de alcance. Os firewalls de origem bloquearam a varredura, recarregue a base mais tarde.</p>';
+        container.innerHTML = '<p style="color:var(--accent-red); grid-column: 1 / -1; text-align:center; padding: 20px;"><i class="fas fa-exclamation-triangle"></i> Falha de comunicação com a Base de Dados. Tente atualizar a página.</p>';
     });
 }
 
