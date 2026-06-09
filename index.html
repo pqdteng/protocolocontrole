@@ -1241,84 +1241,65 @@ Gostaria que fizesse:
 
     // LOGICA DO RADAR LITE (FRONT-END API)
     function carregarRadarRSS() {
-        let container = document.getElementById('radar-cards-container');
-        if (!container) return;
-        container.innerHTML = '<p style="color:#888; text-align:center; grid-column: 1 / -1;"><i class="fas fa-spinner fa-spin"></i> Sintonizando satélite...</p>';
-        
-        // Bypassa o Google Apps Script para evitar timeout, lendo RSS oficial em JSON.
-        fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.pciconcursos.com.br/rss/')
-        .then(res => res.json())
-        .then(data => {
-            if(data.status === 'ok') {
-                feedNoticiasGlobal = data.items.map(item => {
-                    let dateObj = new Date(item.pubDate);
-                    let dateStr = dateObj.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
-                    return { titulo: item.title, link: item.link, data: dateStr };
-                });
-                aplicarFiltroRadar(); // Aplica e desenha
-            } else {
-                container.innerHTML = '<p style="color:var(--accent-red); grid-column: 1 / -1;">Falha ao captar sinal do radar. Tente atualizar a página.</p>';
-            }
-        })
-        .catch(err => {
-            container.innerHTML = '<p style="color:var(--accent-red); grid-column: 1 / -1;">Interferência na comunicação RSS.</p>';
-        });
-    }
+    let container = document.getElementById('radar-cards-container');
+    
+    // Blindagem de DOM: Só executa se o container existir na tela
+    if (!container) return;
+    
+    container.innerHTML = '<p style="color:#888; text-align:center; grid-column: 1 / -1;"><i class="fas fa-spinner fa-spin"></i> Estabelecendo conexão direta com o satélite...</p>';
+    
+    // A URL oficial do RSS do PCI Concursos
+    let targetUrl = 'https://www.pciconcursos.com.br/rss/';
+    
+    // Usamos a ponte pública AllOrigins (Proxy) apenas para evitar o bloqueio de CORS do navegador.
+    // Ela nos devolve o arquivo XML "cru" dentro de "data.contents".
+    fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`)
+    .then(response => {
+        if (response.ok) return response.json();
+        throw new Error('Falha na ponte de comunicação.');
+    })
+    .then(data => {
+        // Blindagem: Se o servidor não devolver o conteúdo
+        if (!data || !data.contents) throw new Error('Sinal vazio recebido.');
 
-    function aplicarFiltroRadar() {
-        let selectFiltro = document.getElementById('filtroAreaRadar');
-        if (!selectFiltro) return; 
-        renderizarRadarEditais(feedNoticiasGlobal, selectFiltro.value);
-    }
-
-    function renderizarRadarEditais(listaNoticias, filtroArea) {
-        let container = document.getElementById('radar-cards-container');
-        if (!container) return; 
-        container.innerHTML = ''; 
+        // 🛠️ ENGENHARIA RAIZ: Usamos o DOMParser nativo do JavaScript para ler o XML bruto
+        let parser = new DOMParser();
+        let xmlDoc = parser.parseFromString(data.contents, "text/xml");
         
-        if (!listaNoticias || listaNoticias.length === 0) {
-            container.innerHTML = '<p style="color:#888; grid-column: 1 / -1;">Nenhum sinal detectado no radar.</p>';
-            return;
+        // Pega todos os blocos <item> que representam os concursos
+        let items = xmlDoc.querySelectorAll("item"); 
+        
+        if (items.length === 0) {
+            throw new Error('Nenhum edital encontrado no arquivo XML.');
         }
 
-        let palavrasChave = [];
-        if (filtroArea === "engenharia") palavrasChave = ["engenheiro", "engenharia", "arquitetura", "arquiteto", "crea"];
-        else if (filtroArea === "controle") palavrasChave = ["tce", "tcu", "cge", "auditor", "controle", "cgm"];
-        else if (filtroArea === "policial") palavrasChave = ["polícia", "pm", "pc", "delegado", "pf", "prf", "bombeiro", "policia"];
-        else if (filtroArea === "tribunais") palavrasChave = ["tj", "trt", "tre", "trf", "tribunal", "juiz", "promotor"];
+        feedNoticiasGlobal = [];
+        
+        // Lemos cada <item> do XML, extraindo os nós (nodes) com segurança
+        items.forEach(item => {
+            let titleNode = item.querySelector("title");
+            let linkNode = item.querySelector("link");
+            let dateNode = item.querySelector("pubDate");
 
-        let noticiasFiltradas = listaNoticias.filter(noticia => {
-            if (filtroArea === "todas") return true;
-            let tituloMinusculo = noticia.titulo.toLowerCase();
-            return palavrasChave.some(palavra => tituloMinusculo.includes(palavra));
+            // Extrai o texto de dentro da tag, se ela existir
+            let titulo = titleNode ? titleNode.textContent : "Aviso Oficial";
+            let link = linkNode ? linkNode.textContent : "#";
+            let pubDate = dateNode ? dateNode.textContent : "";
+            
+            // Tratamento militar da data para o formato Brasileiro (DD/MM/YYYY)
+            let dateObj = new Date(pubDate);
+            let dateStr = isNaN(dateObj) ? "Data Recente" : dateObj.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+            
+            feedNoticiasGlobal.push({ titulo: titulo, link: link, data: dateStr });
         });
-
-        if (noticiasFiltradas.length === 0) {
-            container.innerHTML = '<p style="color:var(--accent-orange); grid-column: 1 / -1;"><i class="fas fa-exclamation-triangle"></i> Nenhum concurso encontrado para esta área nos radares atuais.</p>';
-            return;
-        }
-
-        noticiasFiltradas.forEach(noticia => {
-            let cardHTML = `
-                <div class="card" style="justify-content: space-between; padding: 15px; border-left: 4px solid var(--accent-blue);">
-                    <div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                            <span class="badge" style="background:rgba(88,166,255,0.1); color:var(--accent-blue); font-size:10px; border:1px solid var(--accent-blue); padding: 3px 6px; border-radius: 4px;">
-                                <i class="fas fa-rss"></i> PCI Concursos
-                            </span>
-                            <span style="color:#888; font-size:11px;"><i class="far fa-calendar-alt"></i> ${noticia.data}</span>
-                        </div>
-                        <h4 style="margin: 0 0 15px 0; color:var(--text-color); font-size:14px; line-height: 1.4;">
-                            ${noticia.titulo}
-                        </h4>
-                    </div>
-                    <a href="${noticia.link}" target="_blank" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); font-size:12px; width:100%; text-decoration:none;">
-                        VER OFICIAL <i class="fas fa-external-link-alt" style="margin-left:5px;"></i>
-                    </a>
-                </div>
-            `;
-            container.innerHTML += cardHTML;
-        });
+        
+        // Dispara a re-renderização aplicando a inteligência de filtro
+        aplicarFiltroRadar(); 
+    })
+    .catch(err => {
+        console.error("Erro Tático no Radar:", err);
+        container.innerHTML = '<p style="color:var(--accent-red); grid-column: 1 / -1; text-align:center; padding: 20px;"><i class="fas fa-exclamation-triangle"></i> Falha na decodificação do satélite. Os servidores de origem podem estar instáveis. Recarregue a base em alguns minutos.</p>';
+    });
     }
 
     function openEntryModal() { 
