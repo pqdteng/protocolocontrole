@@ -591,7 +591,8 @@ Gostaria que fizesse:
     let totalQHistory = 0; let dailyQ = 0; let dailyMins = 0; let totalMoedas = 0;
     
     let feedNoticiasGlobal = [];
-
+    let paginaAtualRadar = 1; // NOVA ENGRANAGEM DE PAGINAÇÃO
+        
     if(localStorage.getItem('pqdtTheme') === 'light') document.body.classList.add('light-mode');
     function updateChartColors() {
         let isLight = document.body.classList.contains('light-mode');
@@ -992,7 +993,7 @@ Gostaria que fizesse:
         }
     }
 
-    // LOGICA DO RADAR LITE (FRONT-END -> BACK-END PROPRIO)
+    // LOGICA DO RADAR LITE: FILTRO DE 3 DIAS + PAGINAÇÃO
     function carregarRadarRSS() {
         let container = document.getElementById('radar-cards-container');
         if (!container) return;
@@ -1009,13 +1010,30 @@ Gostaria que fizesse:
                 return;
             }
 
+            // Motor de Filtro por Data (Últimos 3 Dias)
+            let hoje = new Date();
+            hoje.setHours(0,0,0,0);
+            let limiteDias = new Date(hoje);
+            limiteDias.setDate(limiteDias.getDate() - 3); // Trava temporal de 3 dias
+
             feedNoticiasGlobal = [];
             data.noticias.forEach(item => {
                 let dateObj = new Date(item.pubDate);
-                let dateStr = isNaN(dateObj) ? "Data Recente" : dateObj.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
-                feedNoticiasGlobal.push({ titulo: item.titulo, link: item.link, data: dateStr });
+                
+                // Se o robô não souber a data ou se a data for dos últimos 3 dias, a notícia entra na base
+                if (isNaN(dateObj) || dateObj >= limiteDias) {
+                    let dateStr = isNaN(dateObj) ? "Data Recente" : dateObj.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+                    feedNoticiasGlobal.push({ titulo: item.titulo, link: item.link, data: dateStr, dateObj: dateObj });
+                }
             });
 
+            // Ordena taticamente as notícias da mais nova para a mais velha
+            feedNoticiasGlobal.sort((a,b) => {
+                if(isNaN(a.dateObj) || isNaN(b.dateObj)) return 0;
+                return b.dateObj - a.dateObj;
+            });
+
+            paginaAtualRadar = 1; // Reseta o cartucho de paginação
             aplicarFiltroRadar();
         })
         .catch(err => {
@@ -1027,7 +1045,15 @@ Gostaria que fizesse:
     function aplicarFiltroRadar() {
         let selectFiltro = document.getElementById('filtroAreaRadar');
         if (!selectFiltro) return; 
+        paginaAtualRadar = 1; // Sempre volta para página 1 ao trocar filtro
         renderizarRadarEditais(feedNoticiasGlobal, selectFiltro.value);
+    }
+
+    // Função auxiliar acionada pelos botões de Próxima/Anterior
+    function mudarPaginaRadar(novaPagina) {
+        paginaAtualRadar = novaPagina;
+        let selectFiltro = document.getElementById('filtroAreaRadar');
+        renderizarRadarEditais(feedNoticiasGlobal, selectFiltro ? selectFiltro.value : 'todas');
     }
 
     function renderizarRadarEditais(listaNoticias, filtroArea) {
@@ -1036,14 +1062,14 @@ Gostaria que fizesse:
         container.innerHTML = ''; 
         
         if (!listaNoticias || listaNoticias.length === 0) {
-            container.innerHTML = '<p style="color:#888; grid-column: 1 / -1;">Nenhum sinal detectado no radar.</p>';
+            container.innerHTML = '<p style="color:#888; grid-column: 1 / -1; text-align:center;">Nenhum edital oficial publicado nos últimos 3 dias.</p>';
             return;
         }
 
         let palavrasChave = [];
         if (filtroArea === "engenharia") palavrasChave = ["engenheiro", "engenharia", "arquitetura", "arquiteto", "crea"];
         else if (filtroArea === "controle") palavrasChave = ["tce", "tcu", "cge", "auditor", "controle", "cgm"];
-        else if (filtroArea === "policial") palavrasChave = ["polícia", "pm", "pc", "delegado", "pf", "prf", "bombeiro", "policia"];
+        else if (filtroArea === "policial") palavrasChave = ["polícia", "pm", "pc", "delegado", "pf", "prf", "bombeiro", "policia", "penal"];
         else if (filtroArea === "tribunais") palavrasChave = ["tj", "trt", "tre", "trf", "tribunal", "juiz", "promotor"];
 
         let noticiasFiltradas = listaNoticias.filter(noticia => {
@@ -1053,11 +1079,25 @@ Gostaria que fizesse:
         });
 
         if (noticiasFiltradas.length === 0) {
-            container.innerHTML = '<p style="color:var(--accent-orange); grid-column: 1 / -1; text-align:center;"><i class="fas fa-exclamation-triangle"></i> Nenhum concurso encontrado para esta área nos radares atuais.</p>';
+            container.innerHTML = '<p style="color:var(--accent-orange); grid-column: 1 / -1; text-align:center;"><i class="fas fa-exclamation-triangle"></i> Nenhum concurso encontrado para esta área nos últimos 3 dias.</p>';
             return;
         }
 
-        noticiasFiltradas.forEach(noticia => {
+        // ==========================================
+        // MÁGICA DA PAGINAÇÃO (12 CARDS POR TELA)
+        // ==========================================
+        let itensPorPagina = 12;
+        let totalPaginas = Math.ceil(noticiasFiltradas.length / itensPorPagina);
+        
+        // Travas de segurança
+        if (paginaAtualRadar > totalPaginas) paginaAtualRadar = totalPaginas;
+        if (paginaAtualRadar < 1) paginaAtualRadar = 1;
+
+        let startIndex = (paginaAtualRadar - 1) * itensPorPagina;
+        let endIndex = startIndex + itensPorPagina;
+        let noticiasPaginadas = noticiasFiltradas.slice(startIndex, endIndex);
+
+        noticiasPaginadas.forEach(noticia => {
             let cardHTML = `
                 <div class="card" style="justify-content: space-between; padding: 15px; border-left: 4px solid var(--accent-blue);">
                     <div>
@@ -1078,6 +1118,22 @@ Gostaria que fizesse:
             `;
             container.innerHTML += cardHTML;
         });
+
+        // DESENHA OS BOTÕES DE CONTROLE DE PÁGINA
+        if (totalPaginas > 1) {
+            let paginacaoHTML = `
+                <div style="grid-column: 1 / -1; display:flex; justify-content:center; align-items:center; gap:15px; margin-top: 20px;">
+                    <button class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:${paginaAtualRadar > 1 ? 'var(--text-color)' : '#555'};" onclick="mudarPaginaRadar(${paginaAtualRadar - 1})" ${paginaAtualRadar === 1 ? 'disabled' : ''}>
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </button>
+                    <span style="color:#888; font-size:13px;">Página <strong style="color:var(--text-color)">${paginaAtualRadar}</strong> de ${totalPaginas}</span>
+                    <button class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:${paginaAtualRadar < totalPaginas ? 'var(--text-color)' : '#555'};" onclick="mudarPaginaRadar(${paginaAtualRadar + 1})" ${paginaAtualRadar === totalPaginas ? 'disabled' : ''}>
+                        Próxima <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            `;
+            container.innerHTML += paginacaoHTML;
+        }
     }
 
     function switchReport(m) { 
