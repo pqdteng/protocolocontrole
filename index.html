@@ -176,7 +176,10 @@
 
     <div id="login-screen">
         <div class="login-box">
-            <h1><i class="fas fa-shield-alt" style="color:var(--accent-blue)"></i> Protocolo Controle</h1>
+            <div style="margin-bottom: 15px;">
+                <img src="https://drive.google.com/file/d/1A0CbTjHmPe4f8xIth-8E6XQ7wCfrm4a9/view?usp=drive_link" alt="Logo" style="max-height: 55px; border-radius: 4px;">
+            </div>
+            <h2 style="margin-top:0; color:var(--text-color);">Protocolo Controle</h2>
             <p style="color:#888; font-size:0.9em; margin-bottom:25px;">Versão Beta 2.0</p>
             <input type="email" id="log-email" class="login-input" placeholder="E-mail de acesso">
             <input type="password" id="log-pass" class="login-input" placeholder="Senha">
@@ -214,10 +217,10 @@
         <div class="sidebar" id="app-sidebar">
             <div class="sidebar-brand">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fas fa-shield-alt" style="color:var(--accent-blue); font-size:1.2em;"></i>
-                    Protocolo Controle
+                    <img src="LINK_DA_SUA_LOGO_AQUI.png" alt="Logo" style="max-height: 28px; border-radius: 2px;">
+                    <span style="font-size: 18px;">Protocolo Controle</span>
                 </div>
-                <span style="font-size: 11px; color:#888; font-weight: normal; margin-left: 32px;">por Fernando Vale - PqdtEng</span>
+                <span style="font-size: 11px; color:#888; font-weight: normal; margin-left: 40px;">por Fernando Vale - PqdtEng</span>
             </div>
             
             <div class="sidebar-menu">
@@ -415,7 +418,6 @@
                 </div>
             </div>
 
-            <!-- NOVA ABA: RADAR DE EDITAIS -->
             <div id="view-radar-view" class="app-view">
                 <div class="chart-box" style="padding:25px;">
                     <div class="chart-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
@@ -443,7 +445,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE ATUALIZAÇÃO (PATCH NOTES) -->
     <div id="updateModal" class="modal">
         <div class="modal-content" style="max-width: 500px; text-align: center; border-top: 4px solid var(--accent-blue);">
             <span class="close-btn" onclick="closeUpdateModal()">&times;</span>
@@ -463,7 +464,16 @@
         </div>
     </div>
 
-    <!-- FICHA CADASTRAL -->
+    <div id="ranksModal" class="modal">
+        <div class="modal-content" style="max-width: 550px; border-top: 4px solid var(--accent-gold);">
+            <span class="close-btn" onclick="document.getElementById('ranksModal').style.display='none'">&times;</span>
+            <h2 style="margin-top:0; color:var(--text-color);"><i class="fas fa-medal" style="color:var(--accent-gold)"></i> Plano de Carreira</h2>
+            <p style="color:#888; font-size:14px; margin-bottom:20px;">Seu avanço é medido pela consistência. Resolva questões para ser promovido.</p>
+            <div id="next-rank-info" style="margin-bottom: 20px;"></div>
+            <div id="ranks-list-container" style="max-height: 400px; overflow-y: auto; padding-right: 5px;"></div>
+        </div>
+    </div>
+
     <div id="profileModal" class="modal">
         <div class="modal-content" style="max-width: 450px;">
             <span class="close-btn" onclick="document.getElementById('profileModal').style.display='none'">&times;</span>
@@ -482,29 +492,36 @@
         </div>
     </div>
 
-    <!-- GUIA DA PLATAFORMA -->
     <div id="platformTutorialModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 700px; border-top: 4px solid var(--accent-blue);">
             <span class="close-btn" onclick="document.getElementById('platformTutorialModal').style.display='none'">&times;</span>
-            <h2 style="color: var(--accent-blue); margin-top: 0;"><i class="fas fa-laptop-code"></i> Guia da Plataforma</h2>
-            <p style="font-size: 14px; line-height: 1.6; color: #888; margin-bottom:20px;">Compreenda as engrenagens táticas da sua Sala:</p>
+            <h2 style="color: var(--text-color); margin-top: 0;"><i class="fas fa-laptop-code" style="color:var(--accent-blue)"></i> Manual do Recruta</h2>
+            <p style="font-size: 14px; line-height: 1.6; color: #888; margin-bottom:20px;">Bem-vindo à Sala de Comando. Entenda como utilizar as 4 principais engrenagens para extrair o máximo do seu potencial tático:</p>
+            
             <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-orange);">
-                <strong style="color:var(--text-color); font-size:15px;">1. Ciclo e Nuvem</strong><br>
-                <span style="font-size:13px; color:#888;">Suas matérias e a ordem de batalha são salvas na nuvem. Formate seu edital na aba "Meu Ciclo Tático".</span>
+                <strong style="color:var(--text-color); font-size:15px;">1. Meu Ciclo Tático (A Nuvem) ☁️</strong><br>
+                <span style="font-size:13px; color:#888;">Esta é a sua base operacional. Vá na aba "Meu Ciclo Tático", selecione as matérias do seu edital e arraste para montar a ordem de estudo. Ao clicar em Salvar, sua configuração vai para a Nuvem e fica registrada. Você só precisa fazer isso uma vez!</span>
             </div>
+            
             <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-green);">
-                <strong style="color:var(--text-color); font-size:15px;">2. GPS Inteligente e Metodologias</strong><br>
-                <span style="font-size:13px; color:#888;">O GPS avalia o seu Método. Se for Questões (MB), exige meta de acertos para avançar a fase. Se for Leitura, ele registra a teoria consumida e avança o ciclo.</span>
+                <strong style="color:var(--text-color); font-size:15px;">2. Lançar Missão e GPS Inteligente 🎯</strong><br>
+                <span style="font-size:13px; color:#888;">Quando terminar de estudar, clique no botão verde "LANÇAR MISSÃO". Preencha o tempo estudado, as questões e os acertos. O nosso <strong>GPS de Direcionamento</strong> (no Painel) vai ler o seu lançamento, avaliar sua precisão, e te dizer exatamente qual é a próxima matéria do ciclo que você deve atacar no dia seguinte.</span>
             </div>
-            <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-red);">
-                <strong style="color:var(--text-color); font-size:15px;">3. Gamificação e Ofensiva 🔥</strong><br>
-                <span style="font-size:13px; color:#888;">O sistema detecta sua frequência. Estude todos os dias para não perder o fogo da ofensiva. Atingir 100 Qs ou 2h/dia gera Moedas bônus.</span>
+            
+            <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-gold);">
+                <strong style="color:var(--text-color); font-size:15px;">3. Gamificação e Hall da Fama 🏆</strong><br>
+                <span style="font-size:13px; color:#888;">O sistema detecta sua frequência. Estude todos os dias para aumentar suas Chamas de Ofensiva 🔥. Bater a meta de 100 Questões ou 2 Horas no dia te concede Moedas Bônus. Todo o seu esforço é ranqueado ao vivo na aba "Ranking da Elite" contra outros comandantes.</span>
             </div>
-            <button class="btn" style="background:var(--accent-blue); width:100%;" onclick="document.getElementById('platformTutorialModal').style.display='none'">ENTENDIDO</button>
+
+            <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-blue);">
+                <strong style="color:var(--text-color); font-size:15px;">4. Radar de Editais 📡</strong><br>
+                <span style="font-size:13px; color:#888;">Nossa central de inteligência. Uma aba isolada que rastreia os maiores sites de concursos do Brasil. Use os filtros de Área (Ex: Policial, Engenharia) e o sistema vai varrer e exibir as notícias dos últimos 3 dias na sua tela. Mantenha-se informado sem precisar se distrair nas redes sociais.</span>
+            </div>
+            
+            <button class="btn" style="background:var(--accent-blue); width:100%; margin-top:10px;" onclick="document.getElementById('platformTutorialModal').style.display='none'">ENTENDIDO, ENGENHARIA!</button>
         </div>
     </div>
 
-    <!-- METODOLOGIAS DE ESTUDO -->
     <div id="tutorialModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="document.getElementById('tutorialModal').style.display='none'">&times;</span>
@@ -529,7 +546,6 @@ Gostaria que fizesse:
         </div>
     </div>
 
-    <!-- MODAL RAIO X -->
     <div id="detailsModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="document.getElementById('detailsModal').style.display='none'">&times;</span>
@@ -541,7 +557,6 @@ Gostaria que fizesse:
         </div>
     </div>
 
-    <!-- MODAL LANÇAMENTO -->
     <div id="entryModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="document.getElementById('entryModal').style.display='none'">&times;</span>
@@ -591,8 +606,8 @@ Gostaria que fizesse:
     let totalQHistory = 0; let dailyQ = 0; let dailyMins = 0; let totalMoedas = 0;
     
     let feedNoticiasGlobal = [];
-    let paginaAtualRadar = 1; // NOVA ENGRANAGEM DE PAGINAÇÃO
-        
+    let paginaAtualRadar = 1; 
+
     if(localStorage.getItem('pqdtTheme') === 'light') document.body.classList.add('light-mode');
     function updateChartColors() {
         let isLight = document.body.classList.contains('light-mode');
@@ -1010,30 +1025,26 @@ Gostaria que fizesse:
                 return;
             }
 
-            // Motor de Filtro por Data (Últimos 3 Dias)
             let hoje = new Date();
             hoje.setHours(0,0,0,0);
             let limiteDias = new Date(hoje);
-            limiteDias.setDate(limiteDias.getDate() - 3); // Trava temporal de 3 dias
+            limiteDias.setDate(limiteDias.getDate() - 3);
 
             feedNoticiasGlobal = [];
             data.noticias.forEach(item => {
                 let dateObj = new Date(item.pubDate);
-                
-                // Se o robô não souber a data ou se a data for dos últimos 3 dias, a notícia entra na base
                 if (isNaN(dateObj) || dateObj >= limiteDias) {
                     let dateStr = isNaN(dateObj) ? "Data Recente" : dateObj.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
                     feedNoticiasGlobal.push({ titulo: item.titulo, link: item.link, data: dateStr, dateObj: dateObj });
                 }
             });
 
-            // Ordena taticamente as notícias da mais nova para a mais velha
             feedNoticiasGlobal.sort((a,b) => {
                 if(isNaN(a.dateObj) || isNaN(b.dateObj)) return 0;
                 return b.dateObj - a.dateObj;
             });
 
-            paginaAtualRadar = 1; // Reseta o cartucho de paginação
+            paginaAtualRadar = 1;
             aplicarFiltroRadar();
         })
         .catch(err => {
@@ -1045,11 +1056,10 @@ Gostaria que fizesse:
     function aplicarFiltroRadar() {
         let selectFiltro = document.getElementById('filtroAreaRadar');
         if (!selectFiltro) return; 
-        paginaAtualRadar = 1; // Sempre volta para página 1 ao trocar filtro
+        paginaAtualRadar = 1;
         renderizarRadarEditais(feedNoticiasGlobal, selectFiltro.value);
     }
 
-    // Função auxiliar acionada pelos botões de Próxima/Anterior
     function mudarPaginaRadar(novaPagina) {
         paginaAtualRadar = novaPagina;
         let selectFiltro = document.getElementById('filtroAreaRadar');
@@ -1083,13 +1093,9 @@ Gostaria que fizesse:
             return;
         }
 
-        // ==========================================
-        // MÁGICA DA PAGINAÇÃO (12 CARDS POR TELA)
-        // ==========================================
         let itensPorPagina = 12;
         let totalPaginas = Math.ceil(noticiasFiltradas.length / itensPorPagina);
         
-        // Travas de segurança
         if (paginaAtualRadar > totalPaginas) paginaAtualRadar = totalPaginas;
         if (paginaAtualRadar < 1) paginaAtualRadar = 1;
 
@@ -1119,7 +1125,6 @@ Gostaria que fizesse:
             container.innerHTML += cardHTML;
         });
 
-        // DESENHA OS BOTÕES DE CONTROLE DE PÁGINA
         if (totalPaginas > 1) {
             let paginacaoHTML = `
                 <div style="grid-column: 1 / -1; display:flex; justify-content:center; align-items:center; gap:15px; margin-top: 20px;">
