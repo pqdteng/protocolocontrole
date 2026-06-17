@@ -151,6 +151,19 @@
         .btn-action-top { border: 1px solid var(--input-border); background: var(--card-bg); color: var(--text-color); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; display: inline-flex; align-items: center; gap: 8px;}
         .btn-action-top:hover { background: var(--hover-bg); }
 
+        /* ESTILOS EDITAL VERTICALIZADO */
+        .edital-subject { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+        .edital-subject-header { padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); transition: 0.2s; }
+        .edital-subject-header:hover { background: var(--hover-bg); }
+        .edital-progress-bg { flex-grow: 1; height: 8px; background: var(--border-color); border-radius: 4px; margin: 0 20px; overflow: hidden; }
+        .edital-progress-fill { height: 100%; background: var(--accent-green); transition: 0.5s; width: 0%; }
+        .edital-topic-list { padding: 0 15px; display: none; }
+        .edital-topic-list.open { display: block; padding-bottom: 15px; }
+        .edital-topic-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px dashed var(--border-color); font-size: 13px; gap: 10px;}
+        .edital-topic-item:last-child { border-bottom: none; }
+        .topic-checkbox { accent-color: var(--accent-green); width: 16px; height: 16px; cursor: pointer; }
+        .topic-link-input { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); padding: 4px 8px; border-radius: 4px; font-size: 12px; width: 150px; outline: none; }
+
         .sidebar-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:899; }
         
         @media (max-width: 992px) {
@@ -176,9 +189,8 @@
 
     <div id="login-screen">
         <div class="login-box">
-            <!-- AQUI ESTÁ O LINK DA SUA LOGO -->
             <div style="margin-bottom: 20px; display: flex; justify-content: center;">
-                <img src="https://github.com/pqdteng/protocolocontrole/blob/36a195ce9336b3892393ccba7351534a8cefbe63/logo.png?raw=true" alt="Logo" style="max-height: 130px; width: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+                <img src="https://raw.githubusercontent.com/pqdteng/protocolocontrole/main/logo.png" alt="Logo" style="max-height: 130px; width: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
             </div>
             <h2 style="margin-top:0; color:var(--text-color);">Protocolo Controle</h2>
             <p style="color:#888; font-size:0.9em; margin-bottom:25px;">Versão Beta 2.0</p>
@@ -218,8 +230,7 @@
         <div class="sidebar" id="app-sidebar">
             <div class="sidebar-brand">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <!-- AQUI ESTÁ O LINK DA SUA LOGO NA SIDEBAR -->
-                    <img src="https://github.com/pqdteng/protocolocontrole/blob/36a195ce9336b3892393ccba7351534a8cefbe63/logo.png?raw=true" alt="Logo" style="max-height: 48px; width: auto; object-fit: contain; border-radius: 4px;">
+                    <img src="https://raw.githubusercontent.com/pqdteng/protocolocontrole/main/logo.png" alt="Logo" style="max-height: 48px; width: auto; object-fit: contain; border-radius: 4px;">
                     <span style="font-size: 18px;">Protocolo Controle</span>
                 </div>
                 <span style="font-size: 11px; color:#888; font-weight: normal; margin-left: 60px;">por Fernando Vale - PqdtEng</span>
@@ -228,6 +239,7 @@
             <div class="sidebar-menu">
                 <button class="nav-item active" onclick="switchView('painel', this); toggleMobileMenu();"><i class="fas fa-chart-pie"></i> Painel de Controle</button>
                 <button class="nav-item" onclick="switchView('ciclo-view', this); toggleMobileMenu();"><i class="fas fa-sync-alt"></i> Meu Ciclo Tático</button>
+                <button class="nav-item" style="color: var(--accent-green);" onclick="switchView('edital-view', this); toggleMobileMenu();"><i class="fas fa-tasks"></i> Edital Verticalizado</button>
                 <button class="nav-item" onclick="switchView('ranking-view', this); toggleMobileMenu();"><i class="fas fa-trophy"></i> Ranking da Elite</button>
                 <button class="nav-item" onclick="switchView('relatorio-view', this); toggleMobileMenu();"><i class="fas fa-list-alt"></i> Histórico Diário</button>
                 <button class="nav-item" onclick="switchView('radar-view', this); toggleMobileMenu();"><i class="fas fa-satellite-dish"></i> Radar de Editais</button>
@@ -348,6 +360,40 @@
                 <div class="charts-row full-width"><div class="chart-box"><canvas id="chart3"></canvas></div></div>
             </div>
 
+            <div id="view-edital-view" class="app-view">
+                <div class="chart-box" style="padding:25px; border-top: 4px solid var(--accent-green);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:15px;">
+                        <div>
+                            <h2 style="margin:0; color:var(--text-color); font-size: 1.5em;"><i class="fas fa-tasks" style="color:var(--accent-green)"></i> Edital Verticalizado</h2>
+                            <p style="color:#888; font-size:14px; margin:5px 0 0 0;">Controle absoluto do seu progresso Pós-Edital.</p>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap: wrap;">
+                            <select id="select-edital-ativo" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:10px; border-radius:6px; outline:none; font-weight:bold;" onchange="renderizarEdital(this.value)">
+                                <option value="">-- Selecione seu Concurso Alvo --</option>
+                            </select>
+                            <button class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color);" onclick="document.getElementById('solicitarEditalModal').style.display='block'">
+                                <i class="fas fa-plus"></i> Solicitar Edital
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="edital-progresso-geral" style="display:none; margin-bottom:25px; background:var(--input-bg); padding:20px; border-radius:8px; border:1px solid var(--border-color);">
+                        <div style="display:flex; justify-content:space-between; font-size:13px; color:#888; font-weight:bold; margin-bottom:8px;">
+                            <span>PROGRESSO GERAL NO EDITAL</span>
+                            <span id="txt-progresso-geral">0%</span>
+                        </div>
+                        <div style="width:100%; height:12px; background:var(--border-color); border-radius:6px; overflow:hidden;">
+                            <div id="bar-progresso-geral" style="height:100%; background:linear-gradient(90deg, var(--accent-green), var(--accent-blue)); width:0%; transition:1s;"></div>
+                        </div>
+                        <div id="edital-banca-bloco" style="font-size:12px; color:#888; margin-top:10px; text-align:right;"></div>
+                    </div>
+
+                    <div id="edital-content-container">
+                        <p style="text-align:center; color:#888; padding:40px;"><i class="fas fa-hand-pointer fa-2x"></i><br><br>Selecione um Edital no menu acima para iniciar seu mapeamento.</p>
+                    </div>
+                </div>
+            </div>
+
             <div id="view-ciclo-view" class="app-view">
                 <div class="chart-box" style="padding:30px;">
                     <h2 style="margin-top:0; color:var(--accent-blue);"><i class="fas fa-sync-alt"></i> Engenharia do Ciclo</h2>
@@ -408,7 +454,8 @@
                     
                     <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
                         <button class="btn" style="background:var(--accent-blue);" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Exportar Dados CSV</button>
-                        <button class="btn" style="background:transparent; border:1px solid var(--accent-red); color:var(--accent-red);" onclick="confirmDeleteHistory()"><i class="fas fa-trash-alt"></i> Apagar Meu Histórico</button>
+                        <button class="btn" style="background:var(--accent-green);" onclick="document.getElementById('importModal').style.display='block'"><i class="fas fa-upload"></i> Importar de Outras Plataformas</button>
+                        <button class="btn" style="background:transparent; border:1px solid var(--accent-red); color:var(--accent-red);" onclick="confirmDeleteHistory()"><i class="fas fa-trash-alt"></i> Apagar Histórico</button>
                     </div>
 
                     <div style="overflow-x: auto;">
@@ -420,7 +467,6 @@
                 </div>
             </div>
 
-            <!-- NOVA ABA: RADAR DE EDITAIS -->
             <div id="view-radar-view" class="app-view">
                 <div class="chart-box" style="padding:25px;">
                     <div class="chart-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
@@ -448,7 +494,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE ATUALIZAÇÃO (PATCH NOTES) -->
     <div id="updateModal" class="modal">
         <div class="modal-content" style="max-width: 500px; text-align: center; border-top: 4px solid var(--accent-blue);">
             <span class="close-btn" onclick="closeUpdateModal()">&times;</span>
@@ -458,17 +503,45 @@
             </p>
             <div style="text-align: left; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
                 <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-color); line-height: 1.6;">
-                    <li><strong style="color:var(--accent-blue)">Radar de Editais:</strong> Acompanhe concursos recém-saídos pelo satélite oficial.</li>
-                    <li><strong style="color:var(--accent-green)">Design Otimizado:</strong> Botões de Ação Rápida alinhados e responsivos para acesso Mobile.</li>
-                    <li><strong style="color:var(--accent-purple)">Relatórios:</strong> Transição visual perfeita entre o filtro Diário e Semanal.</li>
-                    <li><strong style="color:var(--accent-gold)">Sabedoria:</strong> Novos Provérbios e Salmos de coragem para blindar sua mente.</li>
+                    <li><strong style="color:var(--accent-green)">Edital Verticalizado:</strong> Acompanhe o progresso de tópicos e cadernos do seu edital alvo.</li>
+                    <li><strong style="color:var(--accent-orange)">Importação de Histórico:</strong> Migre seus dados antigos via CSV para a nossa Base.</li>
+                    <li><strong style="color:var(--accent-blue)">Radar de Editais Ampliado:</strong> Fatiamento tático e paginação dos alertas.</li>
                 </ul>
             </div>
             <button class="btn" style="background:var(--accent-blue); width:100%;" onclick="closeUpdateModal()">CIENTE, ENGENHARIA!</button>
         </div>
     </div>
 
-    <!-- MODAL DE PATENTES (AQUI ESTAVA O BUG DO BOTÃO, AGORA CORRIGIDO) -->
+    <div id="solicitarEditalModal" class="modal">
+        <div class="modal-content" style="max-width: 450px; border-top: 4px solid var(--accent-orange);">
+            <span class="close-btn" onclick="document.getElementById('solicitarEditalModal').style.display='none'">&times;</span>
+            <h2 style="margin-top:0; color:var(--text-color);"><i class="fas fa-envelope"></i> Solicitar Edital</h2>
+            <p style="color:#888; font-size:13px; margin-bottom:20px;">Seu concurso ainda não está na nossa base? Informe a nossa equipe para realizarmos a verticalização e inserirmos na plataforma.</p>
+            <input type="text" id="input-solicitar-edital" class="login-input" placeholder="Ex: TCE-MS - Engenharia Civil">
+            <button class="btn" style="background:var(--accent-orange); color:black; width:100%;" onclick="enviarSolicitacaoEdital()">ENVIAR SOLICITAÇÃO</button>
+        </div>
+    </div>
+
+    <div id="importModal" class="modal">
+        <div class="modal-content" style="max-width: 550px; border-top: 4px solid var(--accent-green);">
+            <span class="close-btn" onclick="document.getElementById('importModal').style.display='none'">&times;</span>
+            <h2 style="margin-top:0; color:var(--text-color);"><i class="fas fa-file-import"></i> Importar de Outras Plataformas</h2>
+            <p style="color:#888; font-size:13px; margin-bottom:20px;">Transfira seu histórico de questões e horas para a Sala de Comando.</p>
+            
+            <div style="background:var(--input-bg); padding:15px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:20px;">
+                <p style="margin:0 0 10px 0; font-size:13px; font-weight:bold; color:var(--accent-blue);">Passo 1: Baixe a Planilha Padrão</p>
+                <button class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); font-size:12px;" onclick="downloadCSVTemplate()"><i class="fas fa-download"></i> Baixar Planilha Padrão</button>
+            </div>
+
+            <div style="background:var(--input-bg); padding:15px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:20px;">
+                <p style="margin:0 0 10px 0; font-size:13px; font-weight:bold; color:var(--accent-green);">Passo 2: Preencha e Envie</p>
+                <input type="file" id="file-import-csv" accept=".csv" style="color:var(--text-color); font-size:13px;">
+            </div>
+
+            <button class="btn" id="btn-process-import" style="background:var(--accent-green); width:100%;" onclick="processarImportacaoCSV()">INJETAR DADOS NO SERVIDOR</button>
+        </div>
+    </div>
+
     <div id="ranksModal" class="modal">
         <div class="modal-content" style="max-width: 550px; border-top: 4px solid var(--accent-gold);">
             <span class="close-btn" onclick="document.getElementById('ranksModal').style.display='none'">&times;</span>
@@ -479,7 +552,6 @@
         </div>
     </div>
 
-    <!-- FICHA CADASTRAL -->
     <div id="profileModal" class="modal">
         <div class="modal-content" style="max-width: 450px;">
             <span class="close-btn" onclick="document.getElementById('profileModal').style.display='none'">&times;</span>
@@ -498,38 +570,36 @@
         </div>
     </div>
 
-    <!-- GUIA DA PLATAFORMA (MANUAL DO RECRUTA ATUALIZADO E DETALHADO) -->
     <div id="platformTutorialModal" class="modal">
         <div class="modal-content" style="max-width: 700px; border-top: 4px solid var(--accent-blue);">
             <span class="close-btn" onclick="document.getElementById('platformTutorialModal').style.display='none'">&times;</span>
             <h2 style="color: var(--text-color); margin-top: 0;"><i class="fas fa-laptop-code" style="color:var(--accent-blue)"></i> Manual do Recruta</h2>
-            <p style="font-size: 14px; line-height: 1.6; color: #888; margin-bottom:20px;">Bem-vindo à Sala de Comando. Entenda como utilizar as 4 principais engrenagens para extrair o máximo do seu potencial tático:</p>
-            
-            <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-orange);">
-                <strong style="color:var(--text-color); font-size:15px;">1. Meu Ciclo Tático (A Nuvem) ☁️</strong><br>
-                <span style="font-size:13px; color:#888;">Esta é a sua base operacional. Vá na aba "Meu Ciclo Tático", selecione as matérias do seu edital e arraste para montar a ordem de estudo. Ao clicar em Salvar, sua configuração vai para a Nuvem e fica registrada. Você só precisa fazer isso uma vez!</span>
-            </div>
+            <p style="font-size: 14px; line-height: 1.6; color: #888; margin-bottom:20px;">Bem-vindo à Sala de Comando. Entenda como utilizar as principais engrenagens para extrair o máximo do seu potencial tático:</p>
             
             <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-green);">
-                <strong style="color:var(--text-color); font-size:15px;">2. Lançar Missão e GPS Inteligente 🎯</strong><br>
-                <span style="font-size:13px; color:#888;">Quando terminar de estudar, clique no botão verde "LANÇAR MISSÃO". Preencha o tempo estudado, as questões e os acertos. O nosso <strong>GPS de Direcionamento</strong> (no Painel) vai ler o seu lançamento, avaliar sua precisão, e te dizer exatamente qual é a próxima matéria do ciclo que você deve atacar no dia seguinte.</span>
+                <strong style="color:var(--text-color); font-size:15px;">1. Edital Verticalizado 🎯</strong><br>
+                <span style="font-size:13px; color:#888;">Nesta aba, você escolhe o seu Concurso Alvo. A plataforma plota todas as matérias e tópicos com barras de progresso. Ao fazer um "Lançamento", o sistema reconhece o tópico estudado e avança sua barra automaticamente.</span>
+            </div>
+
+            <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-orange);">
+                <strong style="color:var(--text-color); font-size:15px;">2. Meu Ciclo Tático (A Nuvem) ☁️</strong><br>
+                <span style="font-size:13px; color:#888;">Selecione as matérias do seu edital e arraste para montar a ordem de estudo. Essa ordem alimentará o seu GPS de Direcionamento.</span>
+            </div>
+            
+            <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-blue);">
+                <strong style="color:var(--text-color); font-size:15px;">3. Importação de Dados 📥</strong><br>
+                <span style="font-size:13px; color:#888;">Veio de outra plataforma? Vá em Histórico Diário > Importar. Baixe a planilha padrão, preencha com seu histórico antigo e suba o arquivo para unificar suas estatísticas de longo prazo.</span>
             </div>
             
             <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-gold);">
-                <strong style="color:var(--text-color); font-size:15px;">3. Gamificação e Hall da Fama 🏆</strong><br>
-                <span style="font-size:13px; color:#888;">O sistema detecta sua frequência. Estude todos os dias para aumentar suas Chamas de Ofensiva 🔥. Bater a meta de 100 Questões ou 2 Horas no dia te concede Moedas Bônus. Todo o seu esforço é ranqueado ao vivo na aba "Ranking da Elite" contra outros comandantes.</span>
+                <strong style="color:var(--text-color); font-size:15px;">4. Gamificação e Ofensiva 🏆</strong><br>
+                <span style="font-size:13px; color:#888;">Estude todos os dias para aumentar suas Chamas de Ofensiva 🔥. Bater a meta de 100 Questões ou 2 Horas no dia te concede Moedas Bônus no Ranking.</span>
             </div>
 
-            <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-blue);">
-                <strong style="color:var(--text-color); font-size:15px;">4. Radar de Editais 📡</strong><br>
-                <span style="font-size:13px; color:#888;">Nossa central de inteligência. Uma aba isolada que rastreia os maiores sites de concursos do Brasil. Use os filtros de Área (Ex: Policial, Engenharia) e o sistema vai varrer e exibir as notícias dos últimos 3 dias na sua tela. Mantenha-se informado sem precisar se distrair nas redes sociais.</span>
-            </div>
-            
             <button class="btn" style="background:var(--accent-blue); width:100%; margin-top:10px;" onclick="document.getElementById('platformTutorialModal').style.display='none'">ENTENDIDO, ENGENHARIA!</button>
         </div>
     </div>
 
-    <!-- METODOLOGIAS DE ESTUDO -->
     <div id="tutorialModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="document.getElementById('tutorialModal').style.display='none'">&times;</span>
@@ -540,9 +610,6 @@
                 <p><strong>FASE 2: Sequencial</strong> - Resolva na sequência. Meta: 80%+</p>
                 <p><strong>FASE 3: Aleatória</strong> - Faça a bateria embaralhada. Meta: 80%+</p>
                 <p><strong>FASE 4: Consolidação</strong> - Repita focando na excelência. Meta: 85%+ para liberar no GPS.</p>
-                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
-                <h4 style="margin: 0 0 10px 0; color: var(--accent-orange);"><i class="fas fa-file-pdf"></i> Estudo Teórico (PDF / Vídeo)</h4>
-                <p style="margin-top: 0;">Leitura ativa e grifos para consolidar a base teórica antes de atacar a bateria de questões. O GPS avança o ciclo automatically após o registro de tempo.</p>
             </div>
             <h3 style="color: var(--accent-gold); font-size:15px;"><i class="fas fa-robot"></i> Prompt Estratégico (Para Fase 1 - MB)</h3>
             <div style="background: #000; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; font-family: monospace; font-size: 12px; color: var(--accent-orange); white-space: pre-wrap;" id="ai-prompt">RESUMO DE ASSUNTO.
@@ -554,7 +621,6 @@ Gostaria que fizesse:
         </div>
     </div>
 
-    <!-- MODAL RAIO X -->
     <div id="detailsModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="document.getElementById('detailsModal').style.display='none'">&times;</span>
@@ -566,7 +632,6 @@ Gostaria que fizesse:
         </div>
     </div>
 
-    <!-- MODAL LANÇAMENTO -->
     <div id="entryModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="document.getElementById('entryModal').style.display='none'">&times;</span>
@@ -577,7 +642,7 @@ Gostaria que fizesse:
             <form id="studyForm" onsubmit="submitEntry(event)">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <div class="form-group" style="margin:0;"><label>Data</label><input type="date" id="f-data" required></div>
-                    <div class="form-group" style="margin:0;"><label>Matéria</label><select id="f-materia" required></select></div>
+                    <div class="form-group" style="margin:0;"><label>Matéria</label><select id="f-materia" required onchange="atualizarCampoTopico()"></select></div>
                 </div>
                 
                 <div class="form-group">
@@ -589,7 +654,13 @@ Gostaria que fizesse:
                     </select>
                 </div>
 
-                <div class="form-group"><label>Assunto / Tópico</label><input type="text" id="f-topico" required placeholder="Ex: Licitações"></div>
+                <div class="form-group">
+                    <label>Assunto / Tópico</label>
+                    <div id="container-topico">
+                        <input type="text" id="f-topico" required placeholder="Ex: Licitações">
+                    </div>
+                </div>
+                
                 <div class="form-group"><label>Link do Caderno / Material (Opcional)</label><input type="text" id="f-tipo-link" placeholder="https://tecconcursos... ou Drive"></div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px;">
                     <div class="form-group" style="margin:0;"><label>Minutos</label><input type="number" id="f-tempo" value="0"></div>
@@ -617,6 +688,11 @@ Gostaria que fizesse:
     
     let feedNoticiasGlobal = [];
     let paginaAtualRadar = 1; 
+
+    // NOVAS VARIAVEIS: EDITAL VERTICALIZADO
+    let baseEditaisGlobal = {}; // { "TCE-GO": [ {banca, bloco, mat, top}, ... ] }
+    let editalAtivoGlobal = ""; 
+    let progressoEditalGlobal = {}; // { "TCE-GO": { "Dir. Administrativo": { "1. Atos": { checked: true, link: "" } } } }
 
     if(localStorage.getItem('pqdtTheme') === 'light') document.body.classList.add('light-mode');
     function updateChartColors() {
@@ -675,6 +751,7 @@ Gostaria que fizesse:
         if(element) element.classList.add('active'); 
         if(viewId === 'painel' && globalData.length > 0) updateDashboard('all');
         if(viewId === 'radar-view' && feedNoticiasGlobal.length === 0) carregarRadarRSS();
+        if(viewId === 'edital-view') atualizarSelectEditaisDisponiveis();
     }
     
     function toggleTheme() { document.body.classList.toggle('light-mode'); localStorage.setItem('pqdtTheme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); updateChartColors(); if(globalData.length>0) updateDashboard('all'); }
@@ -697,14 +774,14 @@ Gostaria que fizesse:
     }
 
     function checkUpdateNotification() {
-        let versionTag = "v2.0"; 
+        let versionTag = "v2.2"; 
         if(localStorage.getItem('pqdtUpdateNotif') !== versionTag) {
             let md = document.getElementById('updateModal');
             if(md) md.style.display = 'block';
         }
     }
     function closeUpdateModal() {
-        localStorage.setItem('pqdtUpdateNotif', "v2.0");
+        localStorage.setItem('pqdtUpdateNotif', "v2.2");
         let md = document.getElementById('updateModal');
         if(md) md.style.display = 'none';
     }
@@ -831,8 +908,17 @@ Gostaria que fizesse:
             
             globalExpiration = data.expiration || "Vitalício"; globalNickname = data.nickname || "Recruta"; 
             globalLeaderboards = data.leaderboards || {diario:[], mensal:[], geral:[]};
+            baseEditaisGlobal = data.baseEditais || {};
+            editalAtivoGlobal = data.editalAtivo || "";
+            try { progressoEditalGlobal = JSON.parse(data.progressoEdital || "{}"); } catch(e) { progressoEditalGlobal = {}; }
+
             setSafeText('greeting-name', globalNickname);
-            loadCiclo(data.cicloNuvem); processData(data.dados || []); updateLeaderEffects();
+            loadCiclo(data.cicloNuvem); 
+            processData(data.dados || []); 
+            updateLeaderEffects();
+            atualizarSelectEditaisDisponiveis();
+            if(editalAtivoGlobal) renderizarEdital(editalAtivoGlobal);
+            atualizarCampoTopico(); // Atualiza modal de lançamento
             
             btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado');
             setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> SINC'), 2000);
@@ -968,20 +1054,37 @@ Gostaria que fizesse:
 
             let idx = cicloMaster.findIndex(d => last.mat === d.chaves[0] || String(last.mat).includes(d.nome)); if(idx === -1) idx = 0;
             let p1 = cicloMaster[idx] || cicloMaster[0]; let p2 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0];
+            
+            // LOGICA GPS + EDITAL VERTICALIZADO: Foco Tópico
+            let topicoAlvo = "";
+            let linkAlvo = "";
+            if(editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][p1.nome]) {
+                let assuntos = progressoEditalGlobal[editalAtivoGlobal][p1.nome];
+                for(let t in assuntos) {
+                    if(!assuntos[t].checked) { topicoAlvo = t; linkAlvo = assuntos[t].link || ""; break; }
+                }
+            }
+
+            let nomeMateriaExibida = p1.nome;
+            if(topicoAlvo) nomeMateriaExibida += ` <br><span style="color:var(--accent-gold); font-size:11px;"><i class="fas fa-crosshairs"></i> Alvo: ${topicoAlvo}</span>`;
+
             if (isConsolidated) {
                 p1 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0]; p2 = cicloMaster[(idx + 2) % cicloMaster.length] || cicloMaster[0];
-                if(ml) ml.innerHTML = `<li style="color:var(--accent-green); margin-bottom:10px;">Missão Cumprida! Próximo Alvo:</li><li class="now"><strong>Agora:</strong> ${p1.nome}</li><li><strong>Passo 2:</strong> ${p2.nome}</li>`;
+                if(ml) ml.innerHTML = `<li style="color:var(--accent-green); margin-bottom:10px;">Missão Cumprida! Próximo Alvo:</li><li class="now"><strong>Agora:</strong> ${nomeMateriaExibida}</li><li><strong>Passo 2:</strong> ${p2.nome}</li>`;
             } else {
-                if(ml) ml.innerHTML = `<li style="color:var(--accent-red); margin-bottom:10px;">Não Consolidada! Retome:</li><li class="now"><strong>Agora:</strong> ${p1.nome}</li><li><strong>Próximo:</strong> ${p2.nome}</li>`;
+                if(ml) ml.innerHTML = `<li style="color:var(--accent-red); margin-bottom:10px;">Não Consolidada! Retome:</li><li class="now"><strong>Agora:</strong> ${nomeMateriaExibida}</li><li><strong>Próximo:</strong> ${p2.nome}</li>`;
             }
 
             let cad = globalData.find(x => x.mat === p1.chaves[0] || String(x.mat).includes(p1.nome));
             let badgeMetodoHtml = `<span class="badge" style="font-size:10px; background:rgba(240, 136, 62, 0.1); border:1px solid var(--accent-orange); color:var(--accent-orange); padding:2px 5px; border-radius:4px;">${metodoUsado}</span>`;
             let badgeHTML = !isConsolidated ? `<div style="display:flex; gap:5px; margin-top:10px; justify-content:center;"><span class="badge" style="font-size:10px; background:rgba(88,166,255,0.1); border:1px solid var(--accent-blue); color:var(--accent-blue); padding:2px 5px; border-radius:4px;">Fase Atual: ${valFase||"?"}</span>${badgeMetodoHtml}</div>` : `<div style="display:flex; gap:5px; margin-top:10px; justify-content:center;">${badgeMetodoHtml}</div>`;
             
-            if(cad && cad.link && cad.link.includes('http')) {
-                let ext = cad.link.match(/(https?:\/\/[^\s]+)/g); let finalUrl = ext ? ext[0] : cad.link;
-                if(guc) guc.innerHTML = `<a href="${finalUrl}" target="_blank" class="btn" style="background:var(--accent-orange); color:black; width:100%; box-sizing:border-box; justify-content:center; margin-bottom:8px; text-decoration:none; white-space:normal; text-align:center;"><i class="fas fa-external-link-alt"></i> RETOMAR MATERIAL</a><div style="font-size:11px; color:#888;">Acesso: <strong>${cad.date.toLocaleDateString()}</strong></div>${badgeHTML}`;
+            let finalUrl = "";
+            if (linkAlvo && linkAlvo.includes('http')) { finalUrl = linkAlvo; }
+            else if (cad && cad.link && cad.link.includes('http')) { let ext = cad.link.match(/(https?:\/\/[^\s]+)/g); finalUrl = ext ? ext[0] : cad.link; }
+
+            if(finalUrl) {
+                if(guc) guc.innerHTML = `<a href="${finalUrl}" target="_blank" class="btn" style="background:var(--accent-orange); color:black; width:100%; box-sizing:border-box; justify-content:center; margin-bottom:8px; text-decoration:none; white-space:normal; text-align:center;"><i class="fas fa-external-link-alt"></i> RETOMAR MATERIAL</a><div style="font-size:11px; color:#888;">Link Tático Encontrado</div>${badgeHTML}`;
             } else {
                 if(guc) guc.innerHTML = `<div style="background:var(--bg-color); border: 1px solid var(--border-color); padding:10px; border-radius:8px; width:100%; box-sizing:border-box;">Alvo: <strong style="color:white;">${p1.chaves[0]}</strong><br><span style="color:var(--accent-orange); font-size:11px;">Sem link anexado.</span></div><div style="font-size:11px; color:#888; margin-top:8px;">Aguardando primeiro acesso.</div>${badgeHTML}`;
             }
@@ -1018,7 +1121,188 @@ Gostaria que fizesse:
         }
     }
 
-    // LOGICA DO RADAR LITE: FILTRO DE 3 DIAS + PAGINAÇÃO
+    // ==========================================
+    // LÓGICA DO EDITAL VERTICALIZADO
+    // ==========================================
+    function atualizarSelectEditaisDisponiveis() {
+        let sel = document.getElementById('select-edital-ativo');
+        if(!sel) return;
+        sel.innerHTML = '<option value="">-- Selecione seu Concurso Alvo --</option>';
+        Object.keys(baseEditaisGlobal).forEach(concurso => {
+            let opt = document.createElement('option');
+            opt.value = concurso; opt.innerText = concurso;
+            sel.appendChild(opt);
+        });
+        if(editalAtivoGlobal && baseEditaisGlobal[editalAtivoGlobal]) {
+            sel.value = editalAtivoGlobal;
+        }
+    }
+
+    function renderizarEdital(nomeConcurso) {
+        editalAtivoGlobal = nomeConcurso;
+        let cont = document.getElementById('edital-content-container');
+        let headerProgresso = document.getElementById('edital-progresso-geral');
+        
+        if(!nomeConcurso || !baseEditaisGlobal[nomeConcurso]) {
+            cont.innerHTML = '<p style="text-align:center; color:#888; padding:40px;"><i class="fas fa-hand-pointer fa-2x"></i><br><br>Selecione um Edital no menu acima para iniciar seu mapeamento.</p>';
+            headerProgresso.style.display = 'none';
+            atualizarCampoTopico();
+            return;
+        }
+
+        // Se o progresso não existir no DB do aluno ainda, cria zerado.
+        if(!progressoEditalGlobal[nomeConcurso]) {
+            progressoEditalGlobal[nomeConcurso] = {};
+        }
+
+        let editaisData = baseEditaisGlobal[nomeConcurso]; // Array de {banca, bloco, mat, top}
+        let infoBanca = editaisData[0]?.banca || "Banca não informada";
+        
+        // Agrupa por Matéria
+        let materiasDict = {};
+        editaisData.forEach(item => {
+            if(!materiasDict[item.mat]) materiasDict[item.mat] = { bloco: item.bloco, topicos: [] };
+            materiasDict[item.mat].topicos.push(item.top);
+        });
+
+        headerProgresso.style.display = 'block';
+        document.getElementById('edital-banca-bloco').innerHTML = `<i class="fas fa-building"></i> Banca: <strong>${infoBanca}</strong>`;
+
+        cont.innerHTML = '';
+        let totalTopicosGeral = 0;
+        let concluidosGeral = 0;
+
+        Object.keys(materiasDict).forEach((matName, idx) => {
+            let infoMat = materiasDict[matName];
+            if(!progressoEditalGlobal[nomeConcurso][matName]) progressoEditalGlobal[nomeConcurso][matName] = {};
+            
+            let htmlTopicos = '';
+            let totalTopMat = infoMat.topicos.length;
+            let concluidosMat = 0;
+
+            infoMat.topicos.forEach((top, topIdx) => {
+                totalTopicosGeral++;
+                if(!progressoEditalGlobal[nomeConcurso][matName][top]) progressoEditalGlobal[nomeConcurso][matName][top] = { checked: false, link: "" };
+                let isChecked = progressoEditalGlobal[nomeConcurso][matName][top].checked;
+                let linkSaved = progressoEditalGlobal[nomeConcurso][matName][top].link || "";
+                if(isChecked) { concluidosMat++; concluidosGeral++; }
+
+                htmlTopicos += `
+                    <div class="edital-topic-item">
+                        <label style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer;">
+                            <input type="checkbox" class="topic-checkbox" onchange="toggleEditalTopic('${nomeConcurso}', '${matName}', '${top.replace(/'/g, "\\'")}', this.checked)" ${isChecked ? 'checked' : ''}>
+                            <span style="color: ${isChecked ? 'var(--accent-green)' : 'var(--text-color)'}; text-decoration: ${isChecked ? 'line-through' : 'none'};">${top}</span>
+                        </label>
+                        <input type="text" class="topic-link-input" placeholder="Colar Link do TEC" value="${linkSaved}" onchange="saveEditalLink('${nomeConcurso}', '${matName}', '${top.replace(/'/g, "\\'")}', this.value)">
+                    </div>
+                `;
+            });
+
+            let pctMat = totalTopMat > 0 ? Math.round((concluidosMat / totalTopMat) * 100) : 0;
+            
+            let cardHtml = `
+                <div class="edital-subject">
+                    <div class="edital-subject-header" onclick="toggleAccordion('edital-acc-${idx}')">
+                        <div style="flex:1;">
+                            <div style="font-size:10px; color:var(--accent-blue); text-transform:uppercase; margin-bottom:4px;">${infoMat.bloco}</div>
+                            <strong style="color:var(--text-color);">${matName}</strong>
+                        </div>
+                        <div class="edital-progress-bg">
+                            <div class="edital-progress-fill" style="width:${pctMat}%;"></div>
+                        </div>
+                        <div style="font-size:12px; color:#888; font-weight:bold; min-width:35px; text-align:right;">${pctMat}%</div>
+                        <i class="fas fa-chevron-down" style="color:#888; margin-left:15px;"></i>
+                    </div>
+                    <div class="edital-topic-list" id="edital-acc-${idx}">
+                        ${htmlTopicos}
+                    </div>
+                </div>
+            `;
+            cont.innerHTML += cardHtml;
+        });
+
+        // Atualiza progresso geral no cabeçalho
+        let pctGeral = totalTopicosGeral > 0 ? Math.round((concluidosGeral / totalTopicosGeral) * 100) : 0;
+        document.getElementById('txt-progresso-geral').innerText = `${pctGeral}% (${concluidosGeral}/${totalTopicosGeral})`;
+        document.getElementById('bar-progresso-geral').style.width = `${pctGeral}%`;
+
+        salvarProgressoEditalNuvem();
+        atualizarCampoTopico(); // Atualiza modal de lançamento
+        updateGPS(); // Atualiza a mira do GPS
+    }
+
+    function toggleAccordion(id) {
+        let el = document.getElementById(id);
+        if(el) el.classList.toggle('open');
+    }
+
+    function toggleEditalTopic(concurso, mat, top, isChecked) {
+        progressoEditalGlobal[concurso][mat][top].checked = isChecked;
+        renderizarEdital(concurso); // Re-renderiza para atualizar barras
+    }
+
+    function saveEditalLink(concurso, mat, top, link) {
+        progressoEditalGlobal[concurso][mat][top].link = link;
+        salvarProgressoEditalNuvem();
+    }
+
+    function salvarProgressoEditalNuvem() {
+        let btn = document.querySelector('.btn.sync-btn-ui');
+        let oldHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        let progressoStr = JSON.stringify(progressoEditalGlobal);
+        fetch(WEBHOOK_URL, {method: 'POST', mode: 'no-cors', body: JSON.stringify({acao: "salvar_progresso_edital", email: loggedUserEmail, editalAtivo: editalAtivoGlobal, progressoJson: progressoStr})})
+        .then(() => { setTimeout(() => btn.innerHTML = oldHTML, 1000); })
+        .catch(err => { btn.innerHTML = '<i class="fas fa-exclamation"></i>'; setTimeout(() => btn.innerHTML = oldHTML, 2000); });
+    }
+
+    function enviarSolicitacaoEdital() {
+        let input = document.getElementById('input-solicitar-edital');
+        let val = input.value.trim();
+        if(!val) return alert("Por favor, digite o nome do concurso e cargo.");
+        
+        let btn = document.querySelector('#solicitarEditalModal .btn');
+        let oldHtml = btn.innerHTML;
+        btn.innerHTML = "ENVIANDO..."; btn.disabled = true;
+
+        fetch(WEBHOOK_URL, {method: 'POST', mode: 'no-cors', body: JSON.stringify({acao: "solicitar_edital", email: loggedUserEmail, concursoStr: val})})
+        .then(() => { 
+            alert("Solicitação enviada ao Comando! Em breve seu edital será mapeado.");
+            document.getElementById('solicitarEditalModal').style.display='none';
+            btn.innerHTML = oldHtml; btn.disabled = false; input.value = "";
+        }).catch(err => { alert("Erro ao enviar."); btn.innerHTML = oldHtml; btn.disabled = false; });
+    }
+
+    // ==========================================
+    // LÓGICA DO MODAL DE LANÇAMENTO DINÂMICO
+    // ==========================================
+    function atualizarCampoTopico() {
+        let matEl = document.getElementById('f-materia');
+        let topContainer = document.getElementById('container-topico');
+        if(!matEl || !topContainer) return;
+        
+        let matSelecionada = "";
+        if(matEl.options && matEl.selectedIndex >= 0) {
+            matSelecionada = matEl.options[matEl.selectedIndex].text;
+        }
+
+        // Se tem edital ativo e a matéria existe no edital
+        if(editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][matSelecionada]) {
+            let topicos = Object.keys(progressoEditalGlobal[editalAtivoGlobal][matSelecionada]);
+            if(topicos.length > 0) {
+                let options = topicos.map(t => `<option value="${t}">${t}</option>`).join('');
+                topContainer.innerHTML = `<select id="f-topico" style="width:100%; padding:12px; background:var(--input-bg); border:1px solid var(--input-border); color:var(--text-color); border-radius:6px; outline:none;" required><option value="">-- Selecione o Tópico do Edital --</option>${options}</select>`;
+                return;
+            }
+        }
+        // Fallback: Campo de texto livre
+        topContainer.innerHTML = `<input type="text" id="f-topico" required placeholder="Ex: Licitações" style="width:100%; padding:12px; background:var(--input-bg); border:1px solid var(--input-border); color:var(--text-color); border-radius:6px; outline:none;">`;
+    }
+
+    // ==========================================
+    // LÓGICA DO RADAR DE EDITAIS
+    // ==========================================
     function carregarRadarRSS() {
         let container = document.getElementById('radar-cards-container');
         if (!container) return;
@@ -1180,6 +1464,63 @@ Gostaria que fizesse:
         });
     }
 
+    // ==========================================
+    // LOGICA DE IMPORTAÇÃO CSV
+    // ==========================================
+    function downloadCSVTemplate() {
+        let csvContent = "Data_Estudo(DD/MM/AAAA),Materia,Topico,Metodologia,Questoes,Acertos,Tempo_Minutos\n17/06/2026,Direito Administrativo,Atos Administrativos,Método MB (Questões),50,40,60";
+        let encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent); 
+        let link = document.createElement("a"); 
+        link.setAttribute("href", encodedUri); link.setAttribute("download", "Template_Importacao_ProtocoloControle.csv");
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    }
+
+    function processarImportacaoCSV() {
+        let fileInput = document.getElementById('file-import-csv');
+        if(!fileInput.files.length) return alert("Por favor, selecione o arquivo CSV preenchido.");
+        
+        let file = fileInput.files[0];
+        let reader = new FileReader();
+        let btn = document.getElementById('btn-process-import');
+        let oldHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> LENDO DADOS...'; btn.disabled = true;
+
+        reader.onload = function(e) {
+            let lines = e.target.result.split('\n');
+            let pacoteLancamentos = [];
+            
+            // Pula a primeira linha (cabeçalho)
+            for(let i=1; i < lines.length; i++) {
+                let l = lines[i].trim();
+                if(!l) continue;
+                let cols = l.split(','); // Assumindo que aluno usou Excel salvando em CSV delimitado por vírgula
+                if(cols.length >= 7) {
+                    pacoteLancamentos.push({
+                        data: cols[0].trim(), mat: cols[1].trim(), top: cols[2].trim(),
+                        met: cols[3].trim(), q: cols[4].trim(), a: cols[5].trim(), t: cols[6].trim()
+                    });
+                }
+            }
+
+            if(pacoteLancamentos.length === 0) {
+                alert("Nenhum dado válido encontrado no arquivo.");
+                btn.innerHTML = oldHtml; btn.disabled = false; return;
+            }
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> INJETANDO NO SERVIDOR...';
+
+            fetch(WEBHOOK_URL, {method: 'POST', mode: 'no-cors', body: JSON.stringify({acao: "importar_historico", email: loggedUserEmail, lancamentos: pacoteLancamentos})})
+            .then(() => { 
+                alert("OPERAÇÃO CONCLUÍDA! " + pacoteLancamentos.length + " missões injetadas no seu histórico.");
+                document.getElementById('importModal').style.display='none';
+                btn.innerHTML = oldHtml; btn.disabled = false; fileInput.value = "";
+                loadGoogleSheetsData(); 
+            })
+            .catch(err => { alert("Erro de conexão na importação."); btn.innerHTML = oldHtml; btn.disabled = false; });
+        };
+        reader.readAsText(file);
+    }
+
     function exportCSV() {
         if(globalData.length === 0) return alert("Não há dados para exportar.");
         let csvContent = "data:text/csv;charset=utf-8,Data,Materia,Topico,Metodologia,Questoes,Acertos,Tempo_Min,Fase\n";
@@ -1248,7 +1589,18 @@ Gostaria que fizesse:
     function toggleMateria(cb) { if(cb.checked) tempCiclo.push({ nome: cb.getAttribute('data-nome'), chaves: [cb.value] }); else tempCiclo = tempCiclo.filter(c => c.chaves[0] !== cb.value); renderConfigUI(); }
     function moveItem(i, dir) { if(i+dir < 0 || i+dir >= tempCiclo.length) return; let temp = tempCiclo[i]; tempCiclo[i] = tempCiclo[i+dir]; tempCiclo[i+dir] = temp; renderConfigUI(); }
     function deleteCustomSubject(sigla) { if(!confirm("Excluir matéria customizada do banco de dados local?")) return; customSubjects = customSubjects.filter(m => m.chaves[0] !== sigla); localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects)); tempCiclo = tempCiclo.filter(m => m.chaves[0] !== sigla); renderConfigUI(); }
-    function updateSelects() { let sel = document.getElementById('f-materia'); if(sel) { sel.innerHTML = ""; cicloMaster.forEach(d => { let o = document.createElement('option'); o.value = d.chaves[0]; o.innerText = d.nome; sel.appendChild(o); }); } }
+    
+    function updateSelects() { 
+        let sel = document.getElementById('f-materia'); 
+        if(sel) { 
+            sel.innerHTML = ""; 
+            cicloMaster.forEach(d => { 
+                let o = document.createElement('option'); o.value = d.chaves[0]; o.innerText = d.nome; sel.appendChild(o); 
+            }); 
+            atualizarCampoTopico(); // Chama atualização do campo tópico dinâmico
+        } 
+    }
+    
     function addCustomSubject() {
         let eS = document.getElementById('custom-sigla'); let eN = document.getElementById('custom-nome'); if(!eS || !eN) return;
         let sigla = eS.value.toUpperCase().trim(); let nome = eN.value.trim(); if(!sigla || !nome) return alert("Preencha Sigla e Nome.");
@@ -1276,6 +1628,7 @@ Gostaria que fizesse:
         
         let t = document.getElementById('f-tempo'); let secs = timerMode === 'crono' ? timerSeconds : (25 * 60 - pomoSeconds);
         if(t && secs > 0) t.value = Math.floor(secs / 60);
+        atualizarCampoTopico();
         let em = document.getElementById('entryModal'); if(em) em.style.display='block';
     }
 
@@ -1285,6 +1638,8 @@ Gostaria que fizesse:
         
         let elD = document.getElementById('f-data'); if(elD) elD.value = `${yyyy}-${mm}-${dd}`; 
         let elM = document.getElementById('f-materia'); if(elM) elM.value = last.mat; 
+        atualizarCampoTopico(); // Recalcula se vira select ou input
+        
         let elMet = document.getElementById('f-metodo'); if(elMet) elMet.value = last.metodologia || 'Método MB (Questões)';
         let elT = document.getElementById('f-topico'); if(elT) elT.value = last.topico || '';
         let elL = document.getElementById('f-tipo-link'); if(elL) elL.value = last.link || ''; 
@@ -1309,9 +1664,21 @@ Gostaria que fizesse:
         let a = document.getElementById('f-a'); let fas = document.getElementById('f-fase');
         let actionStr = isEditingMode ? "retificar_ultimo" : "lancamento";
         
+        let matSelecionada = mat ? mat.options[mat.selectedIndex].text : "";
+        let topicoTexto = top ? top.value : "";
+
+        // SE O EDITAL ESTIVER ATIVO, DÁ O CHECK NO PROGRESSO
+        if(!isEditingMode && editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][matSelecionada]) {
+            if(progressoEditalGlobal[editalAtivoGlobal][matSelecionada][topicoTexto]) {
+                progressoEditalGlobal[editalAtivoGlobal][matSelecionada][topicoTexto].checked = true;
+                if(tlnk && tlnk.value) progressoEditalGlobal[editalAtivoGlobal][matSelecionada][topicoTexto].link = tlnk.value;
+                salvarProgressoEditalNuvem(); // Envia pra nuvem silenciosamente
+            }
+        }
+
         let payload = { 
             acao: actionStr, email: loggedUserEmail, dataEstudo: `${p[2]}/${p[1]}/${p[0]}`, 
-            materia: mat?mat.value:"", topico: top?top.value:"", tipoLink: tlnk?tlnk.value:"", 
+            materia: mat?mat.value:"", topico: topicoTexto, tipoLink: tlnk?tlnk.value:"", 
             tempo: temp?temp.value:"", questoes: q?q.value:"", acertos: a?a.value:"", 
             fase: fas?fas.value:"", metodologia: met?met.value:"" 
         };
