@@ -1144,7 +1144,7 @@ Gostaria que fizesse:
         }
     }
 
-    function renderizarEdital(nomeConcurso) {
+function renderizarEdital(nomeConcurso) {
         editalAtivoGlobal = nomeConcurso;
         let cont = document.getElementById('edital-content-container');
         let headerProgresso = document.getElementById('edital-progresso-geral');
@@ -1156,40 +1156,48 @@ Gostaria que fizesse:
             return;
         }
 
-        if(!progressoEditalGlobal[nomeConcurso]) {
-            progressoEditalGlobal[nomeConcurso] = {};
-        }
+        if(!progressoEditalGlobal[nomeConcurso]) progressoEditalGlobal[nomeConcurso] = {};
 
         let editaisData = baseEditaisGlobal[nomeConcurso]; 
         let infoBanca = editaisData[0]?.banca || "Banca não informada";
         
+        // CORREÇÃO: Agora agrupamos armazenando o nome e o link master
         let materiasDict = {};
         editaisData.forEach(item => {
             if(!materiasDict[item.mat]) materiasDict[item.mat] = { bloco: item.bloco, topicos: [] };
-            materiasDict[item.mat].topicos.push(item.top);
+            materiasDict[item.mat].topicos.push({ nome: item.top, linkMaster: item.linkMaster });
         });
 
         headerProgresso.style.display = 'block';
         document.getElementById('edital-banca-bloco').innerHTML = `<i class="fas fa-building"></i> Banca: <strong>${infoBanca}</strong>`;
 
         cont.innerHTML = '';
-        let totalTopicosGeral = 0;
-        let concluidosGeral = 0;
+        let totalTopicosGeral = 0; let concluidosGeral = 0;
 
         Object.keys(materiasDict).forEach((matName, idx) => {
             let infoMat = materiasDict[matName];
             if(!progressoEditalGlobal[nomeConcurso][matName]) progressoEditalGlobal[nomeConcurso][matName] = {};
             
-            let htmlTopicos = '';
-            let totalTopMat = infoMat.topicos.length;
-            let concluidosMat = 0;
+            let htmlTopicos = ''; let totalTopMat = infoMat.topicos.length; let concluidosMat = 0;
 
-            infoMat.topicos.forEach((top, topIdx) => {
+            infoMat.topicos.forEach((topObj, topIdx) => {
+                let top = topObj.nome;
+                let masterLink = topObj.linkMaster;
                 totalTopicosGeral++;
+                
                 if(!progressoEditalGlobal[nomeConcurso][matName][top]) progressoEditalGlobal[nomeConcurso][matName][top] = { checked: false, link: "" };
                 let isChecked = progressoEditalGlobal[nomeConcurso][matName][top].checked;
                 let linkSaved = progressoEditalGlobal[nomeConcurso][matName][top].link || "";
                 if(isChecked) { concluidosMat++; concluidosGeral++; }
+
+                // LÓGICA DOS LINKS HÍBRIDOS (Comando ou Aluno)
+                let uiLink = '';
+                if(masterLink && masterLink.includes('http')) {
+                    uiLink = `<a href="${masterLink}" target="_blank" class="btn" style="background:var(--accent-blue); padding:4px 10px; font-size:11px; text-decoration:none;"><i class="fas fa-external-link-alt"></i> CADERNO TEC</a>`;
+                } else {
+                    let btnAcessar = linkSaved && linkSaved.includes('http') ? `<a href="${linkSaved}" target="_blank" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--accent-blue); padding:4px 8px;"><i class="fas fa-external-link-alt"></i></a>` : '';
+                    uiLink = `<div style="display:flex; gap:5px;"><input type="text" class="topic-link-input" placeholder="Colar Link do TEC" value="${linkSaved}" onchange="saveEditalLink('${nomeConcurso}', '${matName}', '${top.replace(/'/g, "\\'")}', this.value)">${btnAcessar}</div>`;
+                }
 
                 htmlTopicos += `
                     <div class="edital-topic-item">
@@ -1197,7 +1205,7 @@ Gostaria que fizesse:
                             <input type="checkbox" class="topic-checkbox" onchange="toggleEditalTopic('${nomeConcurso}', '${matName}', '${top.replace(/'/g, "\\'")}', this.checked)" ${isChecked ? 'checked' : ''}>
                             <span style="color: ${isChecked ? 'var(--accent-green)' : 'var(--text-color)'}; text-decoration: ${isChecked ? 'line-through' : 'none'};">${top}</span>
                         </label>
-                        <input type="text" class="topic-link-input" placeholder="Colar Link do TEC" value="${linkSaved}" onchange="saveEditalLink('${nomeConcurso}', '${matName}', '${top.replace(/'/g, "\\'")}', this.value)">
+                        ${uiLink}
                     </div>
                 `;
             });
@@ -1229,7 +1237,6 @@ Gostaria que fizesse:
         document.getElementById('txt-progresso-geral').innerText = `${pctGeral}% (${concluidosGeral}/${totalTopicosGeral})`;
         document.getElementById('bar-progresso-geral').style.width = `${pctGeral}%`;
 
-        // O vilão da sincronização excessiva foi extirpado daqui.
         atualizarCampoTopico(); 
         updateGPS(); 
     }
@@ -1254,6 +1261,7 @@ Gostaria que fizesse:
     function saveEditalLink(concurso, mat, top, link) {
         progressoEditalGlobal[concurso][mat][top].link = link;
         salvarProgressoEditalNuvem();
+        renderizarEdital(concurso); // Força a tela a desenhar o botão clicável imediatamente
     }
 
     function salvarProgressoEditalNuvem() {
