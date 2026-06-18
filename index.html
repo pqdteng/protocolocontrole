@@ -368,7 +368,7 @@
                             <p style="color:#888; font-size:14px; margin:5px 0 0 0;">Controle absoluto do seu progresso Pós-Edital.</p>
                         </div>
                         <div style="display:flex; gap:10px; flex-wrap: wrap;">
-                            <select id="select-edital-ativo" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:10px; border-radius:6px; outline:none; font-weight:bold;" onchange="renderizarEdital(this.value)">
+                            <select id="select-edital-ativo" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:10px; border-radius:6px; outline:none; font-weight:bold;" onchange="selecionarNovoEdital(this.value)">
                                 <option value="">-- Selecione seu Concurso Alvo --</option>
                             </select>
                             <button class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color);" onclick="document.getElementById('solicitarEditalModal').style.display='block'">
@@ -1239,9 +1239,16 @@ Gostaria que fizesse:
         if(el) el.classList.toggle('open');
     }
 
+    // NOVA FUNÇÃO: Memoriza qual edital você selecionou no menu
+    function selecionarNovoEdital(nomeConcurso) {
+        renderizarEdital(nomeConcurso);
+        salvarProgressoEditalNuvem(); 
+    }
+
     function toggleEditalTopic(concurso, mat, top, isChecked) {
         progressoEditalGlobal[concurso][mat][top].checked = isChecked;
-        renderizarEdital(concurso); // Re-renderiza para atualizar barras
+        renderizarEdital(concurso); // Re-renderiza para atualizar barras na tela
+        salvarProgressoEditalNuvem(); // <-- CORREÇÃO: Dispara a alteração para o banco de dados!
     }
 
     function saveEditalLink(concurso, mat, top, link) {
