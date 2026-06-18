@@ -1055,7 +1055,13 @@ Gostaria que fizesse:
             let idx = cicloMaster.findIndex(d => last.mat === d.chaves[0] || String(last.mat).includes(d.nome)); if(idx === -1) idx = 0;
             let p1 = cicloMaster[idx] || cicloMaster[0]; let p2 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0];
             
-            // LOGICA GPS + EDITAL VERTICALIZADO: Foco Tópico
+            // CORREÇÃO CIRÚRGICA: Avançamos o giro do ciclo PRIMEIRO
+            if (isConsolidated) {
+                p1 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0]; 
+                p2 = cicloMaster[(idx + 2) % cicloMaster.length] || cicloMaster[0];
+            }
+
+            // AGORA aplicamos a mira do Edital Verticalizado sobre o NOVO alvo (p1 atualizado)
             let topicoAlvo = "";
             let linkAlvo = "";
             if(editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][p1.nome]) {
@@ -1068,8 +1074,8 @@ Gostaria que fizesse:
             let nomeMateriaExibida = p1.nome;
             if(topicoAlvo) nomeMateriaExibida += ` <br><span style="color:var(--accent-gold); font-size:11px;"><i class="fas fa-crosshairs"></i> Alvo: ${topicoAlvo}</span>`;
 
+            // Finalmente renderizamos na tela
             if (isConsolidated) {
-                p1 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0]; p2 = cicloMaster[(idx + 2) % cicloMaster.length] || cicloMaster[0];
                 if(ml) ml.innerHTML = `<li style="color:var(--accent-green); margin-bottom:10px;">Missão Cumprida! Próximo Alvo:</li><li class="now"><strong>Agora:</strong> ${nomeMateriaExibida}</li><li><strong>Passo 2:</strong> ${p2.nome}</li>`;
             } else {
                 if(ml) ml.innerHTML = `<li style="color:var(--accent-red); margin-bottom:10px;">Não Consolidada! Retome:</li><li class="now"><strong>Agora:</strong> ${nomeMateriaExibida}</li><li><strong>Próximo:</strong> ${p2.nome}</li>`;
@@ -1150,15 +1156,13 @@ Gostaria que fizesse:
             return;
         }
 
-        // Se o progresso não existir no DB do aluno ainda, cria zerado.
         if(!progressoEditalGlobal[nomeConcurso]) {
             progressoEditalGlobal[nomeConcurso] = {};
         }
 
-        let editaisData = baseEditaisGlobal[nomeConcurso]; // Array de {banca, bloco, mat, top}
+        let editaisData = baseEditaisGlobal[nomeConcurso]; 
         let infoBanca = editaisData[0]?.banca || "Banca não informada";
         
-        // Agrupa por Matéria
         let materiasDict = {};
         editaisData.forEach(item => {
             if(!materiasDict[item.mat]) materiasDict[item.mat] = { bloco: item.bloco, topicos: [] };
@@ -1221,14 +1225,13 @@ Gostaria que fizesse:
             cont.innerHTML += cardHtml;
         });
 
-        // Atualiza progresso geral no cabeçalho
         let pctGeral = totalTopicosGeral > 0 ? Math.round((concluidosGeral / totalTopicosGeral) * 100) : 0;
         document.getElementById('txt-progresso-geral').innerText = `${pctGeral}% (${concluidosGeral}/${totalTopicosGeral})`;
         document.getElementById('bar-progresso-geral').style.width = `${pctGeral}%`;
 
-        salvarProgressoEditalNuvem();
-        atualizarCampoTopico(); // Atualiza modal de lançamento
-        updateGPS(); // Atualiza a mira do GPS
+        // O vilão da sincronização excessiva foi extirpado daqui.
+        atualizarCampoTopico(); 
+        updateGPS(); 
     }
 
     function toggleAccordion(id) {
