@@ -241,7 +241,7 @@
                 <button class="nav-item" onclick="switchView('ciclo-view', this); toggleMobileMenu();"><i class="fas fa-sync-alt"></i> Meu Ciclo Tático</button>
                 <button class="nav-item" style="color: var(--accent-green);" onclick="switchView('edital-view', this); toggleMobileMenu();"><i class="fas fa-tasks"></i> Edital Verticalizado</button>
                 <button class="nav-item" onclick="switchView('ranking-view', this); toggleMobileMenu();"><i class="fas fa-trophy"></i> Ranking da Elite</button>
-                <button class="nav-item" onclick="switchView('relatorio-view', this); toggleMobileMenu();"><i class="fas fa-list-alt"></i> Histórico Diário</button>
+                <button class="nav-item" onclick="switchView('relatorio-view', this); toggleMobileMenu();"><i class="fas fa-list-alt"></i> Relatórios Gerais</button>
                 <button class="nav-item" onclick="switchView('radar-view', this); toggleMobileMenu();"><i class="fas fa-satellite-dish"></i> Radar de Editais</button>
                 
                 <hr style="border:none; border-top:1px solid var(--border-color); margin: 15px 25px;">
@@ -439,15 +439,21 @@
                 </div>
             </div>
 
+            <!-- NOVA CENTRAL DE RELATÓRIOS (Atualizada com mais filtros) -->
             <div id="view-relatorio-view" class="app-view">
                 <div class="chart-box" style="padding:25px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
-                        <h2 style="margin:0; font-size:1.4em;"><i class="fas fa-list-alt" style="color:var(--accent-purple)"></i> Extrato de Missões</h2>
-                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <h2 style="margin:0; font-size:1.4em;"><i class="fas fa-list-alt" style="color:var(--accent-purple)"></i> Central de Relatórios</h2>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap; width:100%;">
                             <select id="reportFilterMateria" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:8px 12px; border-radius:6px; outline:none;" onchange="renderReport()"><option value="all">Todas as Matérias</option></select>
-                            <div style="display:flex; background:var(--input-bg); border:1px solid var(--border-color); border-radius:6px; overflow:hidden;">
-                                <button class="btn" id="btnDiario" style="background:var(--accent-purple); color:white; border-radius:0; border:none; padding:8px 15px;" onclick="switchReport('diario')">Diário</button>
-                                <button class="btn" id="btnSemanal" style="background:transparent; color:var(--text-color); border-radius:0; border:none; padding:8px 15px;" onclick="switchReport('semanal')">Semanal</button>
+                            
+                            <!-- BATERIA DE BOTÕES DE FILTRO -->
+                            <div style="display:flex; background:var(--input-bg); border:1px solid var(--border-color); border-radius:6px; overflow:auto; width: 100%;">
+                                <button class="btn" id="btnDiario" style="background:var(--accent-purple); color:white; border-radius:0; border:none; padding:8px 12px; font-size:12px; flex:1;" onclick="switchReport('diario')">Dia</button>
+                                <button class="btn" id="btnSemanal" style="background:transparent; color:var(--text-color); border-radius:0; border:none; padding:8px 12px; font-size:12px; flex:1;" onclick="switchReport('semanal')">Semana</button>
+                                <button class="btn" id="btnMensal" style="background:transparent; color:var(--text-color); border-radius:0; border:none; padding:8px 12px; font-size:12px; flex:1;" onclick="switchReport('mensal')">Mês</button>
+                                <button class="btn" id="btnAnual" style="background:transparent; color:var(--text-color); border-radius:0; border:none; padding:8px 12px; font-size:12px; flex:1;" onclick="switchReport('anual')">Ano</button>
+                                <button class="btn" id="btnGeral" style="background:transparent; color:var(--text-color); border-radius:0; border:none; padding:8px 12px; font-size:12px; flex:1;" onclick="switchReport('geral')">Tudo</button>
                             </div>
                         </div>
                     </div>
@@ -460,7 +466,7 @@
 
                     <div style="overflow-x: auto;">
                         <table style="width:100%; border-collapse:collapse;">
-                            <thead><tr style="border-bottom:1px solid var(--border-color);"><th id="col-periodo">Data</th><th>Questões</th><th>Acertos</th><th>Precisão</th><th>Tempo Estudado</th><th>Velocidade</th><th>Raio-X</th></tr></thead>
+                            <thead><tr style="border-bottom:1px solid var(--border-color);"><th id="col-periodo">Período</th><th>Questões</th><th>Acertos</th><th>Precisão</th><th>Tempo Estudado</th><th>Velocidade</th><th>Raio-X</th></tr></thead>
                             <tbody id="report-body"></tbody>
                         </table>
                     </div>
@@ -503,9 +509,9 @@
             </p>
             <div style="text-align: left; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
                 <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-color); line-height: 1.6;">
+                    <li><strong style="color:var(--accent-purple)">Relatórios de BI:</strong> Novas visões Mensais, Anuais e de Todo o Período.</li>
                     <li><strong style="color:var(--accent-green)">Edital Verticalizado:</strong> Acompanhe o progresso de tópicos e cadernos do seu edital alvo.</li>
                     <li><strong style="color:var(--accent-orange)">Importação de Histórico:</strong> Migre seus dados antigos via CSV para a nossa Base.</li>
-                    <li><strong style="color:var(--accent-blue)">Radar de Editais Ampliado:</strong> Fatiamento tático e paginação dos alertas.</li>
                 </ul>
             </div>
             <button class="btn" style="background:var(--accent-blue); width:100%;" onclick="closeUpdateModal()">CIENTE, ENGENHARIA!</button>
@@ -588,7 +594,7 @@
             
             <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-blue);">
                 <strong style="color:var(--text-color); font-size:15px;">3. Importação de Dados 📥</strong><br>
-                <span style="font-size:13px; color:#888;">Veio de outra plataforma? Vá em Histórico Diário > Importar. Baixe a planilha padrão, preencha com seu histórico antigo e suba o arquivo para unificar suas estatísticas de longo prazo.</span>
+                <span style="font-size:13px; color:#888;">Veio de outra plataforma? Vá em Relatórios Gerais > Importar. Baixe a planilha padrão, preencha com seu histórico antigo e suba o arquivo para unificar suas estatísticas de longo prazo.</span>
             </div>
             
             <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-gold);">
@@ -606,7 +612,7 @@
             <h2 style="color: var(--accent-green); margin-top: 0;"><i class="fas fa-book-reader"></i> Metodologias de Estudo</h2>
             <div style="background: var(--input-bg); padding:20px; border-radius:8px; font-size:14px; margin-bottom: 20px; border: 1px solid var(--border-color);">
                 <h4 style="margin: 0 0 10px 0; color: var(--accent-blue);"><i class="fas fa-tasks"></i> Engenharia Reversa (Método MB)</h4>
-                <p style="margin-top: 0;"><strong>FASE 1: Ambientação</strong> - Imprima 20-30 Qs do assunto, peça explicação à IA. Meta: 75%+</p>
+                <p style="margin-top: 0;"><strong>FASE 1: Ambientação</strong> - Imprima 20-30  do assunto, peça explicação à IA. Meta: 75%+</p>
                 <p><strong>FASE 2: Sequencial</strong> - Resolva na sequência. Meta: 80%+</p>
                 <p><strong>FASE 3: Aleatória</strong> - Faça a bateria embaralhada. Meta: 80%+</p>
                 <p><strong>FASE 4: Consolidação</strong> - Repita focando na excelência. Meta: 85%+ para liberar no GPS.</p>
@@ -621,6 +627,7 @@ Gostaria que fizesse:
         </div>
     </div>
 
+    <!-- MODAL RAIO X ATUALIZADO COM O TEMPO TOTAL EM DESTAQUE -->
     <div id="detailsModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="document.getElementById('detailsModal').style.display='none'">&times;</span>
@@ -689,7 +696,14 @@ Gostaria que fizesse:
     let globalExpiration = ""; let globalNickname = "Recruta"; let globalLeaderboards = {diario:[], mensal:[], geral:[]};
     let isEditingMode = false;
 
-    let globalData = []; let groupedDaily = {}; let groupedWeekly = {}; 
+    // NOVAS GAVETAS DE DADOS (BI)
+    let globalData = []; 
+    let groupedDaily = {}; 
+    let groupedWeekly = {}; 
+    let groupedMonthly = {}; 
+    let groupedYearly = {}; 
+    let groupedAllTime = {}; 
+    
     let chart1Obj, chart2Obj, chart3Obj, modalPieChartObj; 
     let currentReportMode = 'diario'; let currentWeekStr = ""; 
     let totalQHistory = 0; let dailyQ = 0; let dailyMins = 0; let totalMoedas = 0;
@@ -697,10 +711,9 @@ Gostaria que fizesse:
     let feedNoticiasGlobal = [];
     let paginaAtualRadar = 1; 
 
-    // NOVAS VARIAVEIS: EDITAL VERTICALIZADO
-    let baseEditaisGlobal = {}; // { "TCE-GO": [ {banca, bloco, mat, top}, ... ] }
+    let baseEditaisGlobal = {}; 
     let editalAtivoGlobal = ""; 
-    let progressoEditalGlobal = {}; // { "TCE-GO": { "Dir. Administrativo": { "1. Atos": { checked: true, link: "" } } } }
+    let progressoEditalGlobal = {}; 
 
     if(localStorage.getItem('pqdtTheme') === 'light') document.body.classList.add('light-mode');
     function updateChartColors() {
@@ -782,14 +795,14 @@ Gostaria que fizesse:
     }
 
     function checkUpdateNotification() {
-        let versionTag = "v2.2"; 
+        let versionTag = "v2.3"; 
         if(localStorage.getItem('pqdtUpdateNotif') !== versionTag) {
             let md = document.getElementById('updateModal');
             if(md) md.style.display = 'block';
         }
     }
     function closeUpdateModal() {
-        localStorage.setItem('pqdtUpdateNotif', "v2.2");
+        localStorage.setItem('pqdtUpdateNotif', "v2.3");
         let md = document.getElementById('updateModal');
         if(md) md.style.display = 'none';
     }
@@ -926,7 +939,7 @@ Gostaria que fizesse:
             updateLeaderEffects();
             atualizarSelectEditaisDisponiveis();
             if(editalAtivoGlobal) renderizarEdital(editalAtivoGlobal);
-            atualizarCampoTopico(); // Atualiza modal de lançamento
+            atualizarCampoTopico(); 
             
             btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado');
             setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> SINC'), 2000);
@@ -935,40 +948,62 @@ Gostaria que fizesse:
             btns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro');
         }
     }
-        
+    
+    // NOVA FUNÇÃO DE AGREGAÇÃO PARA BI
+    function addStats(groupObj, key, q, a, t, mat, dateObj) {
+        if(!groupObj[key]) groupObj[key] = { q:0, a:0, t:0, dateObj: dateObj, subjects: {} };
+        groupObj[key].q += q; groupObj[key].a += a; groupObj[key].t += t;
+        if(!groupObj[key].subjects[mat]) groupObj[key].subjects[mat] = {q:0, a:0, t:0};
+        groupObj[key].subjects[mat].q += q; groupObj[key].subjects[mat].a += a; groupObj[key].subjects[mat].t += t;
+    }
+
     function processData(data) {
-        globalData = []; groupedDaily = {}; groupedWeekly = {}; totalQHistory = 0; dailyQ = 0; dailyMins = 0; totalMoedas = 0;
-        currentWeekStr = getWeekNumber(new Date()); let uniqueS = new Set(); let todayStr = new Date().toLocaleDateString('pt-BR');
+        globalData = []; 
+        groupedDaily = {}; groupedWeekly = {}; groupedMonthly = {}; groupedYearly = {}; groupedAllTime = {};
+        totalQHistory = 0; dailyQ = 0; dailyMins = 0; totalMoedas = 0;
+        
+        currentWeekStr = getWeekNumber(new Date()); 
+        let uniqueS = new Set(); 
+        let todayStr = new Date().toLocaleDateString('pt-BR');
+        
         let startRow = (data.length > 0 && String(data[0][2]).toLowerCase().includes('mat')) ? 1 : 0;
+        
         for(let i = startRow; i < data.length; i++) {
             let r = data[i]; if(!r || !r[2]) continue;
             let q = parseFloat(String(r[6]).replace(',','.')) || 0; let a = parseFloat(String(r[7]).replace(',','.')) || 0; let t = parseFloat(String(r[5]).replace(',','.')) || 0;
             let mat = String(r[2]).trim(); totalQHistory += q; uniqueS.add(mat);
             let dParts = String(r[1]).split('/'); let dateObj = new Date();
             if(dParts.length === 3) dateObj = new Date(dParts[2], dParts[1]-1, dParts[0]);
-            let dayKey = dateObj.toLocaleDateString('pt-BR'); let weekKey = getWeekNumber(dateObj);
+            
+            let dayKey = dateObj.toLocaleDateString('pt-BR'); 
+            let weekKey = getWeekNumber(dateObj);
+            let monthKey = String(dParts[1]).padStart(2, '0') + '/' + dParts[2];
+            let yearKey = dParts[2];
+            let geralKey = "Histórico Completo";
             
             if(dayKey === todayStr) { dailyQ += q; dailyMins += t; }
+            
             globalData.push({ date: dateObj, mat: mat, topico: r[3]?String(r[3]).trim():'', link: r[4]?String(r[4]).trim():'', q: q, a: a, t: t, fase: r[8]?String(r[8]).trim():'', metodologia: r[9]?String(r[9]).trim():'', k: r[10]?String(r[10]).trim():'', l: r[11]?String(r[11]).trim():'', origIdx: i });
             
-            if(!groupedDaily[dayKey]) groupedDaily[dayKey] = { q:0, a:0, t:0, dateObj: dateObj, subjects: {} };
-            groupedDaily[dayKey].q += q; groupedDaily[dayKey].a += a; groupedDaily[dayKey].t += t;
-            if(!groupedDaily[dayKey].subjects[mat]) groupedDaily[dayKey].subjects[mat] = {q:0, a:0, t:0};
-            groupedDaily[dayKey].subjects[mat].q += q; groupedDaily[dayKey].subjects[mat].a += a; groupedDaily[dayKey].subjects[mat].t += t;
-            
-            if(!groupedWeekly[weekKey]) groupedWeekly[weekKey] = { q:0, a:0, t:0, weekStr: weekKey, subjects: {} };
-            groupedWeekly[weekKey].q += q; groupedWeekly[weekKey].a += a; groupedWeekly[weekKey].t += t;
-            if(!groupedWeekly[weekKey].subjects[mat]) groupedWeekly[weekKey].subjects[mat] = {q:0, a:0, t:0};
-            groupedWeekly[weekKey].subjects[mat].q += q; groupedWeekly[weekKey].subjects[mat].a += a; groupedWeekly[weekKey].subjects[mat].t += t;
+            // Distribuindo nas 5 Gavetas de BI (Business Intelligence)
+            addStats(groupedDaily, dayKey, q, a, t, mat, dateObj);
+            addStats(groupedWeekly, weekKey, q, a, t, mat, dateObj);
+            addStats(groupedMonthly, monthKey, q, a, t, mat, dateObj);
+            addStats(groupedYearly, yearKey, q, a, t, mat, dateObj);
+            addStats(groupedAllTime, geralKey, q, a, t, mat, dateObj);
         }
+        
         for(let day in groupedDaily) { if(groupedDaily[day].q >= 100) totalMoedas += 50; if(groupedDaily[day].t >= 120) totalMoedas += 50; }
+        
         globalData.sort((a,b) => b.date - a.date !== 0 ? b.date - a.date : b.origIdx - a.origIdx);
+        
         let filter = document.getElementById('subjectFilter'); if(filter) filter.innerHTML = '<option value="all">Visão Geral</option>';
         let filterReport = document.getElementById('reportFilterMateria'); if(filterReport) filterReport.innerHTML = '<option value="all">Todas as Matérias</option>';
         Array.from(uniqueS).sort().forEach(s => { 
             if(filter) filter.innerHTML += `<option value="${s}">${s}</option>`; 
             if(filterReport) filterReport.innerHTML += `<option value="${s}">${s}</option>`; 
         });
+        
         setSafeText('streak-display', calcularDiasOfensiva());
         updateRank(); updateGPS(); updateDashboard('all'); renderReport();
     }
@@ -1063,13 +1098,11 @@ Gostaria que fizesse:
             let idx = cicloMaster.findIndex(d => last.mat === d.chaves[0] || String(last.mat).includes(d.nome)); if(idx === -1) idx = 0;
             let p1 = cicloMaster[idx] || cicloMaster[0]; let p2 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0];
             
-            // CORREÇÃO CIRÚRGICA: Avançamos o giro do ciclo PRIMEIRO
             if (isConsolidated) {
                 p1 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0]; 
                 p2 = cicloMaster[(idx + 2) % cicloMaster.length] || cicloMaster[0];
             }
 
-            // AGORA aplicamos a mira do Edital Verticalizado sobre o NOVO alvo (p1 atualizado)
             let topicoAlvo = "";
             let linkAlvo = "";
             if(editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][p1.nome]) {
@@ -1082,7 +1115,6 @@ Gostaria que fizesse:
             let nomeMateriaExibida = p1.nome;
             if(topicoAlvo) nomeMateriaExibida += ` <br><span style="color:var(--accent-gold); font-size:11px;"><i class="fas fa-crosshairs"></i> Alvo: ${topicoAlvo}</span>`;
 
-            // Finalmente renderizamos na tela
             if (isConsolidated) {
                 if(ml) ml.innerHTML = `<li style="color:var(--accent-green); margin-bottom:10px;">Missão Cumprida! Próximo Alvo:</li><li class="now"><strong>Agora:</strong> ${nomeMateriaExibida}</li><li><strong>Passo 2:</strong> ${p2.nome}</li>`;
             } else {
@@ -1135,9 +1167,6 @@ Gostaria que fizesse:
         }
     }
 
-    // ==========================================
-    // LÓGICA DO EDITAL VERTICALIZADO
-    // ==========================================
     function atualizarSelectEditaisDisponiveis() {
         let sel = document.getElementById('select-edital-ativo');
         if(!sel) return;
@@ -1152,7 +1181,7 @@ Gostaria que fizesse:
         }
     }
 
-function renderizarEdital(nomeConcurso) {
+    function renderizarEdital(nomeConcurso) {
         editalAtivoGlobal = nomeConcurso;
         let cont = document.getElementById('edital-content-container');
         let headerProgresso = document.getElementById('edital-progresso-geral');
@@ -1169,7 +1198,6 @@ function renderizarEdital(nomeConcurso) {
         let editaisData = baseEditaisGlobal[nomeConcurso]; 
         let infoBanca = editaisData[0]?.banca || "Banca não informada";
         
-        // CORREÇÃO: Agora agrupamos armazenando o nome e o link master
         let materiasDict = {};
         editaisData.forEach(item => {
             if(!materiasDict[item.mat]) materiasDict[item.mat] = { bloco: item.bloco, topicos: [] };
@@ -1198,7 +1226,6 @@ function renderizarEdital(nomeConcurso) {
                 let linkSaved = progressoEditalGlobal[nomeConcurso][matName][top].link || "";
                 if(isChecked) { concluidosMat++; concluidosGeral++; }
 
-                // LÓGICA DOS LINKS HÍBRIDOS (Comando ou Aluno)
                 let uiLink = '';
                 if(masterLink && masterLink.includes('http')) {
                     uiLink = `<a href="${masterLink}" target="_blank" class="btn" style="background:var(--accent-blue); padding:4px 10px; font-size:11px; text-decoration:none;"><i class="fas fa-external-link-alt"></i> CADERNO TEC</a>`;
@@ -1254,7 +1281,6 @@ function renderizarEdital(nomeConcurso) {
         if(el) el.classList.toggle('open');
     }
 
-    // NOVA FUNÇÃO: Memoriza qual edital você selecionou no menu
     function selecionarNovoEdital(nomeConcurso) {
         renderizarEdital(nomeConcurso);
         salvarProgressoEditalNuvem(); 
@@ -1262,14 +1288,14 @@ function renderizarEdital(nomeConcurso) {
 
     function toggleEditalTopic(concurso, mat, top, isChecked) {
         progressoEditalGlobal[concurso][mat][top].checked = isChecked;
-        renderizarEdital(concurso); // Re-renderiza para atualizar barras na tela
-        salvarProgressoEditalNuvem(); // <-- CORREÇÃO: Dispara a alteração para o banco de dados!
+        renderizarEdital(concurso); 
+        salvarProgressoEditalNuvem(); 
     }
 
     function saveEditalLink(concurso, mat, top, link) {
         progressoEditalGlobal[concurso][mat][top].link = link;
         salvarProgressoEditalNuvem();
-        renderizarEdital(concurso); // Força a tela a desenhar o botão clicável imediatamente
+        renderizarEdital(concurso); 
     }
 
     function salvarProgressoEditalNuvem() {
@@ -1300,9 +1326,6 @@ function renderizarEdital(nomeConcurso) {
         }).catch(err => { alert("Erro ao enviar."); btn.innerHTML = oldHtml; btn.disabled = false; });
     }
 
-    // ==========================================
-    // LÓGICA DO MODAL DE LANÇAMENTO DINÂMICO
-    // ==========================================
     function atualizarCampoTopico() {
         let matEl = document.getElementById('f-materia');
         let topContainer = document.getElementById('container-topico');
@@ -1313,7 +1336,6 @@ function renderizarEdital(nomeConcurso) {
             matSelecionada = matEl.options[matEl.selectedIndex].text;
         }
 
-        // Se tem edital ativo e a matéria existe no edital
         if(editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][matSelecionada]) {
             let topicos = Object.keys(progressoEditalGlobal[editalAtivoGlobal][matSelecionada]);
             if(topicos.length > 0) {
@@ -1322,13 +1344,9 @@ function renderizarEdital(nomeConcurso) {
                 return;
             }
         }
-        // Fallback: Campo de texto livre
         topContainer.innerHTML = `<input type="text" id="f-topico" required placeholder="Ex: Licitações" style="width:100%; padding:12px; background:var(--input-bg); border:1px solid var(--input-border); color:var(--text-color); border-radius:6px; outline:none;">`;
     }
 
-    // ==========================================
-    // LÓGICA DO RADAR DE EDITAIS
-    // ==========================================
     function carregarRadarRSS() {
         let container = document.getElementById('radar-cards-container');
         if (!container) return;
@@ -1461,26 +1479,45 @@ function renderizarEdital(nomeConcurso) {
         }
     }
 
+    // NOVA FUNÇÃO DE ROTEAMENTO (INTERFACE)
     function switchReport(m) { 
         currentReportMode = m;
-        let bD = document.getElementById('btnDiario'); let bS = document.getElementById('btnSemanal');
-        if(bD) {
-            bD.style.background = m === 'diario' ? 'var(--accent-purple)' : 'transparent';
-            bD.style.color = m === 'diario' ? 'white' : 'var(--text-color)';
-        }
-        if(bS) {
-            bS.style.background = m === 'semanal' ? 'var(--accent-purple)' : 'transparent';
-            bS.style.color = m === 'semanal' ? 'white' : 'var(--text-color)';
-        }
+        let btns = ['Diario', 'Semanal', 'Mensal', 'Anual', 'Geral'];
+        btns.forEach(b => {
+            let el = document.getElementById('btn' + b);
+            if(el) {
+                let isMatch = m === b.toLowerCase();
+                if (m === 'diario' && b === 'Diario') isMatch = true; // Ajuste fino para nomes
+                el.style.background = isMatch ? 'var(--accent-purple)' : 'transparent';
+                el.style.color = isMatch ? 'white' : 'var(--text-color)';
+            }
+        });
         renderReport();
     }
 
     function renderReport() {
-        let isD = currentReportMode === 'diario'; setSafeText('col-periodo', isD ? 'Data' : 'Semana');
-        let filterMatEl = document.getElementById('reportFilterMateria'); let filterMat = filterMatEl ? filterMatEl.value : 'all';
+        let targetGroup;
+        let colPeriodoTexto = "Data";
+        
+        if (currentReportMode === 'diario') { targetGroup = groupedDaily; colPeriodoTexto = "Data"; }
+        else if (currentReportMode === 'semanal') { targetGroup = groupedWeekly; colPeriodoTexto = "Semana"; }
+        else if (currentReportMode === 'mensal') { targetGroup = groupedMonthly; colPeriodoTexto = "Mês"; }
+        else if (currentReportMode === 'anual') { targetGroup = groupedYearly; colPeriodoTexto = "Ano"; }
+        else if (currentReportMode === 'geral') { targetGroup = groupedAllTime; colPeriodoTexto = "Período"; }
+
+        setSafeText('col-periodo', colPeriodoTexto);
+        
+        let filterMatEl = document.getElementById('reportFilterMateria'); 
+        let filterMat = filterMatEl ? filterMatEl.value : 'all';
         let body = document.getElementById('report-body'); if(!body) return; body.innerHTML = '';
-        let arr = Object.keys(isD ? groupedDaily : groupedWeekly).map(k => ({ key: k, ...(isD ? groupedDaily[k] : groupedWeekly[k]) }));
-        arr.sort((a, b) => isD ? b.dateObj - a.dateObj : b.key.localeCompare(a.key));
+        
+        let arr = Object.keys(targetGroup).map(k => ({ key: k, ...targetGroup[k] }));
+        
+        arr.sort((a, b) => {
+            if (b.dateObj && a.dateObj) return b.dateObj - a.dateObj;
+            return b.key.localeCompare(a.key);
+        });
+
         arr.forEach(r => {
             let q = r.q, a = r.a, t = r.t;
             if(filterMat !== 'all') { let sub = r.subjects[filterMat] || {q:0, a:0, t:0}; q = sub.q; a = sub.a; t = sub.t; }
@@ -1490,9 +1527,6 @@ function renderizarEdital(nomeConcurso) {
         });
     }
 
-    // ==========================================
-    // LOGICA DE IMPORTAÇÃO CSV
-    // ==========================================
     function downloadCSVTemplate() {
         let csvContent = "Data_Estudo(DD/MM/AAAA),Materia,Topico,Metodologia,Questoes,Acertos,Tempo_Minutos\n17/06/2026,Direito Administrativo,Atos Administrativos,Método MB (Questões),50,40,60";
         let encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent); 
@@ -1515,11 +1549,10 @@ function renderizarEdital(nomeConcurso) {
             let lines = e.target.result.split('\n');
             let pacoteLancamentos = [];
             
-            // Pula a primeira linha (cabeçalho)
             for(let i=1; i < lines.length; i++) {
                 let l = lines[i].trim();
                 if(!l) continue;
-                let cols = l.split(','); // Assumindo que aluno usou Excel salvando em CSV delimitado por vírgula
+                let cols = l.split(','); 
                 if(cols.length >= 7) {
                     pacoteLancamentos.push({
                         data: cols[0].trim(), mat: cols[1].trim(), top: cols[2].trim(),
@@ -1569,15 +1602,21 @@ function renderizarEdital(nomeConcurso) {
     }
 
     function openDetailsModal(k) {
-        let d = currentReportMode === 'diario' ? groupedDaily[k] : groupedWeekly[k]; if(!d) return;
+        let d;
+        if(currentReportMode === 'diario') d = groupedDaily[k];
+        else if(currentReportMode === 'semanal') d = groupedWeekly[k];
+        else if(currentReportMode === 'mensal') d = groupedMonthly[k];
+        else if(currentReportMode === 'anual') d = groupedYearly[k];
+        else if(currentReportMode === 'geral') d = groupedAllTime[k];
+        
+        if(!d) return;
+        
         let dm = document.getElementById('detailsModal'); if(dm) dm.style.display = 'block';
         let b = document.getElementById('modalBody'); if(!b) return; b.innerHTML = '';
         
-        // 1. Atualiza o título para sair bonito no Print (Mostrando a Data ou Semana)
         let titleEl = document.getElementById('modalTitle');
         if(titleEl) titleEl.innerHTML = `<i class="fas fa-search"></i> Raio-X: <span style="color:var(--accent-blue);">${k}</span>`;
 
-        // 2. Calcula e desenha o Tempo Total Estudado
         let totalMins = d.t || 0;
         let hrs = Math.floor(totalMins / 60);
         let mins = Math.floor(totalMins % 60);
@@ -1586,7 +1625,6 @@ function renderizarEdital(nomeConcurso) {
         if(ttEl) ttEl.innerText = timeString;
 
         let chartLabels = []; let chartData = [];
-        // Paleta de cores estendida para garantir contraste
         let chartColors = ['#58A6FF', '#F2C94C', '#238636', '#8957E5', '#DA3633', '#00B4D8', '#F0883E', '#C9D1D9', '#7209B7', '#4CC9F0', '#FF006E', '#FFBE0B'];
         
         let subjectsSorted = Object.keys(d.subjects).sort((s1, s2) => d.subjects[s2].t - d.subjects[s1].t);
@@ -1594,7 +1632,6 @@ function renderizarEdital(nomeConcurso) {
             let v = d.subjects[s]; let ac = v.q>0 ? ((v.a/v.q)*100).toFixed(1) : 0; let h = (v.t/60).toFixed(1);
             chartLabels.push(s); chartData.push(v.t>0 ? h : v.q);
             
-            // 3. Adiciona a bolinha colorida correspondente na tabela
             let color = chartColors[idx % chartColors.length];
             b.innerHTML += `<tr>
                 <td><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${color}; margin-right:8px;"></span>${s}</td>
@@ -1667,7 +1704,7 @@ function renderizarEdital(nomeConcurso) {
             cicloMaster.forEach(d => { 
                 let o = document.createElement('option'); o.value = d.chaves[0]; o.innerText = d.nome; sel.appendChild(o); 
             }); 
-            atualizarCampoTopico(); // Chama atualização do campo tópico dinâmico
+            atualizarCampoTopico(); 
         } 
     }
     
@@ -1708,7 +1745,7 @@ function renderizarEdital(nomeConcurso) {
         
         let elD = document.getElementById('f-data'); if(elD) elD.value = `${yyyy}-${mm}-${dd}`; 
         let elM = document.getElementById('f-materia'); if(elM) elM.value = last.mat; 
-        atualizarCampoTopico(); // Recalcula se vira select ou input
+        atualizarCampoTopico(); 
         
         let elMet = document.getElementById('f-metodo'); if(elMet) elMet.value = last.metodologia || 'Método MB (Questões)';
         let elT = document.getElementById('f-topico'); if(elT) elT.value = last.topico || '';
@@ -1737,12 +1774,11 @@ function renderizarEdital(nomeConcurso) {
         let matSelecionada = mat ? mat.options[mat.selectedIndex].text : "";
         let topicoTexto = top ? top.value : "";
 
-        // SE O EDITAL ESTIVER ATIVO, DÁ O CHECK NO PROGRESSO
         if(!isEditingMode && editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][matSelecionada]) {
             if(progressoEditalGlobal[editalAtivoGlobal][matSelecionada][topicoTexto]) {
                 progressoEditalGlobal[editalAtivoGlobal][matSelecionada][topicoTexto].checked = true;
                 if(tlnk && tlnk.value) progressoEditalGlobal[editalAtivoGlobal][matSelecionada][topicoTexto].link = tlnk.value;
-                salvarProgressoEditalNuvem(); // Envia pra nuvem silenciosamente
+                salvarProgressoEditalNuvem(); 
             }
         }
 
