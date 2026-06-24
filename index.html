@@ -219,10 +219,21 @@
     <div id="reset-screen" style="display:none;">
         <div class="login-box" style="border-top: 4px solid var(--accent-orange);">
             <h2><i class="fas fa-key" style="color:var(--accent-orange)"></i> Nova Senha</h2>
-            <input type="email" id="res-email" class="login-input" placeholder="E-mail Cadastrado">
-            <input type="password" id="res-pass" class="login-input" placeholder="Nova Senha">
-            <button class="btn" style="background:var(--accent-orange); color:black; width:100%;" onclick="changePassword()">ATUALIZAR SENHA</button>
-            <div class="access-links" style="justify-content:center"><a onclick="showScreen('login')">Voltar ao Login</a></div>
+            
+            <div id="reset-step-1">
+                <p style="color:#888; font-size:13px; margin-bottom:15px;">Informe seu e-mail para receber o código de autorização.</p>
+                <input type="email" id="res-email" class="login-input" placeholder="E-mail Cadastrado">
+                <button class="btn" id="btn-req-code" style="background:var(--accent-orange); color:black; width:100%;" onclick="requestResetCode()">SOLICITAR CÓDIGO</button>
+            </div>
+
+            <div id="reset-step-2" style="display:none;">
+                <p style="color:var(--accent-green); font-size:13px; margin-bottom:15px;"><i class="fas fa-check-circle"></i> Sinal de rádio enviado! Verifique seu e-mail.</p>
+                <input type="text" id="res-code" class="login-input" placeholder="Código de 6 dígitos recebido">
+                <input type="password" id="res-pass" class="login-input" placeholder="Crie a Nova Senha Segura">
+                <button class="btn" id="btn-confirm-pass" style="background:var(--accent-orange); color:black; width:100%;" onclick="changePasswordSegura()">ATUALIZAR SENHA</button>
+            </div>
+
+            <div class="access-links" style="justify-content:center; margin-top:20px;"><a onclick="showScreen('login'); resetPasswordScreens();">Voltar ao Login</a></div>
         </div>
     </div>
 
@@ -238,7 +249,7 @@
             
             <div class="sidebar-menu">
                 <button class="nav-item active" onclick="switchView('painel', this); toggleMobileMenu();"><i class="fas fa-chart-pie"></i> Painel de Controle</button>
-                <button class="nav-item" onclick="switchView('ciclo-view', this); toggleMobileMenu();"><i class="fas fa-sync-alt"></i> Meu Ciclo Tático</button>
+                <button class="nav-item" onclick="openConfigModal(this); toggleMobileMenu();"><i class="fas fa-sync-alt"></i> Meu Ciclo Tático</button>
                 <button class="nav-item" style="color: var(--accent-green);" onclick="switchView('edital-view', this); toggleMobileMenu();"><i class="fas fa-tasks"></i> Edital Verticalizado</button>
                 <button class="nav-item" onclick="switchView('ranking-view', this); toggleMobileMenu();"><i class="fas fa-trophy"></i> Ranking da Elite</button>
                 <button class="nav-item" onclick="switchView('relatorio-view', this); toggleMobileMenu();"><i class="fas fa-list-alt"></i> Relatórios Gerais</button>
@@ -307,6 +318,8 @@
                     <div id="clock-container" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:25px; text-align:center; flex:1; min-width:280px;">
                         <div id="clock-display" style="font-family:monospace; font-size:3.5em; font-weight:bold; color:var(--accent-blue); line-height:1; margin-bottom:5px;">00:00:00</div>
                         <div id="clock-date-display" style="color:var(--accent-blue); font-size:0.95em; font-weight:600; margin-bottom:10px; text-transform:uppercase;"></div>
+                        <div id="weather-display" style="color:var(--accent-orange); font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; font-weight:bold;"><i class="fas fa-satellite-dish fa-spin"></i> Satélite Metereológico...</div>
+                        
                         <div style="color:#888; font-size:12px; text-transform:uppercase; letter-spacing:2px;">Horário Local</div>
                     </div>
                     
@@ -847,13 +860,47 @@ Gostaria que fizesse:
         .then(() => { alert("Verificação enviada! Pode logar."); showScreen('login'); });
     }
 
-    function changePassword() {
-        let elEmail = document.getElementById('res-email'); let elPass = document.getElementById('res-pass');
-        if(!elEmail || !elPass) return;
-        let e = elEmail.value.trim(); let s = elPass.value.trim();
-        if(!e || !s) return alert("Preencha tudo!");
-        fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "trocarSenha", email: e, novaSenha: s})})
-        .then(() => { alert("Senha atualizada! Faça o login."); showScreen('login'); });
+    function resetPasswordScreens() {
+        document.getElementById('reset-step-1').style.display = 'block';
+        document.getElementById('reset-step-2').style.display = 'none';
+    }
+
+    function requestResetCode() {
+        let e = document.getElementById('res-email').value.trim();
+        if(!e) return alert("Preencha o e-mail comandante!");
+        let btn = document.getElementById('btn-req-code');
+        let oldTxt = btn.innerText; btn.innerText = "ENVIANDO SINAL..."; btn.disabled = true;
+        
+        // Pede para o Google disparar o e-mail
+        fetch(`${WEBHOOK_URL}?acao=solicitar_codigo&email=${encodeURIComponent(e)}`)
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === "sucesso") {
+                document.getElementById('reset-step-1').style.display = 'none';
+                document.getElementById('reset-step-2').style.display = 'block';
+            } else { alert(data.mensagem); }
+            btn.innerText = oldTxt; btn.disabled = false;
+        }).catch(() => { alert("Erro de conexão."); btn.innerText = oldTxt; btn.disabled = false; });
+    }
+
+    function changePasswordSegura() {
+        let e = document.getElementById('res-email').value.trim();
+        let c = document.getElementById('res-code').value.trim();
+        let p = document.getElementById('res-pass').value.trim();
+        if(!e || !p || !c) return alert("Preencha o código e a nova senha!");
+        
+        let btn = document.getElementById('btn-confirm-pass');
+        let oldTxt = btn.innerText; btn.innerText = "VALIDANDO..."; btn.disabled = true;
+
+        fetch(`${WEBHOOK_URL}?acao=trocarSenhaSegura&email=${encodeURIComponent(e)}&codigo=${encodeURIComponent(c)}&novaSenha=${encodeURIComponent(p)}`)
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === "sucesso") {
+                alert("Senha atualizada com sucesso! Acesso liberado.");
+                showScreen('login'); resetPasswordScreens();
+            } else { alert(data.mensagem); }
+            btn.innerText = oldTxt; btn.disabled = false;
+        }).catch(() => { alert("Erro de conexão."); btn.innerText = oldTxt; btn.disabled = false; });
     }
 
     function logout() { localStorage.clear(); location.reload(); }
@@ -864,6 +911,7 @@ Gostaria que fizesse:
         let mQ = document.getElementById('meta-q'); if(mQ && localStorage.getItem('metaQ')) mQ.value = localStorage.getItem('metaQ');
         loadGoogleSheetsData();
         checkUpdateNotification(); 
+        initWeather(); // <-- GATILHO DO CLIMA ADICIONADO AQUI
     }
 
     setInterval(() => {
@@ -1675,8 +1723,12 @@ Gostaria que fizesse:
         updateSelects();
     }
     
-    function openConfigModal() { switchView('ciclo-view', document.querySelector('.nav-item:nth-child(2)')); tempCiclo = JSON.parse(JSON.stringify(cicloMaster)); renderConfigUI(); }
-    
+    function openConfigModal(el) { 
+        switchView('ciclo-view', el || document.querySelector('.nav-item:nth-child(2)')); 
+        tempCiclo = JSON.parse(JSON.stringify(cicloMaster)); 
+        renderConfigUI(); 
+    }
+        
     function renderConfigUI() {
         let containerCB = document.getElementById('config-checkboxes'); let containerList = document.getElementById('sortable-list');
         if(!containerCB || !containerList) return; containerCB.innerHTML = ''; containerList.innerHTML = '';
@@ -1797,7 +1849,29 @@ Gostaria que fizesse:
         })
         .catch(err => { alert("Erro de conexão com o banco de dados."); if(btn) { btn.innerText = "TENTAR NOVAMENTE"; btn.disabled=false; } });
     }
-
+    
+    function initWeather() {
+        let wDisplay = document.getElementById('weather-display');
+        if (!wDisplay) return;
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                let lat = pos.coords.latitude;
+                let lon = pos.coords.longitude;
+                fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+                .then(res => res.json())
+                .then(data => {
+                    let temp = Math.round(data.current_weather.temperature);
+                    wDisplay.innerHTML = `<i class="fas fa-temperature-high"></i> ${temp}°C - Base Local`;
+                }).catch(e => {
+                    wDisplay.innerHTML = `<i class="fas fa-cloud"></i> Clima Offline`;
+                });
+            }, err => {
+                wDisplay.innerHTML = `<i class="fas fa-map-marker-alt"></i> Radar GPS Desativado`;
+            });
+        } else {
+            wDisplay.innerHTML = `<i class="fas fa-cloud"></i> Clima Indisponível`;
+        }
+    }    
     window.onload = function() {
         checkLogin();
     };
