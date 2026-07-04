@@ -1,3 +1,19 @@
+Salve, Comandante! Engenharia na escuta.
+
+Analisando o JSON gigante que você enviou do TCE-SP, ficou muito claro o seu desafio. Imagina ter que digitar manualmente e sem nenhum erro de acentuação disciplinas como *"Obras – Definições, Planejamento, Normas, Fiscalização e Legislação"* dentro do criador de matérias customizadas? Uma única vírgula fora do lugar faria o GPS perder o rastreio do Edital Verticalizado.
+
+Para eliminar 100% dessa fricção e evitar qualquer erro humano, **nós não vamos mais fazer você digitar o nome das matérias.**
+
+Como seu Engenheiro Chefe, apliquei uma atualização de **Auto-Descoberta (Auto-Discovery)** na arquitetura da plataforma.
+
+### 🧠 A Inteligência por trás da atualização (Didática da Engenharia):
+
+1. **Auto-Importação:** Ensinei a função `renderConfigUI()` (que desenha as caixinhas de matérias) a "conversar" com o Edital Verticalizado. Agora, se você estiver com o edital do TCE-SP selecionado, a plataforma vai ler o banco de dados, extrair o nome exato de todas as matérias desse edital, e **criar as caixinhas automaticamente** na aba "Meu Ciclo Tático". Elas até aparecerão com um ícone de "mira" verde () indicando que vieram direto do edital. Você só vai precisar marcar a caixa!
+2. **Lixeira Universal:** Atualizei a função `deleteCustomSubject()`. Antes ela só apagava o que estava salvo no cache local. Agora, ela identifica qualquer matéria que não seja padrão de fábrica e libera o botão da Lixeira Vermelha para você limpar a sua Ordem de Batalha com um clique.
+
+Abaixo está o **Código Completo do seu Front-end (HTML/JS)** atualizado com essa nova blindagem tática. Pode substituir todo o seu arquivo atual por este:
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -410,12 +426,12 @@
             <div id="view-ciclo-view" class="app-view">
                 <div class="chart-box" style="padding:30px;">
                     <h2 style="margin-top:0; color:var(--accent-blue);"><i class="fas fa-sync-alt"></i> Engenharia do Ciclo</h2>
-                    <p style="color:#888; font-size:14px;">Selecione as disciplinas do edital e organize a ordem tática de estudos. A plataforma salvará automaticamente na nuvem.</p>
+                    <p style="color:#888; font-size:14px;">Selecione as disciplinas do edital e organize a ordem tática de estudos. As matérias do Edital Ativo aparecem com a mira verde.</p>
                     
                     <div class="checkbox-grid" id="config-checkboxes" style="margin-top:20px;"></div>
 
                     <div style="background:var(--input-bg); border:1px solid var(--border-color); border-left:4px solid var(--accent-green); padding:20px; border-radius:8px; margin-top:25px;">
-                        <p style="margin:0 0 10px 0; font-weight:bold; font-size:14px;">Criar disciplina customizada:</p>
+                        <p style="margin:0 0 10px 0; font-weight:bold; font-size:14px;">Criar disciplina customizada extra:</p>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                             <input type="text" id="custom-sigla" placeholder="SIGLA (Ex: PMMS)" style="flex: 1; min-width: 80px; padding:10px; background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-color); border-radius:6px; text-transform:uppercase;">
                             <input type="text" id="custom-nome" placeholder="Nome Completo da Matéria" style="flex:3; min-width:150px; padding:10px; background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-color); border-radius:6px;">
@@ -452,7 +468,6 @@
                 </div>
             </div>
 
-            <!-- NOVA CENTRAL DE RELATÓRIOS (Atualizada com mais filtros) -->
             <div id="view-relatorio-view" class="app-view">
                 <div class="chart-box" style="padding:25px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
@@ -460,7 +475,6 @@
                         <div style="display:flex; gap:10px; flex-wrap:wrap; width:100%;">
                             <select id="reportFilterMateria" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:8px 12px; border-radius:6px; outline:none;" onchange="renderReport()"><option value="all">Todas as Matérias</option></select>
                             
-                            <!-- BATERIA DE BOTÕES DE FILTRO -->
                             <div style="display:flex; background:var(--input-bg); border:1px solid var(--border-color); border-radius:6px; overflow:auto; width: 100%;">
                                 <button class="btn" id="btnDiario" style="background:var(--accent-purple); color:white; border-radius:0; border:none; padding:8px 12px; font-size:12px; flex:1;" onclick="switchReport('diario')">Dia</button>
                                 <button class="btn" id="btnSemanal" style="background:transparent; color:var(--text-color); border-radius:0; border:none; padding:8px 12px; font-size:12px; flex:1;" onclick="switchReport('semanal')">Semana</button>
@@ -522,9 +536,9 @@
             </p>
             <div style="text-align: left; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
                 <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-color); line-height: 1.6;">
+                    <li><strong style="color:var(--accent-green)">Auto-Discovery de Matérias:</strong> As matérias do seu Edital Verticalizado agora aparecem automaticamente para você montar o Ciclo Tático.</li>
                     <li><strong style="color:var(--accent-purple)">Relatórios de BI:</strong> Novas visões Mensais, Anuais e de Todo o Período.</li>
-                    <li><strong style="color:var(--accent-green)">Edital Verticalizado:</strong> Acompanhe o progresso de tópicos e cadernos do seu edital alvo.</li>
-                    <li><strong style="color:var(--accent-orange)">Importação de Histórico:</strong> Migre seus dados antigos via CSV para a nossa Base.</li>
+                    <li><strong style="color:var(--accent-orange)">Autenticação 2FA:</strong> Seu sistema de recuperação de senha agora está blindado.</li>
                 </ul>
             </div>
             <button class="btn" style="background:var(--accent-blue); width:100%;" onclick="closeUpdateModal()">CIENTE, ENGENHARIA!</button>
@@ -640,7 +654,6 @@ Gostaria que fizesse:
         </div>
     </div>
 
-    <!-- MODAL RAIO X ATUALIZADO COM O TEMPO TOTAL EM DESTAQUE -->
     <div id="detailsModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="document.getElementById('detailsModal').style.display='none'">&times;</span>
@@ -709,7 +722,6 @@ Gostaria que fizesse:
     let globalExpiration = ""; let globalNickname = "Recruta"; let globalLeaderboards = {diario:[], mensal:[], geral:[]};
     let isEditingMode = false;
 
-    // NOVAS GAVETAS DE DADOS (BI)
     let globalData = []; 
     let groupedDaily = {}; 
     let groupedWeekly = {}; 
@@ -808,14 +820,14 @@ Gostaria que fizesse:
     }
 
     function checkUpdateNotification() {
-        let versionTag = "v2.3"; 
+        let versionTag = "v2.4"; 
         if(localStorage.getItem('pqdtUpdateNotif') !== versionTag) {
             let md = document.getElementById('updateModal');
             if(md) md.style.display = 'block';
         }
     }
     function closeUpdateModal() {
-        localStorage.setItem('pqdtUpdateNotif', "v2.3");
+        localStorage.setItem('pqdtUpdateNotif', "v2.4");
         let md = document.getElementById('updateModal');
         if(md) md.style.display = 'none';
     }
@@ -871,7 +883,6 @@ Gostaria que fizesse:
         let btn = document.getElementById('btn-req-code');
         let oldTxt = btn.innerText; btn.innerText = "ENVIANDO SINAL..."; btn.disabled = true;
         
-        // Pede para o Google disparar o e-mail
         fetch(`${WEBHOOK_URL}?acao=solicitar_codigo&email=${encodeURIComponent(e)}`)
         .then(res => res.json())
         .then(data => {
@@ -911,7 +922,7 @@ Gostaria que fizesse:
         let mQ = document.getElementById('meta-q'); if(mQ && localStorage.getItem('metaQ')) mQ.value = localStorage.getItem('metaQ');
         loadGoogleSheetsData();
         checkUpdateNotification(); 
-        initWeather(); // <-- GATILHO DO CLIMA ADICIONADO AQUI
+        initWeather();
     }
 
     setInterval(() => {
@@ -997,7 +1008,6 @@ Gostaria que fizesse:
         }
     }
     
-    // NOVA FUNÇÃO DE AGREGAÇÃO PARA BI
     function addStats(groupObj, key, q, a, t, mat, dateObj) {
         if(!groupObj[key]) groupObj[key] = { q:0, a:0, t:0, dateObj: dateObj, subjects: {} };
         groupObj[key].q += q; groupObj[key].a += a; groupObj[key].t += t;
@@ -1033,7 +1043,6 @@ Gostaria que fizesse:
             
             globalData.push({ date: dateObj, mat: mat, topico: r[3]?String(r[3]).trim():'', link: r[4]?String(r[4]).trim():'', q: q, a: a, t: t, fase: r[8]?String(r[8]).trim():'', metodologia: r[9]?String(r[9]).trim():'', k: r[10]?String(r[10]).trim():'', l: r[11]?String(r[11]).trim():'', origIdx: i });
             
-            // Distribuindo nas 5 Gavetas de BI (Business Intelligence)
             addStats(groupedDaily, dayKey, q, a, t, mat, dateObj);
             addStats(groupedWeekly, weekKey, q, a, t, mat, dateObj);
             addStats(groupedMonthly, monthKey, q, a, t, mat, dateObj);
@@ -1238,6 +1247,11 @@ Gostaria que fizesse:
             cont.innerHTML = '<p style="text-align:center; color:#888; padding:40px;"><i class="fas fa-hand-pointer fa-2x"></i><br><br>Selecione um Edital no menu acima para iniciar seu mapeamento.</p>';
             headerProgresso.style.display = 'none';
             atualizarCampoTopico();
+            
+            // Re-renderiza o ciclo para limpar as matérias importadas caso desmarque o edital
+            if (document.getElementById('view-ciclo-view').classList.contains('active-view')) {
+                renderConfigUI();
+            }
             return;
         }
 
@@ -1322,6 +1336,11 @@ Gostaria que fizesse:
 
         atualizarCampoTopico(); 
         updateGPS(); 
+        
+        // Atualiza a tela de ciclo se ela estiver aberta, para puxar as novas matérias
+        if (document.getElementById('view-ciclo-view').classList.contains('active-view')) {
+            renderConfigUI();
+        }
     }
 
     function toggleAccordion(id) {
@@ -1527,7 +1546,6 @@ Gostaria que fizesse:
         }
     }
 
-    // NOVA FUNÇÃO DE ROTEAMENTO (INTERFACE)
     function switchReport(m) { 
         currentReportMode = m;
         let btns = ['Diario', 'Semanal', 'Mensal', 'Anual', 'Geral'];
@@ -1535,7 +1553,7 @@ Gostaria que fizesse:
             let el = document.getElementById('btn' + b);
             if(el) {
                 let isMatch = m === b.toLowerCase();
-                if (m === 'diario' && b === 'Diario') isMatch = true; // Ajuste fino para nomes
+                if (m === 'diario' && b === 'Diario') isMatch = true; 
                 el.style.background = isMatch ? 'var(--accent-purple)' : 'transparent';
                 el.style.color = isMatch ? 'white' : 'var(--text-color)';
             }
@@ -1728,15 +1746,11 @@ Gostaria que fizesse:
         }
 
         // =======================================================
-        // CIRURGIA DE RECONSTRUÇÃO TÁTICA
-        // Compara a Nuvem com o Padrão de Fábrica para resgatar customizadas
+        // CIRURGIA DE RECONSTRUÇÃO TÁTICA E AUTO-DISCOVERY
         // =======================================================
         let chavesPadrao = TODAS_MATERIAS.map(m => m.chaves[0]);
-        
-        // Identifica o que veio da nuvem que NÃO é padrão
         let extractedCustoms = cicloMaster.filter(m => !chavesPadrao.includes(m.chaves[0]));
         
-        // Funde com as customizadas do Cache (evitando duplicidade)
         let localCustoms = JSON.parse(localStorage.getItem('pqdtCustomSubjects')) || [];
         let mapCustoms = {};
         localCustoms.forEach(m => mapCustoms[m.chaves[0]] = m);
@@ -1756,24 +1770,72 @@ Gostaria que fizesse:
     }
         
     function renderConfigUI() {
-        let containerCB = document.getElementById('config-checkboxes'); let containerList = document.getElementById('sortable-list');
-        if(!containerCB || !containerList) return; containerCB.innerHTML = ''; containerList.innerHTML = '';
+        let containerCB = document.getElementById('config-checkboxes'); 
+        let containerList = document.getElementById('sortable-list');
+        if(!containerCB || !containerList) return; 
+        
+        containerCB.innerHTML = ''; 
+        containerList.innerHTML = '';
+        
         let allSubjects = [...TODAS_MATERIAS, ...customSubjects];
+
+        // =======================================================
+        // AUTO-IMPORTAÇÃO DO EDITAL ATIVO PARA O CICLO TÁTICO
+        // =======================================================
+        if (editalAtivoGlobal && baseEditaisGlobal[editalAtivoGlobal]) {
+            let editalItems = baseEditaisGlobal[editalAtivoGlobal];
+            let matSet = new Set();
+            editalItems.forEach(item => matSet.add(item.mat));
+
+            matSet.forEach(matName => {
+                if (!allSubjects.some(m => m.nome.toLowerCase() === matName.toLowerCase())) {
+                    allSubjects.push({ chaves: [matName], nome: matName, isFromEdital: true });
+                }
+            });
+        }
+
         allSubjects.forEach(m => {
-            let isChecked = tempCiclo.some(c => c.chaves[0] === m.chaves[0]) ? 'checked' : '';
-            containerCB.innerHTML += `<label class="checkbox-label"><input type="checkbox" value="${m.chaves[0]}" data-nome="${m.nome}" ${isChecked} onchange="toggleMateria(this)"> ${m.nome}</label>`;
+            let isChecked = tempCiclo.some(c => c.chaves[0] === m.chaves[0] || c.nome === m.nome) ? 'checked' : '';
+            let badge = m.isFromEdital ? `<span style="color:var(--accent-green); font-size:10px; margin-left:5px;" title="Importado do Edital"><i class="fas fa-crosshairs"></i></span>` : '';
+            containerCB.innerHTML += `<label class="checkbox-label"><input type="checkbox" value="${m.chaves[0]}" data-nome="${m.nome}" ${isChecked} onchange="toggleMateria(this)"> ${m.nome} ${badge}</label>`;
         });
-        if(tempCiclo.length === 0) { containerList.innerHTML = '<p style="color:#888; text-align:center; padding:10px;">O ciclo está vazio.</p>'; return; }
+
+        if(tempCiclo.length === 0) { 
+            containerList.innerHTML = '<p style="color:#888; text-align:center; padding:10px;">O ciclo está vazio.</p>'; 
+            return; 
+        }
+
         tempCiclo.forEach((m, index) => {
-            let isCustom = customSubjects.some(cs => cs.chaves[0] === m.chaves[0]);
-            let deleteBtn = isCustom ? `<button type="button" onclick="deleteCustomSubject('${m.chaves[0]}')" style="color:var(--accent-red); background:none; border:none; cursor:pointer;"><i class="fas fa-trash"></i></button>` : '';
+            // Lixeira Universal: Apaga qualquer coisa que não seja padrão de fábrica
+            let isPadrao = TODAS_MATERIAS.some(padrao => padrao.chaves[0] === m.chaves[0]);
+            let deleteBtn = !isPadrao ? `<button type="button" onclick="deleteCustomSubject('${m.chaves[0].replace(/'/g, "\\'")}')" style="color:var(--accent-red); background:none; border:none; cursor:pointer;" title="Remover Disciplina"><i class="fas fa-trash"></i></button>` : '';
+            
             containerList.innerHTML += `<div class="sortable-item"><span style="font-size:13px;"><strong>${index + 1}.</strong> ${m.nome}</span><div class="sortable-actions" style="display:flex; gap:5px;">${deleteBtn}<button type="button" onclick="moveItem(${index}, -1)" ${index === 0 ? 'disabled' : ''}><i class="fas fa-chevron-up"></i></button><button type="button" onclick="moveItem(${index}, 1)" ${index === tempCiclo.length - 1 ? 'disabled' : ''}><i class="fas fa-chevron-down"></i></button></div></div>`;
         });
     }
 
-    function toggleMateria(cb) { if(cb.checked) tempCiclo.push({ nome: cb.getAttribute('data-nome'), chaves: [cb.value] }); else tempCiclo = tempCiclo.filter(c => c.chaves[0] !== cb.value); renderConfigUI(); }
-    function moveItem(i, dir) { if(i+dir < 0 || i+dir >= tempCiclo.length) return; let temp = tempCiclo[i]; tempCiclo[i] = tempCiclo[i+dir]; tempCiclo[i+dir] = temp; renderConfigUI(); }
-    function deleteCustomSubject(sigla) { if(!confirm("Excluir matéria customizada do banco de dados local?")) return; customSubjects = customSubjects.filter(m => m.chaves[0] !== sigla); localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects)); tempCiclo = tempCiclo.filter(m => m.chaves[0] !== sigla); renderConfigUI(); }
+    function toggleMateria(cb) { 
+        if(cb.checked) {
+            tempCiclo.push({ nome: cb.getAttribute('data-nome'), chaves: [cb.value] }); 
+        } else {
+            tempCiclo = tempCiclo.filter(c => c.chaves[0] !== cb.value); 
+        }
+        renderConfigUI(); 
+    }
+
+    function moveItem(i, dir) { 
+        if(i+dir < 0 || i+dir >= tempCiclo.length) return; 
+        let temp = tempCiclo[i]; tempCiclo[i] = tempCiclo[i+dir]; tempCiclo[i+dir] = temp; 
+        renderConfigUI(); 
+    }
+
+    function deleteCustomSubject(sigla) { 
+        if(!confirm("Remover esta disciplina do sistema?")) return; 
+        customSubjects = customSubjects.filter(m => m.chaves[0] !== sigla); 
+        localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects)); 
+        tempCiclo = tempCiclo.filter(m => m.chaves[0] !== sigla); 
+        renderConfigUI(); 
+    }
     
     function updateSelects() { 
         let sel = document.getElementById('f-materia'); 
@@ -1789,9 +1851,16 @@ Gostaria que fizesse:
     function addCustomSubject() {
         let eS = document.getElementById('custom-sigla'); let eN = document.getElementById('custom-nome'); if(!eS || !eN) return;
         let sigla = eS.value.toUpperCase().trim(); let nome = eN.value.trim(); if(!sigla || !nome) return alert("Preencha Sigla e Nome.");
-        if([...TODAS_MATERIAS, ...customSubjects].some(m => m.chaves[0] === sigla)) return alert("Essa sigla já existe na plataforma!");
-        let nm = { chaves: [sigla], nome: nome }; customSubjects.push(nm); localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects)); tempCiclo.push(nm);
-        eS.value = ''; eN.value = ''; renderConfigUI();
+        
+        let allSubjects = [...TODAS_MATERIAS, ...customSubjects];
+        if(allSubjects.some(m => m.chaves[0] === sigla)) return alert("Essa sigla já existe na plataforma!");
+        
+        let nm = { chaves: [sigla], nome: nome }; 
+        customSubjects.push(nm); 
+        localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects)); 
+        tempCiclo.push(nm);
+        eS.value = ''; eN.value = ''; 
+        renderConfigUI();
     }
     
     function saveConfig() {
@@ -1904,3 +1973,5 @@ Gostaria que fizesse:
     </script>
 </body>
 </html>
+
+```
