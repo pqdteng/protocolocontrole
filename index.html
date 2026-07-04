@@ -1718,8 +1718,34 @@ Gostaria que fizesse:
     }
 
     function loadCiclo(nuvemJson) {
-        if(nuvemJson && nuvemJson.trim() !== "") { cicloMaster = JSON.parse(nuvemJson); localStorage.setItem('pqdtCicloCustom', nuvemJson); } 
-        else { let saved = localStorage.getItem('pqdtCicloCustom'); if(saved) cicloMaster = JSON.parse(saved); else { cicloMaster = JSON.parse(JSON.stringify(TODAS_MATERIAS)); } }
+        if(nuvemJson && nuvemJson.trim() !== "") { 
+            cicloMaster = JSON.parse(nuvemJson); 
+            localStorage.setItem('pqdtCicloCustom', nuvemJson); 
+        } else { 
+            let saved = localStorage.getItem('pqdtCicloCustom'); 
+            if(saved) cicloMaster = JSON.parse(saved); 
+            else { cicloMaster = JSON.parse(JSON.stringify(TODAS_MATERIAS)); } 
+        }
+
+        // =======================================================
+        // CIRURGIA DE RECONSTRUÇÃO TÁTICA
+        // Compara a Nuvem com o Padrão de Fábrica para resgatar customizadas
+        // =======================================================
+        let chavesPadrao = TODAS_MATERIAS.map(m => m.chaves[0]);
+        
+        // Identifica o que veio da nuvem que NÃO é padrão
+        let extractedCustoms = cicloMaster.filter(m => !chavesPadrao.includes(m.chaves[0]));
+        
+        // Funde com as customizadas do Cache (evitando duplicidade)
+        let localCustoms = JSON.parse(localStorage.getItem('pqdtCustomSubjects')) || [];
+        let mapCustoms = {};
+        localCustoms.forEach(m => mapCustoms[m.chaves[0]] = m);
+        extractedCustoms.forEach(m => mapCustoms[m.chaves[0]] = m);
+        
+        customSubjects = Object.values(mapCustoms);
+        localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects));
+        // =======================================================
+
         updateSelects();
     }
     
