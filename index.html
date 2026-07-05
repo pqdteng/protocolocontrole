@@ -438,9 +438,10 @@
                     </div>
                     <div style="padding:20px;">
                         <div class="rank-tabs">
-                            <button class="rank-tab-btn active" id="tab-hoje" onclick="switchLeaderboard('diario')">PULSO DIÁRIO (HOJE)</button>
-                            <button class="rank-tab-btn" id="tab-mes" onclick="switchLeaderboard('mensal')">COMPETIÇÃO DO MÊS</button>
-                            <button class="rank-tab-btn" id="tab-geral" onclick="switchLeaderboard('geral')">CLASSIFICAÇÃO GERAL</button>
+                            <button class="rank-tab-btn active" id="tab-hoje" onclick="switchLeaderboard('diario')">DIÁRIO</button>
+                            <button class="rank-tab-btn" id="tab-semana" onclick="switchLeaderboard('semanal')">SEMANAL</button>
+                            <button class="rank-tab-btn" id="tab-mes" onclick="switchLeaderboard('mensal')">MENSAL</button>
+                            <button class="rank-tab-btn" id="tab-geral" onclick="switchLeaderboard('geral')">GERAL</button>
                         </div>
                         <div style="overflow-x: auto;">
                             <table style="width:100%; border-collapse:collapse; text-align:left;">
@@ -971,7 +972,7 @@ Gostaria que fizesse:
             if (data.status === "erro") throw new Error(data.mensagem);
             
             globalExpiration = data.expiration || "Vitalício"; globalNickname = data.nickname || "Recruta"; 
-            globalLeaderboards = data.leaderboards || {diario:[], mensal:[], geral:[]};
+            globalLeaderboards = data.leaderboards || {diario:[], semanal:[], mensal:[], geral:[]};
             baseEditaisGlobal = data.baseEditais || {};
             editalAtivoGlobal = data.editalAtivo || "";
             try { progressoEditalGlobal = JSON.parse(data.progressoEdital || "{}"); } catch(e) { progressoEditalGlobal = {}; }
@@ -1047,6 +1048,9 @@ Gostaria que fizesse:
         
         setSafeText('streak-display', calcularDiasOfensiva());
         updateRank(); updateGPS(); updateDashboard('all'); renderReport();
+        
+        // CORREÇÃO: Força o Ranking Diário a ser exibido logo após a sincronização e carregamento
+        switchLeaderboard('diario');
     }
 
     function updateRank() {
@@ -1078,8 +1082,12 @@ Gostaria que fizesse:
 
     function switchLeaderboard(type) {
         document.querySelectorAll('.rank-tab-btn').forEach(b => b.classList.remove('active'));
-        let tab = document.getElementById('tab-'+(type==='diario'?'hoje':(type==='mensal'?'mes':'geral'))); if(tab) tab.classList.add('active');
-        let list = globalLeaderboards[type] || []; let body = document.getElementById('leaderboard-body');
+        let tabMap = { 'diario': 'tab-hoje', 'semanal': 'tab-semana', 'mensal': 'tab-mes', 'geral': 'tab-geral' };
+        let tab = document.getElementById(tabMap[type]); 
+        if(tab) tab.classList.add('active');
+        
+        let list = globalLeaderboards[type] || []; 
+        let body = document.getElementById('leaderboard-body');
         if(!body) return;
         if(list.length === 0) { body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px; color:#888;">Nenhum registro para este período.</td></tr>'; return; }
         body.innerHTML = list.map((u, i) => {
@@ -1232,7 +1240,6 @@ Gostaria que fizesse:
             headerProgresso.style.display = 'none';
             atualizarCampoTopico();
             
-            // Re-renderiza o ciclo para limpar as matérias importadas caso desmarque o edital
             if (document.getElementById('view-ciclo-view').classList.contains('active-view')) {
                 renderConfigUI();
             }
@@ -1321,7 +1328,6 @@ Gostaria que fizesse:
         atualizarCampoTopico(); 
         updateGPS(); 
         
-        // Atualiza a tela de ciclo se ela estiver aberta, para puxar as novas matérias
         if (document.getElementById('view-ciclo-view').classList.contains('active-view')) {
             renderConfigUI();
         }
@@ -1729,9 +1735,6 @@ Gostaria que fizesse:
             else { cicloMaster = JSON.parse(JSON.stringify(TODAS_MATERIAS)); } 
         }
 
-        // =======================================================
-        // CIRURGIA DE RECONSTRUÇÃO TÁTICA E AUTO-DISCOVERY
-        // =======================================================
         let chavesPadrao = TODAS_MATERIAS.map(m => m.chaves[0]);
         let extractedCustoms = cicloMaster.filter(m => !chavesPadrao.includes(m.chaves[0]));
         
@@ -1742,7 +1745,6 @@ Gostaria que fizesse:
         
         customSubjects = Object.values(mapCustoms);
         localStorage.setItem('pqdtCustomSubjects', JSON.stringify(customSubjects));
-        // =======================================================
 
         updateSelects();
     }
@@ -1763,9 +1765,6 @@ Gostaria que fizesse:
         
         let allSubjects = [...TODAS_MATERIAS, ...customSubjects];
 
-        // =======================================================
-        // AUTO-IMPORTAÇÃO DO EDITAL ATIVO PARA O CICLO TÁTICO
-        // =======================================================
         if (editalAtivoGlobal && baseEditaisGlobal[editalAtivoGlobal]) {
             let editalItems = baseEditaisGlobal[editalAtivoGlobal];
             let matSet = new Set();
@@ -1790,7 +1789,6 @@ Gostaria que fizesse:
         }
 
         tempCiclo.forEach((m, index) => {
-            // Lixeira Universal: Apaga qualquer coisa que não seja padrão de fábrica
             let isPadrao = TODAS_MATERIAS.some(padrao => padrao.chaves[0] === m.chaves[0]);
             let deleteBtn = !isPadrao ? `<button type="button" onclick="deleteCustomSubject('${m.chaves[0].replace(/'/g, "\\'")}')" style="color:var(--accent-red); background:none; border:none; cursor:pointer;" title="Remover Disciplina"><i class="fas fa-trash"></i></button>` : '';
             
@@ -1957,5 +1955,3 @@ Gostaria que fizesse:
     </script>
 </body>
 </html>
-
-```
