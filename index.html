@@ -939,18 +939,36 @@ Gostaria que fizesse:
 
     function toggleTimer() { if(isTimerRunning) pauseTimer(); else startTimer(); }
 
+    let lastTickTime = 0;
+
     function startTimer() { 
         if(isTimerRunning) return;
         isTimerRunning = true;
         let btnPlay = document.getElementById('btn-play-pause');
         if(btnPlay) btnPlay.innerHTML = '<i class="fas fa-pause"></i>';
+        
+        lastTickTime = Date.now(); // Marcação temporal universal
+        
         clearInterval(timerInt);
         timerInt = setInterval(() => { 
-            if(timerMode === 'crono') { timerSeconds++; } else {
-                if(pomoSeconds > 0) pomoSeconds--; else { pauseTimer(); alert('🍅 Missão Pomodoro Concluída!'); }
+            let now = Date.now();
+            let delta = Math.floor((now - lastTickTime) / 1000); // Calcula os segundos reais que passaram
+            
+            if(delta > 0) {
+                if(timerMode === 'crono') { 
+                    timerSeconds += delta; 
+                } else {
+                    pomoSeconds -= delta; 
+                    if(pomoSeconds <= 0) { 
+                        pomoSeconds = 0;
+                        pauseTimer(); 
+                        alert('🍅 Missão Pomodoro Concluída!'); 
+                    }
+                }
+                lastTickTime = now - ((now - lastTickTime) % 1000); // Carrega os milissegundos restantes
+                updateTimerDisplay(); 
             }
-            updateTimerDisplay(); 
-        }, 1000);
+        }, 200); // O loop roda rápido, mas a conta matemática garante a precisão
     }
 
     function pauseTimer() { 
@@ -1144,7 +1162,11 @@ Gostaria que fizesse:
             let metodoUsado = last.metodologia ? String(last.metodologia).trim() : "Método MB (Questões)";
             let isConsolidated = (metodoUsado === "Leitura (PDF)" || metodoUsado === "Videoaula") ? true : (valFase === "4" && valK === "OK" && valL.includes("CONSOLIDADO"));
 
-            let idx = cicloMaster.findIndex(d => last.mat === d.chaves[0] || String(last.mat).includes(d.nome)); if(idx === -1) idx = 0;
+            // CORREÇÃO: Busca por nome EXATO, ignorando maiúsculas e minúsculas, para não confundir matérias longas
+            let lastMatClean = String(last.mat).trim().toLowerCase();
+            let idx = cicloMaster.findIndex(d => lastMatClean === String(d.chaves[0]).trim().toLowerCase() || lastMatClean === String(d.nome).trim().toLowerCase()); 
+            if(idx === -1) idx = 0;
+            
             let p1 = cicloMaster[idx] || cicloMaster[0]; let p2 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0];
             
             if (isConsolidated) {
@@ -1393,15 +1415,72 @@ Gostaria que fizesse:
             matSelecionada = matEl.options[matEl.selectedIndex].text;
         }
 
+        // Tática Híbrida: Um Input normal associado a um Datalist
+        let inputHTML = `<input type="text" id="f-topico" required placeholder="Ex: Licitações" autocomplete="off" style="width:100%; padding:12px; background:var(--input-bg); border:1px solid var(--input-border); color:var(--text-color); border-radius:6px; outline:none;" list="lista-topicos-edital">`;
+        let datalistHTML = `<datalist id="lista-topicos-edital"></datalist>`;
+
         if(editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][matSelecionada]) {
             let topicos = Object.keys(progressoEditalGlobal[editalAtivoGlobal][matSelecionada]);
             if(topicos.length > 0) {
-                let options = topicos.map(t => `<option value="${t}">${t}</option>`).join('');
-                topContainer.innerHTML = `<select id="f-topico" style="width:100%; padding:12px; background:var(--input-bg); border:1px solid var(--input-border); color:var(--text-color); border-radius:6px; outline:none;" required><option value="">-- Selecione o Tópico do Edital --</option>${options}</select>`;
-                return;
+                let options = topicos.map(t => `<option value="${t.replace(/"/g, '&quot;')}">`).join('');
+                datalistHTML = `<datalist id="lista-topicos-edital">${options}</datalist>`;
             }
         }
-        topContainer.innerHTML = `<input type="text" id="f-topico" required placeholder="Ex: Licitações" style="width:100%; padding:12px; background:var(--input-bg); border:1px solid var(--input-border); color:var(--text-color); border-radius:6px; outline:none;">`;
+        topContainer.innerHTML = inputHTML + datalistHTML;
+    }
+
+    function submitEntry(e) {
+        e.preventDefault();
+        let btn = document.getElementById('btn-submit-form'); 
+        if(btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...'; btn.disabled = true; }
+        
+        let dt = document.getElementById('f-data'); let p = dt ? dt.value.split('-') : [];
+        let mat = document.getElementById('f-materia'); let met = document.getElementById('f-metodo'); 
+        let top = document.getElementById('f-topico'); let tlnk = document.getElementById('f-tipo-link'); 
+        let temp = document.getElementById('f-tempo'); let q = document.getElementById('f-q'); 
+        let a = document.getElementById('f-a'); let fas = document.getElementById('f-fase');
+        let actionStr = isEditingMode ? "retificar_ultimo" : "lancamento";
+        
+        let matSelecionada = mat ? mat.options[mat.selectedIndex].text : "";
+        let topicoTexto = top ? top.value.trim() : "";
+
+        // Verificação Inteligente: Mesmo se o aluno escrever " - Revisão", o sistema caça o tópico original
+        let matchedKey = topicoTexto;
+        if(!isEditingMode && editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][matSelecionada]) {
+            let assuntos = progressoEditalGlobal[editalAtivoGlobal][matSelecionada];
+            
+            if(!assuntos[matchedKey]) {
+                let chaves = Object.keys(assuntos);
+                for(let k of chaves) {
+                    // Se o texto digitado contiver o tópico base, ou vice-versa, nós validamos
+                    if(topicoTexto.includes(k) || k.includes(topicoTexto)) {
+                        matchedKey = k;
+                        break;
+                    }
+                }
+            }
+
+            if(assuntos[matchedKey]) {
+                assuntos[matchedKey].checked = true;
+                if(tlnk && tlnk.value) assuntos[matchedKey].link = tlnk.value;
+                salvarProgressoEditalNuvem(); 
+            }
+        }
+
+        let payload = { 
+            acao: actionStr, email: loggedUserEmail, dataEstudo: `${p[2]}/${p[1]}/${p[0]}`, 
+            materia: mat?mat.value:"", topico: topicoTexto, tipoLink: tlnk?tlnk.value:"", 
+            tempo: temp?temp.value:"", questoes: q?q.value:"", acertos: a?a.value:"", 
+            fase: fas?fas.value:"", metodologia: met?met.value:"" 
+        };
+        fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+        .then(() => { 
+            alert(isEditingMode ? "Lançamento Corrigido!" : "Missão Cumprida!"); 
+            let f = document.getElementById('studyForm'); if(f) f.reset(); 
+            let em = document.getElementById('entryModal'); if(em) em.style.display='none'; 
+            if(btn) btn.disabled=false; loadGoogleSheetsData(); 
+        })
+        .catch(err => { alert("Erro de conexão com o banco de dados."); if(btn) { btn.innerText = "TENTAR NOVAMENTE"; btn.disabled=false; } });
     }
 
     function carregarRadarRSS() {
