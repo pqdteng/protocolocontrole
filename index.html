@@ -5,9 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Protocolo Controle: Auditor TCE</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
+        /* ESTILOS PARA GERAÇÃO DE POST DE REDE SOCIAL */
+        .social-post-wrapper { width: 378px; height: 378px; overflow: hidden; position: relative; margin: 0 auto 20px auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid var(--border-color); }
+        .social-post-card { width: 1080px; height: 1080px; background: #0E1116; color: #C9D1D9; padding: 60px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; position: absolute; top: 0; left: 0; transform: scale(0.35); transform-origin: top left; background-image: radial-gradient(circle at top right, rgba(88, 166, 255, 0.1), transparent 40%), radial-gradient(circle at bottom left, rgba(35, 134, 54, 0.1), transparent 40%); font-family: '-apple-system', sans-serif;}
+        .sp-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #30363D; padding-bottom: 30px;}
+        .sp-logo { display: flex; align-items: center; gap: 20px;}
+        .sp-logo img { height: 80px; border-radius: 12px; }
+        .sp-title h1 { margin: 0; font-size: 45px; color: #C9D1D9; }
+        .sp-title p { margin: 10px 0 0 0; font-size: 25px; color: #58A6FF; font-weight: bold; }
+        .sp-body { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; flex-grow: 1; margin-top: 40px; }
+        .sp-box { background: #161B22; border: 2px solid #30363D; border-radius: 20px; padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+        .sp-box h3 { font-size: 28px; color: #888; margin: 0 0 20px 0; text-transform: uppercase; display: flex; align-items: center; gap: 15px;}
+        .sp-box .sp-value { font-size: 65px; font-weight: bold; color: #C9D1D9; }
+        .sp-box.highlight { border-top: 8px solid #F2C94C; }
+        .sp-box.goal { border-top: 8px solid #238636; }
+        .sp-footer { text-align: center; font-size: 22px; color: #888; border-top: 2px solid #30363D; padding-top: 30px; letter-spacing: 2px; text-transform: uppercase; }
         :root {
             --bg-color: #0E1116; --card-bg: #161B22; --text-color: #C9D1D9; --border-color: #30363D;
             --input-bg: #0D1117; --input-border: #30363D; --hover-bg: #21262D;
@@ -471,6 +487,7 @@
                     </div>
                     
                     <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+                        <button class="btn" style="background:var(--accent-orange); color:black;" onclick="openSocialPostModal()"><i class="fas fa-camera"></i> Gerar Post (Carrossel)</button>
                         <button class="btn" style="background:var(--accent-blue);" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Exportar Dados CSV</button>
                         <button class="btn" style="background:var(--accent-green);" onclick="document.getElementById('importModal').style.display='block'"><i class="fas fa-upload"></i> Importar de Outras Plataformas</button>
                         <button class="btn" style="background:transparent; border:1px solid var(--accent-red); color:var(--accent-red);" onclick="confirmDeleteHistory()"><i class="fas fa-trash-alt"></i> Apagar Histórico</button>
@@ -2027,10 +2044,137 @@ Gostaria que fizesse:
         } else {
             wDisplay.innerHTML = `<i class="fas fa-cloud"></i> Clima Indisponível`;
         }
-    }    
+    }
+
+    function openSocialPostModal() {
+        // Blindagem de DOM: Verificamos a existência do Modal antes de operar
+        let modal = document.getElementById('socialPostModal');
+        if(!modal) return;
+
+        // Capturamos os dados do DOM
+        let rankEl = document.getElementById('rank-title');
+        let streakEl = document.getElementById('streak-display');
+        
+        // Ajuste Lógico de Engenharia: Puxando as métricas semanais feitas em vez das gerais da plataforma
+        let pctQEl = document.getElementById('lbl-q-pct');
+        let pctHEl = document.getElementById('lbl-hrs-pct');
+        let feitoQEl = document.getElementById('lbl-q-feito'); 
+        let feitoHEl = document.getElementById('lbl-hrs-feito'); 
+        
+        let kpiAccEl = document.getElementById('kpi-acc');
+
+        // Blindagem de Variável Global para evitar quebra no método toUpperCase()
+        let nick = (typeof globalNickname !== 'undefined' && globalNickname) ? String(globalNickname).toUpperCase() : 'COMANDANTE';
+
+        // Injetamos os dados extraídos no Card de Exportação
+        setSafeText('sp-nickname', nick);
+        setSafeText('sp-date', new Date().toLocaleDateString('pt-BR'));
+        setSafeText('sp-rank', rankEl ? rankEl.innerText : 'Recruta');
+        setSafeText('sp-streak', streakEl ? streakEl.innerText : '0');
+        
+        // Metas da Semana Injetadas
+        setSafeText('sp-meta-q', pctQEl ? pctQEl.innerText : '0%');
+        setSafeText('sp-meta-h', pctHEl ? pctHEl.innerText : '0%');
+        setSafeText('sp-kpi-q', feitoQEl ? feitoQEl.innerText : '0');
+        setSafeText('sp-acc', kpiAccEl ? kpiAccEl.innerText : '0%');
+        setSafeText('sp-kpi-h', feitoHEl ? feitoHEl.innerText + 'h' : '0.0h');
+
+        modal.style.display = 'block';
+    }
+
+    async function downloadSocialPost() {
+        // Selecionamos o elemento DOM que sofrerá o snapshot
+        let postCard = document.getElementById('ig-post-card');
+        let btn = document.getElementById('btn-download-post');
+        if(!postCard || !btn) return;
+
+        // Tratamento de UI durante processamento assíncrono
+        let oldTxt = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> RENDERIZANDO PIXELS...';
+        btn.disabled = true;
+
+        try {
+            // A mágica: html2canvas lê o CSS e converte a div em um canvas nativo
+            let canvas = await html2canvas(postCard, {
+                scale: 1, 
+                backgroundColor: '#0E1116',
+                logging: false,
+                useCORS: true // Permite renderizar a logo vinda do GitHub
+            });
+
+            // Convertendo o canvas para a string binária em formato PNG
+            let imgData = canvas.toDataURL('image/png');
+            
+            // Criando elemento invisível para forçar o download tático
+            let link = document.createElement('a');
+            link.download = `SitRep_Tatico_${new Date().getTime()}.png`;
+            link.href = imgData;
+            link.click();
+        } catch (err) {
+            console.error(err);
+            alert("Erro na captura de tela tática: " + err.message);
+        } finally {
+            // Restabelecimento do botão
+            btn.innerHTML = oldTxt;
+            btn.disabled = false;
+        }
+    }
+
     window.onload = function() {
         checkLogin();
     };
     </script>
+<div id="socialPostModal" class="modal">
+        <div class="modal-content" style="max-width: 450px; text-align: center; border-top: 4px solid var(--accent-orange);">
+            <span class="close-btn" onclick="document.getElementById('socialPostModal').style.display='none'">&times;</span>
+            <h2 style="margin-top:0; color:var(--text-color);"><i class="fas fa-camera-retro" style="color:var(--accent-orange)"></i> Gerador de Relatório</h2>
+            <p style="color:#888; font-size:13px; margin-bottom:20px;">Confira a prévia do seu relatório tático. Clique no botão abaixo para baixar em alta resolução e postar no feed.</p>
+            
+            <div class="social-post-wrapper">
+                <div class="social-post-card" id="ig-post-card">
+                    <div class="sp-header">
+                        <div class="sp-logo">
+                            <img src="https://raw.githubusercontent.com/pqdteng/protocolocontrole/main/logo.png" alt="Logo">
+                            <div class="sp-title">
+                                <h1>Protocolo Controle</h1>
+                                <p id="sp-nickname">Comandante</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 28px; color: #888;" id="sp-date">--/--/----</div>
+                            <div style="font-size: 24px; color: #F0883E; margin-top: 10px; display: flex; align-items: center; justify-content: flex-end; gap: 10px;"><i class="fas fa-fire"></i> <span id="sp-streak">0</span> Dias de Ofensiva</div>
+                        </div>
+                    </div>
+                    
+                    <div class="sp-body">
+                        <div class="sp-box highlight">
+                            <h3><i class="fas fa-medal" style="color:#F2C94C"></i> Patente Atual</h3>
+                            <div class="sp-value" id="sp-rank" style="color:#F2C94C">Iniciante</div>
+                        </div>
+                        <div class="sp-box goal">
+                            <h3><i class="fas fa-bullseye" style="color:#238636"></i> Precisão Geral</h3>
+                            <div class="sp-value" id="sp-acc">0%</div>
+                        </div>
+                        <div class="sp-box">
+                            <h3><i class="fas fa-tasks" style="color:#58A6FF"></i> Metas: Questões</h3>
+                            <div class="sp-value" id="sp-meta-q">0%</div>
+                            <div style="font-size: 22px; color: #888; margin-top: 10px;">Total Realizado: <strong style="color:#C9D1D9;" id="sp-kpi-q">0</strong></div>
+                        </div>
+                        <div class="sp-box">
+                            <h3><i class="fas fa-hourglass-half" style="color:#8957E5"></i> Metas: Horas</h3>
+                            <div class="sp-value" id="sp-meta-h">0%</div>
+                            <div style="font-size: 22px; color: #888; margin-top: 10px;">Carga Líquida: <strong style="color:#C9D1D9;" id="sp-kpi-h">0.0h</strong></div>
+                        </div>
+                    </div>
+                    
+                    <div class="sp-footer">
+                        Rumo à Área de Controle | ProtocoloControle
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" id="btn-download-post" style="background:var(--accent-orange); color:black; width:100%; padding: 15px; font-size: 16px;" onclick="downloadSocialPost()">BAIXAR IMAGEM 1080x1080</button>
+        </div>
+    </div>           
 </body>
 </html>
