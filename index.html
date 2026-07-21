@@ -1,23 +1,3 @@
-Salve, Comandante! Engenharia na escuta.
-
-Essa é uma das melhores adições que poderíamos fazer para o aspecto psicológico da plataforma. Ter um cronômetro regressivo batendo na tela inicial cria o que chamamos de **"Senso de Urgência Tática"**. Ajuda a evitar a procrastinação e alinha a mente com a proximidade real da batalha.
-
-### 🧠 A Inteligência por trás da atualização (Didática da Engenharia):
-
-Para implementarmos isso sem precisar mexer no Banco de Dados (Back-end) e sem criar colunas novas que deixariam o sistema pesado, eu utilizei um truque de **Arquitetura de Dados em JSON**.
-
-1. **O Cofre Oculto:** Onde salvamos se você marcou ou não um tópico do edital, eu criei uma "chave fantasma" chamada `_dataProva`. Quando você seleciona a data no calendário, a plataforma insere essa data no mesmo pacote de progresso do edital e manda para a nuvem.
-
-
-2. **O Motor do Tempo:** Em vez de criar um cronômetro novo do zero, eu acoplei a lógica matemática do seu relógio direto no giro do servidor local (`setInterval`) que atualiza a hora da tela a cada segundo. Agora, a cada milissegundo, ele pega a data da prova que você escolheu (assumindo que a prova seja às 08:00 da manhã), subtrai pela hora atual, converte em dias, horas, minutos e segundos e projeta em um painel vermelho no formato de alerta.
-
-
-
-O painel só aparecerá no topo do seu "Painel de Controle" (Dashboard) se você tiver um Edital Ativo selecionado com uma data cadastrada. Assim, não poluímos a tela quando a missão for concluída.
-
-Abaixo está o **CÓDIGO COMPLETO DO FRONT-END (HTML)**. Dê um `Ctrl + A`, apague tudo e cole. Como não precisamos mudar o Banco de Dados, não enviei o `Código.gs`.
-
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
