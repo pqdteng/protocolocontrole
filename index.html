@@ -1,3 +1,23 @@
+Salve, Comandante! Engenharia na escuta.
+
+Essa é uma das melhores adições que poderíamos fazer para o aspecto psicológico da plataforma. Ter um cronômetro regressivo batendo na tela inicial cria o que chamamos de **"Senso de Urgência Tática"**. Ajuda a evitar a procrastinação e alinha a mente com a proximidade real da batalha.
+
+### 🧠 A Inteligência por trás da atualização (Didática da Engenharia):
+
+Para implementarmos isso sem precisar mexer no Banco de Dados (Back-end) e sem criar colunas novas que deixariam o sistema pesado, eu utilizei um truque de **Arquitetura de Dados em JSON**.
+
+1. **O Cofre Oculto:** Onde salvamos se você marcou ou não um tópico do edital, eu criei uma "chave fantasma" chamada `_dataProva`. Quando você seleciona a data no calendário, a plataforma insere essa data no mesmo pacote de progresso do edital e manda para a nuvem.
+
+
+2. **O Motor do Tempo:** Em vez de criar um cronômetro novo do zero, eu acoplei a lógica matemática do seu relógio direto no giro do servidor local (`setInterval`) que atualiza a hora da tela a cada segundo. Agora, a cada milissegundo, ele pega a data da prova que você escolheu (assumindo que a prova seja às 08:00 da manhã), subtrai pela hora atual, converte em dias, horas, minutos e segundos e projeta em um painel vermelho no formato de alerta.
+
+
+
+O painel só aparecerá no topo do seu "Painel de Controle" (Dashboard) se você tiver um Edital Ativo selecionado com uma data cadastrada. Assim, não poluímos a tela quando a missão for concluída.
+
+Abaixo está o **CÓDIGO COMPLETO DO FRONT-END (HTML)**. Dê um `Ctrl + A`, apague tudo e cole. Como não precisamos mudar o Banco de Dados, não enviei o `Código.gs`.
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -54,6 +74,9 @@
         .app-view { display: none; animation: fadeIn 0.3s ease-in-out; }
         .app-view.active-view { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* NOVO: Animação para o Contador Regressivo */
+        @keyframes pulse-red { 0% { box-shadow: 0 0 5px rgba(218, 54, 51, 0.1); } 50% { box-shadow: 0 0 15px rgba(218, 54, 51, 0.4); } 100% { box-shadow: 0 0 5px rgba(218, 54, 51, 0.1); } }
 
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .card { background-color: var(--card-bg); border-radius: 8px; padding: 20px; border: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden;}
@@ -289,6 +312,18 @@
             </div>
             
             <div id="view-painel" class="app-view active-view">
+                
+                <!-- NOVO: BANNER DE CONTAGEM REGRESSIVA -->
+                <div id="countdown-banner" style="display:none; background: linear-gradient(to right, rgba(218, 54, 51, 0.1), rgba(0,0,0,0)); border: 1px solid var(--accent-red); border-left: 4px solid var(--accent-red); border-radius: 8px; padding: 15px 25px; margin-bottom: 30px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; animation: pulse-red 3s infinite;">
+                    <div>
+                        <h4 style="margin:0; color:var(--accent-red); font-size:12px; text-transform:uppercase; letter-spacing: 1px;"><i class="fas fa-crosshairs"></i> Contagem Regressiva</h4>
+                        <div id="countdown-title" style="color:var(--text-color); font-weight:bold; font-size:18px; margin-top:4px;">--</div>
+                    </div>
+                    <div id="countdown-timer" style="font-family:monospace; font-size:26px; font-weight:bold; color:var(--accent-red); letter-spacing:2px; text-align: right;">
+                        -- DIAS --:--:--
+                    </div>
+                </div>
+
                 <div class="rank-container" id="rank-panel">
                     <div class="rank-info">
                         <i class="fas fa-book-open rank-icon" id="rank-icon"></i>
@@ -380,11 +415,18 @@
                             <h2 style="margin:0; color:var(--text-color); font-size: 1.5em;"><i class="fas fa-tasks" style="color:var(--accent-green)"></i> Edital Verticalizado</h2>
                             <p style="color:#888; font-size:14px; margin:5px 0 0 0;">Controle absoluto do seu progresso Pós-Edital.</p>
                         </div>
-                        <div style="display:flex; gap:10px; flex-wrap: wrap;">
+                        <div style="display:flex; gap:10px; flex-wrap: wrap; align-items: center;">
                             <select id="select-edital-ativo" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:10px; border-radius:6px; outline:none; font-weight:bold;" onchange="selecionarNovoEdital(this.value)">
                                 <option value="">-- Selecione seu Concurso Alvo --</option>
                             </select>
-                            <button class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color);" onclick="document.getElementById('solicitarEditalModal').style.display='block'">
+                            
+                            <!-- NOVO: DATE PICKER PARA A PROVA -->
+                            <div style="background:var(--input-bg); border:1px solid var(--border-color); border-radius:6px; padding:0 10px; display:flex; align-items:center; gap:8px; height: 38px;">
+                                <label style="font-size:11px; color:#888; font-weight:bold; text-transform:uppercase; margin:0;"><i class="far fa-calendar-check"></i> Prova:</label>
+                                <input type="date" id="input-data-prova" style="background:transparent; border:none; color:var(--text-color); outline:none; font-family:monospace; font-size:13px; height:100%; cursor:pointer;" onchange="salvarDataProva(this.value)">
+                            </div>
+                            
+                            <button class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); height:38px;" onclick="document.getElementById('solicitarEditalModal').style.display='block'">
                                 <i class="fas fa-plus"></i> Solicitar Edital
                             </button>
                         </div>
@@ -409,7 +451,7 @@
 
             <div id="view-ciclo-view" class="app-view">
                 <div class="chart-box" style="padding:30px;">
-                    <h2 style="margin-top:0; color:var(--accent-blue);"><i class="fas fa-sync-alt"></i> Engenharia do Ciclo</h2>
+                    <h2 style="margin:0; color:var(--accent-blue);"><i class="fas fa-sync-alt"></i> Engenharia do Ciclo</h2>
                     <p style="color:#888; font-size:14px;">Selecione as disciplinas do edital e organize a ordem tática de estudos. As matérias do Edital Ativo aparecem com a mira verde.</p>
                     
                     <div class="checkbox-grid" id="config-checkboxes" style="margin-top:20px;"></div>
@@ -521,9 +563,9 @@
             </p>
             <div style="text-align: left; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
                 <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-color); line-height: 1.6;">
+                    <li><strong style="color:var(--accent-red)">Radar do Dia D:</strong> O painel agora possui um relógio regressivo em tempo real até a data da sua prova. Configure-o na aba Edital Verticalizado.</li>
+                    <li><strong style="color:var(--accent-gold)">Ranking Semanal:</strong> Nova aba de competição e correção do bug visual da tabela.</li>
                     <li><strong style="color:var(--accent-green)">Auto-Discovery de Matérias:</strong> As matérias do seu Edital Verticalizado agora aparecem automaticamente para você montar o Ciclo Tático.</li>
-                    <li><strong style="color:var(--accent-purple)">Relatórios de BI:</strong> Novas visões Mensais, Anuais e de Todo o Período.</li>
-                    <li><strong style="color:var(--accent-orange)">Autenticação 2FA:</strong> Seu sistema de recuperação de senha agora está blindado.</li>
                 </ul>
             </div>
             <button class="btn" style="background:var(--accent-blue); width:100%;" onclick="closeUpdateModal()">CIENTE, ENGENHARIA!</button>
@@ -624,7 +666,7 @@
             <h2 style="color: var(--accent-green); margin-top: 0;"><i class="fas fa-book-reader"></i> Metodologias de Estudo</h2>
             <div style="background: var(--input-bg); padding:20px; border-radius:8px; font-size:14px; margin-bottom: 20px; border: 1px solid var(--border-color);">
                 <h4 style="margin: 0 0 10px 0; color: var(--accent-blue);"><i class="fas fa-tasks"></i> Engenharia Reversa (Método MB)</h4>
-                <p style="margin-top: 0;"><strong>FASE 1: Ambientação</strong> - Imprima 20-30  do assunto, peça explicação à IA. Meta: 75%+</p>
+                <p style="margin-top: 0;"><strong>FASE 1: Ambientação</strong> - Imprima 20-30 Qs do assunto, peça explicação à IA. Meta: 75%+</p>
                 <p><strong>FASE 2: Sequencial</strong> - Resolva na sequência. Meta: 80%+</p>
                 <p><strong>FASE 3: Aleatória</strong> - Faça a bateria embaralhada. Meta: 80%+</p>
                 <p><strong>FASE 4: Consolidação</strong> - Repita focando na excelência. Meta: 85%+ para liberar no GPS.</p>
@@ -704,8 +746,9 @@ Gostaria que fizesse:
     
     let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
     let loggedUserSenha = localStorage.getItem('pqdtSenha') || "";
-    let globalExpiration = ""; let globalNickname = "Recruta"; let globalLeaderboards = {diario:[], mensal:[], geral:[]};
+    let globalExpiration = ""; let globalNickname = "Recruta"; let globalLeaderboards = {diario:[], semanal:[], mensal:[], geral:[]};
     let isEditingMode = false;
+    let currentRankingTab = 'diario'; 
 
     let globalData = []; 
     let groupedDaily = {}; 
@@ -780,9 +823,12 @@ Gostaria que fizesse:
         let v = document.getElementById('view-' + viewId); 
         if(v) v.classList.add('active-view'); 
         if(element) element.classList.add('active'); 
+        
         if(viewId === 'painel' && globalData.length > 0) updateDashboard('all');
         if(viewId === 'radar-view' && feedNoticiasGlobal.length === 0) carregarRadarRSS();
         if(viewId === 'edital-view') atualizarSelectEditaisDisponiveis();
+        
+        if(viewId === 'ranking-view') switchLeaderboard(currentRankingTab);
     }
     
     function toggleTheme() { document.body.classList.toggle('light-mode'); localStorage.setItem('pqdtTheme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); updateChartColors(); if(globalData.length>0) updateDashboard('all'); }
@@ -805,14 +851,14 @@ Gostaria que fizesse:
     }
 
     function checkUpdateNotification() {
-        let versionTag = "v2.4"; 
+        let versionTag = "v2.6"; 
         if(localStorage.getItem('pqdtUpdateNotif') !== versionTag) {
             let md = document.getElementById('updateModal');
             if(md) md.style.display = 'block';
         }
     }
     function closeUpdateModal() {
-        localStorage.setItem('pqdtUpdateNotif', "v2.4");
+        localStorage.setItem('pqdtUpdateNotif', "v2.6");
         let md = document.getElementById('updateModal');
         if(md) md.style.display = 'none';
     }
@@ -910,11 +956,46 @@ Gostaria que fizesse:
         initWeather();
     }
 
+    // NOVO: Função para atualizar a contagem regressiva da Prova
+    function atualizarContadorProva() {
+        let banner = document.getElementById('countdown-banner');
+        if (editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal]._dataProva) {
+            let dataStr = progressoEditalGlobal[editalAtivoGlobal]._dataProva;
+            let parts = dataStr.split('-');
+            
+            if(parts.length === 3) {
+                let targetDate = new Date(parts[0], parts[1]-1, parts[2], 8, 0, 0); 
+                let now = new Date();
+                let diff = targetDate - now;
+                
+                if (diff > 0) {
+                    let d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    let h = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+                    let m = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
+                    let s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+                    
+                    setSafeText('countdown-title', editalAtivoGlobal);
+                    setSafeText('countdown-timer', `${d} DIAS ${h}:${m}:${s}`);
+                    if (banner) banner.style.display = 'flex';
+                } else {
+                    setSafeText('countdown-title', editalAtivoGlobal);
+                    setSafeText('countdown-timer', `É HOJE! BOA PROVA!`);
+                    if (banner) banner.style.display = 'flex';
+                }
+            }
+        } else {
+            if (banner) banner.style.display = 'none';
+        }
+    }
+
+    // LÓGICA DO RELÓGIO (Atualiza a Data/Hora da Tela e o Contador da Prova)
     setInterval(() => {
         const now = new Date();
         setSafeText('current-date-text', now.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }).replace('.', ''));
         setSafeText('clock-display', now.toLocaleTimeString('pt-BR'));
         setSafeText('clock-date-display', now.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }));
+        
+        atualizarContadorProva(); // Chama o motor do tempo do Edital
     }, 1000);
 
     let timerMode = 'crono'; let timerSeconds = localStorage.getItem('pqdtTimer') ? parseInt(localStorage.getItem('pqdtTimer')) : 0; 
@@ -947,12 +1028,12 @@ Gostaria que fizesse:
         let btnPlay = document.getElementById('btn-play-pause');
         if(btnPlay) btnPlay.innerHTML = '<i class="fas fa-pause"></i>';
         
-        lastTickTime = Date.now(); // Marcação temporal universal
+        lastTickTime = Date.now(); 
         
         clearInterval(timerInt);
         timerInt = setInterval(() => { 
             let now = Date.now();
-            let delta = Math.floor((now - lastTickTime) / 1000); // Calcula os segundos reais que passaram
+            let delta = Math.floor((now - lastTickTime) / 1000); 
             
             if(delta > 0) {
                 if(timerMode === 'crono') { 
@@ -965,10 +1046,10 @@ Gostaria que fizesse:
                         alert('🍅 Missão Pomodoro Concluída!'); 
                     }
                 }
-                lastTickTime = now - ((now - lastTickTime) % 1000); // Carrega os milissegundos restantes
+                lastTickTime = now - ((now - lastTickTime) % 1000); 
                 updateTimerDisplay(); 
             }
-        }, 200); // O loop roda rápido, mas a conta matemática garante a precisão
+        }, 200); 
     }
 
     function pauseTimer() { 
@@ -1067,8 +1148,7 @@ Gostaria que fizesse:
         setSafeText('streak-display', calcularDiasOfensiva());
         updateRank(); updateGPS(); updateDashboard('all'); renderReport();
         
-        // CORREÇÃO: Força o Ranking Diário a ser exibido logo após a sincronização e carregamento
-        switchLeaderboard('diario');
+        switchLeaderboard(currentRankingTab);
     }
 
     function updateRank() {
@@ -1099,7 +1179,9 @@ Gostaria que fizesse:
     }
 
     function switchLeaderboard(type) {
+        currentRankingTab = type; 
         document.querySelectorAll('.rank-tab-btn').forEach(b => b.classList.remove('active'));
+        
         let tabMap = { 'diario': 'tab-hoje', 'semanal': 'tab-semana', 'mensal': 'tab-mes', 'geral': 'tab-geral' };
         let tab = document.getElementById(tabMap[type]); 
         if(tab) tab.classList.add('active');
@@ -1107,7 +1189,12 @@ Gostaria que fizesse:
         let list = globalLeaderboards[type] || []; 
         let body = document.getElementById('leaderboard-body');
         if(!body) return;
-        if(list.length === 0) { body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px; color:#888;">Nenhum registro para este período.</td></tr>'; return; }
+        
+        if(list.length === 0) { 
+            body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px; color:#888;">Nenhum registro para este período.</td></tr>'; 
+            return; 
+        }
+        
         body.innerHTML = list.map((u, i) => {
             let acc = u.a > 0 && u.q > 0 ? ((u.a / u.q) * 100).toFixed(1) + '%' : '--';
             return `<tr class="${u.nick === globalNickname ? 'leader-item' : ''}"><td style="padding:12px; color:#888;">#${i+1}</td><td style="font-weight:bold; color: ${u.nick === globalNickname ? 'var(--accent-gold)' : 'var(--text-color)'};">${u.nick === globalNickname ? 'VOCÊ ('+u.nick+')' : u.nick}</td><td>${u.q.toLocaleString()} Qs</td><td style="color: ${parseFloat(acc) >= 75 ? 'var(--accent-green)' : (acc === '--' ? '#888' : 'var(--accent-red)')}; font-weight:bold;">${acc}</td></tr>`;
@@ -1162,7 +1249,6 @@ Gostaria que fizesse:
             let metodoUsado = last.metodologia ? String(last.metodologia).trim() : "Método MB (Questões)";
             let isConsolidated = (metodoUsado === "Leitura (PDF)" || metodoUsado === "Videoaula") ? true : (valFase === "4" && valK === "OK" && valL.includes("CONSOLIDADO"));
 
-            // CORREÇÃO: Busca por nome EXATO, ignorando maiúsculas e minúsculas, para não confundir matérias longas
             let lastMatClean = String(last.mat).trim().toLowerCase();
             let idx = cicloMaster.findIndex(d => lastMatClean === String(d.chaves[0]).trim().toLowerCase() || lastMatClean === String(d.nome).trim().toLowerCase()); 
             if(idx === -1) idx = 0;
@@ -1179,7 +1265,7 @@ Gostaria que fizesse:
             if(editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][p1.nome]) {
                 let assuntos = progressoEditalGlobal[editalAtivoGlobal][p1.nome];
                 for(let t in assuntos) {
-                    if(!assuntos[t].checked) { topicoAlvo = t; linkAlvo = assuntos[t].link || ""; break; }
+                    if(!assuntos[t].checked && t !== "_dataProva") { topicoAlvo = t; linkAlvo = assuntos[t].link || ""; break; }
                 }
             }
 
@@ -1347,6 +1433,16 @@ Gostaria que fizesse:
         document.getElementById('txt-progresso-geral').innerText = `${pctGeral}% (${concluidosGeral}/${totalTopicosGeral})`;
         document.getElementById('bar-progresso-geral').style.width = `${pctGeral}%`;
 
+        // Preenche a data da prova no campo correspondente
+        let inputData = document.getElementById('input-data-prova');
+        if(inputData) {
+            if(progressoEditalGlobal[nomeConcurso]._dataProva) {
+                inputData.value = progressoEditalGlobal[nomeConcurso]._dataProva;
+            } else {
+                inputData.value = '';
+            }
+        }
+
         atualizarCampoTopico(); 
         updateGPS(); 
         
@@ -1375,6 +1471,15 @@ Gostaria que fizesse:
         progressoEditalGlobal[concurso][mat][top].link = link;
         salvarProgressoEditalNuvem();
         renderizarEdital(concurso); 
+    }
+    
+    // NOVO: Salva a data da prova daquele Edital Específico dentro do JSON oculto
+    function salvarDataProva(val) {
+        if (!editalAtivoGlobal) return;
+        if (!progressoEditalGlobal[editalAtivoGlobal]) progressoEditalGlobal[editalAtivoGlobal] = {};
+        progressoEditalGlobal[editalAtivoGlobal]._dataProva = val;
+        salvarProgressoEditalNuvem();
+        atualizarContadorProva();
     }
 
     function salvarProgressoEditalNuvem() {
@@ -1415,7 +1520,6 @@ Gostaria que fizesse:
             matSelecionada = matEl.options[matEl.selectedIndex].text;
         }
 
-        // Tática Híbrida: Um Input normal associado a um Datalist
         let inputHTML = `<input type="text" id="f-topico" required placeholder="Ex: Licitações" autocomplete="off" style="width:100%; padding:12px; background:var(--input-bg); border:1px solid var(--input-border); color:var(--text-color); border-radius:6px; outline:none;" list="lista-topicos-edital">`;
         let datalistHTML = `<datalist id="lista-topicos-edital"></datalist>`;
 
@@ -1444,7 +1548,6 @@ Gostaria que fizesse:
         let matSelecionada = mat ? mat.options[mat.selectedIndex].text : "";
         let topicoTexto = top ? top.value.trim() : "";
 
-        // Verificação Inteligente: Mesmo se o aluno escrever " - Revisão", o sistema caça o tópico original
         let matchedKey = topicoTexto;
         if(!isEditingMode && editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][matSelecionada]) {
             let assuntos = progressoEditalGlobal[editalAtivoGlobal][matSelecionada];
@@ -1452,7 +1555,6 @@ Gostaria que fizesse:
             if(!assuntos[matchedKey]) {
                 let chaves = Object.keys(assuntos);
                 for(let k of chaves) {
-                    // Se o texto digitado contiver o tópico base, ou vice-versa, nós validamos
                     if(topicoTexto.includes(k) || k.includes(topicoTexto)) {
                         matchedKey = k;
                         break;
@@ -1980,12 +2082,25 @@ Gostaria que fizesse:
         let actionStr = isEditingMode ? "retificar_ultimo" : "lancamento";
         
         let matSelecionada = mat ? mat.options[mat.selectedIndex].text : "";
-        let topicoTexto = top ? top.value : "";
+        let topicoTexto = top ? top.value.trim() : "";
 
+        let matchedKey = topicoTexto;
         if(!isEditingMode && editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][matSelecionada]) {
-            if(progressoEditalGlobal[editalAtivoGlobal][matSelecionada][topicoTexto]) {
-                progressoEditalGlobal[editalAtivoGlobal][matSelecionada][topicoTexto].checked = true;
-                if(tlnk && tlnk.value) progressoEditalGlobal[editalAtivoGlobal][matSelecionada][topicoTexto].link = tlnk.value;
+            let assuntos = progressoEditalGlobal[editalAtivoGlobal][matSelecionada];
+            
+            if(!assuntos[matchedKey]) {
+                let chaves = Object.keys(assuntos);
+                for(let k of chaves) {
+                    if(topicoTexto.includes(k) || k.includes(topicoTexto)) {
+                        matchedKey = k;
+                        break;
+                    }
+                }
+            }
+
+            if(assuntos[matchedKey]) {
+                assuntos[matchedKey].checked = true;
+                if(tlnk && tlnk.value) assuntos[matchedKey].link = tlnk.value;
                 salvarProgressoEditalNuvem(); 
             }
         }
@@ -2034,3 +2149,5 @@ Gostaria que fizesse:
     </script>
 </body>
 </html>
+
+```
