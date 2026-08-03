@@ -185,6 +185,25 @@
             .header-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; justify-content: center;}
             .header-actions .btn, .header-actions .btn-action-top { width: 100%; justify-content: center; font-size: 11px; padding: 10px; box-sizing: border-box; }
         }
+        
+        @media (max-width: 768px) {
+            .cards-container { grid-template-columns: 1fr 1fr; gap: 15px; } /* 2 cartões por linha */
+            .card { padding: 15px; }
+            .card p { font-size: 22px; }
+            #clock-container, #timer-container { min-width: 100%; padding: 15px; }
+            .rank-info { flex-direction: column; text-align: center; gap: 10px; }
+            .xp-bar-container { max-width: 100%; margin-top: 15px; }
+            .header-actions { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+            .header-actions .btn, .header-actions .btn-action-top { padding: 10px; font-size: 11px; }
+            .main-content { padding: 15px; }
+        }
+
+        @media (max-width: 480px) {
+            .cards-container { grid-template-columns: 1fr; } /* Empilha 1 cartão por linha */
+            .header-actions { grid-template-columns: 1fr 1fr; }
+            .greeting h2 { font-size: 1.2em; flex-wrap: wrap; }
+            .rank-details h2 { font-size: 1.2em; }
+        }
     </style>
 </head>
 <body>
@@ -927,10 +946,20 @@ Gostaria que fizesse:
 
     function logout() { localStorage.clear(); location.reload(); }
 
-    function initApp() {
-        let fData = document.getElementById('f-data'); if(fData) fData.valueAsDate = new Date();
-        let mHrs = document.getElementById('meta-hrs'); if(mHrs && localStorage.getItem('metaHrs')) mHrs.value = localStorage.getItem('metaHrs');
-        let mQ = document.getElementById('meta-q'); if(mQ && localStorage.getItem('metaQ')) mQ.value = localStorage.getItem('metaQ');
+function initApp() {
+        let fData = document.getElementById('f-data'); 
+        if(fData) {
+            let today = new Date();
+            let yyyy = today.getFullYear();
+            let mm = String(today.getMonth() + 1).padStart(2, '0');
+            let dd = String(today.getDate()).padStart(2, '0');
+            fData.value = `${yyyy}-${mm}-${dd}`;
+        }
+        let mHrs = document.getElementById('meta-hrs'); 
+        if(mHrs && localStorage.getItem('metaHrs')) mHrs.value = localStorage.getItem('metaHrs');
+        let mQ = document.getElementById('meta-q'); 
+        if(mQ && localStorage.getItem('metaQ')) mQ.value = localStorage.getItem('metaQ');
+        
         loadGoogleSheetsData();
         checkUpdateNotification(); 
         initWeather();
@@ -2012,17 +2041,34 @@ Gostaria que fizesse:
         .catch(() => { alert("Erro ao salvar."); if(btn) { btn.innerHTML = originalTxt; btn.disabled = false; } });
     }
 
-    function openEntryModal() { 
+function openEntryModal() { 
         isEditingMode = false;
-        let form = document.getElementById('studyForm'); if(form) form.reset(); 
-        let d = document.getElementById('f-data'); if(d) d.valueAsDate = new Date();
-        let btn = document.getElementById('btn-submit-form');
-        if(btn) { btn.innerText = "ENVIAR PARA A NUVEM"; btn.style.background = "var(--accent-green)"; btn.style.color = "white"; }
+        let form = document.getElementById('studyForm'); 
+        if(form) form.reset(); 
         
-        let t = document.getElementById('f-tempo'); let secs = timerMode === 'crono' ? timerSeconds : (25 * 60 - pomoSeconds);
+        let fData = document.getElementById('f-data'); 
+        if(fData) {
+            let today = new Date();
+            let yyyy = today.getFullYear();
+            let mm = String(today.getMonth() + 1).padStart(2, '0');
+            let dd = String(today.getDate()).padStart(2, '0');
+            fData.value = `${yyyy}-${mm}-${dd}`;
+        }
+        
+        let btn = document.getElementById('btn-submit-form');
+        if(btn) { 
+            btn.innerText = "ENVIAR PARA A NUVEM"; 
+            btn.style.background = "var(--accent-green)"; 
+            btn.style.color = "white"; 
+        }
+        
+        let t = document.getElementById('f-tempo'); 
+        let secs = timerMode === 'crono' ? timerSeconds : (25 * 60 - pomoSeconds);
         if(t && secs > 0) t.value = Math.floor(secs / 60);
+        
         atualizarCampoTopico();
-        let em = document.getElementById('entryModal'); if(em) em.style.display='block';
+        let em = document.getElementById('entryModal'); 
+        if(em) em.style.display='block';
     }
 
     function loadLastEntryToEdit() {
