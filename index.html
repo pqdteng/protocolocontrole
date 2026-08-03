@@ -857,24 +857,39 @@ initApp();
 }
 
 function login() {
-let elEmail = document.getElementById('log-email'); let elPass = document.getElementById('log-pass');
-if(!elEmail || !elPass) return;
-let e = elEmail.value.trim().toLowerCase(); let s = elPass.value.trim();
-if(!e || !s) return alert("Preencha E-mail e Senha!");
+    let elEmail = document.getElementById('log-email'); let elPass = document.getElementById('log-pass');
+    if(!elEmail || !elPass) return;
+    let e = elEmail.value.trim().toLowerCase(); let s = elPass.value.trim();
+    if(!e || !s) return alert("Preencha E-mail e Senha!");
 
-let btn = document.querySelector('#login-screen .btn-access') || document.querySelector('.btn-access');
-let originalText = btn ? btn.innerText : 'ENTRAR'; 
-if(btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando...'; btn.disabled = true; }
+    let btn = document.querySelector('#login-screen .btn-access') || document.querySelector('.btn-access');
+    let originalText = btn ? btn.innerText : 'ENTRAR'; 
+    if(btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando...'; btn.disabled = true; }
 
-fetch(`${WEBHOOK_URL}?acao=login&email=${encodeURIComponent(e)}&senha=${encodeURIComponent(s)}`)
-.then(res => res.json()).then(data => {
-if(data.status === "sucesso") {
-localStorage.setItem('pqdtEmail', e); localStorage.setItem('pqdtSenha', s); 
-loggedUserEmail = e; loggedUserSenha = s; checkLogin();
-} else { 
-alert(data.mensagem); if(btn) { btn.innerHTML = originalText; btn.disabled = false; }
-}
-}).catch(() => { alert("Falha na conexão."); if(btn) { btn.innerHTML = originalText; btn.disabled = false; } });
+    fetch(`${WEBHOOK_URL}?acao=login&email=${encodeURIComponent(e)}&senha=${encodeURIComponent(s)}`)
+    .then(async res => {
+        if (!res.ok) throw new Error(`Erro do Servidor (HTTP ${res.status})`);
+        // Blinda contra respostas HTML de erro do Google
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            return res.json();
+        } else {
+            const text = await res.text();
+            throw new Error("Resposta do servidor não é JSON. O Script pode ter falhado por Timeout.");
+        }
+    })
+    .then(data => {
+        if(data.status === "sucesso") {
+            localStorage.setItem('pqdtEmail', e); localStorage.setItem('pqdtSenha', s); 
+            loggedUserEmail = e; loggedUserSenha = s; checkLogin();
+        } else { 
+            alert(data.mensagem); if(btn) { btn.innerHTML = originalText; btn.disabled = false; }
+        }
+    }).catch((error) => { 
+        console.error("Relatório de Pane na Conexão:", error);
+        alert("Falha na conexão tática: " + error.message); 
+        if(btn) { btn.innerHTML = originalText; btn.disabled = false; } 
+    });
 }
 
 function register() {
