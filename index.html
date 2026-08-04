@@ -738,7 +738,7 @@ Gostaria que fizesse:
     </div>
 
     <script>
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz1vLMkc_dklbl7AxBHKBF8j1amLTAHwrUwknmLAZJxuXXaL1ra-LBjqCihay9RbX4_Qw/exec";
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycby2wgtlQzCiHf4vMPqjHjNGTcRxqoeBTjkfUjUFZOhDo_gfM3dCoF6KslhKr2hmJNNl/exec";
     
     let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
     let loggedUserSenha = localStorage.getItem('pqdtSenha') || "";
@@ -778,11 +778,13 @@ Gostaria que fizesse:
         if (el) el.innerText = value; 
     }
 
+    // Leis de Negócio Intactas (22 Disciplinas originais mantidas)
     const TODAS_MATERIAS = [
         { chaves: ["PNFL"], nome: "Eng: Planejamento de Obras" }, { chaves: ["AFO"], nome: "AFO / Orçamento Público" }, { chaves: ["DCO"], nome: "Direito Constitucional" }, { chaves: ["CEX"], nome: "Controle Externo" }, { chaves: ["CASP"], nome: "Contabilidade Pública" }, { chaves: ["CTG"], nome: "Contabilidade Geral" }, { chaves: ["EDF"], nome: "Eng: Edificações/Estruturas" }, { chaves: ["AMB"], nome: "Eng: Ambiental" }, { chaves: ["DAD"], nome: "Direito Administrativo" }, { chaves: ["POR"], nome: "Português" }, { chaves: ["OR"], nome: "Eng: Rodoviária" }, 
         { chaves: ["OH"], nome: "Eng: Hídrica" }, { chaves: ["RLM"], nome: "Raciocínio Lógico" }, { chaves: ["INF"], nome: "Informática / TI" }, { chaves: ["AUDG"], nome: "Auditoria Governamental" }, { chaves: ["PARECER"], nome: "Peça Técnica / Parecer" }, { chaves: ["RED"], nome: "Treino: Redação" }, { chaves: ["ADM"], nome: "Administração Pública" }, { chaves: ["ECO"], nome: "Economia" }, { chaves: ["CIV"], nome: "Direito Civil" }, { chaves: ["PEN"], nome: "Direito Penal" }, { chaves: ["EST"], nome: "Estatística" }
     ];
     
+    // Leis de Negócio Intactas (Patentes)
     const GAMER_RANKS = [
         { threshold: 0, title: "Iniciante", icon: "fa-book-open", desc: "Começando a jornada" },
         { threshold: 1000, title: "Estudante Focado", icon: "fa-pencil-alt", desc: "Pegando o ritmo" },
@@ -1073,8 +1075,16 @@ Gostaria que fizesse:
         let btns = document.querySelectorAll('.sync-btn-ui');
         btns.forEach(b => b.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo...');
         try {
-            let response = await fetch(`${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&senha=${encodeURIComponent(loggedUserSenha)}`);
-            let data = await response.json();
+            // AQUI ESTÁ A NOVA BLINDAGEM DE RECEPÇÃO DO GOOGLE
+            let response = await fetch(`${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&senha=${encodeURIComponent(loggedUserSenha)}`, { redirect: 'follow' });
+            let text = await response.text();
+            
+            if (text.trim().startsWith('<')) {
+                console.error("ALERTA TÁTICO - Resposta do Servidor Google:", text);
+                throw new Error("O Google bloqueou a requisição e retornou uma página de erro. Solução: Vá no Apps Script e gere uma 'Nova Implantação' (New Deployment) com as permissões corretas.");
+            }
+            
+            let data = JSON.parse(text);
             if (data.status === "erro") throw new Error(data.mensagem);
             
             globalExpiration = data.expiration || "Vitalício"; globalNickname = data.nickname || "Recruta"; 
@@ -1094,7 +1104,8 @@ Gostaria que fizesse:
             btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado');
             setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> SINC'), 2000);
         } catch (err) {
-            console.error("Erro na Sincronização:", err); alert("⚠️ FALHA DE SINCRONIZAÇÃO:\n" + err.message);
+            console.error("Erro na Sincronização:", err); 
+            alert("⚠️ FALHA DE SINCRONIZAÇÃO:\n" + err.message);
             btns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro');
         }
     }
@@ -1215,8 +1226,6 @@ Gostaria que fizesse:
     }
 
     function openProfileModal() { setSafeText('profile-expiration', globalExpiration); let inp = document.getElementById('input-nickname'); if(inp) inp.value = globalNickname; let pm = document.getElementById('profileModal'); if(pm) pm.style.display='block'; }
-    
-    // BLINDAGEM DE TEMPO: Atraso de 1.5s após envio
     function saveNickname() {
         let inp = document.getElementById('input-nickname'); if(!inp) return; let n = inp.value.trim(); if(!n) return alert("Digite um Nickname.");
         fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "updateProfile", email: loggedUserEmail, nickname: n})})
@@ -1544,7 +1553,6 @@ Gostaria que fizesse:
         topContainer.innerHTML = inputHTML + datalistHTML;
     }
 
-    // BLINDAGEM DE TEMPO: Atraso de 1.5s após envio
     function submitEntry(e) {
         e.preventDefault();
         let btn = document.getElementById('btn-submit-form'); 
@@ -1593,13 +1601,16 @@ Gostaria que fizesse:
             let f = document.getElementById('studyForm'); if(f) f.reset(); 
             let em = document.getElementById('entryModal'); if(em) em.style.display='none'; 
             
-            // BLINDAGEM DE TEMPO: Espera o Google salvar antes de recarregar
+            // TRAVA DE TEMPO: Espera o Google assentar o banco antes de forçar atualização visual
             setTimeout(() => {
                 if(btn) btn.disabled=false; 
                 loadGoogleSheetsData();
-            }, 1500); 
+            }, 1500);
         })
-        .catch(err => { alert("Erro de conexão com o banco de dados."); if(btn) { btn.innerText = "TENTAR NOVAMENTE"; btn.disabled=false; } });
+        .catch(err => { 
+            alert("Erro de conexão com o banco de dados."); 
+            if(btn) { btn.innerText = "TENTAR NOVAMENTE"; btn.disabled=false; } 
+        });
     }
 
     function carregarRadarRSS() {
@@ -1789,7 +1800,6 @@ Gostaria que fizesse:
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
 
-    // BLINDAGEM DE TEMPO: Atraso de 1.5s após envio
     function processarImportacaoCSV() {
         let fileInput = document.getElementById('file-import-csv');
         if(!fileInput.files.length) return alert("Por favor, selecione o arquivo CSV preenchido.");
@@ -1846,7 +1856,6 @@ Gostaria que fizesse:
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
 
-    // BLINDAGEM DE TEMPO: Atraso de 1.5s após envio
     function confirmDeleteHistory() {
         if(confirm("ALERTA DE SEGURANÇA: Tem certeza que deseja APAGAR TODO o seu histórico de lançamentos?")) {
             let btn = document.querySelector('button[onclick="confirmDeleteHistory()"]'); let oldTxt = btn.innerHTML;
@@ -2063,15 +2072,32 @@ Gostaria que fizesse:
 
     function openEntryModal() { 
         isEditingMode = false;
-        let form = document.getElementById('studyForm'); if(form) form.reset(); 
-        let d = document.getElementById('f-data'); if(d) d.valueAsDate = new Date();
-        let btn = document.getElementById('btn-submit-form');
-        if(btn) { btn.innerText = "ENVIAR PARA A NUVEM"; btn.style.background = "var(--accent-green)"; btn.style.color = "white"; }
+        let form = document.getElementById('studyForm'); 
+        if(form) form.reset(); 
         
-        let t = document.getElementById('f-tempo'); let secs = timerMode === 'crono' ? timerSeconds : (25 * 60 - pomoSeconds);
+        let fData = document.getElementById('f-data'); 
+        if(fData) {
+            let today = new Date();
+            let yyyy = today.getFullYear();
+            let mm = String(today.getMonth() + 1).padStart(2, '0');
+            let dd = String(today.getDate()).padStart(2, '0');
+            fData.value = `${yyyy}-${mm}-${dd}`;
+        }
+        
+        let btn = document.getElementById('btn-submit-form');
+        if(btn) { 
+            btn.innerText = "ENVIAR PARA A NUVEM"; 
+            btn.style.background = "var(--accent-green)"; 
+            btn.style.color = "white"; 
+        }
+        
+        let t = document.getElementById('f-tempo'); 
+        let secs = timerMode === 'crono' ? timerSeconds : (25 * 60 - pomoSeconds);
         if(t && secs > 0) t.value = Math.floor(secs / 60);
+        
         atualizarCampoTopico();
-        let em = document.getElementById('entryModal'); if(em) em.style.display='block';
+        let em = document.getElementById('entryModal'); 
+        if(em) em.style.display='block';
     }
 
     function loadLastEntryToEdit() {
@@ -2092,6 +2118,66 @@ Gostaria que fizesse:
         
         isEditingMode = true; let btn = document.getElementById('btn-submit-form');
         if(btn) { btn.innerText = "SALVAR RETIFICAÇÃO"; btn.style.background = "var(--accent-orange)"; btn.style.color = "black"; }
+    }
+
+    function submitEntry(e) {
+        e.preventDefault();
+        let btn = document.getElementById('btn-submit-form'); 
+        if(btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...'; btn.disabled = true; }
+        
+        let dt = document.getElementById('f-data'); let p = dt ? dt.value.split('-') : [];
+        let mat = document.getElementById('f-materia'); let met = document.getElementById('f-metodo'); 
+        let top = document.getElementById('f-topico'); let tlnk = document.getElementById('f-tipo-link'); 
+        let temp = document.getElementById('f-tempo'); let q = document.getElementById('f-q'); 
+        let a = document.getElementById('f-a'); let fas = document.getElementById('f-fase');
+        let actionStr = isEditingMode ? "retificar_ultimo" : "lancamento";
+        
+        let matSelecionada = mat ? mat.options[mat.selectedIndex].text : "";
+        let topicoTexto = top ? top.value.trim() : "";
+
+        let matchedKey = topicoTexto;
+        if(!isEditingMode && editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][matSelecionada]) {
+            let assuntos = progressoEditalGlobal[editalAtivoGlobal][matSelecionada];
+            
+            if(!assuntos[matchedKey]) {
+                let chaves = Object.keys(assuntos);
+                for(let k of chaves) {
+                    if(topicoTexto.includes(k) || k.includes(topicoTexto)) {
+                        matchedKey = k;
+                        break;
+                    }
+                }
+            }
+
+            if(assuntos[matchedKey]) {
+                assuntos[matchedKey].checked = true;
+                if(tlnk && tlnk.value) assuntos[matchedKey].link = tlnk.value;
+                salvarProgressoEditalNuvem(); 
+            }
+        }
+
+        let payload = { 
+            acao: actionStr, email: loggedUserEmail, dataEstudo: `${p[2]}/${p[1]}/${p[0]}`, 
+            materia: mat?mat.value:"", topico: topicoTexto, tipoLink: tlnk?tlnk.value:"", 
+            tempo: temp?temp.value:"", questoes: q?q.value:"", acertos: a?a.value:"", 
+            fase: fas?fas.value:"", metodologia: met?met.value:"" 
+        };
+        fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+        .then(() => { 
+            alert(isEditingMode ? "Lançamento Corrigido!" : "Missão Cumprida!"); 
+            let f = document.getElementById('studyForm'); if(f) f.reset(); 
+            let em = document.getElementById('entryModal'); if(em) em.style.display='none'; 
+            
+            // TRAVA DE TEMPO: Espera o Google assentar o banco antes de forçar atualização visual
+            setTimeout(() => {
+                if(btn) btn.disabled=false; 
+                loadGoogleSheetsData();
+            }, 1500);
+        })
+        .catch(err => { 
+            alert("Erro de conexão com o banco de dados."); 
+            if(btn) { btn.innerText = "TENTAR NOVAMENTE"; btn.disabled=false; } 
+        });
     }
     
     function initWeather() {
