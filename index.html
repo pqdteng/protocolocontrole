@@ -1074,20 +1074,34 @@ Gostaria que fizesse:
     async function loadGoogleSheetsData() {
         let btns = document.querySelectorAll('.sync-btn-ui');
         btns.forEach(b => b.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo...');
+        
         try {
-            // AQUI ESTÁ A NOVA BLINDAGEM DE RECEPÇÃO DO GOOGLE
-            let response = await fetch(`${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&senha=${encodeURIComponent(loggedUserSenha)}`, { redirect: 'follow' });
+            // [BLINDAGEM TÁTICA] 
+            // 1. Adicionamos &t=${Date.now()} para forçar uma URL nova a cada milissegundo e quebrar o cache de redirecionamento do navegador.
+            let urlSemCache = `${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&senha=${encodeURIComponent(loggedUserSenha)}&_t=${Date.now()}`;
+            
+            // 2. Forçamos o cabeçalho 'Accept' para sinalizar ao servidor que queremos JSON.
+            let response = await fetch(urlSemCache, { 
+                method: 'GET',
+                redirect: 'follow',
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+            
             let text = await response.text();
             
+            // [SEGURANÇA DO DOM] Verificação robusta se o retorno é HTML (Página de Login/Erro do Google)
             if (text.trim().startsWith('<')) {
-                console.error("ALERTA TÁTICO - Resposta do Servidor Google:", text);
-                throw new Error("O Google bloqueou a requisição e retornou uma página de erro. Solução: Vá no Apps Script e gere uma 'Nova Implantação' (New Deployment) com as permissões corretas.");
+                console.error("ALERTA TÁTICO - Resposta do Servidor Google (HTML bloqueando o sinal):", text);
+                throw new Error("Sinal interceptado pelo Google. Verifique se o Web App está liberado para 'Qualquer pessoa' ou se o navegador está bloqueando o acesso.");
             }
             
             let data = JSON.parse(text);
             if (data.status === "erro") throw new Error(data.mensagem);
             
-            globalExpiration = data.expiration || "Vitalício"; globalNickname = data.nickname || "Recruta"; 
+            globalExpiration = data.expiration || "Vitalício"; 
+            globalNickname = data.nickname || "Recruta"; 
             globalLeaderboards = data.leaderboards || {diario:[], semanal:[], mensal:[], geral:[]};
             baseEditaisGlobal = data.baseEditais || {};
             editalAtivoGlobal = data.editalAtivo || "";
@@ -1103,6 +1117,7 @@ Gostaria que fizesse:
             
             btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado');
             setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> SINC'), 2000);
+            
         } catch (err) {
             console.error("Erro na Sincronização:", err); 
             alert("⚠️ FALHA DE SINCRONIZAÇÃO:\n" + err.message);
