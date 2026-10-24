@@ -1716,37 +1716,6 @@ Gostaria que fizesse:
         topContainer.innerHTML = inputHTML + datalistHTML;
     }
 
-            if(assuntos[matchedKey]) {
-                assuntos[matchedKey].checked = true;
-                if(tlnk && tlnk.value) assuntos[matchedKey].link = tlnk.value;
-                salvarProgressoEditalNuvem(); 
-            }
-        }
-
-        let payload = { 
-            acao: actionStr, email: loggedUserEmail, dataEstudo: `${p[2]}/${p[1]}/${p[0]}`, 
-            materia: mat?mat.value:"", topico: topicoTexto, tipoLink: tlnk?tlnk.value:"", 
-            tempo: temp?temp.value:"", questoes: q?q.value:"", acertos: a?a.value:"", 
-            fase: fas?fas.value:"", metodologia: met?met.value:"" 
-        };
-        fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-        .then(() => { 
-            alert(isEditingMode ? "Lançamento Corrigido!" : "Missão Cumprida!"); 
-            let f = document.getElementById('studyForm'); if(f) f.reset(); 
-            let em = document.getElementById('entryModal'); if(em) em.style.display='none'; 
-            
-            // TRAVA DE TEMPO: Espera o Google assentar o banco antes de forçar atualização visual
-            setTimeout(() => {
-                if(btn) btn.disabled=false; 
-                loadGoogleSheetsData();
-            }, 1500);
-        })
-        .catch(err => { 
-            alert("Erro de conexão com o banco de dados."); 
-            if(btn) { btn.innerText = "TENTAR NOVAMENTE"; btn.disabled=false; } 
-        });
-    }
-
     function carregarRadarRSS() {
         let container = document.getElementById('radar-cards-container');
         if (!container) return;
