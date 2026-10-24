@@ -137,6 +137,7 @@
         body.focus-mode #clock-container { order: 2; transform: scale(0.8); border: none !important; background: transparent !important; padding: 0; margin-top: 20px;}
         body.focus-mode .timer-tabs { display: none !important; }
         body.focus-mode #btn-exit-foco { display: block; }
+		#tactical-toast { position: fixed; bottom: 25px; right: 25px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-green); padding: 14px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10001; display: none; align-items: center; gap: 12px; font-size: 13px; font-weight: bold; animation: fadeIn 0.25s ease-out; }		
 
 	.heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
         .heatmap-day-header { text-align: center; color: #888; font-size: 11px; font-weight: bold; padding-bottom: 5px; text-transform: uppercase; }
@@ -2612,29 +2613,101 @@ Gostaria que fizesse:
         if(btn) { btn.innerText = "SALVAR RETIFICAÇÃO"; btn.style.background = "var(--accent-orange)"; btn.style.color = "black"; }
     }
 
+    function mostrarToastTatico(mensagem, corBorda) {
+        let toast = document.getElementById('tactical-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'tactical-toast';
+            document.body.appendChild(toast);
+        }
+        toast.style.borderLeftColor = corBorda || 'var(--accent-green)';
+        toast.innerHTML = `<i class="fas fa-check-circle" style="color:${corBorda || 'var(--accent-green)'}; font-size:1.3em;"></i> <div>${mensagem}</div>`;
+        toast.style.display = 'flex';
+        if (window.toastTimeoutId) clearTimeout(window.toastTimeoutId);
+        window.toastTimeoutId = setTimeout(() => {
+            if (toast) toast.style.display = 'none';
+        }, 3500);
+    }
+
+    function aplicarLancamentoOtimista(payload, isEdit) {
+        let historicoOrdenado = [...globalData].sort((a, b) => a.origIdx - b.origIdx);
+        let rowsOtimistas = historicoOrdenado.map(item => {
+            let d = item.date;
+            let dd = String(d.getDate()).padStart(2, '0');
+            let mm = String(d.getMonth() + 1).padStart(2, '0');
+            let yyyy = d.getFullYear();
+            return [
+                "",
+                `${dd}/${mm}/${yyyy}`,
+                item.mat,
+                item.topico,
+                item.link,
+                item.t,
+                item.q,
+                item.a,
+                item.fase,
+                item.metodologia,
+                item.k,
+                item.l,
+                loggedUserEmail
+            ];
+        });
+
+        let qNum = parseFloat(String(payload.questoes).replace(',', '.')) || 0;
+        let aNum = parseFloat(String(payload.acertos).replace(',', '.')) || 0;
+        let tNum = parseFloat(String(payload.tempo).replace(',', '.')) || 0;
+        let fStr = String(payload.fase || "1").trim();
+        let isConsol = (fStr === "4" && qNum > 0 && (aNum / qNum) >= 0.85);
+
+        let novaLinha = [
+            new Date().toISOString(),
+            payload.dataEstudo,
+            payload.materia,
+            payload.topico,
+            payload.tipoLink,
+            tNum,
+            qNum,
+            aNum,
+            fStr,
+            payload.metodologia,
+            isConsol ? "OK" : "",
+            isConsol ? "CONSOLIDADO" : "",
+            loggedUserEmail
+        ];
+
+        if (isEdit && rowsOtimistas.length > 0) {
+            rowsOtimistas[rowsOtimistas.length - 1] = novaLinha;
+        } else {
+            rowsOtimistas.push(novaLinha);
+        }
+
+        processData(rowsOtimistas);
+        if (editalAtivoGlobal) renderizarEdital(editalAtivoGlobal);
+    }
+
     function submitEntry(e) {
         e.preventDefault();
         let btn = document.getElementById('btn-submit-form'); 
-        if(btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...'; btn.disabled = true; }
+        let modoEdicao = isEditingMode;
         
         let dt = document.getElementById('f-data'); let p = dt ? dt.value.split('-') : [];
         let mat = document.getElementById('f-materia'); let met = document.getElementById('f-metodo'); 
         let top = document.getElementById('f-topico'); let tlnk = document.getElementById('f-tipo-link'); 
         let temp = document.getElementById('f-tempo'); let q = document.getElementById('f-q'); 
         let a = document.getElementById('f-a'); let fas = document.getElementById('f-fase');
-        let actionStr = isEditingMode ? "retificar_ultimo" : "lancamento";
+        let actionStr = modoEdicao ? "retificar_ultimo" : "lancamento";
         
-        let matSelecionada = mat ? mat.options[mat.selectedIndex].text : "";
+        let matSelecionada = mat && mat.options && mat.selectedIndex >= 0 ? mat.options[mat.selectedIndex].text : "";
         let topicoTexto = top ? top.value.trim() : "";
 
         let matchedKey = topicoTexto;
-        if(!isEditingMode && editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][matSelecionada]) {
+        if(!modoEdicao && editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][matSelecionada]) {
             let assuntos = progressoEditalGlobal[editalAtivoGlobal][matSelecionada];
             
             if(!assuntos[matchedKey]) {
                 let chaves = Object.keys(assuntos);
                 for(let k of chaves) {
-                    if(topicoTexto.includes(k) || k.includes(topicoTexto)) {
+                    if(k !== "_dataProva" && (topicoTexto.includes(k) || k.includes(topicoTexto))) {
                         matchedKey = k;
                         break;
                     }
@@ -2654,21 +2727,34 @@ Gostaria que fizesse:
             tempo: temp?temp.value:"", questoes: q?q.value:"", acertos: a?a.value:"", 
             fase: fas?fas.value:"", metodologia: met?met.value:"" 
         };
+
+        // 1. ATUALIZAÇÃO IMEDIATA NA TELA (OPTIMISTIC UI - 0ms)
+        aplicarLancamentoOtimista(payload, modoEdicao);
+
+        let f = document.getElementById('studyForm'); if(f) f.reset(); 
+        let em = document.getElementById('entryModal'); if(em) em.style.display = 'none'; 
+        if(btn) btn.disabled = false;
+        isEditingMode = false;
+
+        mostrarToastTatico(
+            modoEdicao ? "Lançamento retificado no painel! Sincronizando nuvem..." : "Missão Cumprida! Painel atualizado instantaneamente.",
+            modoEdicao ? "var(--accent-orange)" : "var(--accent-green)"
+        );
+
+        // 2. SINCRONIZAÇÃO EM SEGUNDO PLANO COM O GOOGLE SHEETS
+        let syncBtns = document.querySelectorAll('.sync-btn-ui');
+        syncBtns.forEach(b => b.innerHTML = '<i class="fas fa-cloud-upload-alt fa-spin"></i> Gravando...');
+
         fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
         .then(() => { 
-            alert(isEditingMode ? "Lançamento Corrigido!" : "Missão Cumprida!"); 
-            let f = document.getElementById('studyForm'); if(f) f.reset(); 
-            let em = document.getElementById('entryModal'); if(em) em.style.display='none'; 
-            
-            // TRAVA DE TEMPO: Espera o Google assentar o banco antes de forçar atualização visual
             setTimeout(() => {
-                if(btn) btn.disabled=false; 
                 loadGoogleSheetsData();
             }, 1500);
         })
         .catch(err => { 
-            alert("Erro de conexão com o banco de dados."); 
-            if(btn) { btn.innerText = "TENTAR NOVAMENTE"; btn.disabled=false; } 
+            console.error("Erro na gravação em segundo plano:", err);
+            mostrarToastTatico("Falha de sinal ao gravar na nuvem. Clique em SINC.", "var(--accent-red)");
+            syncBtns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro');
         });
     }
     
