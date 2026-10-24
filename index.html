@@ -185,8 +185,18 @@
         .sortable-actions button { background: none; border: none; color: #888; cursor: pointer; font-size: 1.1em; padding: 4px; transition: 0.2s; }
         .sortable-actions button:hover { color: var(--accent-blue); }
 
-        .btn-action-top { border: 1px solid var(--input-border); background: var(--card-bg); color: var(--text-color); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; display: inline-flex; align-items: center; gap: 8px;}
-        .btn-action-top:hover { background: var(--hover-bg); }
+        .btn-action-top { border: 1px solid var(--border-color); background: transparent; color: #8B949E; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease; }
+        .btn-action-top:hover { background: var(--hover-bg); color: var(--text-color); border-color: #8B949E; }
+        
+        .btn-stealth { background: transparent; border: 1px solid var(--border-color); color: #8B949E; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease; }
+        .btn-stealth i { font-size: 12px; opacity: 0.85; transition: 0.2s; }
+        .btn-stealth:hover { background: var(--hover-bg); color: var(--text-color); transform: none; opacity: 1; }
+        .btn-stealth.stealth-green:hover { border-color: var(--accent-green); color: var(--accent-green); background: rgba(35, 134, 54, 0.08); }
+        .btn-stealth.stealth-blue:hover { border-color: var(--accent-blue); color: var(--accent-blue); background: rgba(88, 166, 255, 0.08); }
+        .btn-stealth.stealth-red:hover { border-color: var(--accent-red); color: var(--accent-red); background: rgba(218, 54, 51, 0.08); }
+        .btn-stealth.stealth-mission { border-color: rgba(35, 134, 54, 0.4); color: var(--text-color); background: rgba(35, 134, 54, 0.06); }
+        .btn-stealth.stealth-mission i { color: var(--accent-green); }
+        .btn-stealth.stealth-mission:hover { border-color: var(--accent-green); background: rgba(35, 134, 54, 0.16); color: var(--text-color); }
 
         .edital-subject { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
         .edital-subject-header { padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); transition: 0.2s; }
@@ -336,13 +346,12 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button class="btn-action-top" onclick="showVerse()" title="Palavra Bíblica"><i class="fas fa-bible" style="color:var(--accent-gold)"></i></button>
+                    <button class="btn-action-top" onclick="showVerse()" title="Palavra Bíblica"><i class="fas fa-bible" style="color:var(--accent-gold); opacity:0.8;"></i></button>
                     <button class="btn-action-top" onclick="toggleTheme()" title="Trocar Tema"><i class="fas fa-adjust"></i></button>
-                    <button class="btn-action-top" onclick="toggleFocus()" style="border-color:var(--accent-red); color:var(--accent-red);"><i class="fas fa-crosshairs"></i> FOCO</button>
-                    <button class="btn" style="background: var(--accent-green);" onclick="openEntryModal()"><i class="fas fa-pen-nib"></i> LANÇAR MISSÃO</button>
-                    <button class="btn sync-btn-ui" style="background: var(--accent-blue);" id="btn-sync" onclick="loadGoogleSheetsData()"><i class="fas fa-sync-alt"></i> SINC</button>
+                    <button class="btn-stealth stealth-red" onclick="toggleFocus()" title="Ativar Modo Foco"><i class="fas fa-crosshairs"></i> Foco</button>
+                    <button class="btn-stealth stealth-mission" onclick="openEntryModal()"><i class="fas fa-pen-nib"></i> Lançar Missão</button>
+                    <button class="btn-stealth stealth-blue sync-btn-ui" id="btn-sync" onclick="loadGoogleSheetsData()" title="Sincronizar com a Nuvem"><i class="fas fa-sync-alt"></i> Sinc</button>
                 </div>
-            </div>
             
             <div id="view-painel" class="app-view active-view">
                 
@@ -606,10 +615,10 @@
                         </div>
                     </div>
                     
-                    <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
-                        <button class="btn" style="background:var(--accent-blue);" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Exportar Dados CSV</button>
-                        <button class="btn" style="background:var(--accent-green);" onclick="document.getElementById('importModal').style.display='block'"><i class="fas fa-upload"></i> Importar de Outras Plataformas</button>
-                        <button class="btn" style="background:transparent; border:1px solid var(--accent-red); color:var(--accent-red);" onclick="confirmDeleteHistory()"><i class="fas fa-trash-alt"></i> Apagar Histórico</button>
+                    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:15px; flex-wrap:wrap;">
+                        <button class="btn-stealth stealth-blue" onclick="exportCSV()" title="Baixar histórico em CSV"><i class="fas fa-file-csv"></i> Exportar CSV</button>
+                        <button class="btn-stealth stealth-green" onclick="document.getElementById('importModal').style.display='block'" title="Importar planilha externa"><i class="fas fa-upload"></i> Importar Dados</button>
+                        <button class="btn-stealth stealth-red" onclick="confirmDeleteHistory()" title="Zerar histórico de lançamentos"><i class="fas fa-trash-alt"></i> Apagar Histórico</button>
                     </div>
 
                     <div style="overflow-x: auto;">
