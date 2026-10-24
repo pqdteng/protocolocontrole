@@ -138,6 +138,23 @@
         body.focus-mode .timer-tabs { display: none !important; }
         body.focus-mode #btn-exit-foco { display: block; }
 
+	.heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+        .heatmap-day-header { text-align: center; color: #888; font-size: 11px; font-weight: bold; padding-bottom: 5px; text-transform: uppercase; }
+        .heatmap-day { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 4px; padding: 5px; text-align: center; font-size: 12px; font-weight: bold; color: var(--text-color); height: 35px; display: flex; align-items: center; justify-content: center; transition: 0.2s; cursor: default; }
+        .heatmap-day:hover { filter: brightness(1.2); transform: scale(1.1); z-index: 10; position: relative; }
+        .heatmap-day.empty { background: transparent; border: 1px dashed transparent; }
+        .heatmap-day.future { border-style: dashed; color: #555; background: transparent; opacity: 0.5;}
+        
+        .heatmap-level-1 { background: rgba(35, 134, 54, 0.3); border-color: rgba(35, 134, 54, 0.5); color: #c9d1d9; }
+        .heatmap-level-2 { background: rgba(35, 134, 54, 0.6); border-color: rgba(35, 134, 54, 0.8); color: #fff; }
+        .heatmap-level-3 { background: var(--accent-green); border-color: #2ea043; color: #fff; }
+        .heatmap-level-4 { background: #39d353; border-color: #56d364; color: #000; }
+        
+        body.light-mode .heatmap-level-1 { background: #9be9a8; border-color: #9be9a8; color: #24292f; }
+        body.light-mode .heatmap-level-2 { background: #40c463; border-color: #40c463; color: #24292f; }
+        body.light-mode .heatmap-level-3 { background: #30a14e; border-color: #30a14e; color: #fff; }
+        body.light-mode .heatmap-level-4 { background: #216e39; border-color: #216e39; color: #fff; }
+
         .rank-tabs { display: flex; gap: 5px; margin-bottom: 20px; background: var(--input-bg); padding: 5px; border-radius: 8px; border: 1px solid var(--border-color);}
         .rank-tab-btn { flex: 1; padding: 10px; border: none; background: none; color: #888; cursor: pointer; border-radius: 6px; font-weight: bold; font-size: 0.9em; transition: 0.2s;}
         .rank-tab-btn.active { background: var(--hover-bg); color: var(--text-color); box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
@@ -271,6 +288,7 @@
             <div class="sidebar-menu">
                 <button class="nav-item active" onclick="switchView('painel', this); toggleMobileMenu();"><i class="fas fa-chart-pie"></i> Painel de Controle</button>
                 <button class="nav-item" onclick="openConfigModal(this); toggleMobileMenu();"><i class="fas fa-sync-alt"></i> Meu Ciclo Tático</button>
+		<button class="nav-item" onclick="switchView('heatmap-view', this); toggleMobileMenu();"><i class="fas fa-fire-alt"></i> Mapa de Força</button>
                 <button class="nav-item" style="color: var(--accent-green);" onclick="switchView('edital-view', this); toggleMobileMenu();"><i class="fas fa-tasks"></i> Edital Verticalizado</button>
                 <button class="nav-item" onclick="switchView('ranking-view', this); toggleMobileMenu();"><i class="fas fa-trophy"></i> Ranking da Elite</button>
                 <button class="nav-item" onclick="switchView('relatorio-view', this); toggleMobileMenu();"><i class="fas fa-list-alt"></i> Relatórios Gerais</button>
@@ -520,6 +538,36 @@
                             <tbody id="report-body"></tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+
+	<div id="view-heatmap-view" class="app-view">
+                <div class="chart-box" style="padding: 25px; border-top: 4px solid var(--accent-orange);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap: wrap; gap:10px;">
+                        <div>
+                            <h2 style="margin:0; font-size:1.4em; color:var(--text-color);"><i class="fas fa-fire-alt" style="color:var(--accent-orange)"></i> Mapa de Força</h2>
+                            <p style="color:#888; font-size:14px; margin:5px 0 0 0;">Acompanhe a intensidade diária da sua resolução de questões.</p>
+                        </div>
+                        <select id="heatmap-month" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:8px 12px; border-radius:6px; outline:none; font-weight:bold;" onchange="renderHeatmap()">
+                        </select>
+                    </div>
+                    
+                    <div class="heatmap-stats" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:15px; margin-bottom:25px;">
+                        <div style="background:var(--input-bg); padding:15px; border-radius:8px; border:1px solid var(--border-color); text-align:center;">
+                            <div style="color:#888; font-size:12px; margin-bottom:5px; text-transform:uppercase;"><i class="far fa-calendar-check"></i> Dias de estudo</div>
+                            <strong style="color:var(--text-color); font-size:18px;" id="hm-dias">0 dias no mês</strong>
+                        </div>
+                        <div style="background:var(--input-bg); padding:15px; border-radius:8px; border:1px solid var(--border-color); text-align:center;">
+                            <div style="color:#888; font-size:12px; margin-bottom:5px; text-transform:uppercase;"><i class="fas fa-fire" style="color:var(--accent-orange)"></i> Melhor sequência</div>
+                            <strong style="color:var(--text-color); font-size:18px;" id="hm-seq">0 dias seguidos</strong>
+                        </div>
+                        <div style="background:var(--input-bg); padding:15px; border-radius:8px; border:1px solid var(--border-color); text-align:center;">
+                            <div style="color:#888; font-size:12px; margin-bottom:5px; text-transform:uppercase;"><i class="fas fa-tasks"></i> Média atv. por dia</div>
+                            <strong style="color:var(--text-color); font-size:18px;" id="hm-media">0 Qs</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="heatmap-grid" id="heatmap-grid"></div>
                 </div>
             </div>
 
@@ -1180,20 +1228,120 @@ Gostaria que fizesse:
         
         setSafeText('streak-display', calcularDiasOfensiva());
         updateRank(); updateGPS(); updateDashboard('all'); renderReport();
-        
+        initHeatmap();
         switchLeaderboard(currentRankingTab);
     }
 
-    function updateRank() {
-        let r = GAMER_RANKS[0]; let n = GAMER_RANKS[1];
-        for(let i=0; i<GAMER_RANKS.length; i++) { if(totalQHistory >= GAMER_RANKS[i].threshold) { r = GAMER_RANKS[i]; n = GAMER_RANKS[i+1] || r; } }
-        setSafeText('rank-title', r.title); setSafeText('rank-subtitle', r.desc);
-        let icon = document.getElementById('rank-icon'); if(icon) icon.className = `fas ${r.icon} rank-icon`;
-        let p = ((totalQHistory - r.threshold) / (n.threshold - r.threshold)) * 100;
-        setSafeText('rank-progress-text', `${totalQHistory.toLocaleString()} / ${n.threshold.toLocaleString()} Q`);
-        let bar = document.getElementById('rank-bar'); if(bar) bar.style.width = Math.min(p, 100) + '%';
-        setSafeText('coin-display', totalMoedas.toLocaleString('pt-BR'));
-        setSafeText('txt-daily-q', dailyQ); setSafeText('txt-daily-h', (dailyMins/60).toFixed(1));
+    function initHeatmap() {
+        let select = document.getElementById('heatmap-month');
+        if (!select) return;
+        
+        let prevVal = select.value;
+        select.innerHTML = '';
+        let now = new Date();
+        
+        for(let i = 0; i < 12; i++) {
+            let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            let val = String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+            let label = d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+            label = label.charAt(0).toUpperCase() + label.slice(1); 
+            select.innerHTML += `<option value="${val}">${label}</option>`;
+        }
+        
+        if (prevVal && select.querySelector(`option[value="${prevVal}"]`)) {
+            select.value = prevVal;
+        }
+        renderHeatmap();
+    }
+
+    function renderHeatmap() {
+        let select = document.getElementById('heatmap-month');
+        let grid = document.getElementById('heatmap-grid');
+        if (!select || !grid) return;
+        
+        let val = select.value; 
+        if(!val) return;
+        
+        let p = val.split('/');
+        let month = parseInt(p[0]) - 1;
+        let year = parseInt(p[1]);
+        
+        let daysInMonth = new Date(year, month + 1, 0).getDate();
+        let firstDayIndex = new Date(year, month, 1).getDay(); 
+        
+        let html = '<div class="heatmap-day-header">Dom</div><div class="heatmap-day-header">Seg</div><div class="heatmap-day-header">Ter</div><div class="heatmap-day-header">Qua</div><div class="heatmap-day-header">Qui</div><div class="heatmap-day-header">Sex</div><div class="heatmap-day-header">Sáb</div>';
+        
+        let prevMonthDays = new Date(year, month, 0).getDate();
+        for(let i = firstDayIndex - 1; i >= 0; i--) {
+            let d = prevMonthDays - i;
+            html += `<div class="heatmap-day empty" style="color: #555;">${d}</div>`;
+        }
+        
+        let maxQs = 0;
+        let monthData = {};
+        let totalStudyDays = 0;
+        let totalQsMonth = 0;
+        
+        for(let i = 1; i <= daysInMonth; i++) {
+            let d = new Date(year, month, i);
+            let dateStr = d.toLocaleDateString('pt-BR');
+            let q = 0;
+            if(groupedDaily[dateStr]) {
+                q = groupedDaily[dateStr].q;
+                if(q > 0) {
+                    totalStudyDays++;
+                    totalQsMonth += q;
+                }
+            }
+            monthData[i] = q;
+            if(q > maxQs) maxQs = q;
+        }
+        
+        let bestStreak = 0;
+        let currentStreak = 0;
+        for(let i = 1; i <= daysInMonth; i++) {
+            if(monthData[i] > 0) {
+                currentStreak++;
+                if(currentStreak > bestStreak) bestStreak = currentStreak;
+            } else {
+                currentStreak = 0;
+            }
+        }
+        
+        setSafeText('hm-dias', `${totalStudyDays} dias no mês`);
+        setSafeText('hm-seq', `${bestStreak} dias seguidos`);
+        let media = totalStudyDays > 0 ? (totalQsMonth / totalStudyDays).toFixed(1) : 0;
+        setSafeText('hm-media', `${media} Qs`);
+        
+        let today = new Date();
+        today.setHours(0,0,0,0);
+        
+        for(let i = 1; i <= daysInMonth; i++) {
+            let q = monthData[i];
+            let levelClass = '';
+            
+            if(q > 0) {
+                let ratio = q / maxQs;
+                if(ratio > 0.75) levelClass = 'heatmap-level-4';
+                else if(ratio > 0.50) levelClass = 'heatmap-level-3';
+                else if(ratio > 0.25) levelClass = 'heatmap-level-2';
+                else levelClass = 'heatmap-level-1';
+            }
+            
+            let d = new Date(year, month, i);
+            let futureClass = d > today ? 'future' : '';
+            let title = q > 0 ? `${q} questões resolvidas em ${d.toLocaleDateString('pt-BR')}` : `Sem atividade`;
+            
+            html += `<div class="heatmap-day ${levelClass} ${futureClass}" title="${title}">${i}</div>`;
+        }
+        
+        let totalCells = firstDayIndex + daysInMonth;
+        let remainingCells = (7 - (totalCells % 7)) % 7;
+        for(let i = 1; i <= remainingCells; i++) {
+            html += `<div class="heatmap-day empty" style="color: #555;">${i}</div>`;
+        }
+        
+        grid.innerHTML = html;
     }
 
     function calcularDiasOfensiva() {
@@ -1567,35 +1715,6 @@ Gostaria que fizesse:
         }
         topContainer.innerHTML = inputHTML + datalistHTML;
     }
-
-    function submitEntry(e) {
-        e.preventDefault();
-        let btn = document.getElementById('btn-submit-form'); 
-        if(btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...'; btn.disabled = true; }
-        
-        let dt = document.getElementById('f-data'); let p = dt ? dt.value.split('-') : [];
-        let mat = document.getElementById('f-materia'); let met = document.getElementById('f-metodo'); 
-        let top = document.getElementById('f-topico'); let tlnk = document.getElementById('f-tipo-link'); 
-        let temp = document.getElementById('f-tempo'); let q = document.getElementById('f-q'); 
-        let a = document.getElementById('f-a'); let fas = document.getElementById('f-fase');
-        let actionStr = isEditingMode ? "retificar_ultimo" : "lancamento";
-        
-        let matSelecionada = mat ? mat.options[mat.selectedIndex].text : "";
-        let topicoTexto = top ? top.value.trim() : "";
-
-        let matchedKey = topicoTexto;
-        if(!isEditingMode && editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][matSelecionada]) {
-            let assuntos = progressoEditalGlobal[editalAtivoGlobal][matSelecionada];
-            
-            if(!assuntos[matchedKey]) {
-                let chaves = Object.keys(assuntos);
-                for(let k of chaves) {
-                    if(topicoTexto.includes(k) || k.includes(topicoTexto)) {
-                        matchedKey = k;
-                        break;
-                    }
-                }
-            }
 
             if(assuntos[matchedKey]) {
                 assuntos[matchedKey].checked = true;
