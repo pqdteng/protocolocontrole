@@ -1344,6 +1344,18 @@ Gostaria que fizesse:
         grid.innerHTML = html;
     }
 
+    function updateRank() {
+        let r = GAMER_RANKS[0]; let n = GAMER_RANKS[1];
+        for(let i=0; i<GAMER_RANKS.length; i++) { if(totalQHistory >= GAMER_RANKS[i].threshold) { r = GAMER_RANKS[i]; n = GAMER_RANKS[i+1] || r; } }
+        setSafeText('rank-title', r.title); setSafeText('rank-subtitle', r.desc);
+        let icon = document.getElementById('rank-icon'); if(icon) icon.className = `fas ${r.icon} rank-icon`;
+        let p = ((totalQHistory - r.threshold) / (n.threshold - r.threshold)) * 100;
+        setSafeText('rank-progress-text', `${totalQHistory.toLocaleString()} / ${n.threshold.toLocaleString()} Q`);
+        let bar = document.getElementById('rank-bar'); if(bar) bar.style.width = Math.min(p, 100) + '%';
+        setSafeText('coin-display', totalMoedas.toLocaleString('pt-BR'));
+        setSafeText('txt-daily-q', dailyQ); setSafeText('txt-daily-h', (dailyMins/60).toFixed(1));
+    }
+
     function calcularDiasOfensiva() {
         let datasUnicas = Object.keys(groupedDaily).map(d => { let p = d.split('/'); return new Date(p[2], p[1]-1, p[0]); }).sort((a,b) => b - a);
         if(datasUnicas.length === 0) return 0;
@@ -1357,7 +1369,7 @@ Gostaria que fizesse:
                 if(diff === 1) streak++; else if(diff > 1) break;
             } lastDate = d;
         } return streak;
-    }
+	}
 
     function switchLeaderboard(type) {
         currentRankingTab = type; 
