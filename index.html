@@ -159,6 +159,22 @@
         .rank-tab-btn { flex: 1; padding: 10px; border: none; background: none; color: #888; cursor: pointer; border-radius: 6px; font-weight: bold; font-size: 0.9em; transition: 0.2s;}
         .rank-tab-btn.active { background: var(--hover-bg); color: var(--text-color); box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
         .leader-item { background: rgba(242, 201, 76, 0.05); border-left: 3px solid var(--accent-gold) !important; }
+		
+		.comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px; }
+        .comp-card { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
+        .comp-card-header { background: rgba(0,0,0,0.2); padding: 14px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .comp-card-header h3 { margin: 0; font-size: 14px; color: var(--text-color); font-weight: 700; }
+        .comp-card-body { padding: 18px 20px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .comp-subtabs { display: flex; gap: 20px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+        .comp-subtab-btn { background: none; border: none; color: #888; font-size: 13px; font-weight: bold; cursor: pointer; padding: 4px 0; position: relative; transition: 0.2s; }
+        .comp-subtab-btn:hover { color: var(--text-color); }
+        .comp-subtab-btn.active { color: var(--text-color); }
+        .comp-subtab-btn.active::after { content: ''; position: absolute; bottom: -9px; left: 0; width: 100%; height: 2px; background: #A3E635; }
+        .comp-chart-wrap { position: relative; height: 300px; width: 100%; }
+        .comp-legend { display: flex; gap: 20px; align-items: center; margin-top: 15px; font-size: 12px; color: var(--text-color); font-weight: 600; }
+        .comp-legend-item { display: inline-flex; align-items: center; gap: 8px; }
+        .comp-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        @media (max-width: 992px) { .comp-grid { grid-template-columns: 1fr; } }
 
         .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 15px; max-height: 200px; overflow-y: auto; padding: 10px; background: var(--input-bg); border-radius: 8px; border: 1px solid var(--border-color);}
         .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 0.9em; cursor: pointer; padding: 5px; border-radius: 4px;}
@@ -488,22 +504,85 @@
 
             <div id="view-ranking-view" class="app-view">
                 <div class="chart-box" style="padding:0; overflow:hidden;">
-                    <div style="background:var(--hover-bg); padding:20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color);">
-                        <h2 style="margin:0; color:var(--accent-gold); font-size:1.4em;"><i class="fas fa-trophy"></i> Hall da Fama</h2>
+                    <div style="background:var(--hover-bg); padding:20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); flex-wrap:wrap; gap:10px;">
+                        <h2 style="margin:0; color:var(--accent-gold); font-size:1.4em;"><i class="fas fa-trophy"></i> Hall da Fama & Comparativo</h2>
                         <button class="btn sync-btn-ui" style="background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-color);" onclick="loadGoogleSheetsData()"><i class="fas fa-sync"></i> Atualizar Placar</button>
                     </div>
                     <div style="padding:20px;">
-                        <div class="rank-tabs">
+                        <div class="rank-tabs" style="flex-wrap:wrap;">
                             <button class="rank-tab-btn active" id="tab-hoje" onclick="switchLeaderboard('diario')">DIÁRIO</button>
                             <button class="rank-tab-btn" id="tab-semana" onclick="switchLeaderboard('semanal')">SEMANAL</button>
                             <button class="rank-tab-btn" id="tab-mes" onclick="switchLeaderboard('mensal')">MENSAL</button>
                             <button class="rank-tab-btn" id="tab-geral" onclick="switchLeaderboard('geral')">GERAL</button>
+                            <button class="rank-tab-btn" id="tab-comparativo" onclick="switchLeaderboard('comparativo')" style="color:var(--accent-blue);"><i class="fas fa-chart-pie"></i> COMPARATIVO</button>
                         </div>
-                        <div style="overflow-x: auto;">
+
+                        <div id="leaderboard-table-wrap" style="overflow-x: auto;">
                             <table style="width:100%; border-collapse:collapse; text-align:left;">
                                 <thead><tr style="color:#888; border-bottom:1px solid var(--border-color);"><th style="padding:15px 10px;">Rank</th><th>Comandante</th><th>Volume Resolvido</th><th>Precisão</th></tr></thead>
                                 <tbody id="leaderboard-body"></tbody>
                             </table>
+                        </div>
+
+                        <div id="comparativo-wrap" style="display:none;">
+                            <div class="comp-grid">
+                                <div class="comp-card">
+                                    <div class="comp-card-header">
+                                        <h3>Evolução de desempenho por período</h3>
+                                        <i class="fas fa-info-circle" style="color:#888; cursor:help;" title="Compara a evolução da sua taxa de acerto mensal com a média geral de todos os alunos da plataforma."></i>
+                                    </div>
+                                    <div class="comp-card-body">
+                                        <div class="comp-subtabs">
+                                            <button type="button" class="comp-subtab-btn active" id="btn-comp-linha" onclick="setCompEvolMode('linha')">Linha</button>
+                                            <button type="button" class="comp-subtab-btn" id="btn-comp-pos" onclick="setCompEvolMode('posicao')">Posição relativa</button>
+                                        </div>
+                                        <div class="comp-chart-wrap">
+                                            <canvas id="chartCompEvolucao"></canvas>
+                                        </div>
+                                        <div class="comp-legend">
+                                            <span class="comp-legend-item"><span class="comp-dot" style="background:#A3E635;"></span> Você</span>
+                                            <span class="comp-legend-item"><span class="comp-dot" style="background:#58A6FF;"></span> Geral</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="comp-card">
+                                    <div class="comp-card-header">
+                                        <h3>Perfil de desempenho</h3>
+                                        <i class="fas fa-info-circle" style="color:#888; cursor:help;" title="Passe o mouse sobre os vértices para inspecionar sua precisão contra a média geral em cada disciplina."></i>
+                                    </div>
+                                    <div class="comp-card-body">
+                                        <div class="comp-subtabs">
+                                            <button type="button" class="comp-subtab-btn active" id="btn-comp-radar" onclick="setCompPerfilMode('radar')">Radar</button>
+                                            <button type="button" class="comp-subtab-btn" id="btn-comp-colunas" onclick="setCompPerfilMode('bar')">Colunas</button>
+                                        </div>
+                                        <div class="comp-chart-wrap">
+                                            <canvas id="chartCompPerfil"></canvas>
+                                        </div>
+                                        <div class="comp-legend">
+                                            <span class="comp-legend-item"><span class="comp-dot" style="background:#A3E635;"></span> Você</span>
+                                            <span class="comp-legend-item"><span class="comp-dot" style="background:#58A6FF;"></span> Geral</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="margin-top:20px; background:var(--input-bg); border:1px solid var(--border-color); border-radius:10px; padding:15px; overflow-x:auto;">
+                                <h4 style="margin:0 0 12px 0; font-size:13px; color:#888; text-transform:uppercase;"><i class="fas fa-crosshairs" style="color:var(--accent-blue)"></i> Diagnóstico Tático por Disciplina (Você vs. Tropa)</h4>
+                                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                                    <thead>
+                                        <tr style="border-bottom:1px solid var(--border-color); color:#888;">
+                                            <th style="padding:10px;">Disciplina</th>
+                                            <th>Suas Qs</th>
+                                            <th>Você (%)</th>
+                                            <th>Geral (%)</th>
+                                            <th>Diferença</th>
+                                            <th>Status Tático</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="comparativo-table-body"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -644,7 +723,7 @@
 
             <button class="btn" id="btn-process-import" style="background:var(--accent-green); width:100%;" onclick="processarImportacaoCSV()">INJETAR DADOS NO SERVIDOR</button>
         </div>
-    </div>
+	</div>
 
     <div id="ranksModal" class="modal">
         <div class="modal-content" style="max-width: 550px; border-top: 4px solid var(--accent-gold);">
@@ -1151,6 +1230,7 @@ Gostaria que fizesse:
             globalExpiration = data.expiration || "Vitalício"; 
             globalNickname = data.nickname || "Recruta"; 
             globalLeaderboards = data.leaderboards || {diario:[], semanal:[], mensal:[], geral:[]};
+            window.globalComparativo = data.comparativoGeral || { disciplinas: {}, mensal: {} };
             baseEditaisGlobal = data.baseEditais || {};
             editalAtivoGlobal = data.editalAtivo || "";
             try { progressoEditalGlobal = JSON.parse(data.progressoEdital || "{}"); } catch(e) { progressoEditalGlobal = {}; }
@@ -1371,27 +1451,324 @@ Gostaria que fizesse:
         } return streak;
 	}
 
+    let compEvolChartObj = null;
+    let compPerfilChartObj = null;
+    let currentCompEvolMode = 'linha';
+    let currentCompPerfilMode = 'radar';
+
     function switchLeaderboard(type) {
-        currentRankingTab = type; 
-        document.querySelectorAll('.rank-tab-btn').forEach(b => b.classList.remove('active'));
+        currentRankingTab = type;
+        document.querySelectorAll('#view-ranking-view .rank-tab-btn').forEach(b => b.classList.remove('active'));
         
-        let tabMap = { 'diario': 'tab-hoje', 'semanal': 'tab-semana', 'mensal': 'tab-mes', 'geral': 'tab-geral' };
-        let tab = document.getElementById(tabMap[type]); 
-        if(tab) tab.classList.add('active');
+        let tabMap = {
+            'diario': 'tab-hoje',
+            'semanal': 'tab-semana',
+            'mensal': 'tab-mes',
+            'geral': 'tab-geral',
+            'comparativo': 'tab-comparativo'
+        };
+        let tab = document.getElementById(tabMap[type]);
+        if (tab) tab.classList.add('active');
+
+        let tableWrap = document.getElementById('leaderboard-table-wrap');
+        let compWrap = document.getElementById('comparativo-wrap');
+
+        if (type === 'comparativo') {
+            if (tableWrap) tableWrap.style.display = 'none';
+            if (compWrap) compWrap.style.display = 'block';
+            renderComparativoCharts();
+            return;
+        }
+
+        if (tableWrap) tableWrap.style.display = 'block';
+        if (compWrap) compWrap.style.display = 'none';
         
-        let list = globalLeaderboards[type] || []; 
+        let list = globalLeaderboards[type] || [];
         let body = document.getElementById('leaderboard-body');
-        if(!body) return;
+        if (!body) return;
         
-        if(list.length === 0) { 
-            body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px; color:#888;">Nenhum registro para este período.</td></tr>'; 
-            return; 
+        if (list.length === 0) {
+            body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px; color:#888;">Nenhum registro para este período.</td></tr>';
+            return;
         }
         
         body.innerHTML = list.map((u, i) => {
             let acc = u.a > 0 && u.q > 0 ? ((u.a / u.q) * 100).toFixed(1) + '%' : '--';
             return `<tr class="${u.nick === globalNickname ? 'leader-item' : ''}"><td style="padding:12px; color:#888;">#${i+1}</td><td style="font-weight:bold; color: ${u.nick === globalNickname ? 'var(--accent-gold)' : 'var(--text-color)'};">${u.nick === globalNickname ? 'VOCÊ ('+u.nick+')' : u.nick}</td><td>${u.q.toLocaleString()} Qs</td><td style="color: ${parseFloat(acc) >= 75 ? 'var(--accent-green)' : (acc === '--' ? '#888' : 'var(--accent-red)')}; font-weight:bold;">${acc}</td></tr>`;
         }).join('');
+    }
+
+    function setCompEvolMode(mode) {
+        currentCompEvolMode = mode;
+        let bLinha = document.getElementById('btn-comp-linha');
+        let bPos = document.getElementById('btn-comp-pos');
+        if (bLinha) bLinha.classList.toggle('active', mode === 'linha');
+        if (bPos) bPos.classList.toggle('active', mode === 'posicao');
+        renderComparativoCharts();
+    }
+
+    function setCompPerfilMode(mode) {
+        currentCompPerfilMode = mode;
+        let bRadar = document.getElementById('btn-comp-radar');
+        let bCol = document.getElementById('btn-comp-colunas');
+        if (bRadar) bRadar.classList.toggle('active', mode === 'radar');
+        if (bCol) bCol.classList.toggle('active', mode === 'bar');
+        renderComparativoCharts();
+    }
+
+    function resolverMetaDisciplina(rawMat) {
+        let clean = String(rawMat || '').trim();
+        let allKnown = [...TODAS_MATERIAS, ...customSubjects];
+        for (let i = 0; i < allKnown.length; i++) {
+            let m = allKnown[i];
+            if (m.chaves[0].toLowerCase() === clean.toLowerCase() || m.nome.toLowerCase() === clean.toLowerCase()) {
+                return { sigla: m.chaves[0].toUpperCase(), nome: m.nome };
+            }
+        }
+        let siglaAuto = clean.length <= 6 ? clean.toUpperCase() : clean.substring(0, 4).toUpperCase();
+        return { sigla: siglaAuto, nome: clean };
+    }
+
+    function renderComparativoCharts() {
+        let compData = window.globalComparativo || { disciplinas: {}, mensal: {} };
+        let geralDiscRaw = compData.disciplinas || {};
+        let geralMensalRaw = compData.mensal || {};
+
+        let userAll = (groupedAllTime["Histórico Completo"] && groupedAllTime["Histórico Completo"].subjects) ? groupedAllTime["Histórico Completo"].subjects : {};
+
+        let mapConsolidado = {};
+        Object.keys(geralDiscRaw).forEach(k => {
+            let meta = resolverMetaDisciplina(k);
+            if (!mapConsolidado[meta.sigla]) mapConsolidado[meta.sigla] = { sigla: meta.sigla, nome: meta.nome, uQ: 0, uA: 0, gQ: 0, gA: 0 };
+            mapConsolidado[meta.sigla].gQ += (geralDiscRaw[k].q || 0);
+            mapConsolidado[meta.sigla].gA += (geralDiscRaw[k].a || 0);
+        });
+
+        Object.keys(userAll).forEach(k => {
+            let meta = resolverMetaDisciplina(k);
+            if (!mapConsolidado[meta.sigla]) mapConsolidado[meta.sigla] = { sigla: meta.sigla, nome: meta.nome, uQ: 0, uA: 0, gQ: 0, gA: 0 };
+            mapConsolidado[meta.sigla].uQ += (userAll[k].q || 0);
+            mapConsolidado[meta.sigla].uA += (userAll[k].a || 0);
+        });
+
+        let listaDisc = Object.values(mapConsolidado).filter(d => d.uQ > 0 || d.gQ > 0);
+        let comEstudoUsuario = listaDisc.filter(d => d.uQ > 0);
+        let baseGrafico = comEstudoUsuario.length >= 3 ? comEstudoUsuario : listaDisc.slice(0, 10);
+
+        baseGrafico.sort((a, b) => b.uQ - a.uQ);
+
+        let siglasLabels = baseGrafico.map(d => d.sigla);
+        let nomesCompletos = baseGrafico.map(d => `${d.nome} - ${d.sigla}`);
+        let dataVoce = baseGrafico.map(d => d.uQ > 0 ? Number(((d.uA / d.uQ) * 100).toFixed(1)) : 0);
+        let dataGeral = baseGrafico.map(d => {
+            if (d.gQ > 0) return Number(((d.gA / d.gQ) * 100).toFixed(1));
+            return d.uQ > 0 ? Number(((d.uA / d.uQ) * 100).toFixed(1)) : 0;
+        });
+
+        let isLight = document.body.classList.contains('light-mode');
+        let gridColor = isLight ? '#D0D7DE' : '#30363D';
+        let textColor = isLight ? '#24292F' : '#C9D1D9';
+
+        let elPerfil = document.getElementById('chartCompPerfil');
+        if (elPerfil) {
+            if (compPerfilChartObj) compPerfilChartObj.destroy();
+            let ctxP = elPerfil.getContext('2d');
+            compPerfilChartObj = new Chart(ctxP, {
+                type: currentCompPerfilMode,
+                data: {
+                    labels: siglasLabels,
+                    datasets: [
+                        {
+                            label: 'Você',
+                            data: dataVoce,
+                            borderColor: '#A3E635',
+                            backgroundColor: currentCompPerfilMode === 'radar' ? 'rgba(163, 230, 53, 0.28)' : 'rgba(163, 230, 53, 0.85)',
+                            pointBackgroundColor: '#A3E635',
+                            pointBorderColor: '#161B22',
+                            pointRadius: 4,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Geral',
+                            data: dataGeral,
+                            borderColor: '#58A6FF',
+                            backgroundColor: currentCompPerfilMode === 'radar' ? 'rgba(88, 166, 255, 0.20)' : 'rgba(88, 166, 255, 0.75)',
+                            pointBackgroundColor: '#58A6FF',
+                            pointBorderColor: '#161B22',
+                            pointRadius: 4,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(22, 27, 34, 0.95)',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#C9D1D9',
+                            borderColor: '#30363D',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                title: function(items) {
+                                    if (!items.length) return '';
+                                    let idx = items[0].dataIndex;
+                                    return nomesCompletos[idx] || items[0].label;
+                                },
+                                label: function(context) {
+                                    let v = Number(context.raw || 0).toFixed(1).replace('.', ',');
+                                    return `${context.dataset.label} - ${v}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: currentCompPerfilMode === 'radar' ? {
+                        r: {
+                            min: 0,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20,
+                                backdropColor: 'transparent',
+                                color: '#888',
+                                callback: function(val) { return val + '%'; }
+                            },
+                            grid: { color: gridColor },
+                            angleLines: { color: gridColor },
+                            pointLabels: { color: textColor, font: { size: 11, weight: 'bold' } }
+                        }
+                    } : {
+                        x: { grid: { color: gridColor }, ticks: { color: textColor } },
+                        y: {
+                            min: 0,
+                            max: 100,
+                            grid: { color: gridColor },
+                            ticks: { color: '#888', callback: function(v) { return v + '%'; } }
+                        }
+                    }
+                }
+            });
+        }
+
+        let mesesSet = new Set([...Object.keys(groupedMonthly), ...Object.keys(geralMensalRaw)]);
+        let mesesOrdenados = Array.from(mesesSet).filter(m => /^\d{2}\/\d{4}$/.test(m)).sort((a, b) => {
+            let pa = a.split('/');
+            let pb = b.split('/');
+            return new Date(pa[1], pa[0] - 1, 1) - new Date(pb[1], pb[0] - 1, 1);
+        }).slice(-6);
+
+        let labelsMeses = mesesOrdenados.map((m, idx) => `M${idx + 1} (${m})`);
+        let serieVoceMes = [];
+        let serieGeralMes = [];
+
+        mesesOrdenados.forEach(m => {
+            let uM = groupedMonthly[m];
+            let gM = geralMensalRaw[m];
+            let uPct = (uM && uM.q > 0) ? Number(((uM.a / uM.q) * 100).toFixed(1)) : 0;
+            let gPct = (gM && gM.q > 0) ? Number(((gM.a / gM.q) * 100).toFixed(1)) : uPct;
+
+            if (currentCompEvolMode === 'linha') {
+                serieVoceMes.push(uPct);
+                serieGeralMes.push(gPct);
+            } else {
+                let diff = Number((uPct - gPct).toFixed(1));
+                serieVoceMes.push(diff);
+                serieGeralMes.push(0);
+            }
+        });
+
+        let elEvol = document.getElementById('chartCompEvolucao');
+        if (elEvol) {
+            if (compEvolChartObj) compEvolChartObj.destroy();
+            let ctxE = elEvol.getContext('2d');
+            compEvolChartObj = new Chart(ctxE, {
+                type: 'line',
+                data: {
+                    labels: labelsMeses,
+                    datasets: [
+                        {
+                            label: currentCompEvolMode === 'linha' ? 'Você' : 'Você vs. Média (p.p.)',
+                            data: serieVoceMes,
+                            borderColor: '#A3E635',
+                            backgroundColor: 'rgba(163, 230, 53, 0.25)',
+                            fill: true,
+                            tension: 0.25,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#A3E635',
+                            borderWidth: 2.5
+                        },
+                        {
+                            label: currentCompEvolMode === 'linha' ? 'Geral' : 'Linha Base (Média Geral)',
+                            data: serieGeralMes,
+                            borderColor: '#58A6FF',
+                            backgroundColor: 'rgba(88, 166, 255, 0.15)',
+                            fill: currentCompEvolMode === 'linha',
+                            tension: 0.25,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#58A6FF',
+                            borderWidth: 2.5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(22, 27, 34, 0.95)',
+                            callbacks: {
+                                label: function(context) {
+                                    let v = Number(context.raw || 0).toFixed(1).replace('.', ',');
+                                    let sufixo = currentCompEvolMode === 'linha' ? '%' : ' p.p.';
+                                    return `${context.dataset.label}: ${v}${sufixo}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: gridColor }, ticks: { color: textColor } },
+                        y: {
+                            min: currentCompEvolMode === 'linha' ? 30 : undefined,
+                            max: currentCompEvolMode === 'linha' ? 100 : undefined,
+                            grid: { color: gridColor },
+                            ticks: {
+                                color: '#888',
+                                callback: function(v) { return currentCompEvolMode === 'linha' ? v + '%' : (v > 0 ? '+' + v + '%' : v + '%'); }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        let tBody = document.getElementById('comparativo-table-body');
+        if (tBody) {
+            if (baseGrafico.length === 0) {
+                tBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:15px; color:#888;">Lance suas primeiras questões para desbloquear o comparativo por disciplina.</td></tr>';
+            } else {
+                tBody.innerHTML = baseGrafico.map(d => {
+                    let uPct = d.uQ > 0 ? (d.uA / d.uQ) * 100 : 0;
+                    let gPct = d.gQ > 0 ? (d.gA / d.gQ) * 100 : uPct;
+                    let delta = uPct - gPct;
+                    let deltaStr = (delta >= 0 ? '+' : '') + delta.toFixed(1).replace('.', ',') + '%';
+                    let badge = delta >= 0
+                        ? `<span style="background:rgba(163, 230, 53, 0.15); color:#A3E635; border:1px solid rgba(163, 230, 53, 0.4); padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;"><i class="fas fa-arrow-up"></i> Acima do Pelotão</span>`
+                        : `<span style="background:rgba(218, 54, 51, 0.15); color:var(--accent-red); border:1px solid rgba(218, 54, 51, 0.4); padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;"><i class="fas fa-exclamation-circle"></i> Reforçar Base</span>`;
+
+                    return `<tr>
+                        <td style="padding:10px;"><strong>${d.nome}</strong> <span style="color:#888; font-size:11px;">(${d.sigla})</span></td>
+                        <td>${d.uQ.toLocaleString('pt-BR')}</td>
+                        <td style="color:#A3E635; font-weight:bold;">${uPct.toFixed(1).replace('.', ',')}%</td>
+                        <td style="color:#58A6FF; font-weight:bold;">${gPct.toFixed(1).replace('.', ',')}%</td>
+                        <td style="color:${delta >= 0 ? '#A3E635' : 'var(--accent-red)'}; font-weight:bold;">${deltaStr}</td>
+                        <td>${badge}</td>
+                    </tr>`;
+                }).join('');
+            }
+        }
     }
 
     function updateLeaderEffects() {
