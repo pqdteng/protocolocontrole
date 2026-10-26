@@ -52,6 +52,8 @@
         .greeting h2 { margin: 0; font-size: 1.5em; color: var(--text-color);}
         .greeting p { margin: 5px 0 0 0; color: #888; font-size: 0.9em;}
         .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+        .daily-verse-top { margin-left: auto; margin-right: 16px; padding-left: 12px; border-left: 2px solid var(--accent-green); color: #8B949E; font-style: italic; font-size: 13px; line-height: 1.35; max-width: 460px; text-align: left; }
+        @media (max-width: 992px) { .daily-verse-top { margin-left: 0; margin-right: 0; max-width: 100%; width: 100%; box-sizing: border-box; } }
         
         .btn-action-top { border: 1px solid var(--border-color); background: transparent; color: #8B949E; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease; box-sizing: border-box; }
         .btn-action-top:hover { background: var(--hover-bg); color: var(--text-color); border-color: #8B949E; }
@@ -394,8 +396,8 @@
                         <p id="current-date-text" style="margin: 5px 0 0 0; color: #888; font-size: 0.9em;"></p>
                     </div>
                 </div>
+                <div id="daily-verse-top" class="daily-verse-top"></div>
                 <div class="header-actions">
-                    <button class="btn-action-top" onclick="showVerse()" title="Palavra Bíblica"><i class="fas fa-bible" style="color:var(--accent-gold); opacity:0.8;"></i></button>
                     <button class="btn-action-top" onclick="toggleTheme()" title="Trocar Tema"><i class="fas fa-adjust"></i></button>
                     <button class="btn-stealth stealth-red" onclick="toggleFocus()" title="Ativar Modo Foco"><i class="fas fa-crosshairs"></i> Foco</button>
                     <button class="btn-stealth stealth-mission" onclick="openEntryModal()"><i class="fas fa-pen-nib"></i> Lançar Missão</button>
@@ -974,7 +976,17 @@ Gostaria que fizesse:
         "O choro pode durar uma noite, mas a alegria vem pela manhã. (Salmos 30:5)",
         "Os que esperam no Senhor renovarão as suas forças. Subirão com asas como águias. (Isaías 40:31)",
         "Ensina-nos a contar os nossos dias, para que alcancemos coração sábio. (Salmos 90:12)",
-        "Confia no Senhor de todo o teu coração e não te estribes no teu próprio entendimento. (Provérbios 3:5)"
+        "Confia no Senhor de todo o teu coração e não te estribes no teu próprio entendimento. (Provérbios 3:5)",
+        "Não nos cansemos de fazer o bem, pois no tempo próprio colheremos, se não desanimarmos. (Gálatas 6:9)",
+        "Os planos bem elaborados levam à fartura; mas o apressado sempre acaba na miséria. (Provérbios 21:5)",
+        "Quem trabalha com mão displicente empobrece, mas a mão dos diligentes enriquece. (Provérbios 10:4)",
+        "Tudo quanto te vier à mão para fazer, faze-o conforme as tuas forças. (Eclesiastes 9:10)",
+        "Aqueles que semeiam com lágrimas, com cantos de alegria colherão. (Salmos 126:5)",
+        "Mas vocês, sejam fortes e não desanimem, pois o trabalho de vocês será recompensado. (2 Crônicas 15:7)",
+        "Portanto, meus amados irmãos, mantenham-se firmes, pois no Senhor o trabalho de vocês não é inútil. (1 Coríntios 15:58)",
+        "Pois Deus não nos deu espírito de covardia, mas de poder, de amor e de equilíbrio. (2 Timóteo 1:7)",
+        "Nenhuma disciplina parece ser motivo de alegria no momento, mas mais tarde produz fruto. (Hebreus 12:11)",
+        "Quem é fiel no pouco, também é fiel no muito. (Lucas 16:10)"
     ];
 
     let customSubjects = JSON.parse(localStorage.getItem('pqdtCustomSubjects')) || [];
@@ -998,7 +1010,17 @@ Gostaria que fizesse:
     
     function toggleTheme() { document.body.classList.toggle('light-mode'); localStorage.setItem('pqdtTheme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); updateChartColors(); if(globalData.length>0) updateDashboard('all'); }
     function toggleFocus() { document.body.classList.toggle('focus-mode'); }
-    function showVerse() { alert("📖 Palavra de Força:\n\n" + BIBLE_VERSES[Math.floor(Math.random() * BIBLE_VERSES.length)]); }
+    function renderDailyVerse() {
+        let el = document.getElementById('daily-verse-top');
+        if (!el || !BIBLE_VERSES || BIBLE_VERSES.length === 0) return;
+        let now = new Date();
+        let start = new Date(now.getFullYear(), 0, 0);
+        let diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+        let dayOfYear = Math.floor(diff / 86400000);
+        let idx = (now.getFullYear() * 366 + dayOfYear) % BIBLE_VERSES.length;
+        setSafeText('daily-verse-top', `"${BIBLE_VERSES[idx]}"`);
+    }
+    function showVerse() { renderDailyVerse(); }
     function copyPrompt() { let pt = document.getElementById('ai-prompt'); if(pt) navigator.clipboard.writeText(pt.innerText).then(() => alert("Prompt Copiado!")); }
     
     function showScreen(type) { 
@@ -1126,6 +1148,7 @@ Gostaria que fizesse:
         let mQ = document.getElementById('meta-q'); 
         if(mQ && localStorage.getItem('metaQ')) mQ.value = localStorage.getItem('metaQ');
         
+        renderDailyVerse();
         loadGoogleSheetsData();
         checkUpdateNotification(); 
         initWeather();
