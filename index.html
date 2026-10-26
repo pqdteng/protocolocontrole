@@ -199,6 +199,14 @@
         .heatmap-legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: #8B949E; font-weight: 600; }
         .heatmap-legend-item strong { color: var(--text-color); }
         .heatmap-legend-box { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid var(--border-color); background: var(--input-bg); box-sizing: border-box; flex-shrink: 0; }
+        .heatmap-legend-box.heatmap-level-1 { background: rgba(35, 134, 54, 0.3); border-color: rgba(35, 134, 54, 0.5); }
+        .heatmap-legend-box.heatmap-level-2 { background: rgba(35, 134, 54, 0.6); border-color: rgba(35, 134, 54, 0.8); }
+        .heatmap-legend-box.heatmap-level-3 { background: var(--accent-green); border-color: #2ea043; }
+        .heatmap-legend-box.heatmap-level-4 { background: #39d353; border-color: #56d364; }
+        body.light-mode .heatmap-legend-box.heatmap-level-1 { background: #9be9a8; border-color: #9be9a8; }
+        body.light-mode .heatmap-legend-box.heatmap-level-2 { background: #40c463; border-color: #40c463; }
+        body.light-mode .heatmap-legend-box.heatmap-level-3 { background: #30a14e; border-color: #30a14e; }
+        body.light-mode .heatmap-legend-box.heatmap-level-4 { background: #216e39; border-color: #216e39; }
 
         .rank-tabs { display: flex; gap: 5px; margin-bottom: 20px; background: var(--input-bg); padding: 5px; border-radius: 8px; border: 1px solid var(--border-color);}
         .rank-tab-btn { flex: 1; padding: 10px; border: none; background: none; color: #888; cursor: pointer; border-radius: 6px; font-weight: bold; font-size: 0.9em; transition: 0.2s;}
