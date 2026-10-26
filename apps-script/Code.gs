@@ -1,0 +1,458 @@
+function doPost(e) {
+  try {
+    // Blindagem: Garante que a requisição tem um corpo de dados antes de tentar ler
+    if (!e || !e.postData || !e.postData.contents) {
+      return ContentService.createTextOutput(JSON.stringify({"status": "erro", "mensagem": "Carga de dados vazia."})).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var dados = JSON.parse(e.postData.contents);
+    var acao = dados.acao;
+    var sheetU = ss.getSheetByName("Usuarios");
+
+    if (acao === "cadastro") {
+      var users = sheetU.getDataRange().getValues();
+      var emailEncontrado = false;
+      for (var i = 1; i < users.length; i++) {
+        if (users[i][0] && users[i][0].toString().toLowerCase() === dados.email.toLowerCase()) {
+          emailEncontrado = true;
+          var dataExpiracao = users[i][2]; 
+          if (dataExpiracao && dataExpiracao !== "" && !isNaN(new Date(dataExpiracao).getTime())) {
+            if (new Date() > new Date(dataExpiracao)) return ContentService.createTextOutput(JSON.stringify({"status": "erro", "mensagem": "Assinatura expirada."})).setMimeType(ContentService.MimeType.JSON);
+          }
+          if (users[i][1] && users[i][1].toString().trim() !== "") {
+            return ContentService.createTextOutput(JSON.stringify({"status": "erro", "mensagem": "Conta já ativada!"})).setMimeType(ContentService.MimeType.JSON);
+          } else {
+            sheetU.getRange(i + 1, 2).setValue(dados.senha);
+            sheetU.getRange(i + 1, 4).setValue("Recruta_" + Math.floor(Math.random() * 1000));
+            SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+            return ContentService.createTextOutput(JSON.stringify({"status": "sucesso"})).setMimeType(ContentService.MimeType.JSON);
+          }
+        }
+      }
+      if (!emailEncontrado) {
+        var novoNickname = "Recruta_" + Math.floor(Math.random() * 1000);
+        sheetU.appendRow([dados.email.toLowerCase(), dados.senha, "", novoNickname, 0, 0, 0, "", "", "{}"]);
+        SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+        return ContentService.createTextOutput(JSON.stringify({"status": "sucesso"})).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
+    if (acao === "salvar_ciclo_nuvem") {
+      var dataU = sheetU.getDataRange().getValues();
+      for (var i = 1; i < dataU.length; i++) {
+        if (dataU[i][0].toString().toLowerCase() === dados.email.toLowerCase()) {
+          sheetU.getRange(i + 1, 8).setValue(dados.cicloJson); 
+          SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+          return ContentService.createTextOutput(JSON.stringify({"status": "sucesso"})).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+    }
+
+    if (acao === "salvar_progresso_edital") {
+      var dataU = sheetU.getDataRange().getValues();
+      for (var i = 1; i < dataU.length; i++) {
+        if (dataU[i][0].toString().toLowerCase() === dados.email.toLowerCase()) {
+          sheetU.getRange(i + 1, 9).setValue(dados.editalAtivo); 
+          sheetU.getRange(i + 1, 10).setValue(dados.progressoJson); 
+          SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+          return ContentService.createTextOutput(JSON.stringify({"status": "sucesso"})).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+    }
+
+    if (acao === "solicitar_edital") {
+      var sheetP = ss.getSheetByName("Pedidos_Editais");
+      if(sheetP) {
+        sheetP.appendRow([new Date(), dados.email, dados.concursoStr]);
+        SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+        return ContentService.createTextOutput(JSON.stringify({"status": "sucesso"})).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
+    if (acao === "importar_historico") {
+      var sheetB = ss.getSheetByName("Base_Dashboard");
+      var lancamentos = dados.lancamentos;
+      var totalQ = 0, totalT = 0, totalA = 0;
+      
+      for(var n = 0; n < lancamentos.length; n++) {
+         var l = lancamentos[n];
+         sheetB.appendRow([new Date(), l.data, l.mat, l.top, "", l.t, l.q, l.a, "4", l.met, "OK", "CONSOLIDADO", dados.email]);
+         totalQ += parseFloat(l.q || 0);
+         totalT += parseFloat(l.t || 0);
+         totalA += parseFloat(l.a || 0);
+      }
+      
+      var dataU = sheetU.getDataRange().getValues();
+      for (var j = 1; j < dataU.length; j++) {
+        if (dataU[j][0].toString().toLowerCase() === dados.email.toLowerCase()) {
+          var currentQ = parseFloat(dataU[j][4]) || 0; 
+          var currentT = parseFloat(dataU[j][5]) || 0; 
+          var currentA = parseFloat(dataU[j][6]) || 0; 
+          sheetU.getRange(j + 1, 5).setValue(currentQ + totalQ);
+          sheetU.getRange(j + 1, 6).setValue(currentT + totalT);
+          sheetU.getRange(j + 1, 7).setValue(currentA + totalA);
+          break;
+        }
+      }
+      SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+      return ContentService.createTextOutput(JSON.stringify({"status": "sucesso"})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (acao === "updateProfile") {
+      var dataU = sheetU.getDataRange().getValues();
+      for (var i = 1; i < dataU.length; i++) {
+        if (dataU[i][0].toString().toLowerCase() === dados.email.toLowerCase()) {
+          sheetU.getRange(i + 1, 4).setValue(dados.nickname);
+          SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+          return ContentService.createTextOutput(JSON.stringify({"status": "sucesso"})).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+    }
+
+    if (acao === "apagar_historico") {
+      var sheetB = ss.getSheetByName("Base_Dashboard");
+      var dataB = sheetB.getDataRange().getValues();
+      var rowsToDelete = [];
+      for (var i = dataB.length - 1; i > 0; i--) {
+        if (dataB[i].length > 12 && dataB[i][12] && dataB[i][12].toString().toLowerCase() === dados.email.toLowerCase()) {
+          rowsToDelete.push(i + 1);
+        }
+      }
+      for (var k = 0; k < rowsToDelete.length; k++) {
+        sheetB.deleteRow(rowsToDelete[k]);
+      }
+      var dataU = sheetU.getDataRange().getValues();
+      for (var j = 1; j < dataU.length; j++) {
+        if (dataU[j][0].toString().toLowerCase() === dados.email.toLowerCase()) {
+          sheetU.getRange(j + 1, 5).setValue(0);
+          sheetU.getRange(j + 1, 6).setValue(0);
+          sheetU.getRange(j + 1, 7).setValue(0);
+          break;
+        }
+      }
+      SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+      return ContentService.createTextOutput(JSON.stringify({"status": "sucesso"})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (acao === "retificar_ultimo") {
+      var sheetB = ss.getSheetByName("Base_Dashboard");
+      var dataB = sheetB.getDataRange().getValues();
+      var lastRowIndex = -1;
+      var oldQ = 0, oldT = 0, oldA = 0;
+
+      for (var i = dataB.length - 1; i > 0; i--) {
+        if (dataB[i].length > 12 && dataB[i][12] && dataB[i][12].toString().toLowerCase() === dados.email.toLowerCase()) {
+          lastRowIndex = i + 1; oldT = parseFloat(dataB[i][5]) || 0; oldQ = parseFloat(dataB[i][6]) || 0; oldA = parseFloat(dataB[i][7]) || 0; 
+          break;
+        }
+      }
+
+      if (lastRowIndex !== -1) {
+        sheetB.getRange(lastRowIndex, 2).setValue(dados.dataEstudo);
+        sheetB.getRange(lastRowIndex, 3).setValue(dados.materia);
+        sheetB.getRange(lastRowIndex, 4).setValue(dados.topico);
+        sheetB.getRange(lastRowIndex, 5).setValue(dados.tipoLink);
+        sheetB.getRange(lastRowIndex, 6).setValue(dados.tempo);
+        sheetB.getRange(lastRowIndex, 7).setValue(dados.questoes);
+        sheetB.getRange(lastRowIndex, 8).setValue(dados.acertos);
+        sheetB.getRange(lastRowIndex, 9).setValue(dados.fase);
+        sheetB.getRange(lastRowIndex, 10).setValue(dados.metodologia); 
+
+        var dataU = sheetU.getDataRange().getValues();
+        for (var j = 1; j < dataU.length; j++) {
+          if (dataU[j][0].toString().toLowerCase() === dados.email.toLowerCase()) {
+            var currentQ = parseFloat(dataU[j][4]) || 0; var currentT = parseFloat(dataU[j][5]) || 0; var currentA = parseFloat(dataU[j][6]) || 0; 
+            sheetU.getRange(j + 1, 5).setValue(Math.max(0, currentQ - oldQ + parseFloat(dados.questoes || 0)));
+            sheetU.getRange(j + 1, 6).setValue(Math.max(0, currentT - oldT + parseFloat(dados.tempo || 0)));
+            sheetU.getRange(j + 1, 7).setValue(Math.max(0, currentA - oldA + parseFloat(dados.acertos || 0)));
+            break;
+          }
+        }
+        SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+        return ContentService.createTextOutput(JSON.stringify({"status": "sucesso"})).setMimeType(ContentService.MimeType.JSON);
+      } else {
+        return ContentService.createTextOutput(JSON.stringify({"status": "erro", "mensagem": "Nenhum lançamento encontrado."})).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
+    if (acao === "lancamento") {
+      var sheetB = ss.getSheetByName("Base_Dashboard");
+      var novaLinha = [new Date(), dados.dataEstudo, dados.materia, dados.topico, dados.tipoLink, dados.tempo, dados.questoes, dados.acertos, dados.fase, dados.metodologia, "", "", dados.email];
+      sheetB.appendRow(novaLinha);
+      
+      var dataU = sheetU.getDataRange().getValues();
+      for (var i = 1; i < dataU.length; i++) {
+        if (dataU[i][0].toString().toLowerCase() === dados.email.toLowerCase()) {
+          var currentQ = parseFloat(dataU[i][4]) || 0; var currentT = parseFloat(dataU[i][5]) || 0; var currentA = parseFloat(dataU[i][6]) || 0; 
+          sheetU.getRange(i + 1, 5).setValue(currentQ + parseFloat(dados.questoes || 0));
+          sheetU.getRange(i + 1, 6).setValue(currentT + parseFloat(dados.tempo || 0));
+          sheetU.getRange(i + 1, 7).setValue(currentA + parseFloat(dados.acertos || 0));
+          break;
+        }
+      }
+      SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+      return ContentService.createTextOutput(JSON.stringify({"status": "sucesso"})).setMimeType(ContentService.MimeType.JSON);
+    }
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({"status": "erro", "mensagem": "Erro interno no servidor: " + err.message})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  try {
+    var acao = e.parameter.acao;
+
+    if (acao === "solicitar_codigo") {
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      var sheetU = ss.getSheetByName("Usuarios");
+      var users = sheetU.getDataRange().getValues();
+      var emailReq = e.parameter.email;
+      
+      for (var i = 1; i < users.length; i++) {
+        if (users[i][0] && users[i][0].toString().toLowerCase() === emailReq.toLowerCase()) {
+          var code = Math.floor(100000 + Math.random() * 900000).toString();
+          sheetU.getRange(i + 1, 11).setValue(code); 
+          try {
+            MailApp.sendEmail(emailReq, "Código de Segurança - Protocolo Controle", "Comandante,\n\nSeu código tático de autorização para redefinir a senha é: " + code + "\n\nSe não foi você que solicitou, ignore esta mensagem.");
+            return ContentService.createTextOutput(JSON.stringify({"status": "sucesso"})).setMimeType(ContentService.MimeType.JSON);
+          } catch(err) {
+            return ContentService.createTextOutput(JSON.stringify({"status": "erro", "mensagem": "Erro de permissão no Google. O Administrador precisa autorizar o script para enviar e-mails."})).setMimeType(ContentService.MimeType.JSON);
+          }
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({"status": "erro", "mensagem": "E-mail não encontrado na base militar."})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (acao === "trocarSenhaSegura") {
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      var sheetU = ss.getSheetByName("Usuarios");
+      var users = sheetU.getDataRange().getValues();
+      var emailReq = e.parameter.email;
+      var codeReq = e.parameter.codigo;
+      var newPass = e.parameter.novaSenha;
+      
+      for (var i = 1; i < users.length; i++) {
+        if (users[i][0] && users[i][0].toString().toLowerCase() === emailReq.toLowerCase()) {
+          var savedCode = users[i][10] ? users[i][10].toString() : ""; 
+          if (savedCode === "" || savedCode !== codeReq) {
+            return ContentService.createTextOutput(JSON.stringify({"status": "erro", "mensagem": "Código inválido ou expirado. Tente novamente."})).setMimeType(ContentService.MimeType.JSON);
+          }
+          sheetU.getRange(i + 1, 2).setValue(newPass); 
+          sheetU.getRange(i + 1, 11).setValue(""); 
+          return ContentService.createTextOutput(JSON.stringify({"status": "sucesso"})).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({"status": "erro", "mensagem": "E-mail não encontrado."})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (acao === "radar") {
+      try {
+        var url = 'https://www.pciconcursos.com.br/rss/';
+        var opcoesAvancadas = { "muteHttpExceptions": true, "headers": { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" } };
+        var response = UrlFetchApp.fetch(url, opcoesAvancadas);
+        var xml = response.getContentText();
+        
+        if (!xml.includes('<rss') && !xml.includes('<feed')) {
+           xml = ""; 
+           for (var pagina = 1; pagina <= 5; pagina++) {
+             var urlEst = 'https://www.estrategiaconcursos.com.br/blog/feed/?paged=' + pagina;
+             var resEst = UrlFetchApp.fetch(urlEst, opcoesAvancadas);
+             xml += resEst.getContentText(); 
+           }
+        }
+        
+        var newsList = [];
+        var itemRegex = /<item>([\s\S]*?)<\/item>/gi;
+        var match; var limit = 0;
+        
+        while ((match = itemRegex.exec(xml)) !== null && limit < 60) {
+          var block = match[1];
+          var titleRegex = /<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i;
+          var tMatch = titleRegex.exec(block); var titulo = tMatch ? tMatch[1].trim() : "Aviso Oficial";
+          var linkRegex = /<link>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i;
+          var lMatch = linkRegex.exec(block); var link = lMatch ? lMatch[1].trim() : "#";
+          var dateRegex = /<pubDate>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/pubDate>/i;
+          var dMatch = dateRegex.exec(block); var pubDate = dMatch ? dMatch[1].trim() : "";
+          
+          newsList.push({ titulo: titulo, link: link, pubDate: pubDate }); limit++;
+        }
+        return ContentService.createTextOutput(JSON.stringify({ "status": "sucesso", "noticias": newsList })).setMimeType(ContentService.MimeType.JSON);
+      } catch (errRadar) {
+        return ContentService.createTextOutput(JSON.stringify({ "status": "erro", "mensagem": "Falha na varredura regex: " + errRadar.message })).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var email = e.parameter.email;
+    var senha = e.parameter.senha;
+    if (!email) return ContentService.createTextOutput(JSON.stringify({"erro": true, "mensagem": "Email ausente"})).setMimeType(ContentService.MimeType.JSON);
+
+    var sheetU = ss.getSheetByName("Usuarios");
+    if(!sheetU) return ContentService.createTextOutput(JSON.stringify({"erro": true, "mensagem": "Aba 'Usuarios' não encontrada."})).setMimeType(ContentService.MimeType.JSON);
+    
+    var users = sheetU.getDataRange().getValues();
+    var userRow = -1;
+    var expirationDate = ""; var nickname = ""; var cicloSalvoNuvem = ""; var nickMap = {};
+    var editalAtivoUsuario = ""; var progressoEditalUsuario = "{}";
+
+    for (var i = 1; i < users.length; i++) {
+      var uEmail = users[i][0] ? users[i][0].toString().toLowerCase() : "";
+      if (uEmail) { nickMap[uEmail] = users[i][3] || "Anônimo"; }
+
+      if (uEmail === email.toLowerCase()) {
+        if (acao === "login" && users[i][1].toString() !== senha) { } 
+        else {
+          var dataExpiracao = users[i][2];
+          if (dataExpiracao && dataExpiracao !== "" && !isNaN(new Date(dataExpiracao).getTime())) {
+            if (new Date() > new Date(dataExpiracao)) return ContentService.createTextOutput(JSON.stringify({"status": "erro", "erro": true, "mensagem": "Sua assinatura expirou."})).setMimeType(ContentService.MimeType.JSON);
+            expirationDate = Utilities.formatDate(new Date(dataExpiracao), Session.getScriptTimeZone(), "dd/MM/yyyy");
+          } else { expirationDate = "Vitalício"; }
+          nickname = users[i][3] || "Sem Nickname";
+          cicloSalvoNuvem = users[i][7] || ""; 
+          editalAtivoUsuario = users[i][8] || ""; 
+          progressoEditalUsuario = users[i][9] || "{}"; 
+          userRow = i;
+        }
+      }
+    }
+
+    if (userRow === -1) return ContentService.createTextOutput(JSON.stringify({"status": "erro", "erro": true, "mensagem": "Credenciais Inválidas ou Assinatura Inativa."})).setMimeType(ContentService.MimeType.JSON);
+
+    var baseEditaisDict = {};
+    var sheetE = ss.getSheetByName("Base_Editais");
+    if (sheetE) {
+      var dataE = sheetE.getDataRange().getValues();
+      for(var e_idx = 1; e_idx < dataE.length; e_idx++) {
+         var conc = dataE[e_idx][0] ? dataE[e_idx][0].toString().trim() : "";
+         if(!conc) continue;
+         if(!baseEditaisDict[conc]) baseEditaisDict[conc] = [];
+         baseEditaisDict[conc].push({
+            banca: dataE[e_idx][1] ? dataE[e_idx][1].toString().trim() : "",
+            bloco: dataE[e_idx][2] ? dataE[e_idx][2].toString().trim() : "",
+            mat: dataE[e_idx][3] ? dataE[e_idx][3].toString().trim() : "",
+            top: dataE[e_idx][4] ? dataE[e_idx][4].toString().trim() : "",
+            linkMaster: dataE[e_idx][5] ? dataE[e_idx][5].toString().trim() : ""
+         });
+      }
+    }
+
+    var sheetB = ss.getSheetByName("Base_Dashboard");
+    if(!sheetB) return ContentService.createTextOutput(JSON.stringify({"erro": true, "mensagem": "Aba 'Base_Dashboard' não encontrada."})).setMimeType(ContentService.MimeType.JSON);
+
+    var dataB_Full = sheetB.getDataRange().getDisplayValues(); 
+    var now = new Date();
+    var tz = Session.getScriptTimeZone();
+    
+    var hojeStr = Utilities.formatDate(now, tz, "dd/MM/yyyy");
+    var mesAnoStr = hojeStr.substring(3);
+    
+    var shiftedNow = new Date(now.getTime() - 86400000);
+    var currentWeekStr = Utilities.formatDate(shiftedNow, tz, "w-yyyy");
+    
+    var rankDiario = {}; var rankSemanal = {}; var rankMensal = {}; var rankGeral = {}; 
+    var compDisciplinas = {}; var compMensal = {};
+    var dateCache = {}; 
+    var filtered = [];
+    
+    if (dataB_Full.length > 0) {
+        filtered.push(dataB_Full[0]); 
+    }
+
+    if (dataB_Full.length > 1) {
+        for(var r = 1; r < dataB_Full.length; r++) {
+            var row = dataB_Full[r];
+            var dataEstudo = row[1] ? row[1].toString().trim() : ""; 
+            var matEstudo = row[2] ? row[2].toString().trim() : "";
+            var q = parseFloat(String(row[6]).replace(',', '.')) || 0; 
+            var a = parseFloat(String(row[7]).replace(',', '.')) || 0; 
+            var userEmail = row[12] ? row[12].toString().toLowerCase() : ""; 
+            if(!userEmail) continue;
+            
+            if (userEmail === email.toLowerCase()) {
+                filtered.push(row);
+            }
+
+            if (matEstudo && q > 0) {
+                if (!compDisciplinas[matEstudo]) compDisciplinas[matEstudo] = { q: 0, a: 0 };
+                compDisciplinas[matEstudo].q += q;
+                compDisciplinas[matEstudo].a += a;
+            }
+
+            var mesChave = dataEstudo.length >= 10 ? dataEstudo.substring(3) : "";
+            if (mesChave && q > 0) {
+                if (!compMensal[mesChave]) compMensal[mesChave] = { q: 0, a: 0 };
+                compMensal[mesChave].q += q;
+                compMensal[mesChave].a += a;
+            }
+
+            var nick = nickMap[userEmail] || "Anônimo";
+
+            if(!rankGeral[nick]) rankGeral[nick] = {q:0, a:0};
+            rankGeral[nick].q += q; rankGeral[nick].a += a;
+
+            if(dataEstudo === hojeStr) {
+              if(!rankDiario[nick]) rankDiario[nick] = {q:0, a:0};
+              rankDiario[nick].q += q; rankDiario[nick].a += a;
+            }
+            
+            if(dataEstudo.substring(3) === mesAnoStr) {
+              if(!rankMensal[nick]) rankMensal[nick] = {q:0, a:0};
+              rankMensal[nick].q += q; rankMensal[nick].a += a;
+            }
+            
+            var rowWeekStr;
+            if (dateCache[dataEstudo]) {
+                rowWeekStr = dateCache[dataEstudo]; 
+            } else {
+                var dParts = dataEstudo.split('/');
+                if(dParts.length === 3) {
+                   var dObj = new Date(dParts[2], dParts[1]-1, dParts[0]);
+                   var shiftedRowDate = new Date(dObj.getTime() - 86400000);
+                   rowWeekStr = Utilities.formatDate(shiftedRowDate, tz, "w-yyyy"); 
+                   dateCache[dataEstudo] = rowWeekStr; 
+                } else {
+                   rowWeekStr = "invalido";
+                   dateCache[dataEstudo] = "invalido";
+                }
+            }
+            
+            if (rowWeekStr === currentWeekStr) {
+               if(!rankSemanal[nick]) rankSemanal[nick] = {q:0, a:0};
+               rankSemanal[nick].q += q; rankSemanal[nick].a += a;
+            }
+        }
+    }
+
+    var formatRank = function(obj, limit) { return Object.keys(obj).map(function(k){ return {nick: k, q: obj[k].q, a: obj[k].a}; }).sort(function(a,b){return b.q - a.q}).slice(0, limit); };
+
+    var leaderboardsObj = { 
+        "diario": formatRank(rankDiario, 20), 
+        "semanal": formatRank(rankSemanal, 20), 
+        "mensal": formatRank(rankMensal, 20), 
+        "geral": formatRank(rankGeral, 50) 
+    };
+
+    var comparativoGeralObj = {
+        "disciplinas": compDisciplinas,
+        "mensal": compMensal
+    };
+
+    if (acao === "login") {
+      return ContentService.createTextOutput(JSON.stringify({ 
+        "status": "sucesso", "expiration": expirationDate, "nickname": nickname, 
+        "cicloNuvem": cicloSalvoNuvem, "baseEditais": baseEditaisDict,
+        "editalAtivo": editalAtivoUsuario, "progressoEdital": progressoEditalUsuario
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({ 
+      "status": "sucesso", "dados": filtered, "expiration": expirationDate, "nickname": nickname, 
+      "leaderboards": leaderboardsObj, "comparativoGeral": comparativoGeralObj, "cicloNuvem": cicloSalvoNuvem, 
+      "baseEditais": baseEditaisDict, "editalAtivo": editalAtivoUsuario, "progressoEdital": progressoEditalUsuario
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({"status": "erro", "erro": true, "mensagem": "Erro no Google Sheets: " + err.message})).setMimeType(ContentService.MimeType.JSON);
+  }
+}

@@ -1,0 +1,5 @@
+# Mantém os arquivos exatamente como foram salvos (sem converter quebras de linha)
+* -text
+*.html diff
+*.gs diff
+*.md diff

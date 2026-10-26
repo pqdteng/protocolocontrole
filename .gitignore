@@ -1,0 +1,12 @@
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Editores
+.vscode/
+.idea/
+
+# Credenciais locais (nunca versionar)
+.env
+.clasprc.json
