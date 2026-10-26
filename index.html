@@ -193,6 +193,13 @@
         body.light-mode .heatmap-level-3 { background: #30a14e; border-color: #30a14e; color: #fff; }
         body.light-mode .heatmap-level-4 { background: #216e39; border-color: #216e39; color: #fff; }
 
+        .heatmap-legend { margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 12px; color: #888; }
+        .heatmap-legend-title { font-weight: bold; color: var(--text-color); display: flex; align-items: center; gap: 6px; font-size: 12px; }
+        .heatmap-legend-items { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; }
+        .heatmap-legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: #8B949E; font-weight: 600; }
+        .heatmap-legend-item strong { color: var(--text-color); }
+        .heatmap-legend-box { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid var(--border-color); background: var(--input-bg); box-sizing: border-box; flex-shrink: 0; }
+
         .rank-tabs { display: flex; gap: 5px; margin-bottom: 20px; background: var(--input-bg); padding: 5px; border-radius: 8px; border: 1px solid var(--border-color);}
         .rank-tab-btn { flex: 1; padding: 10px; border: none; background: none; color: #888; cursor: pointer; border-radius: 6px; font-weight: bold; font-size: 0.9em; transition: 0.2s;}
         .rank-tab-btn.active { background: var(--hover-bg); color: var(--text-color); box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
@@ -686,6 +693,34 @@
                     </div>
                     
                     <div class="heatmap-grid" id="heatmap-grid"></div>
+
+                    <div class="heatmap-legend">
+                        <div class="heatmap-legend-title">
+                            <i class="fas fa-layer-group" style="color:var(--accent-orange);"></i> Escala de Intensidade Diária:
+                        </div>
+                        <div class="heatmap-legend-items">
+                            <span class="heatmap-legend-item">
+                                <span class="heatmap-legend-box"></span>
+                                <span>Inativo: <strong>0 Qs</strong></span>
+                            </span>
+                            <span class="heatmap-legend-item">
+                                <span class="heatmap-legend-box heatmap-level-1"></span>
+                                <span>Aquecimento: <strong>1 a 25 Qs</strong></span>
+                            </span>
+                            <span class="heatmap-legend-item">
+                                <span class="heatmap-legend-box heatmap-level-2"></span>
+                                <span>Constância: <strong>26 a 50 Qs</strong></span>
+                            </span>
+                            <span class="heatmap-legend-item">
+                                <span class="heatmap-legend-box heatmap-level-3"></span>
+                                <span>Foco Intenso: <strong>51 a 75 Qs</strong></span>
+                            </span>
+                            <span class="heatmap-legend-item">
+                                <span class="heatmap-legend-box heatmap-level-4"></span>
+                                <span>Força Máxima: <strong>76+ Qs</strong></span>
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1417,7 +1452,6 @@ Gostaria que fizesse:
             html += `<div class="heatmap-day empty" style="color: #555;">${d}</div>`;
         }
         
-        let maxQs = 0;
         let monthData = {};
         let totalStudyDays = 0;
         let totalQsMonth = 0;
@@ -1434,7 +1468,6 @@ Gostaria que fizesse:
                 }
             }
             monthData[i] = q;
-            if(q > maxQs) maxQs = q;
         }
         
         let bestStreak = 0;
@@ -1459,18 +1492,25 @@ Gostaria que fizesse:
         for(let i = 1; i <= daysInMonth; i++) {
             let q = monthData[i];
             let levelClass = '';
+            let nivelDesc = 'Inativo';
             
-            if(q > 0) {
-                let ratio = q / maxQs;
-                if(ratio > 0.75) levelClass = 'heatmap-level-4';
-                else if(ratio > 0.50) levelClass = 'heatmap-level-3';
-                else if(ratio > 0.25) levelClass = 'heatmap-level-2';
-                else levelClass = 'heatmap-level-1';
+            if(q >= 76) {
+                levelClass = 'heatmap-level-4';
+                nivelDesc = 'Força Máxima';
+            } else if(q >= 51) {
+                levelClass = 'heatmap-level-3';
+                nivelDesc = 'Foco Intenso';
+            } else if(q >= 26) {
+                levelClass = 'heatmap-level-2';
+                nivelDesc = 'Constância';
+            } else if(q >= 1) {
+                levelClass = 'heatmap-level-1';
+                nivelDesc = 'Aquecimento';
             }
             
             let d = new Date(year, month, i);
             let futureClass = d > today ? 'future' : '';
-            let title = q > 0 ? `${q} questões resolvidas em ${d.toLocaleDateString('pt-BR')}` : `Sem atividade`;
+            let title = q > 0 ? `${q} questões resolvidas em ${d.toLocaleDateString('pt-BR')} (${nivelDesc})` : `Sem atividade em ${d.toLocaleDateString('pt-BR')}`;
             
             html += `<div class="heatmap-day ${levelClass} ${futureClass}" title="${title}">${i}</div>`;
         }
