@@ -35,12 +35,12 @@
         #app-wrapper { display: none; width: 100%; min-height: 100vh; }
         
         .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: fixed; height: 100vh; top: 0; left: 0; z-index: 900; transition: transform 0.3s ease;}
-        .sidebar-brand { padding: 25px 20px; font-size: 1.3em; font-weight: bold; border-bottom: 1px solid var(--border-color); color: var(--text-color); display: flex; flex-direction: column; align-items: flex-start; gap: 4px;}
-        .sidebar-menu { padding: 15px 0; display: flex; flex-direction: column; flex-grow: 1; overflow-y: auto;}
-        .nav-item { width: 100%; background: none; border: none; padding: 14px 25px; color: #8B949E; text-align: left; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; border-left: 4px solid transparent;}
+        .sidebar-brand { padding: 18px 20px; font-size: 1.3em; font-weight: bold; border-bottom: 1px solid var(--border-color); color: var(--text-color); display: flex; flex-direction: column; align-items: flex-start; gap: 4px;}
+        .sidebar-menu { padding: 10px 0; display: flex; flex-direction: column; flex-grow: 1; overflow-y: auto;}
+        .nav-item { width: 100%; background: none; border: none; padding: 10px 22px; color: #8B949E; text-align: left; font-size: 13.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; border-left: 4px solid transparent;}
         .nav-item:hover { color: var(--text-color); background-color: var(--hover-bg); }
         .nav-item.active { background-color: var(--hover-bg); color: var(--text-color); border-left-color: var(--accent-blue); }
-        .sidebar-footer { padding: 20px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; background-color: rgba(0,0,0,0.1);}
+        .sidebar-footer { padding: 12px 15px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px; background-color: rgba(0,0,0,0.1);}
 
         .main-content { margin-left: var(--sidebar-width); flex-grow: 1; padding: 30px; box-sizing: border-box; transition: margin-left 0.3s ease; width: calc(100% - var(--sidebar-width)); min-height: 100vh;}
         
@@ -135,20 +135,38 @@
 
         #btn-exit-foco { display: none; position: fixed; top: 20px; right: 20px; z-index: 10000; background: var(--accent-red); color: white; border: none; padding: 12px 25px; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         
-        body.focus-mode #app-sidebar { transform: translateX(-100%); }
-        body.focus-mode .main-content { margin-left: 0; width: 100%; padding: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh;}
-        body.focus-mode .top-header, 
-        body.focus-mode .rank-container, 
-        body.focus-mode .gps-container, 
-        body.focus-mode .cards-container, 
-        body.focus-mode .charts-row, 
-        body.focus-mode .chart-header,
-        body.focus-mode .report-section,
-        body.focus-mode #countdown-banner { display: none !important; }
-        body.focus-mode .focus-section { flex-direction: column; align-items: center; justify-content: center; width: 100%; height: auto; gap: 40px; }
-        body.focus-mode #timer-container { order: 1; transform: scale(1.4); border: none !important; background: transparent !important; padding: 0; margin: 0; }
-        body.focus-mode #clock-container { order: 2; transform: scale(0.8); border: none !important; background: transparent !important; padding: 0; margin-top: 20px;}
+        .focus-section { padding: 10px 15px; border-top: 1px solid var(--border-color); background-color: rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 8px; box-sizing: border-box; width: 100%; }
+        #clock-container { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 3px; box-sizing: border-box; min-width: 0 !important; }
+        .clock-top-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+        #clock-display { font-family: monospace; font-size: 1.15em; font-weight: bold; color: var(--accent-blue); line-height: 1; }
+        #weather-display { color: var(--accent-orange); font-size: 10px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #clock-date-display { color: #888; font-size: 10px; font-weight: 600; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+        
+        #timer-container { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; text-align: center; box-sizing: border-box; min-width: 0 !important; }
+        .timer-tabs { display: flex; justify-content: center; gap: 4px; margin-bottom: 8px; background: var(--card-bg); border-radius: 6px; padding: 3px; width: 100%; box-sizing: border-box; border: 1px solid var(--border-color); }
+        .timer-tabs .rank-tab-btn { padding: 4px 8px; font-size: 11px; flex: 1; }
+        .timer-main-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        #timer-display { font-family: monospace; font-size: 1.75em; font-weight: bold; color: var(--text-color); line-height: 1; letter-spacing: 1px; }
+        .timer-controls { display: flex; justify-content: center; gap: 6px; align-items: center; }
+        .btn-timer-sub { background: none; border: 1px solid var(--border-color); border-radius: 50%; width: 28px; height: 28px; color: #888; font-size: 0.8em; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-timer-sub:hover { color: var(--text-color); border-color: var(--text-color); }
+        #btn-play-pause { background: var(--accent-green); border: none; border-radius: 50%; width: 34px; height: 34px; color: white; font-size: 0.95em; cursor: pointer; box-shadow: 0 2px 8px rgba(35, 134, 54, 0.4); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        #btn-play-pause:hover { transform: scale(1.06); }
+
+        body.focus-mode .main-content,
+        body.focus-mode .sidebar-brand,
+        body.focus-mode .sidebar-menu,
+        body.focus-mode .sidebar-footer,
+        body.focus-mode #clock-container,
         body.focus-mode .timer-tabs { display: none !important; }
+        body.focus-mode #app-sidebar { transform: none !important; width: 100vw !important; height: 100vh !important; background-color: var(--bg-color) !important; border-right: none !important; display: flex !important; justify-content: center !important; align-items: center !important; z-index: 9999 !important; }
+        body.focus-mode .focus-section { border: none !important; background: transparent !important; align-items: center; justify-content: center; width: auto; padding: 0; }
+        body.focus-mode #timer-container { transform: scale(1.4); border: none !important; background: transparent !important; padding: 0; margin: 0; }
+        body.focus-mode .timer-main-row { flex-direction: column; gap: 25px; }
+        body.focus-mode #timer-display { font-size: 4.5em; letter-spacing: 2px; }
+        body.focus-mode .timer-controls { gap: 25px; }
+        body.focus-mode .btn-timer-sub { width: 45px; height: 45px; font-size: 1.2em; }
+        body.focus-mode #btn-play-pause { width: 65px; height: 65px; font-size: 1.8em; box-shadow: 0 4px 15px rgba(35, 134, 54, 0.4); }
         body.focus-mode #btn-exit-foco { display: block; }
 		#tactical-toast { position: fixed; bottom: 25px; right: 25px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-green); padding: 14px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10001; display: none; align-items: center; gap: 12px; font-size: 13px; font-weight: bold; animation: fadeIn 0.25s ease-out; }		
 
@@ -330,6 +348,30 @@
                 <button class="nav-item" onclick="document.getElementById('platformTutorialModal').style.display='block'; toggleMobileMenu();"><i class="fas fa-laptop-code"></i> Guia da Plataforma</button>
                 <button class="nav-item" onclick="document.getElementById('tutorialModal').style.display='block'; toggleMobileMenu();"><i class="fas fa-book-reader"></i> Metodologias de Estudo</button>
                 <button class="nav-item" style="color: var(--accent-blue);" onclick="window.open('https://t.me/protocolocontrole', '_blank'); toggleMobileMenu();"><i class="fab fa-telegram-plane"></i> Grupo do Telegram</button>
+            </div>
+			<div class="focus-section">
+                <div id="clock-container">
+                    <div class="clock-top-row">
+                        <div id="clock-display">00:00:00</div>
+                        <div id="weather-display"><i class="fas fa-satellite-dish fa-spin"></i> Clima...</div>
+                    </div>
+                    <div id="clock-date-display">--</div>
+                </div>
+                
+                <div id="timer-container">
+                    <div class="timer-tabs">
+                        <button class="rank-tab-btn active" id="tab-crono" onclick="setTimerMode('crono')"><i class="far fa-clock"></i> Crono</button>
+                        <button class="rank-tab-btn" id="tab-pomo" onclick="setTimerMode('pomo')"><i class="fas fa-stopwatch"></i> Pomo</button>
+                    </div>
+                    <div class="timer-main-row">
+                        <div id="timer-display">00:00</div>
+                        <div class="timer-controls">
+                            <button class="btn-timer-sub" onclick="resetTimer()" title="Zerar"><i class="fas fa-undo-alt"></i></button>
+                            <button id="btn-play-pause" onclick="toggleTimer()" title="Iniciar / Pausar"><i class="fas fa-play" style="margin-left:2px;"></i></button>
+                            <button class="btn-timer-sub" onclick="openEntryModal()" title="Salvar Missão"><i class="far fa-save"></i></button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="sidebar-footer">
                 <div style="font-size: 11px; color: #888; text-align:center; margin-bottom:10px;">Autenticado como:<br><strong style="color:var(--accent-blue);" id="sidebar-user-email">--</strong></div>
