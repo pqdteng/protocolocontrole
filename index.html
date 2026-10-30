@@ -575,6 +575,118 @@
             border-top: 1px dashed var(--border-color);
             padding-top: 12px;
         }
+		/* ESTÚDIO DE CARROSSEL & BOLETIM DO RADAR (EXCLUSIVO COMANDO) */
+        .radar-toolbar-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .radar-admin-only {
+            display: none;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .radar-card-selected {
+            border-color: var(--accent-gold) !important;
+            box-shadow: 0 0 15px rgba(242, 201, 76, 0.25);
+        }
+        .radar-select-btn {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: #8B949E;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: 0.2s;
+        }
+        .radar-select-btn:hover {
+            border-color: var(--accent-gold);
+            color: var(--text-color);
+        }
+        .radar-select-btn.selected {
+            background: rgba(242, 201, 76, 0.15);
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+        .carousel-studio-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+            align-items: start;
+        }
+        .carousel-preview-stage {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .carousel-canvas-wrap {
+            width: 100%;
+            max-width: 340px;
+            aspect-ratio: 4 / 5;
+            background: #0E1116;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .carousel-canvas-wrap canvas {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain;
+        }
+        .carousel-slide-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 340px;
+            gap: 10px;
+        }
+        .carousel-caption-box {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .carousel-caption-textarea {
+            width: 100%;
+            height: 250px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 6px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            line-height: 1.45;
+            resize: vertical;
+            box-sizing: border-box;
+            outline: none;
+        }
+        @media (max-width: 768px) {
+            .carousel-studio-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1090,7 +1202,7 @@
                         <h3 style="margin:0; font-size:1.4em; color:var(--accent-blue);">
                             <i class="fas fa-satellite-dish"></i> Radar de Editais
                         </h3>
-                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <div class="radar-toolbar-actions">
                             <select id="filtroAreaRadar" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:8px 12px; border-radius:6px; outline:none;" onchange="aplicarFiltroRadar()">
                                 <option value="todas">Todas as Áreas</option>
                                 <option value="engenharia">Engenharia / Arquitetura</option>
@@ -1098,16 +1210,85 @@
                                 <option value="policial">Carreiras Policiais</option>
                                 <option value="tribunais">Tribunais (TJ / TRT / TRE)</option>
                             </select>
-                            <button class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color);" onclick="carregarRadarRSS()"><i class="fas fa-sync"></i> Atualizar Sinal</button>
+                            <div id="radar-admin-toolbar" class="radar-admin-only">
+                                <button type="button" class="btn" style="background:var(--accent-gold); color:#000; font-size:12.5px;" onclick="abrirEstudioCarrosselRadar()">
+                                    <i class="fas fa-images"></i> Gerar Carrossel (<span id="radar-sel-count">Auto</span>)
+                                </button>
+                                <button type="button" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); font-size:12.5px;" onclick="limparSelecaoRadar()" title="Limpar seleção">
+                                    <i class="fas fa-eraser"></i>
+                                </button>
+                            </div>
+                            <button type="button" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color);" onclick="carregarRadarRSS()"><i class="fas fa-sync"></i> Atualizar Sinal</button>
                         </div>
                     </div>
-                    <p style="color:#888; font-size:14px; margin-bottom:20px;">Feed via satélite com as últimas publicações oficiais. Mantenha-se informado sem perder o foco na missão.</p>
+                    <p id="radar-subtitle-text" style="color:#888; font-size:14px; margin-bottom:20px;">Feed via satélite com as últimas publicações oficiais. Mantenha-se informado sem perder o foco na missão.</p>
                     <div id="radar-cards-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
                         <p style="color:#888; text-align:center; grid-column: 1 / -1;"><i class="fas fa-satellite fa-spin"></i> Aguardando conexão com satélite...</p>
                     </div>
                 </div>
             </div>
 
+        </div>
+    </div>
+
+	<div id="radarCarouselModal" class="modal">
+        <div class="modal-content" style="max-width: 860px; border-top: 4px solid var(--accent-gold);">
+            <span class="close-btn" onclick="document.getElementById('radarCarouselModal').style.display='none'">&times;</span>
+            <h2 style="margin:0; color:var(--text-color); font-size:1.35em;">
+                <i class="fas fa-broadcast-tower" style="color:var(--accent-gold);"></i> Estúdio Tático: Carrossel Instagram & Boletim Telegram
+            </h2>
+            <p style="color:#888; font-size:13px; margin:5px 0 15px 0;">
+                Imagens geradas na proporção oficial 4:5 (1080x1350px) com a assinatura do <strong>Protocolo Controle</strong> e links prontos para disparo.
+            </p>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; background:var(--input-bg); padding:12px; border-radius:8px; border:1px solid var(--border-color); align-items:center; justify-content:space-between;">
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <label style="font-size:12px; color:#888; font-weight:bold; text-transform:uppercase;">Formato dos Slides:</label>
+                    <select id="carousel-mode-select" style="background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-color); padding:6px 10px; border-radius:6px; font-weight:bold; font-size:12px;" onchange="reconstruirSlidesCarrossel()">
+                        <option value="destaque">1 Notícia por Slide (Destaque Detalhado)</option>
+                        <option value="lista">3 Notícias por Slide (Giro Compacto)</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button type="button" class="btn" style="background:var(--accent-blue); font-size:12px; padding:8px 12px;" onclick="baixarSlideAtualRadar()">
+                        <i class="fas fa-download"></i> Baixar Este Slide (PNG)
+                    </button>
+                    <button type="button" class="btn" style="background:var(--accent-green); font-size:12px; padding:8px 12px;" onclick="baixarTodosSlidesRadar()">
+                        <i class="fas fa-layer-group"></i> Baixar Carrossel Completo
+                    </button>
+                </div>
+            </div>
+
+            <div class="carousel-studio-grid">
+                <div class="carousel-preview-stage">
+                    <div class="carousel-canvas-wrap">
+                        <canvas id="radarCarouselCanvas" width="1080" height="1350"></canvas>
+                    </div>
+                    <div class="carousel-slide-nav">
+                        <button type="button" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); padding:6px 14px;" onclick="mudarSlideCarrosselRadar(-1)">
+                            <i class="fas fa-chevron-left"></i> Anterior
+                        </button>
+                        <span id="carousel-slide-indicator" style="font-family:monospace; font-weight:bold; color:var(--accent-gold); font-size:13px;">Slide 1 / 1</span>
+                        <button type="button" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); padding:6px 14px;" onclick="mudarSlideCarrosselRadar(1)">
+                            Próximo <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="carousel-caption-box">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong style="font-size:13px; color:var(--text-color);"><i class="fab fa-telegram-plane" style="color:var(--accent-blue);"></i> Legenda & Links Oficiais (Telegram / Instagram)</strong>
+                        <span style="font-size:11px; color:#888;">Editável</span>
+                    </div>
+                    <textarea id="carousel-caption-output" class="carousel-caption-textarea"></textarea>
+                    <button type="button" class="btn" style="background:var(--accent-orange); color:#000; width:100%;" onclick="copiarLegendaCarrosselRadar()">
+                        <i class="fas fa-copy"></i> COPIAR TEXTO COM LINKS OFICIAIS
+                    </button>
+                    <button type="button" class="btn" style="background:var(--hover-bg); border:1px solid var(--accent-blue); color:var(--accent-blue); width:100%; font-size:12px;" onclick="compartilharDiretoTelegram()">
+                        <i class="fab fa-telegram-plane"></i> ENVIAR DIRETO PARA O TELEGRAM
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -2609,6 +2790,38 @@ Gostaria que fizesse:
         });
     }
 
+    const ADMIN_RADAR_EMAIL = "valefvs92@gmail.com";
+    let radarSelecionadas = [];
+    let radarUltimasFiltradas = [];
+    let slidesCarrosselRadar = [];
+    let slideAtualCarrosselIdx = 0;
+    let logoImgCarrossel = null;
+
+    function isCommanderAdmin() {
+        return String(loggedUserEmail || "").trim().toLowerCase() === ADMIN_RADAR_EMAIL;
+    }
+
+    function sincronizarPermissaoRadarUI() {
+        let isAdmin = isCommanderAdmin();
+        let adminBar = document.getElementById('radar-admin-toolbar');
+        if (adminBar) {
+            adminBar.style.display = isAdmin ? 'inline-flex' : 'none';
+        }
+        let subTxt = document.getElementById('radar-subtitle-text');
+        if (subTxt) {
+            subTxt.innerText = isAdmin
+                ? "Modo Comando Ativo: Selecione as notícias abaixo para gerar um Carrossel (Instagram) e Boletim com Links (Telegram)."
+                : "Feed via satélite com as últimas publicações oficiais. Mantenha-se informado sem perder o foco na missão.";
+        }
+    }
+
+    (function precarregarLogoCarrossel() {
+        let img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = "https://raw.githubusercontent.com/pqdteng/protocolocontrole/main/logo.png";
+        img.onload = function() { logoImgCarrossel = img; };
+    })();
+
     function aplicarFiltroRadar() {
         let selectFiltro = document.getElementById('filtroAreaRadar');
         if (!selectFiltro) return; 
@@ -2622,7 +2835,55 @@ Gostaria que fizesse:
         renderizarRadarEditais(feedNoticiasGlobal, selectFiltro ? selectFiltro.value : 'todas');
     }
 
+    function atualizarContadorSelecaoRadar() {
+        setSafeText('radar-sel-count', radarSelecionadas.length > 0 ? `${radarSelecionadas.length} sel.` : 'Auto');
+    }
+
+    function limparSelecaoRadar() {
+        if (!isCommanderAdmin()) return;
+        radarSelecionadas = [];
+        atualizarContadorSelecaoRadar();
+        let selectFiltro = document.getElementById('filtroAreaRadar');
+        renderizarRadarEditais(feedNoticiasGlobal, selectFiltro ? selectFiltro.value : 'todas');
+    }
+
+    function toggleSelecionarNoticiaRadar(linkEncoded) {
+        if (!isCommanderAdmin()) return;
+        let link = decodeURIComponent(linkEncoded);
+        let idx = radarSelecionadas.findIndex(n => n.link === link);
+        if (idx >= 0) {
+            radarSelecionadas.splice(idx, 1);
+        } else {
+            let encontrada = feedNoticiasGlobal.find(n => n.link === link);
+            if (encontrada) {
+                if (radarSelecionadas.length >= 9) {
+                    alert("Limite máximo de 9 notícias por carrossel atingido!");
+                    return;
+                }
+                radarSelecionadas.push(encontrada);
+            }
+        }
+        atualizarContadorSelecaoRadar();
+        let selectFiltro = document.getElementById('filtroAreaRadar');
+        renderizarRadarEditais(feedNoticiasGlobal, selectFiltro ? selectFiltro.value : 'todas');
+    }
+
+    function gerarCardUnicoRadar(linkEncoded) {
+        if (!isCommanderAdmin()) return;
+        let link = decodeURIComponent(linkEncoded);
+        let encontrada = feedNoticiasGlobal.find(n => n.link === link);
+        if (!encontrada) return;
+        radarSelecionadas = [encontrada];
+        atualizarContadorSelecaoRadar();
+        let selectFiltro = document.getElementById('filtroAreaRadar');
+        renderizarRadarEditais(feedNoticiasGlobal, selectFiltro ? selectFiltro.value : 'todas');
+        abrirEstudioCarrosselRadar();
+    }
+
     function renderizarRadarEditais(listaNoticias, filtroArea) {
+        sincronizarPermissaoRadarUI();
+        let isAdmin = isCommanderAdmin();
+
         let container = document.getElementById('radar-cards-container');
         if (!container) return; 
         container.innerHTML = ''; 
@@ -2644,6 +2905,8 @@ Gostaria que fizesse:
             return palavrasChave.some(palavra => tituloMinusculo.includes(palavra));
         });
 
+        radarUltimasFiltradas = noticiasFiltradas;
+
         if (noticiasFiltradas.length === 0) {
             container.innerHTML = '<p style="color:var(--accent-orange); grid-column: 1 / -1; text-align:center;"><i class="fas fa-exclamation-triangle"></i> Nenhum concurso encontrado para esta área nos últimos 3 dias.</p>';
             return;
@@ -2660,25 +2923,62 @@ Gostaria que fizesse:
         let noticiasPaginadas = noticiasFiltradas.slice(startIndex, endIndex);
 
         noticiasPaginadas.forEach(noticia => {
-            let cardHTML = `
-                <div class="card" style="justify-content: space-between; padding: 15px; border-left: 4px solid var(--accent-blue);">
+            if (!isAdmin) {
+                let cardPadraoHTML = `
+                    <div class="card" style="justify-content: space-between; padding: 15px; border-left: 4px solid var(--accent-blue);">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                <span class="badge" style="background:rgba(88,166,255,0.1); color:var(--accent-blue); font-size:10px; border:1px solid var(--accent-blue); padding: 3px 6px; border-radius: 4px;">
+                                    <i class="fas fa-rss"></i> Aviso Oficial
+                                </span>
+                                <span style="color:#888; font-size:11px;"><i class="far fa-calendar-alt"></i> ${noticia.data}</span>
+                            </div>
+                            <h4 style="margin: 0 0 15px 0; color:var(--text-color); font-size:14px; line-height: 1.4;">
+                                ${noticia.titulo}
+                            </h4>
+                        </div>
+                        <a href="${noticia.link}" target="_blank" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); font-size:12px; width:100%; text-decoration:none;">
+                            VER OFICIAL <i class="fas fa-external-link-alt" style="margin-left:5px;"></i>
+                        </a>
+                    </div>
+                `;
+                container.innerHTML += cardPadraoHTML;
+                return;
+            }
+
+            let linkEnc = encodeURIComponent(noticia.link);
+            let isSel = radarSelecionadas.some(n => n.link === noticia.link);
+            let ordemSel = isSel ? (radarSelecionadas.findIndex(n => n.link === noticia.link) + 1) : null;
+
+            let cardAdminHTML = `
+                <div class="card ${isSel ? 'radar-card-selected' : ''}" style="justify-content: space-between; padding: 15px; border-left: 4px solid ${isSel ? 'var(--accent-gold)' : 'var(--accent-blue)'};">
                     <div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:6px;">
                             <span class="badge" style="background:rgba(88,166,255,0.1); color:var(--accent-blue); font-size:10px; border:1px solid var(--accent-blue); padding: 3px 6px; border-radius: 4px;">
                                 <i class="fas fa-rss"></i> Aviso Oficial
                             </span>
-                            <span style="color:#888; font-size:11px;"><i class="far fa-calendar-alt"></i> ${noticia.data}</span>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="color:#888; font-size:11px;"><i class="far fa-calendar-alt"></i> ${noticia.data}</span>
+                                <button type="button" class="radar-select-btn ${isSel ? 'selected' : ''}" onclick="toggleSelecionarNoticiaRadar('${linkEnc}')" title="Incluir no Carrossel">
+                                    <i class="fas ${isSel ? 'fa-check-square' : 'fa-plus-square'}"></i> ${isSel ? '#' + ordemSel : 'Carrossel'}
+                                </button>
+                            </div>
                         </div>
                         <h4 style="margin: 0 0 15px 0; color:var(--text-color); font-size:14px; line-height: 1.4;">
                             ${noticia.titulo}
                         </h4>
                     </div>
-                    <a href="${noticia.link}" target="_blank" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); font-size:12px; width:100%; text-decoration:none;">
-                        VER OFICIAL <i class="fas fa-external-link-alt" style="margin-left:5px;"></i>
-                    </a>
+                    <div style="display:flex; gap:8px;">
+                        <a href="${noticia.link}" target="_blank" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); font-size:11.5px; flex:1; text-decoration:none;">
+                            VER OFICIAL <i class="fas fa-external-link-alt"></i>
+                        </a>
+                        <button type="button" class="btn" style="background:rgba(242, 201, 76, 0.14); border:1px solid var(--accent-gold); color:var(--accent-gold); font-size:11.5px; padding:8px 10px;" onclick="gerarCardUnicoRadar('${linkEnc}')" title="Gerar Post desta notícia">
+                            <i class="fas fa-camera-retro"></i> Post
+                        </button>
+                    </div>
                 </div>
             `;
-            container.innerHTML += cardHTML;
+            container.innerHTML += cardAdminHTML;
         });
 
         if (totalPaginas > 1) {
@@ -2697,14 +2997,467 @@ Gostaria que fizesse:
         }
     }
 
-    let reportOffset = 0;
-    let raioxChartObj = null;
+    function obterNoticiasAlvoCarrossel() {
+        if (radarSelecionadas.length > 0) return radarSelecionadas;
+        if (radarUltimasFiltradas.length > 0) return radarUltimasFiltradas.slice(0, 5);
+        return feedNoticiasGlobal.slice(0, 5);
+    }
 
-    function mudarPeriodoRelatorio(direcao) {
-        if (currentReportMode === 'geral') return;
-        reportOffset += direcao;
-        if (reportOffset > 0) reportOffset = 0;
-        renderReport();
+    function abrirEstudioCarrosselRadar() {
+        if (!isCommanderAdmin()) {
+            alert("Acesso restrito ao Comando.");
+            return;
+        }
+        let noticiasAlvo = obterNoticiasAlvoCarrossel();
+        if (!noticiasAlvo || noticiasAlvo.length === 0) {
+            alert("Carregue o Radar de Editais primeiro para extrair as notícias!");
+            return;
+        }
+        let modal = document.getElementById('radarCarouselModal');
+        if (modal) modal.style.display = 'block';
+        reconstruirSlidesCarrossel();
+    }
+
+    function reconstruirSlidesCarrossel() {
+        if (!isCommanderAdmin()) return;
+        let noticiasAlvo = obterNoticiasAlvoCarrossel();
+        if (!noticiasAlvo || noticiasAlvo.length === 0) return;
+
+        let modeEl = document.getElementById('carousel-mode-select');
+        let modo = modeEl ? modeEl.value : 'destaque';
+
+        let filtroEl = document.getElementById('filtroAreaRadar');
+        let areaMap = {
+            'todas': 'GIRO GERAL DE CONCURSOS',
+            'engenharia': 'ENGENHARIA & ARQUITETURA',
+            'controle': 'CONTROLE EXTERNO (TCE / TCU / CGE)',
+            'policial': 'CARREIRAS POLICIAIS',
+            'tribunais': 'TRIBUNAIS (TJ / TRT / TRE / TRF)'
+        };
+        let nomeArea = areaMap[filtroEl ? filtroEl.value : 'todas'] || 'GIRO GERAL DE CONCURSOS';
+
+        slidesCarrosselRadar = [];
+
+        slidesCarrosselRadar.push({
+            tipo: 'capa',
+            area: nomeArea,
+            totalNoticias: noticiasAlvo.length,
+            manchetePrincipal: noticiasAlvo[0].titulo
+        });
+
+        if (modo === 'destaque') {
+            noticiasAlvo.forEach((n, idx) => {
+                slidesCarrosselRadar.push({
+                    tipo: 'noticia_unica',
+                    ordem: idx + 1,
+                    totalNoticias: noticiasAlvo.length,
+                    area: nomeArea,
+                    noticia: n
+                });
+            });
+        } else {
+            for (let i = 0; i < noticiasAlvo.length; i += 3) {
+                slidesCarrosselRadar.push({
+                    tipo: 'lista_noticias',
+                    area: nomeArea,
+                    inicioIdx: i + 1,
+                    itens: noticiasAlvo.slice(i, i + 3)
+                });
+            }
+        }
+
+        slidesCarrosselRadar.push({
+            tipo: 'cta',
+            area: nomeArea,
+            totalNoticias: noticiasAlvo.length
+        });
+
+        slideAtualCarrosselIdx = 0;
+        desenharSlideCarrosselRadar(slideAtualCarrosselIdx);
+        gerarLegendaBoletimRadar(noticiasAlvo, nomeArea);
+    }
+
+    function mudarSlideCarrosselRadar(direcao) {
+        if (slidesCarrosselRadar.length === 0) return;
+        slideAtualCarrosselIdx += direcao;
+        if (slideAtualCarrosselIdx < 0) slideAtualCarrosselIdx = 0;
+        if (slideAtualCarrosselIdx >= slidesCarrosselRadar.length) slideAtualCarrosselIdx = slidesCarrosselRadar.length - 1;
+        desenharSlideCarrosselRadar(slideAtualCarrosselIdx);
+    }
+
+    function quebrarTextoCanvas(ctx, texto, maxWidth) {
+        let palavras = String(texto || '').split(' ');
+        let linhas = [];
+        let linhaAtual = '';
+
+        for (let i = 0; i < palavras.length; i++) {
+            let teste = linhaAtual ? (linhaAtual + ' ' + palavras[i]) : palavras[i];
+            if (ctx.measureText(teste).width > maxWidth && linhaAtual !== '') {
+                linhas.push(linhaAtual);
+                linhaAtual = palavras[i];
+            } else {
+                linhaAtual = teste;
+            }
+        }
+        if (linhaAtual) linhas.push(linhaAtual);
+        return linhas;
+    }
+
+    function desenharRetanguloArredondado(ctx, x, y, w, h, r, fillStyle, strokeStyle, lineWidth) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+        if (fillStyle) {
+            ctx.fillStyle = fillStyle;
+            ctx.fill();
+        }
+        if (strokeStyle) {
+            ctx.lineWidth = lineWidth || 2;
+            ctx.strokeStyle = strokeStyle;
+            ctx.stroke();
+        }
+    }
+
+    function extrairDominioFonte(url) {
+        try {
+            let u = new URL(url);
+            return u.hostname.replace(/^www\./, '');
+        } catch (e) {
+            return 'portal oficial';
+        }
+    }
+
+    function desenharBaseTaticaSlide(ctx, W, H, numSlide, totalSlides) {
+        let grad = ctx.createLinearGradient(0, 0, W, H);
+        grad.addColorStop(0, '#0B0E14');
+        grad.addColorStop(0.5, '#121822');
+        grad.addColorStop(1, '#0D1117');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+
+        ctx.strokeStyle = 'rgba(88, 166, 255, 0.04)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < W; x += 60) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+        }
+        for (let y = 0; y < H; y += 60) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+        }
+
+        ctx.fillStyle = '#58A6FF';
+        ctx.fillRect(0, 0, W, 10);
+
+        desenharRetanguloArredondado(ctx, 55, 50, W - 110, 100, 14, 'rgba(22, 27, 34, 0.92)', '#30363D', 2);
+
+        let offsetTextoX = 85;
+        if (logoImgCarrossel) {
+            try {
+                ctx.drawImage(logoImgCarrossel, 75, 68, 64, 64);
+                offsetTextoX = 155;
+            } catch (e) {
+                offsetTextoX = 85;
+            }
+        }
+
+        ctx.fillStyle = '#C9D1D9';
+        ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('PROTOCOLO CONTROLE', offsetTextoX, 95);
+
+        ctx.fillStyle = '#58A6FF';
+        ctx.font = 'bold 19px monospace';
+        ctx.fillText('SALA DE COMANDO // RADAR DE EDITAIS', offsetTextoX, 125);
+
+        desenharRetanguloArredondado(ctx, W - 210, 74, 130, 52, 26, 'rgba(242, 201, 76, 0.14)', '#F2C94C', 2);
+        ctx.fillStyle = '#F2C94C';
+        ctx.font = 'bold 24px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${numSlide}/${totalSlides}`, W - 145, 108);
+
+        desenharRetanguloArredondado(ctx, 55, H - 125, W - 110, 75, 12, 'rgba(22, 27, 34, 0.92)', '#30363D', 2);
+        ctx.fillStyle = '#8B949E';
+        ctx.font = 'bold 21px monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('📲 @pqdtnocontrole', 85, H - 80);
+
+        ctx.fillStyle = '#58A6FF';
+        ctx.textAlign = 'right';
+        ctx.fillText('✈️ t.me/protocolocontrole', W - 85, H - 80);
+    }
+
+    function desenharSlideCarrosselRadar(idx) {
+        let canvas = document.getElementById('radarCarouselCanvas');
+        if (!canvas || !slidesCarrosselRadar[idx]) return;
+        let ctx = canvas.getContext('2d');
+        let W = canvas.width;
+        let H = canvas.height;
+        let slide = slidesCarrosselRadar[idx];
+        let totalSlides = slidesCarrosselRadar.length;
+
+        desenharBaseTaticaSlide(ctx, W, H, idx + 1, totalSlides);
+
+        let hojeStr = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+        if (slide.tipo === 'capa') {
+            desenharRetanguloArredondado(ctx, 55, 195, W - 110, 980, 20, 'rgba(22, 27, 34, 0.88)', '#30363D', 2);
+            ctx.fillStyle = '#F2C94C';
+            ctx.fillRect(55, 195, 10, 980);
+
+            desenharRetanguloArredondado(ctx, 105, 250, 460, 54, 8, 'rgba(88, 166, 255, 0.14)', '#58A6FF', 2);
+            ctx.fillStyle = '#58A6FF';
+            ctx.font = 'bold 23px monospace';
+            ctx.textAlign = 'left';
+            ctx.fillText(`📡 BOLETIM OFICIAL • ${hojeStr}`, 125, 285);
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '800 64px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            ctx.fillText('RADAR DE EDITAIS', 105, 395);
+
+            ctx.fillStyle = '#F2C94C';
+            ctx.font = 'bold 34px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            ctx.fillText(slide.area, 105, 455);
+
+            ctx.strokeStyle = '#30363D';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(105, 495);
+            ctx.lineTo(W - 105, 495);
+            ctx.stroke();
+
+            ctx.fillStyle = '#8B949E';
+            ctx.font = 'bold 25px monospace';
+            ctx.fillText('DESTAQUE MONITORADO VIA SATÉLITE:', 105, 555);
+
+            ctx.fillStyle = '#C9D1D9';
+            ctx.font = 'bold 42px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            let linhasDestaque = quebrarTextoCanvas(ctx, `"${slide.manchetePrincipal}"`, W - 210).slice(0, 5);
+            linhasDestaque.forEach((l, i) => {
+                ctx.fillText(l, 105, 625 + (i * 58));
+            });
+
+            desenharRetanguloArredondado(ctx, 105, 975, W - 210, 130, 14, 'rgba(35, 134, 54, 0.16)', '#238636', 2);
+            ctx.fillStyle = '#39D353';
+            ctx.font = 'bold 30px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            ctx.fillText(`🎯 ${slide.totalNoticias} ${slide.totalNoticias === 1 ? 'Publicação Mapeada' : 'Publicações Mapeadas'} no Radar`, 140, 1030);
+            ctx.fillStyle = '#C9D1D9';
+            ctx.font = 'bold 24px monospace';
+            ctx.fillText('Arraste para o lado para inspecionar os editais >>>', 140, 1075);
+
+        } else if (slide.tipo === 'noticia_unica') {
+            let n = slide.noticia;
+            desenharRetanguloArredondado(ctx, 55, 195, W - 110, 980, 20, 'rgba(22, 27, 34, 0.92)', '#30363D', 2);
+            ctx.fillStyle = '#58A6FF';
+            ctx.fillRect(55, 195, 10, 980);
+
+            desenharRetanguloArredondado(ctx, 105, 245, 320, 54, 8, 'rgba(242, 201, 76, 0.15)', '#F2C94C', 2);
+            ctx.fillStyle = '#F2C94C';
+            ctx.font = 'bold 25px monospace';
+            ctx.textAlign = 'left';
+            ctx.fillText(`ALERTA #${String(slide.ordem).padStart(2, '0')} DE ${String(slide.totalNoticias).padStart(2, '0')}`, 130, 281);
+
+            desenharRetanguloArredondado(ctx, W - 365, 245, 260, 54, 8, 'rgba(88, 166, 255, 0.12)', '#58A6FF', 1.5);
+            ctx.fillStyle = '#58A6FF';
+            ctx.font = 'bold 24px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(`📅 ${n.data}`, W - 235, 281);
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#8B949E';
+            ctx.font = 'bold 22px monospace';
+            ctx.fillText(`SETOR: ${slide.area}`, 105, 355);
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 48px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            let linhasTitulo = quebrarTextoCanvas(ctx, n.titulo, W - 210).slice(0, 7);
+            linhasTitulo.forEach((l, i) => {
+                ctx.fillText(l, 105, 435 + (i * 66));
+            });
+
+            desenharRetanguloArredondado(ctx, 105, 920, W - 210, 195, 14, '#0D1117', '#30363D', 2);
+            ctx.fillStyle = '#F0883E';
+            ctx.font = 'bold 24px monospace';
+            ctx.fillText(`🔗 FONTE / PORTAL: ${extrairDominioFonte(n.link).toUpperCase()}`, 140, 972);
+
+            ctx.fillStyle = '#C9D1D9';
+            ctx.font = '25px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            ctx.fillText('Link direto da notícia e acompanhamento verticalizado', 140, 1022);
+            ctx.fillStyle = '#39D353';
+            ctx.font = 'bold 26px monospace';
+            ctx.fillText('disponíveis no nosso Grupo do Telegram: t.me/protocolocontrole', 140, 1068);
+
+        } else if (slide.tipo === 'lista_noticias') {
+            ctx.fillStyle = '#F2C94C';
+            ctx.font = 'bold 26px monospace';
+            ctx.textAlign = 'left';
+            ctx.fillText(`📡 GIRO TÁTICO // ${slide.area}`, 60, 215);
+
+            slide.itens.forEach((n, idxItem) => {
+                let boxY = 245 + (idxItem * 310);
+                let numGlobal = slide.inicioIdx + idxItem;
+
+                desenharRetanguloArredondado(ctx, 55, boxY, W - 110, 285, 16, 'rgba(22, 27, 34, 0.94)', '#30363D', 2);
+                ctx.fillStyle = idxItem % 2 === 0 ? '#58A6FF' : '#238636';
+                ctx.fillRect(55, boxY, 10, 285);
+
+                desenharRetanguloArredondado(ctx, 90, boxY + 25, 150, 42, 6, 'rgba(242, 201, 76, 0.15)', '#F2C94C', 1.5);
+                ctx.fillStyle = '#F2C94C';
+                ctx.font = 'bold 22px monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(`ALVO #0${numGlobal}`, 165, boxY + 53);
+
+                ctx.fillStyle = '#8B949E';
+                ctx.font = 'bold 22px monospace';
+                ctx.textAlign = 'right';
+                ctx.fillText(`📅 ${n.data} • ${extrairDominioFonte(n.link)}`, W - 90, boxY + 53);
+
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = 'bold 33px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+                let linhas = quebrarTextoCanvas(ctx, n.titulo, W - 180).slice(0, 3);
+                linhas.forEach((l, li) => {
+                    ctx.fillText(l, 90, boxY + 115 + (li * 46));
+                });
+
+                ctx.fillStyle = '#58A6FF';
+                ctx.font = 'bold 20px monospace';
+                ctx.fillText('🔗 Link oficial liberado no Boletim do Telegram', 90, boxY + 260);
+            });
+
+        } else if (slide.tipo === 'cta') {
+            desenharRetanguloArredondado(ctx, 55, 195, W - 110, 980, 20, 'rgba(22, 27, 34, 0.92)', '#F2C94C', 2.5);
+
+            ctx.fillStyle = '#F2C94C';
+            ctx.font = 'bold 28px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('MISSÃO DADA É MISSÃO CUMPRIDA', W / 2, 285);
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '800 54px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            ctx.fillText('ACESSE OS LINKS OFICIAIS', W / 2, 365);
+            ctx.fillText('E COMECE A OPERAÇÃO', W / 2, 430);
+
+            desenharRetanguloArredondado(ctx, 105, 495, W - 210, 240, 16, 'rgba(88, 166, 255, 0.12)', '#58A6FF', 2);
+            ctx.fillStyle = '#58A6FF';
+            ctx.font = 'bold 34px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            ctx.fillText('✈️ COMUNIDADE NO TELEGRAM', W / 2, 560);
+            ctx.fillStyle = '#C9D1D9';
+            ctx.font = '28px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            ctx.fillText('Todos os links clicáveis deste boletim estão', W / 2, 615);
+            ctx.fillText('disponíveis gratuitamente no nosso canal:', W / 2, 655);
+            ctx.fillStyle = '#F2C94C';
+            ctx.font = 'bold 32px monospace';
+            ctx.fillText('t.me/protocolocontrole', W / 2, 705);
+
+            desenharRetanguloArredondado(ctx, 105, 775, W - 210, 230, 16, 'rgba(35, 134, 54, 0.14)', '#238636', 2);
+            ctx.fillStyle = '#39D353';
+            ctx.font = 'bold 34px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            ctx.fillText('🎯 SALA DE COMANDO (DASHBOARD)', W / 2, 840);
+            ctx.fillStyle = '#C9D1D9';
+            ctx.font = '28px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            ctx.fillText('Edital Verticalizado • Ciclo Tático • Raio-X • Ranking', W / 2, 895);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 30px monospace';
+            ctx.fillText('Siga: @pqdtnocontrole', W / 2, 955);
+
+            ctx.fillStyle = '#8B949E';
+            ctx.font = 'bold 24px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            ctx.fillText('💬 Salve este post e compartilhe com seu pelotão de estudos!', W / 2, 1095);
+        }
+
+        setSafeText('carousel-slide-indicator', `Slide ${idx + 1} / ${totalSlides}`);
+    }
+
+    function gerarLegendaBoletimRadar(noticias, nomeArea) {
+        let txtArea = document.getElementById('carousel-caption-output');
+        if (!txtArea) return;
+
+        let hojeStr = new Date().toLocaleDateString('pt-BR');
+        let linhas = [];
+        linhas.push(`📡 *RADAR DE EDITAIS & CONCURSOS* (${hojeStr})`);
+        linhas.push(`🎯 *Setor:* ${nomeArea}`);
+        linhas.push(`🛡️ *Protocolo Controle* — Sala de Comando`);
+        linhas.push(``);
+
+        noticias.forEach((n, idx) => {
+            linhas.push(`🔹 *${idx + 1}. ${n.titulo}*`);
+            linhas.push(`📅 Publicação: ${n.data}`);
+            linhas.push(`🔗 Link Oficial: ${n.link}`);
+            linhas.push(``);
+        });
+
+        linhas.push(`🚀 *Entre na Comunidade Tática no Telegram:*`);
+        linhas.push(`👉 https://t.me/protocolocontrole`);
+        linhas.push(``);
+        linhas.push(`📲 Siga no Instagram: @pqdtnocontrole`);
+        linhas.push(`#concursopublico #engenhariacivil #controleexterno #tce #tcu #estudos #protocolocontrole`);
+
+        txtArea.value = linhas.join('\n');
+    }
+
+    function copiarLegendaCarrosselRadar() {
+        let txtArea = document.getElementById('carousel-caption-output');
+        if (!txtArea) return;
+        navigator.clipboard.writeText(txtArea.value).then(() => {
+            mostrarToastTatico("Boletim com links copiado! Pronto para colar no Telegram e Instagram.", "var(--accent-gold)");
+        });
+    }
+
+    function compartilharDiretoTelegram() {
+        let txtArea = document.getElementById('carousel-caption-output');
+        if (!txtArea) return;
+        let texto = txtArea.value;
+        let urlTelegram = `https://t.me/share/url?url=${encodeURIComponent('https://t.me/protocolocontrole')}&text=${encodeURIComponent(texto)}`;
+        window.open(urlTelegram, '_blank');
+    }
+
+    function baixarSlideAtualRadar() {
+        if (!isCommanderAdmin()) return;
+        let canvas = document.getElementById('radarCarouselCanvas');
+        if (!canvas) return;
+        let link = document.createElement('a');
+        let num = String(slideAtualCarrosselIdx + 1).padStart(2, '0');
+        link.download = `ProtocoloControle_Radar_Slide_${num}.png`;
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        mostrarToastTatico(`Slide ${num} exportado em alta resolução (1080x1350px)!`, "var(--accent-blue)");
+    }
+
+    function baixarTodosSlidesRadar() {
+        if (!isCommanderAdmin()) return;
+        if (!slidesCarrosselRadar || slidesCarrosselRadar.length === 0) return;
+        let idxOriginal = slideAtualCarrosselIdx;
+
+        slidesCarrosselRadar.forEach((_, i) => {
+            setTimeout(() => {
+                slideAtualCarrosselIdx = i;
+                desenharSlideCarrosselRadar(i);
+                let canvas = document.getElementById('radarCarouselCanvas');
+                if (canvas) {
+                    let link = document.createElement('a');
+                    let num = String(i + 1).padStart(2, '0');
+                    link.download = `ProtocoloControle_Radar_Slide_${num}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+                if (i === slidesCarrosselRadar.length - 1) {
+                    slideAtualCarrosselIdx = idxOriginal;
+                    desenharSlideCarrosselRadar(idxOriginal);
+                    mostrarToastTatico(`Carrossel completo (${slidesCarrosselRadar.length} imagens) baixado com sucesso!`, "var(--accent-green)");
+                }
+            }, i * 350);
+        });
     }
 
     function switchReport(m) { 
