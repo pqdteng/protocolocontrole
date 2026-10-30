@@ -287,6 +287,177 @@
             .greeting h2 { font-size: 1.2em; flex-wrap: wrap; }
             .rank-details h2 { font-size: 1.2em; }
         }
+		/* RAIO-X TÁTICO (ABA RELATÓRIOS GERAIS) */
+        .raiox-container {
+            max-width: 620px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            border-radius: 14px;
+            padding: 25px;
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            text-align: center;
+        }
+        .raiox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5px;
+        }
+        .raiox-title-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .raiox-title-wrap h2 {
+            margin: 0;
+            font-size: 1.4em;
+            font-weight: 800;
+            color: var(--text-color);
+        }
+        .raiox-title-wrap p {
+            margin: 0;
+            font-size: 0.95em;
+            color: var(--text-color);
+            opacity: 0.85;
+            font-weight: 500;
+        }
+        .raiox-nav-btn {
+            background: transparent;
+            border: 2px solid var(--accent-red);
+            color: var(--accent-red);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 13px;
+        }
+        .raiox-nav-btn:hover:not([disabled]) {
+            background: var(--accent-red);
+            color: #ffffff;
+            transform: scale(1.06);
+        }
+        .raiox-nav-btn[disabled] {
+            opacity: 0.25;
+            cursor: not-allowed;
+            border-color: var(--border-color);
+            color: #888;
+        }
+        .raiox-pills-bar {
+            display: flex;
+            background: var(--input-bg);
+            border-radius: 50px;
+            padding: 4px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .raiox-pills-bar::-webkit-scrollbar { display: none; }
+        .raiox-pill {
+            flex: 1;
+            padding: 8px 14px;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 0.9em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .raiox-pill.active {
+            background: #5865F2;
+            color: #ffffff;
+            font-weight: 700;
+        }
+        .raiox-divider {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 0 -25px 5px -25px;
+        }
+        .raiox-chart-container {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            margin: 10px auto;
+        }
+        .raiox-time-big {
+            font-size: 2.6em;
+            font-weight: 800;
+            color: var(--text-color);
+            letter-spacing: -0.5px;
+            margin: 5px 0 2px 0;
+        }
+        .raiox-qs-sub {
+            font-size: 0.85em;
+            color: #888;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .raiox-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            text-align: left;
+            margin-top: 5px;
+        }
+        .raiox-legend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 1.02em;
+            color: var(--text-color);
+            padding: 2px 0;
+            gap: 12px;
+        }
+        .raiox-legend-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .raiox-color-badge {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        .raiox-subject-name {
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .raiox-legend-right {
+            font-weight: 800;
+            flex-shrink: 0;
+            text-align: right;
+        }
+        .raiox-tools-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-top: 15px;
+            margin-top: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+        .raiox-timeline-section {
+            margin-top: 5px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -643,34 +814,77 @@
             </div>
 
             <div id="view-relatorio-view" class="app-view">
-                <div class="chart-box" style="padding:25px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
-                        <h2 style="margin:0; font-size:1.4em;"><i class="fas fa-list-alt" style="color:var(--accent-purple)"></i> Central de Relatórios</h2>
-                        <div style="display:flex; gap:10px; flex-wrap:wrap; width:100%;">
-                            <select id="reportFilterMateria" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:8px 12px; border-radius:6px; outline:none;" onchange="renderReport()"><option value="all">Todas as Matérias</option></select>
-                            
-                            <div style="display:flex; background:var(--input-bg); border:1px solid var(--border-color); border-radius:6px; overflow:auto; width: 100%;">
-                                <button class="btn" id="btnDiario" style="background:var(--accent-purple); color:white; border-radius:0; border:none; padding:8px 12px; font-size:12px; flex:1;" onclick="switchReport('diario')">Dia</button>
-                                <button class="btn" id="btnSemanal" style="background:transparent; color:var(--text-color); border-radius:0; border:none; padding:8px 12px; font-size:12px; flex:1;" onclick="switchReport('semanal')">Semana</button>
-                                <button class="btn" id="btnMensal" style="background:transparent; color:var(--text-color); border-radius:0; border:none; padding:8px 12px; font-size:12px; flex:1;" onclick="switchReport('mensal')">Mês</button>
-                                <button class="btn" id="btnAnual" style="background:transparent; color:var(--text-color); border-radius:0; border:none; padding:8px 12px; font-size:12px; flex:1;" onclick="switchReport('anual')">Ano</button>
-                                <button class="btn" id="btnGeral" style="background:transparent; color:var(--text-color); border-radius:0; border:none; padding:8px 12px; font-size:12px; flex:1;" onclick="switchReport('geral')">Tudo</button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="raiox-container">
                     
-                    <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
-                        <button class="btn" style="background:var(--accent-blue);" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Exportar Dados CSV</button>
-                        <button class="btn" style="background:var(--accent-green);" onclick="document.getElementById('importModal').style.display='block'"><i class="fas fa-upload"></i> Importar de Outras Plataformas</button>
-                        <button class="btn" style="background:transparent; border:1px solid var(--accent-red); color:var(--accent-red);" onclick="confirmDeleteHistory()"><i class="fas fa-trash-alt"></i> Apagar Histórico</button>
+                    <div class="raiox-header">
+                        <button type="button" class="raiox-nav-btn" onclick="mudarPeriodoRelatorio(-1)" title="Período Anterior">
+                            <i class="fas fa-play" style="transform: rotate(180deg);"></i>
+                        </button>
+                        <div class="raiox-title-wrap">
+                            <h2 id="raiox-title-mat">Todas as matérias</h2>
+                            <p id="raiox-current-period">--/--/----</p>
+                        </div>
+                        <button type="button" class="raiox-nav-btn" id="btn-next-period" onclick="mudarPeriodoRelatorio(1)" title="Próximo Período">
+                            <i class="fas fa-play"></i>
+                        </button>
                     </div>
 
-                    <div style="overflow-x: auto;">
-                        <table style="width:100%; border-collapse:collapse;">
-                            <thead><tr style="border-bottom:1px solid var(--border-color);"><th id="col-periodo">Período</th><th>Questões</th><th>Acertos</th><th>Precisão</th><th>Tempo Estudado</th><th>Velocidade</th><th>Raio-X</th></tr></thead>
-                            <tbody id="report-body"></tbody>
-                        </table>
+                    <div class="raiox-pills-bar">
+                        <button type="button" class="raiox-pill active" id="btnDiario" onclick="switchReport('diario')">Dia</button>
+                        <button type="button" class="raiox-pill" id="btnSemanal" onclick="switchReport('semanal')">Semana</button>
+                        <button type="button" class="raiox-pill" id="btnMensal" onclick="switchReport('mensal')">Mês</button>
+                        <button type="button" class="raiox-pill" id="btnAnual" onclick="switchReport('anual')">Ano</button>
+                        <button type="button" class="raiox-pill" id="btnGeral" onclick="switchReport('geral')">Tudo</button>
                     </div>
+
+                    <hr class="raiox-divider">
+
+                    <div class="raiox-chart-container">
+                        <canvas id="raioxCircularChart"></canvas>
+                    </div>
+
+                    <div>
+                        <div class="raiox-time-big" id="raiox-time-consolidado">0h 00m</div>
+                        <div class="raiox-qs-sub" id="raiox-qs-consolidado">0 questões resolvidas (0% de acerto)</div>
+                    </div>
+
+                    <div class="raiox-legend" id="raiox-legend-box"></div>
+
+                    <div class="raiox-tools-bar">
+                        <select id="reportFilterMateria" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:8px 12px; border-radius:6px; outline:none; flex:1; min-width:180px;" onchange="renderReport()">
+                            <option value="all">Todas as Matérias</option>
+                        </select>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button type="button" class="btn" style="background:var(--accent-blue); padding:8px 12px; font-size:12px;" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Exportar CSV</button>
+                            <button type="button" class="btn" style="background:var(--accent-green); padding:8px 12px; font-size:12px;" onclick="document.getElementById('importModal').style.display='block'"><i class="fas fa-upload"></i> Importar</button>
+                        </div>
+                    </div>
+
+                    <div class="raiox-timeline-section">
+                        <button type="button" class="btn" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); font-size:12px; width:100%; justify-content:space-between;" onclick="toggleAccordion('history-accordion-rel')">
+                            <span><i class="fas fa-list-ul" style="color:var(--accent-blue);"></i> Ver Tabela de Períodos & Histórico</span>
+                            <i class="fas fa-chevron-down" style="color:#888;"></i>
+                        </button>
+                        <div class="edital-topic-list" id="history-accordion-rel" style="margin-top:12px; overflow-x:auto;">
+                            <table style="width:100%; border-collapse:collapse; min-width:480px; font-size:12px;">
+                                <thead>
+                                    <tr style="border-bottom:1px solid var(--border-color);">
+                                        <th id="col-periodo">Período</th>
+                                        <th>Questões</th>
+                                        <th>Acertos</th>
+                                        <th>Precisão</th>
+                                        <th>Tempo</th>
+                                        <th>Raio-X</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="report-body"></tbody>
+                            </table>
+                            <button type="button" class="btn" style="background:transparent; border:1px solid var(--accent-red); color:var(--accent-red); margin-top:15px; font-size:12px; width:100%;" onclick="confirmDeleteHistory()">
+                                <i class="fas fa-trash-alt"></i> Apagar Histórico
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -2345,22 +2559,242 @@ Gostaria que fizesse:
         }
     }
 
+    let reportOffset = 0;
+    let raioxChartObj = null;
+
+    function mudarPeriodoRelatorio(direcao) {
+        if (currentReportMode === 'geral') return;
+        reportOffset += direcao;
+        if (reportOffset > 0) reportOffset = 0;
+        renderReport();
+    }
+
     function switchReport(m) { 
         currentReportMode = m;
-        let btns = ['Diario', 'Semanal', 'Mensal', 'Anual', 'Geral'];
-        btns.forEach(b => {
-            let el = document.getElementById('btn' + b);
-            if(el) {
-                let isMatch = m === b.toLowerCase();
-                if (m === 'diario' && b === 'Diario') isMatch = true; 
-                el.style.background = isMatch ? 'var(--accent-purple)' : 'transparent';
-                el.style.color = isMatch ? 'white' : 'var(--text-color)';
+        reportOffset = 0;
+        let mapBtns = {
+            'diario': 'btnDiario',
+            'semanal': 'btnSemanal',
+            'mensal': 'btnMensal',
+            'anual': 'btnAnual',
+            'geral': 'btnGeral'
+        };
+        Object.keys(mapBtns).forEach(k => {
+            let el = document.getElementById(mapBtns[k]);
+            if (el) {
+                if (k === m) el.classList.add('active');
+                else el.classList.remove('active');
             }
         });
         renderReport();
     }
 
+    function obterDadosPeriodoRaioX() {
+        let agora = new Date();
+        let inicio = new Date(agora);
+        let fim = new Date(agora);
+        let labelPeriodo = "";
+
+        if (currentReportMode === 'diario') {
+            inicio.setDate(agora.getDate() + reportOffset);
+            inicio.setHours(0, 0, 0, 0);
+            fim = new Date(inicio);
+            fim.setHours(23, 59, 59, 999);
+            labelPeriodo = inicio.toLocaleDateString('pt-BR');
+        } else if (currentReportMode === 'semanal') {
+            let diaSemana = agora.getDay();
+            let distSegunda = (diaSemana === 0 ? 6 : diaSemana - 1);
+            inicio.setDate(agora.getDate() - distSegunda + (reportOffset * 7));
+            inicio.setHours(0, 0, 0, 0);
+            fim = new Date(inicio);
+            fim.setDate(inicio.getDate() + 6);
+            fim.setHours(23, 59, 59, 999);
+            labelPeriodo = `${inicio.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'})} a ${fim.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'})}`;
+        } else if (currentReportMode === 'mensal') {
+            inicio = new Date(agora.getFullYear(), agora.getMonth() + reportOffset, 1, 0, 0, 0, 0);
+            fim = new Date(inicio.getFullYear(), inicio.getMonth() + 1, 0, 23, 59, 59, 999);
+            let nomeMes = inicio.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+            labelPeriodo = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1);
+        } else if (currentReportMode === 'anual') {
+            let anoAlvo = agora.getFullYear() + reportOffset;
+            inicio = new Date(anoAlvo, 0, 1, 0, 0, 0, 0);
+            fim = new Date(anoAlvo, 11, 31, 23, 59, 59, 999);
+            labelPeriodo = `Ano ${anoAlvo}`;
+        } else {
+            inicio = null;
+            fim = null;
+            labelPeriodo = "Todo o Histórico";
+        }
+
+        let btnNext = document.getElementById('btn-next-period');
+        if (btnNext) btnNext.disabled = (reportOffset >= 0 || currentReportMode === 'geral');
+
+        let btnPrev = document.querySelector('.raiox-header .raiox-nav-btn');
+        if (btnPrev) btnPrev.disabled = (currentReportMode === 'geral');
+
+        setSafeText('raiox-current-period', labelPeriodo);
+
+        return globalData.filter(item => {
+            if (currentReportMode === 'geral') return true;
+            return item.date >= inicio && item.date <= fim;
+        });
+    }
+
     function renderReport() {
+        let filterMatEl = document.getElementById('reportFilterMateria'); 
+        let filterMat = filterMatEl ? filterMatEl.value : 'all';
+
+        if (filterMat === 'all') {
+            setSafeText('raiox-title-mat', 'Todas as matérias');
+        } else {
+            let metaFiltro = resolverMetaDisciplina(filterMat);
+            setSafeText('raiox-title-mat', metaFiltro.nome);
+        }
+
+        let lancamentosPeriodo = obterDadosPeriodoRaioX();
+        if (filterMat !== 'all') {
+            lancamentosPeriodo = lancamentosPeriodo.filter(x => x.mat === filterMat);
+        }
+
+        let totalQ = 0, totalA = 0, totalMin = 0;
+        let mapaMaterias = {};
+
+        lancamentosPeriodo.forEach(item => {
+            totalQ += item.q;
+            totalA += item.a;
+            totalMin += item.t;
+
+            let meta = resolverMetaDisciplina(item.mat);
+            let nomeExibicao = meta.nome;
+            if (!mapaMaterias[nomeExibicao]) {
+                mapaMaterias[nomeExibicao] = { q: 0, a: 0, t: 0 };
+            }
+            mapaMaterias[nomeExibicao].q += item.q;
+            mapaMaterias[nomeExibicao].a += item.a;
+            mapaMaterias[nomeExibicao].t += item.t;
+        });
+
+        let hrsTotal = Math.floor(totalMin / 60);
+        let minsTotal = Math.round(totalMin % 60);
+        let tempoPrincipalStr = hrsTotal > 0 ? `${hrsTotal}h ${minsTotal.toString().padStart(2, '0')}m` : `${minsTotal}m`;
+        let pctAcertoTotal = totalQ > 0 ? Math.round((totalA / totalQ) * 100) : 0;
+
+        setSafeText('raiox-time-consolidado', tempoPrincipalStr);
+        setSafeText('raiox-qs-consolidado', `${totalQ.toLocaleString('pt-BR')} questões resolvidas (${pctAcertoTotal}% de acerto)`);
+
+        let materiasOrdenadas = Object.keys(mapaMaterias).sort((a, b) => {
+            let diffT = mapaMaterias[b].t - mapaMaterias[a].t;
+            return diffT !== 0 ? diffT : (mapaMaterias[b].q - mapaMaterias[a].q);
+        });
+
+        let coresRaioX = [
+            '#116915',
+            '#12B59A',
+            '#00FF19',
+            '#7BA68C',
+            '#58A6FF',
+            '#F2C94C',
+            '#8957E5',
+            '#F0883E',
+            '#DA3633',
+            '#00B4D8',
+            '#A3E635',
+            '#EC4899'
+        ];
+
+        let chartLabels = [];
+        let chartValues = [];
+        let chartBgColors = [];
+        let legendEl = document.getElementById('raiox-legend-box');
+        if (legendEl) legendEl.innerHTML = '';
+
+        let usarTempoComoBase = totalMin > 0;
+        let somaBase = usarTempoComoBase ? totalMin : totalQ;
+
+        materiasOrdenadas.forEach((nomeMat, idx) => {
+            let info = mapaMaterias[nomeMat];
+            let cor = coresRaioX[idx % coresRaioX.length];
+
+            let hMat = Math.floor(info.t / 60);
+            let mMat = Math.round(info.t % 60);
+            let tempoMatStr = "";
+            if (hMat > 0 && mMat > 0) tempoMatStr = `${hMat}h ${mMat}m`;
+            else if (hMat > 0) tempoMatStr = `${hMat}h`;
+            else tempoMatStr = `${mMat}m`;
+
+            let valorBaseItem = usarTempoComoBase ? info.t : info.q;
+            let pctMat = somaBase > 0 ? Math.round((valorBaseItem / somaBase) * 100) : 0;
+
+            chartLabels.push(nomeMat);
+            chartValues.push(valorBaseItem);
+            chartBgColors.push(cor);
+
+            if (legendEl) {
+                legendEl.innerHTML += `
+                    <div class="raiox-legend-item">
+                        <div class="raiox-legend-left">
+                            <span class="raiox-color-badge" style="background-color:${cor};"></span>
+                            <span class="raiox-subject-name" title="${nomeMat}">${nomeMat}</span>
+                        </div>
+                        <div class="raiox-legend-right">${tempoMatStr} (${pctMat}%)</div>
+                    </div>
+                `;
+            }
+        });
+
+        if (materiasOrdenadas.length === 0) {
+            chartLabels = ['Sem registros'];
+            chartValues = [1];
+            chartBgColors = ['#30363D'];
+            if (legendEl) {
+                legendEl.innerHTML = `<div style="text-align:center; color:#888; font-size:13px; padding:10px 0;">Nenhum estudo registrado neste período. Use as setas no topo para navegar.</div>`;
+            }
+        }
+
+        if (raioxChartObj) raioxChartObj.destroy();
+        let canvasEl = document.getElementById('raioxCircularChart');
+        if (canvasEl) {
+            let isLight = document.body.classList.contains('light-mode');
+            raioxChartObj = new Chart(canvasEl.getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        data: chartValues,
+                        backgroundColor: chartBgColors,
+                        borderColor: isLight ? '#FFFFFF' : '#0E1116',
+                        borderWidth: materiasOrdenadas.length > 1 ? 1.5 : 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: materiasOrdenadas.length > 0,
+                            backgroundColor: 'rgba(22, 27, 34, 0.95)',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#C9D1D9',
+                            borderColor: '#30363D',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(ctx) {
+                                    let val = ctx.raw || 0;
+                                    if (usarTempoComoBase) {
+                                        let h = Math.floor(val / 60);
+                                        let m = Math.round(val % 60);
+                                        return ` ${ctx.label}: ${h > 0 ? h + 'h ' + m + 'm' : m + 'm'}`;
+                                    }
+                                    return ` ${ctx.label}: ${val} Qs`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         let targetGroup;
         let colPeriodoTexto = "Data";
         
@@ -2372,12 +2806,11 @@ Gostaria que fizesse:
 
         setSafeText('col-periodo', colPeriodoTexto);
         
-        let filterMatEl = document.getElementById('reportFilterMateria'); 
-        let filterMat = filterMatEl ? filterMatEl.value : 'all';
-        let body = document.getElementById('report-body'); if(!body) return; body.innerHTML = '';
+        let body = document.getElementById('report-body'); 
+        if (!body) return; 
+        body.innerHTML = '';
         
         let arr = Object.keys(targetGroup).map(k => ({ key: k, ...targetGroup[k] }));
-        
         arr.sort((a, b) => {
             if (b.dateObj && a.dateObj) return b.dateObj - a.dateObj;
             return b.key.localeCompare(a.key);
@@ -2385,10 +2818,21 @@ Gostaria que fizesse:
 
         arr.forEach(r => {
             let q = r.q, a = r.a, t = r.t;
-            if(filterMat !== 'all') { let sub = r.subjects[filterMat] || {q:0, a:0, t:0}; q = sub.q; a = sub.a; t = sub.t; }
-            if(q === 0 && t === 0) return;
-            let ac = q > 0 ? ((a/q)*100).toFixed(1) : 0; let cl = ac >= 75 ? 'color:var(--accent-green)' : 'color:var(--accent-red)';
-            body.innerHTML += `<tr><td style="color:#888;"><strong>${r.key}</strong></td><td>${q}</td><td>${a}</td><td style="${cl}; font-weight:bold;">${ac}%</td><td>${(t/60).toFixed(1)}h</td><td>${t>0 ? ((q/t)*60).toFixed(0) : 0} Q/h</td><td><button class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); padding:6px 10px;" onclick="openDetailsModal('${r.key}')"><i class="fas fa-camera"></i></button></td></tr>`;
+            if (filterMat !== 'all') { 
+                let sub = r.subjects[filterMat] || {q:0, a:0, t:0}; 
+                q = sub.q; a = sub.a; t = sub.t; 
+            }
+            if (q === 0 && t === 0) return;
+            let ac = q > 0 ? ((a / q) * 100).toFixed(1) : 0; 
+            let cl = ac >= 75 ? 'color:var(--accent-green)' : 'color:var(--accent-red)';
+            body.innerHTML += `<tr>
+                <td style="color:#888;"><strong>${r.key}</strong></td>
+                <td>${q}</td>
+                <td>${a}</td>
+                <td style="${cl}; font-weight:bold;">${ac}%</td>
+                <td>${(t / 60).toFixed(1)}h</td>
+                <td><button type="button" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); padding:5px 9px;" onclick="openDetailsModal('${r.key}')"><i class="fas fa-camera"></i></button></td>
+            </tr>`;
         });
     }
 
