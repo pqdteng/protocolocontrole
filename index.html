@@ -287,6 +287,64 @@
             .greeting h2 { font-size: 1.2em; flex-wrap: wrap; }
             .rank-details h2 { font-size: 1.2em; }
         }
+		/* AVATAR CIRCULAR DE PERFIL (HEADER, RANKING E FICHA) */
+        .user-avatar-circle {
+            border-radius: 50%;
+            object-fit: cover;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background-color: var(--input-bg);
+            border: 2px solid var(--accent-blue);
+            color: var(--accent-blue);
+            font-weight: 800;
+            text-transform: uppercase;
+            user-select: none;
+            box-sizing: border-box;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+        }
+        .user-avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+        }
+        .avatar-header-size {
+            width: 44px;
+            height: 44px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .avatar-header-size:hover {
+            transform: scale(1.06);
+            border-color: var(--accent-gold);
+        }
+        .avatar-rank-size {
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
+            border-width: 1.5px;
+        }
+        .leader-item .avatar-rank-size {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 8px rgba(242, 201, 76, 0.35);
+        }
+        .avatar-modal-size {
+            width: 84px;
+            height: 84px;
+            font-size: 28px;
+            border-width: 2.5px;
+            border-color: var(--accent-orange);
+        }
+        .rank-commander-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 		/* RAIO-X TÁTICO - ASSINATURA PROTOCOLO CONTROLE */
         .raiox-container {
             max-width: 640px;
@@ -802,8 +860,11 @@
 
         <div class="main-content">
             <div class="top-header">
-                <div class="greeting">
+                <div class="greeting" style="display: flex; align-items: center; gap: 12px;">
                     <button class="mobile-menu-btn" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+                    <div id="header-avatar-box" class="user-avatar-circle avatar-header-size" onclick="openProfileModal()" title="Clique para alterar sua Foto de Perfil">
+                        <i class="fas fa-user-astronaut"></i>
+                    </div>
                     <div>
                         <h2 style="display: flex; align-items: center; gap: 10px; margin: 0; font-size: 1.5em; color: var(--text-color);">
                             Olá, <span id="greeting-name" style="color: var(--accent-blue);">Comandante</span>! 👋
@@ -1354,16 +1415,32 @@
         <div class="modal-content" style="max-width: 450px;">
             <span class="close-btn" onclick="document.getElementById('profileModal').style.display='none'">&times;</span>
             <h2 style="margin-top:0;"><i class="fas fa-id-badge" style="color:var(--accent-blue)"></i> Ficha Cadastral</h2>
-            <div style="background: var(--input-bg); padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color);">
-                <p style="margin:0 0 5px 0; color:#888; font-size:13px; text-transform:uppercase;">E-mail da Conta</p>
-                <strong id="profile-email" style="color:var(--text-color); font-size:1.1em; display:block; margin-bottom:15px;">--</strong>
-                <p style="margin:0 0 5px 0; color:#888; font-size:13px; text-transform:uppercase;">Vigência do Plano</p>
-                <strong id="profile-expiration" style="color:var(--accent-green); font-size:1.1em;">--</strong>
+            <div style="background: var(--input-bg); padding: 18px; border-radius: 8px; margin-bottom: 18px; border: 1px solid var(--border-color);">
+                <p style="margin:0 0 5px 0; color:#888; font-size:12px; text-transform:uppercase;">E-mail da Conta</p>
+                <strong id="profile-email" style="color:var(--text-color); font-size:1.05em; display:block; margin-bottom:12px;">--</strong>
+                <p style="margin:0 0 5px 0; color:#888; font-size:12px; text-transform:uppercase;">Vigência do Plano</p>
+                <strong id="profile-expiration" style="color:var(--accent-green); font-size:1.05em;">--</strong>
             </div>
             <div style="background: var(--hover-bg); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
-                <label style="display:block; font-size:13px; color:var(--accent-orange); font-weight:bold; margin-bottom:10px; text-transform:uppercase;"><i class="fas fa-user-ninja"></i> Codinome no Ranking</label>
-                <input type="text" id="input-nickname" class="login-input" placeholder="Ex: Rodrigo_Policial" maxlength="15">
-                <button class="btn" style="background:var(--accent-orange); color:black; width:100%;" onclick="saveNickname()">REGISTRAR CODINOME</button>
+                <label style="display:block; font-size:12px; color:var(--accent-blue); font-weight:bold; margin-bottom:12px; text-transform:uppercase;"><i class="fas fa-camera"></i> Foto de Perfil (Painel & Ranking)</label>
+                <div style="display:flex; align-items:center; gap:16px; margin-bottom:18px;">
+                    <div id="profile-modal-avatar-preview" class="user-avatar-circle avatar-modal-size">
+                        <i class="fas fa-user-astronaut"></i>
+                    </div>
+                    <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+                        <input type="file" id="input-avatar-file" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)">
+                        <button type="button" class="btn" style="background:var(--card-bg); border:1px solid var(--accent-blue); color:var(--accent-blue); font-size:12px; padding:8px 12px; width:100%;" onclick="document.getElementById('input-avatar-file').click()">
+                            <i class="fas fa-upload"></i> Escolher Imagem
+                        </button>
+                        <button type="button" class="btn" style="background:transparent; border:1px solid var(--border-color); color:#888; font-size:11px; padding:6px 10px; width:100%;" onclick="removerAvatarPerfil()">
+                            <i class="fas fa-trash-alt"></i> Remover Foto
+                        </button>
+                    </div>
+                </div>
+
+                <label style="display:block; font-size:12px; color:var(--accent-orange); font-weight:bold; margin-bottom:8px; text-transform:uppercase;"><i class="fas fa-user-ninja"></i> Codinome no Ranking</label>
+                <input type="text" id="input-nickname" class="login-input" placeholder="Ex: Pqdt_Engenheiro" maxlength="15">
+                <button class="btn" id="btn-save-profile" style="background:var(--accent-orange); color:black; width:100%;" onclick="saveNickname()">SALVAR PERFIL NA NUVEM</button>
             </div>
         </div>
     </div>
@@ -1484,7 +1561,7 @@ Gostaria que fizesse:
     
     let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
     let loggedUserSenha = localStorage.getItem('pqdtSenha') || "";
-    let globalExpiration = ""; let globalNickname = "Recruta"; let globalLeaderboards = {diario:[], semanal:[], mensal:[], geral:[]};
+    let globalExpiration = ""; let globalNickname = "Recruta"; let globalAvatar = localStorage.getItem('pqdtAvatar') || ""; let tempAvatarBase64 = ""; let globalLeaderboards = {diario:[], semanal:[], mensal:[], geral:[]};
     let isEditingMode = false;
     let currentRankingTab = 'diario'; 
 
@@ -1866,6 +1943,10 @@ Gostaria que fizesse:
             
             globalExpiration = data.expiration || "Vitalício"; 
             globalNickname = data.nickname || "Recruta"; 
+            if (typeof data.avatar !== "undefined") {
+                globalAvatar = data.avatar || "";
+                localStorage.setItem('pqdtAvatar', globalAvatar);
+            }
             globalLeaderboards = data.leaderboards || {diario:[], semanal:[], mensal:[], geral:[]};
             window.globalComparativo = data.comparativoGeral || { disciplinas: {}, mensal: {} };
             baseEditaisGlobal = data.baseEditais || {};
@@ -1873,6 +1954,7 @@ Gostaria que fizesse:
             try { progressoEditalGlobal = JSON.parse(data.progressoEdital || "{}"); } catch(e) { progressoEditalGlobal = {}; }
 
             setSafeText('greeting-name', globalNickname);
+            renderHeaderAvatar();
             loadCiclo(data.cicloNuvem); 
             processData(data.dados || []); 
             updateLeaderEffects();
@@ -2136,7 +2218,24 @@ Gostaria que fizesse:
         
         body.innerHTML = list.map((u, i) => {
             let acc = u.a > 0 && u.q > 0 ? ((u.a / u.q) * 100).toFixed(1) + '%' : '--';
-            return `<tr class="${u.nick === globalNickname ? 'leader-item' : ''}"><td style="padding:12px; color:#888;">#${i+1}</td><td style="font-weight:bold; color: ${u.nick === globalNickname ? 'var(--accent-gold)' : 'var(--text-color)'};">${u.nick === globalNickname ? 'VOCÊ ('+u.nick+')' : u.nick}</td><td>${u.q.toLocaleString()} Qs</td><td style="color: ${parseFloat(acc) >= 75 ? 'var(--accent-green)' : (acc === '--' ? '#888' : 'var(--accent-red)')}; font-weight:bold;">${acc}</td></tr>`;
+            let isMe = u.nick === globalNickname;
+            let avatarSrc = (u.avatar && String(u.avatar).startsWith('data:image')) ? u.avatar : (isMe && globalAvatar ? globalAvatar : '');
+            let inicial = String(u.nick || 'C').trim().charAt(0).toUpperCase();
+            let avatarBadgeHTML = avatarSrc
+                ? `<div class="user-avatar-circle avatar-rank-size"><img src="${avatarSrc}" alt="Avatar"></div>`
+                : `<div class="user-avatar-circle avatar-rank-size">${inicial}</div>`;
+
+            return `<tr class="${isMe ? 'leader-item' : ''}">
+                <td style="padding:12px; color:#888;">#${i+1}</td>
+                <td style="font-weight:bold; color: ${isMe ? 'var(--accent-gold)' : 'var(--text-color)'};">
+                    <div class="rank-commander-cell">
+                        ${avatarBadgeHTML}
+                        <span>${isMe ? 'VOCÊ (' + u.nick + ')' : u.nick}</span>
+                    </div>
+                </td>
+                <td>${u.q.toLocaleString()} Qs</td>
+                <td style="color: ${parseFloat(acc) >= 75 ? 'var(--accent-green)' : (acc === '--' ? '#888' : 'var(--accent-red)')}; font-weight:bold;">${acc}</td>
+            </tr>`;
         }).join('');
     }
 
@@ -2419,14 +2518,105 @@ Gostaria que fizesse:
         if(rp) { if(isLeader) rp.classList.add('is-leader-glow'); else rp.classList.remove('is-leader-glow'); }
     }
 
-    function openProfileModal() { setSafeText('profile-expiration', globalExpiration); let inp = document.getElementById('input-nickname'); if(inp) inp.value = globalNickname; let pm = document.getElementById('profileModal'); if(pm) pm.style.display='block'; }
+    function renderAvatarInsideElement(elId, avatarData, fallbackNick) {
+        let el = document.getElementById(elId);
+        if (!el) return;
+        if (avatarData && String(avatarData).startsWith('data:image')) {
+            el.innerHTML = `<img src="${avatarData}" alt="Foto de Perfil">`;
+        } else {
+            let ini = String(fallbackNick || globalNickname || 'C').trim().charAt(0).toUpperCase();
+            el.innerHTML = `<span>${ini}</span>`;
+        }
+    }
+
+    function renderHeaderAvatar() {
+        renderAvatarInsideElement('header-avatar-box', globalAvatar, globalNickname);
+    }
+
+    function handleAvatarUpload(event) {
+        let file = event && event.target && event.target.files ? event.target.files[0] : null;
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            alert("Selecione um arquivo de imagem válido (PNG, JPG ou WEBP).");
+            return;
+        }
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            let img = new Image();
+            img.onload = function() {
+                let canvas = document.createElement('canvas');
+                let size = 120;
+                canvas.width = size;
+                canvas.height = size;
+                let ctx = canvas.getContext('2d');
+
+                let minDim = Math.min(img.width, img.height);
+                let sx = (img.width - minDim) / 2;
+                let sy = (img.height - minDim) / 2;
+
+                ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+                tempAvatarBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                renderAvatarInsideElement('profile-modal-avatar-preview', tempAvatarBase64, globalNickname);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removerAvatarPerfil() {
+        tempAvatarBase64 = "";
+        let fileInput = document.getElementById('input-avatar-file');
+        if (fileInput) fileInput.value = "";
+        renderAvatarInsideElement('profile-modal-avatar-preview', "", globalNickname);
+    }
+
+    function openProfileModal() { 
+        setSafeText('profile-expiration', globalExpiration); 
+        let inp = document.getElementById('input-nickname'); 
+        if (inp) inp.value = globalNickname; 
+        tempAvatarBase64 = globalAvatar || "";
+        renderAvatarInsideElement('profile-modal-avatar-preview', tempAvatarBase64, globalNickname);
+        let pm = document.getElementById('profileModal'); 
+        if (pm) pm.style.display = 'block'; 
+    }
+
     function saveNickname() {
-        let inp = document.getElementById('input-nickname'); if(!inp) return; let n = inp.value.trim(); if(!n) return alert("Digite um Nickname.");
-        fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "updateProfile", email: loggedUserEmail, nickname: n})})
+        let inp = document.getElementById('input-nickname'); 
+        if (!inp) return; 
+        let n = inp.value.trim(); 
+        if (!n) return alert("Digite um Codinome.");
+        
+        let btn = document.getElementById('btn-save-profile');
+        let oldTxt = btn ? btn.innerText : "SALVAR PERFIL NA NUVEM";
+        if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gravando...'; btn.disabled = true; }
+
+        globalNickname = n;
+        globalAvatar = tempAvatarBase64 || "";
+        localStorage.setItem('pqdtAvatar', globalAvatar);
+        setSafeText('greeting-name', globalNickname);
+        renderHeaderAvatar();
+        switchLeaderboard(currentRankingTab);
+
+        fetch(WEBHOOK_URL, {
+            method: 'POST', 
+            mode: 'no-cors', 
+            body: JSON.stringify({
+                acao: "updateProfile", 
+                email: loggedUserEmail, 
+                nickname: n,
+                avatar: globalAvatar
+            })
+        })
         .then(() => { 
-            alert("Codinome registrado!"); 
-            let pm = document.getElementById('profileModal'); if(pm) pm.style.display='none'; 
+            mostrarToastTatico("Perfil e Foto de Comando atualizados!", "var(--accent-blue)");
+            let pm = document.getElementById('profileModal'); 
+            if (pm) pm.style.display = 'none'; 
+            if (btn) { btn.innerText = oldTxt; btn.disabled = false; }
             setTimeout(() => loadGoogleSheetsData(), 1500); 
+        })
+        .catch(() => {
+            alert("Erro ao sincronizar perfil na nuvem.");
+            if (btn) { btn.innerText = oldTxt; btn.disabled = false; }
         });
     }
 

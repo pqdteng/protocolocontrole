@@ -104,6 +104,9 @@ function doPost(e) {
       for (var i = 1; i < dataU.length; i++) {
         if (dataU[i][0].toString().toLowerCase() === dados.email.toLowerCase()) {
           sheetU.getRange(i + 1, 4).setValue(dados.nickname);
+          if (typeof dados.avatar !== "undefined") {
+            sheetU.getRange(i + 1, 12).setValue(dados.avatar);
+          }
           SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
           return ContentService.createTextOutput(JSON.stringify({"status": "sucesso"})).setMimeType(ContentService.MimeType.JSON);
         }
@@ -296,9 +299,17 @@ function doGet(e) {
     var expirationDate = ""; var nickname = ""; var cicloSalvoNuvem = ""; var nickMap = {};
     var editalAtivoUsuario = ""; var progressoEditalUsuario = "{}";
 
+    var editalAtivoUsuario = ""; var progressoEditalUsuario = "{}";
+    var avatarUsuario = ""; var avatarByNick = {};
+
     for (var i = 1; i < users.length; i++) {
       var uEmail = users[i][0] ? users[i][0].toString().toLowerCase() : "";
-      if (uEmail) { nickMap[uEmail] = users[i][3] || "Anônimo"; }
+      var uNick = users[i][3] || "Anônimo";
+      var uAvatar = users[i][11] ? users[i][11].toString() : "";
+      if (uEmail) { 
+        nickMap[uEmail] = uNick; 
+        avatarByNick[uNick] = uAvatar;
+      }
 
       if (uEmail === email.toLowerCase()) {
         if (acao === "login" && users[i][1].toString() !== senha) { } 
@@ -308,10 +319,11 @@ function doGet(e) {
             if (new Date() > new Date(dataExpiracao)) return ContentService.createTextOutput(JSON.stringify({"status": "erro", "erro": true, "mensagem": "Sua assinatura expirou."})).setMimeType(ContentService.MimeType.JSON);
             expirationDate = Utilities.formatDate(new Date(dataExpiracao), Session.getScriptTimeZone(), "dd/MM/yyyy");
           } else { expirationDate = "Vitalício"; }
-          nickname = users[i][3] || "Sem Nickname";
+          nickname = uNick;
           cicloSalvoNuvem = users[i][7] || ""; 
           editalAtivoUsuario = users[i][8] || ""; 
           progressoEditalUsuario = users[i][9] || "{}"; 
+          avatarUsuario = uAvatar;
           userRow = i;
         }
       }
@@ -424,7 +436,11 @@ function doGet(e) {
         }
     }
 
-    var formatRank = function(obj, limit) { return Object.keys(obj).map(function(k){ return {nick: k, q: obj[k].q, a: obj[k].a}; }).sort(function(a,b){return b.q - a.q}).slice(0, limit); };
+    var formatRank = function(obj, limit) { 
+      return Object.keys(obj).map(function(k){ 
+        return {nick: k, q: obj[k].q, a: obj[k].a, avatar: avatarByNick[k] || ""}; 
+      }).sort(function(a,b){return b.q - a.q}).slice(0, limit); 
+    };
 
     var leaderboardsObj = { 
         "diario": formatRank(rankDiario, 20), 
@@ -440,14 +456,14 @@ function doGet(e) {
 
     if (acao === "login") {
       return ContentService.createTextOutput(JSON.stringify({ 
-        "status": "sucesso", "expiration": expirationDate, "nickname": nickname, 
+        "status": "sucesso", "expiration": expirationDate, "nickname": nickname, "avatar": avatarUsuario,
         "cicloNuvem": cicloSalvoNuvem, "baseEditais": baseEditaisDict,
         "editalAtivo": editalAtivoUsuario, "progressoEdital": progressoEditalUsuario
       })).setMimeType(ContentService.MimeType.JSON);
     }
     
     return ContentService.createTextOutput(JSON.stringify({ 
-      "status": "sucesso", "dados": filtered, "expiration": expirationDate, "nickname": nickname, 
+      "status": "sucesso", "dados": filtered, "expiration": expirationDate, "nickname": nickname, "avatar": avatarUsuario,
       "leaderboards": leaderboardsObj, "comparativoGeral": comparativoGeralObj, "cicloNuvem": cicloSalvoNuvem, 
       "baseEditais": baseEditaisDict, "editalAtivo": editalAtivoUsuario, "progressoEdital": progressoEditalUsuario
     })).setMimeType(ContentService.MimeType.JSON);
