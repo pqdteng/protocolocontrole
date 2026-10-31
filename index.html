@@ -450,7 +450,7 @@
         .leader-item .avatar-rank-size {
             border-color: var(--accent-gold);
             box-shadow: 0 0 8px rgba(242, 201, 76, 0.35);
-        }
+			}
         .avatar-modal-size {
             width: 84px;
             height: 84px;
@@ -1840,25 +1840,68 @@ Gostaria que fizesse:
         } else { showScreen('login'); }
     }
 
-    function login() {
-        let elEmail = document.getElementById('log-email'); let elPass = document.getElementById('log-pass');
-        if(!elEmail || !elPass) return;
-        let e = elEmail.value.trim().toLowerCase(); let s = elPass.value.trim();
-        if(!e || !s) return alert("Preencha E-mail e Senha!");
+    async function login() {
+        let elEmail = document.getElementById('log-email');
+        let elPass = document.getElementById('log-pass');
+        if (!elEmail || !elPass) return;
+        let e = elEmail.value.trim().toLowerCase();
+        let s = elPass.value.trim();
+        if (!e || !s) return alert("Preencha E-mail e Senha!");
         
         let btn = document.querySelector('#login-screen .btn-access') || document.querySelector('.btn-access');
-        let originalText = btn ? btn.innerText : 'ENTRAR'; 
-        if(btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando...'; btn.disabled = true; }
+        let originalText = 'ENTRAR NO PAINEL'; 
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando...';
+            btn.disabled = true;
+        }
         
-        fetch(`${WEBHOOK_URL}?acao=login&email=${encodeURIComponent(e)}&senha=${encodeURIComponent(s)}`)
-        .then(res => res.json()).then(data => {
-            if(data.status === "sucesso") {
-                localStorage.setItem('pqdtEmail', e); localStorage.setItem('pqdtSenha', s); 
-                loggedUserEmail = e; loggedUserSenha = s; checkLogin();
-            } else { 
-                alert(data.mensagem); if(btn) { btn.innerHTML = originalText; btn.disabled = false; }
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        try {
+            let urlLogin = `${WEBHOOK_URL}?acao=login&email=${encodeURIComponent(e)}&senha=${encodeURIComponent(s)}&_t=${Date.now()}`;
+            let res = await fetch(urlLogin, {
+                method: 'GET',
+                redirect: 'follow',
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            let text = await res.text();
+            if (text.trim().startsWith('<')) {
+                throw new Error("O Google interceptou a resposta (Verifique se a implantação do Apps Script está como 'Qualquer pessoa').");
             }
-        }).catch(() => { alert("Falha na conexão."); if(btn) { btn.innerHTML = originalText; btn.disabled = false; } });
+
+            let data = JSON.parse(text);
+            if (data.status === "sucesso") {
+                localStorage.setItem('pqdtEmail', e);
+                localStorage.setItem('pqdtSenha', s);
+                loggedUserEmail = e;
+                loggedUserSenha = s;
+                if (btn) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+                checkLogin();
+            } else {
+                alert(data.mensagem || "Credenciais inválidas.");
+                if (btn) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            }
+        } catch (err) {
+            clearTimeout(timeoutId);
+            console.error("Erro no login:", err);
+            let msg = err.name === 'AbortError'
+                ? "Tempo limite excedido (15s). O Google Sheets demorou a responder. Tente novamente."
+                : ("Falha na conexão: " + err.message);
+            alert(msg);
+            if (btn) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
     }
 
     function register() {
@@ -2042,30 +2085,34 @@ Gostaria que fizesse:
         let btns = document.querySelectorAll('.sync-btn-ui');
         btns.forEach(b => b.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo...');
         
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+
         try {
-            // [BLINDAGEM TÁTICA] 
-            // 1. Adicionamos &t=${Date.now()} para forçar uma URL nova a cada milissegundo e quebrar o cache de redirecionamento do navegador.
             let urlSemCache = `${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&senha=${encodeURIComponent(loggedUserSenha)}&_t=${Date.now()}`;
             
-            // 2. Forçamos o cabeçalho 'Accept' para sinalizar ao servidor que queremos JSON.
             let response = await fetch(urlSemCache, { 
                 method: 'GET',
                 redirect: 'follow',
-                headers: {
-                    "Accept": "application/json"
-                }
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
             
             let text = await response.text();
             
-            // [SEGURANÇA DO DOM] Verificação robusta se o retorno é HTML (Página de Login/Erro do Google)
             if (text.trim().startsWith('<')) {
-                console.error("ALERTA TÁTICO - Resposta do Servidor Google (HTML bloqueando o sinal):", text);
-                throw new Error("Sinal interceptado pelo Google. Verifique se o Web App está liberado para 'Qualquer pessoa' ou se o navegador está bloqueando o acesso.");
+                console.error("ALERTA TÁTICO - Resposta HTML do Google:", text);
+                throw new Error("Sinal interceptado pelo Google. Verifique se o Web App está liberado para 'Qualquer pessoa'.");
             }
             
             let data = JSON.parse(text);
-            if (data.status === "erro") throw new Error(data.mensagem);
+            if (data.status === "erro" || data.erro) {
+                if (data.mensagem && (data.mensagem.includes("Credenciais") || data.mensagem.includes("expirou"))) {
+                    logout();
+                    return;
+                }
+                throw new Error(data.mensagem || "Erro ao carregar dados.");
+            }
             
             globalExpiration = data.expiration || "Vitalício"; 
             globalNickname = data.nickname || "Recruta"; 
@@ -2085,15 +2132,17 @@ Gostaria que fizesse:
             processData(data.dados || []); 
             updateLeaderEffects();
             atualizarSelectEditaisDisponiveis();
-            if(editalAtivoGlobal) renderizarEdital(editalAtivoGlobal);
+            if (editalAtivoGlobal) renderizarEdital(editalAtivoGlobal);
             atualizarCampoTopico(); 
             
             btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado');
-            setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> SINC'), 2000);
+            setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sinc'), 2000);
             
         } catch (err) {
+            clearTimeout(timeoutId);
             console.error("Erro na Sincronização:", err); 
-            alert("⚠️ FALHA DE SINCRONIZAÇÃO:\n" + err.message);
+            let msgErro = err.name === 'AbortError' ? "O servidor demorou mais de 20s para responder. Clique em Sinc novamente." : err.message;
+            alert("⚠️ FALHA DE SINCRONIZAÇÃO:\n" + msgErro);
             btns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro');
         }
     }
