@@ -211,7 +211,125 @@
         .rank-tabs { display: flex; gap: 5px; margin-bottom: 20px; background: var(--input-bg); padding: 5px; border-radius: 8px; border: 1px solid var(--border-color);}
         .rank-tab-btn { flex: 1; padding: 10px; border: none; background: none; color: #888; cursor: pointer; border-radius: 6px; font-weight: bold; font-size: 0.9em; transition: 0.2s;}
         .rank-tab-btn.active { background: var(--hover-bg); color: var(--text-color); box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
-        .leader-item { background: rgba(242, 201, 76, 0.05); border-left: 3px solid var(--accent-gold) !important; }
+        .leader-item { background: rgba(242, 201, 76, 0.06) !important; }
+
+        /* TABELA DO RANKING DA ELITE (ESTILO TEC / FOCO NO PAPIRO) */
+        .table-ranking {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 620px;
+            font-size: 14px;
+        }
+        .table-ranking thead tr {
+            border-bottom: 2px solid var(--border-color);
+            background-color: rgba(0, 0, 0, 0.18);
+        }
+        .table-ranking th {
+            padding: 13px 16px;
+            font-weight: 700;
+            font-size: 12.5px;
+            color: #8B949E;
+            text-transform: none;
+            letter-spacing: 0.2px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .table-ranking th.col-rank-num {
+            width: 65px;
+            text-align: center;
+        }
+        .table-ranking th.col-rank-user {
+            text-align: left;
+            padding-left: 20px;
+        }
+        .table-ranking th.col-rank-res {
+            text-align: center;
+            width: 150px;
+            color: var(--text-color);
+            background: rgba(88, 166, 255, 0.06);
+        }
+        .table-ranking th.col-rank-metric {
+            text-align: center;
+            width: 140px;
+            color: var(--accent-blue);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .table-ranking tbody tr {
+            transition: background-color 0.15s ease;
+        }
+        .table-ranking tbody tr:hover {
+            background-color: var(--hover-bg);
+        }
+        .table-ranking td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            color: var(--text-color);
+        }
+        .table-ranking td.col-rank-num {
+            text-align: center;
+            font-weight: 700;
+            color: #8B949E;
+            font-size: 14px;
+        }
+        .table-ranking td.col-rank-num.top-pos-1 {
+            color: var(--accent-gold);
+            font-weight: 900;
+            font-size: 15px;
+        }
+        .table-ranking td.col-rank-num.top-pos-2 {
+            color: #C9D1D9;
+            font-weight: 800;
+        }
+        .table-ranking td.col-rank-num.top-pos-3 {
+            color: var(--accent-orange);
+            font-weight: 800;
+        }
+        .table-ranking td.col-rank-user {
+            padding-left: 20px;
+        }
+        .table-ranking td.col-rank-res {
+            text-align: center;
+            font-weight: 700;
+            background: rgba(88, 166, 255, 0.04);
+            color: var(--text-color);
+            font-variant-numeric: tabular-nums;
+        }
+        .table-ranking td.col-rank-acertos {
+            text-align: center;
+            font-weight: 600;
+            color: var(--accent-blue);
+            font-variant-numeric: tabular-nums;
+        }
+        .table-ranking td.col-rank-desemp {
+            text-align: center;
+            font-weight: 700;
+            font-family: monospace;
+            font-size: 13.5px;
+            font-variant-numeric: tabular-nums;
+        }
+        .table-ranking tr.leader-item td {
+            border-top: 1px solid rgba(242, 201, 76, 0.45);
+            border-bottom: 1px solid rgba(242, 201, 76, 0.45);
+        }
+        .table-ranking tr.leader-item td:first-child {
+            border-left: 3px solid var(--accent-gold);
+            color: var(--accent-gold);
+        }
+        .badge-voce-rank {
+            background: var(--accent-gold);
+            color: #0E1116;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 2px 7px;
+            border-radius: 10px;
+            margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            display: inline-block;
+            vertical-align: middle;
+        }
 		
 		.comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px; }
         .comp-card { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
@@ -1033,8 +1151,16 @@
                         </div>
 
                         <div id="leaderboard-table-wrap" style="overflow-x: auto;">
-                            <table style="width:100%; border-collapse:collapse; text-align:left;">
-                                <thead><tr style="color:#888; border-bottom:1px solid var(--border-color);"><th style="padding:15px 10px;">Rank</th><th>Comandante</th><th>Volume Resolvido</th><th>Precisão</th></tr></thead>
+                            <table class="table-ranking">
+                                <thead>
+                                    <tr>
+                                        <th class="col-rank-num">#</th>
+                                        <th class="col-rank-user">Usuário</th>
+                                        <th class="col-rank-res"><i class="fas fa-caret-down" style="margin-right:4px;"></i>Resoluções</th>
+                                        <th class="col-rank-metric">Acertos</th>
+                                        <th class="col-rank-metric">Desempenho</th>
+                                    </tr>
+                                </thead>
                                 <tbody id="leaderboard-body"></tbody>
                             </table>
                         </div>
@@ -2212,29 +2338,43 @@ Gostaria que fizesse:
         if (!body) return;
         
         if (list.length === 0) {
-            body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px; color:#888;">Nenhum registro para este período.</td></tr>';
+            body.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#888;">Nenhum registro para este período.</td></tr>';
             return;
         }
         
         body.innerHTML = list.map((u, i) => {
-            let acc = u.a > 0 && u.q > 0 ? ((u.a / u.q) * 100).toFixed(1) + '%' : '--';
+            let qTotal = Number(u.q) || 0;
+            let aTotal = Number(u.a) || 0;
+            let pctNum = qTotal > 0 ? (aTotal / qTotal) * 100 : 0;
+            let accFormatted = qTotal > 0 ? pctNum.toFixed(3).replace('.', ',') + '%' : '0,000%';
             let isMe = u.nick === globalNickname;
+
+            let posClass = 'col-rank-num';
+            if (i === 0) posClass += ' top-pos-1';
+            else if (i === 1) posClass += ' top-pos-2';
+            else if (i === 2) posClass += ' top-pos-3';
+
             let avatarSrc = (u.avatar && String(u.avatar).startsWith('data:image')) ? u.avatar : (isMe && globalAvatar ? globalAvatar : '');
             let inicial = String(u.nick || 'C').trim().charAt(0).toUpperCase();
             let avatarBadgeHTML = avatarSrc
                 ? `<div class="user-avatar-circle avatar-rank-size"><img src="${avatarSrc}" alt="Avatar"></div>`
                 : `<div class="user-avatar-circle avatar-rank-size">${inicial}</div>`;
 
+            let corDesempenho = qTotal === 0 ? '#8B949E' : (pctNum >= 75 ? 'var(--accent-green)' : (pctNum >= 60 ? 'var(--accent-gold)' : 'var(--accent-red)'));
+            let badgeVoce = isMe ? `<span class="badge-voce-rank">VOCÊ</span>` : '';
+
             return `<tr class="${isMe ? 'leader-item' : ''}">
-                <td style="padding:12px; color:#888;">#${i+1}</td>
-                <td style="font-weight:bold; color: ${isMe ? 'var(--accent-gold)' : 'var(--text-color)'};">
+                <td class="${posClass}">${i + 1}</td>
+                <td class="col-rank-user" style="font-weight:${isMe ? '800' : '500'}; color:${isMe ? 'var(--accent-gold)' : 'var(--text-color)'};">
                     <div class="rank-commander-cell">
                         ${avatarBadgeHTML}
-                        <span>${isMe ? 'VOCÊ (' + u.nick + ')' : u.nick}</span>
+                        <span>${u.nick}</span>
+                        ${badgeVoce}
                     </div>
                 </td>
-                <td>${u.q.toLocaleString()} Qs</td>
-                <td style="color: ${parseFloat(acc) >= 75 ? 'var(--accent-green)' : (acc === '--' ? '#888' : 'var(--accent-red)')}; font-weight:bold;">${acc}</td>
+                <td class="col-rank-res">${qTotal.toLocaleString('pt-BR')}</td>
+                <td class="col-rank-acertos">${aTotal.toLocaleString('pt-BR')}</td>
+                <td class="col-rank-desemp" style="color:${corDesempenho};">${accFormatted}</td>
             </tr>`;
         }).join('');
     }
