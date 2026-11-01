@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Protocolo Controle: Auditor TCE</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="https://meet.jit.si/external_api.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
@@ -863,6 +864,185 @@
                 grid-template-columns: 1fr;
             }
         }
+		/* SALA DE ESTUDOS - PELOTÃO DE ESTUDOS (LAYOUT ESTILO DISCORD) */
+        .discord-shell {
+            display: grid;
+            grid-template-columns: 270px 1fr;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--accent-purple);
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 640px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+        .discord-shell.theater-active {
+            grid-template-columns: 1fr;
+        }
+        .discord-shell.theater-active .discord-channels-pane {
+            display: none;
+        }
+        .discord-channels-pane {
+            background-color: var(--input-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .discord-server-header {
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--text-color);
+            letter-spacing: 0.3px;
+        }
+        .discord-category-label {
+            padding: 16px 16px 6px 16px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #8B949E;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .discord-channel-item {
+            margin: 4px 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background-color: var(--hover-bg);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--accent-purple);
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 13.5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .discord-channel-item.connected {
+            border-left-color: var(--accent-green);
+            background-color: rgba(35, 134, 54, 0.12);
+        }
+        .discord-live-pill {
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 10px;
+            background-color: var(--border-color);
+            color: #8B949E;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .discord-live-pill.online {
+            background-color: rgba(35, 134, 54, 0.2);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+        .discord-progress-box {
+            margin: 12px 10px;
+            padding: 14px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .discord-progress-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .discord-mini-stat {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+        }
+        .discord-mini-stat span {
+            display: block;
+            font-size: 10px;
+            color: #8B949E;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .discord-mini-stat strong {
+            font-size: 14px;
+            color: var(--text-color);
+            font-family: monospace;
+        }
+        .discord-user-dock {
+            padding: 12px 14px;
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .discord-stage-pane {
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-color);
+            position: relative;
+            min-height: 640px;
+        }
+        .discord-stage-topbar {
+            padding: 12px 20px;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .discord-stage-body {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 100%;
+            min-height: 580px;
+        }
+        .discord-lobby-card {
+            max-width: 480px;
+            width: 90%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        #jitsi-pelotao-container {
+            width: 100%;
+            height: 600px;
+            display: none;
+        }
+        #jitsi-pelotao-container iframe {
+            width: 100% !important;
+            height: 100% !important;
+            border: none;
+        }
+        @media (max-width: 992px) {
+            .discord-shell {
+                grid-template-columns: 1fr;
+            }
+            .discord-channels-pane {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+        }
     </style>
 </head>
 <body>
@@ -938,6 +1118,7 @@
                 <button class="nav-item" onclick="switchView('ranking-view', this); toggleMobileMenu();"><i class="fas fa-trophy"></i> Ranking da Elite</button>
                 <button class="nav-item" onclick="switchView('relatorio-view', this); toggleMobileMenu();"><i class="fas fa-list-alt"></i> Relatórios Gerais</button>
                 <button class="nav-item" onclick="switchView('radar-view', this); toggleMobileMenu();"><i class="fas fa-satellite-dish"></i> Radar de Editais</button>
+				<button class="nav-item" style="color: var(--accent-purple);" onclick="switchView('sala-view', this); toggleMobileMenu();"><i class="fas fa-headset"></i> Sala de Estudos</button>
                 
                 <hr style="border:none; border-top:1px solid var(--border-color); margin: 15px 25px;">
                 
@@ -1414,9 +1595,124 @@
                     </div>
                 </div>
             </div>
+			<div id="view-sala-view" class="app-view">
+                <div class="discord-shell" id="pelotao-discord-shell">
+                    <div class="discord-channels-pane">
+                        <div>
+                            <div class="discord-server-header">
+                                <span><i class="fas fa-shield-alt" style="color:var(--accent-purple); margin-right:8px;"></i> QG PROTOCOLO CONTROLE</span>
+                                <span style="font-size:11px; color:var(--accent-gold); font-family:monospace;">v2.0</span>
+                            </div>
+
+                            <div class="discord-category-label">
+                                <i class="fas fa-chevron-down" style="font-size:9px;"></i> Canais de Voz & Vídeo (1)
+                            </div>
+
+                            <div class="discord-channel-item" id="channel-item-pelotao" onclick="conectarPelotaoJitsi()">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <i class="fas fa-volume-up" id="channel-icon-pelotao" style="color:var(--accent-purple);"></i>
+                                    <span>Pelotão de Estudos</span>
+                                </div>
+                                <span class="discord-live-pill" id="pelotao-status-pill">Pronto</span>
+                            </div>
+
+                            <div class="discord-category-label" style="margin-top:10px;">
+                                <i class="fas fa-broadcast-tower" style="font-size:9px;"></i> Telemetria p/ Compartilhar
+                            </div>
+
+                            <div class="discord-progress-box">
+                                <div style="font-size:11.5px; color:#8B949E; line-height:1.4;">
+                                    Compartilhe seu progresso em tempo real no chat da sala para motivar o pelotão:
+                                </div>
+                                <div class="discord-progress-stats">
+                                    <div class="discord-mini-stat">
+                                        <span>Qs Hoje</span>
+                                        <strong id="pelotao-stat-q" style="color:var(--accent-blue);">0</strong>
+                                    </div>
+                                    <div class="discord-mini-stat">
+                                        <span>Horas Hoje</span>
+                                        <strong id="pelotao-stat-h" style="color:var(--accent-green);">0.0h</strong>
+                                    </div>
+                                    <div class="discord-mini-stat">
+                                        <span>Ofensiva</span>
+                                        <strong id="pelotao-stat-streak" style="color:var(--accent-orange);">0d 🔥</strong>
+                                    </div>
+                                    <div class="discord-mini-stat">
+                                        <span>Total Geral</span>
+                                        <strong id="pelotao-stat-total" style="color:var(--accent-gold);">0</strong>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn" style="background:var(--hover-bg); border:1px solid var(--accent-blue); color:var(--accent-blue); font-size:12px; width:100%; padding:9px;" onclick="copiarStatusPelotao()">
+                                    <i class="fas fa-share-alt"></i> Copiar Meu Progresso p/ Chat
+                                </button>
+                                <button type="button" class="btn" style="background:rgba(35, 134, 54, 0.12); border:1px solid var(--accent-green); color:var(--text-color); font-size:12px; width:100%; padding:9px;" onclick="openEntryModal()">
+                                    <i class="fas fa-pen-nib" style="color:var(--accent-green);"></i> Lançar Missão Agora
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="discord-user-dock">
+                            <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                                <div id="pelotao-user-avatar" class="user-avatar-circle avatar-rank-size">C</div>
+                                <div style="overflow:hidden;">
+                                    <div id="pelotao-user-nick" style="font-weight:800; font-size:13px; color:var(--text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Comandante</div>
+                                    <div id="pelotao-user-rank" style="font-size:11px; color:var(--accent-gold); font-weight:700;">Iniciante</div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-action-top" onclick="openProfileModal()" title="Configurar Perfil">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="discord-stage-pane">
+                        <div class="discord-stage-topbar">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <i class="fas fa-hashtag" style="color:var(--accent-purple); font-size:1.1em;"></i>
+                                <div>
+                                    <strong style="color:var(--text-color); font-size:15px;">Pelotão de Estudos</strong>
+                                    <span style="color:#8B949E; font-size:12px; margin-left:8px;">• Sala Única de Estudo Conjunto, Pomodoro & Tela Compartilhada</span>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                <button type="button" class="btn-stealth stealth-blue" onclick="toggleTeatroPelotao()" title="Expandir/Recolher Barra Lateral do Canal">
+                                    <i class="fas fa-expand-alt"></i> Modo Teatro
+                                </button>
+                                <button type="button" class="btn-stealth" onclick="abrirPelotaoNovaAba()" title="Abrir em Nova Guia caso o navegador bloqueie câmera/microfone">
+                                    <i class="fas fa-external-link-alt"></i> Abrir Externo
+                                </button>
+                                <button type="button" id="btn-sair-pelotao" class="btn" style="display:none; background:var(--accent-red); padding:6px 12px; font-size:12px;" onclick="desconectarPelotaoJitsi()">
+                                    <i class="fas fa-phone-slash"></i> Desconectar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="discord-stage-body">
+                            <div class="discord-lobby-card" id="pelotao-lobby-placeholder">
+                                <div style="width:68px; height:68px; border-radius:50%; background:rgba(137, 87, 229, 0.15); border:2px solid var(--accent-purple); display:flex; align-items:center; justify-content:center; margin:0 auto 16px auto; font-size:28px; color:var(--accent-purple);">
+                                    <i class="fas fa-headset"></i>
+                                </div>
+                                <h2 style="margin:0 0 8px 0; color:var(--text-color); font-size:1.4em;">Canal de Voz & Vídeo: Pelotão de Estudos</h2>
+                                <p style="color:#8B949E; font-size:13.5px; line-height:1.5; margin-bottom:20px;">
+                                    Estude em tempo real com outros concurseiros da tropa. Você entrará identificado com seu <strong>Codinome e Patente</strong> e com <strong>microfone/câmera desligados por padrão</strong> para não interromper o silêncio do papiro.
+                                </p>
+                                <div style="background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; padding:12px; text-align:left; font-size:12px; color:#8B949E; margin-bottom:22px; line-height:1.6;">
+                                    <div><i class="fas fa-check" style="color:var(--accent-green); margin-right:6px;"></i> Compartilhe sua tela de questões ou PDF se desejar estudar em grupo.</div>
+                                    <div><i class="fas fa-check" style="color:var(--accent-green); margin-right:6px;"></i> Use o botão <strong>"Copiar Meu Progresso p/ Chat"</strong> na barra ao lado para postar suas metas no chat da sala.</div>
+                                </div>
+                                <button type="button" class="btn" style="background:var(--accent-green); width:100%; padding:14px; font-size:15px;" onclick="conectarPelotaoJitsi()">
+                                    <i class="fas fa-plug"></i> INGRESSAR NO PELOTÃO DE ESTUDOS
+                                </button>
+                            </div>
+
+                            <div id="jitsi-pelotao-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
-    </div>
+	</div>
 
 	<div id="radarCarouselModal" class="modal">
         <div class="modal-content" style="max-width: 860px; border-top: 4px solid var(--accent-gold);">
@@ -1784,8 +2080,8 @@ Gostaria que fizesse:
         if(viewId === 'painel' && globalData.length > 0) updateDashboard('all');
         if(viewId === 'radar-view' && feedNoticiasGlobal.length === 0) carregarRadarRSS();
         if(viewId === 'edital-view') atualizarSelectEditaisDisponiveis();
-        
         if(viewId === 'ranking-view') switchLeaderboard(currentRankingTab);
+        if(viewId === 'sala-view') atualizarPainelPelotao();
     }
     
     function toggleTheme() { document.body.classList.toggle('light-mode'); localStorage.setItem('pqdtTheme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); updateChartColors(); if(globalData.length>0) updateDashboard('all'); }
@@ -4634,7 +4930,162 @@ Gostaria que fizesse:
         } else {
             wDisplay.innerHTML = `<i class="fas fa-cloud"></i> Clima Indisponível`;
         }
-    }    
+    }
+		let jitsiApiInstance = null;
+    const JITSI_ROOM_NAME = "ProtocoloControle_PelotaoDeEstudos_QG";
+
+    function obterPatenteAtualTexto() {
+        let pat = GAMER_RANKS[0].title;
+        for (let i = 0; i < GAMER_RANKS.length; i++) {
+            if (totalQHistory >= GAMER_RANKS[i].threshold) {
+                pat = GAMER_RANKS[i].title;
+            }
+        }
+        return pat;
+    }
+
+    function atualizarPainelPelotao() {
+        let patente = obterPatenteAtualTexto();
+        setSafeText('pelotao-user-nick', globalNickname || 'Comandante');
+        setSafeText('pelotao-user-rank', patente);
+        renderAvatarInsideElement('pelotao-user-avatar', globalAvatar, globalNickname);
+
+        setSafeText('pelotao-stat-q', dailyQ.toLocaleString('pt-BR'));
+        setSafeText('pelotao-stat-h', (dailyMins / 60).toFixed(1) + 'h');
+        setSafeText('pelotao-stat-streak', calcularDiasOfensiva() + 'd 🔥');
+        setSafeText('pelotao-stat-total', totalQHistory.toLocaleString('pt-BR'));
+    }
+
+    function conectarPelotaoJitsi() {
+        atualizarPainelPelotao();
+
+        if (jitsiApiInstance) {
+            mostrarToastTatico("Você já está conectado ao canal #Pelotão de Estudos!", "var(--accent-purple)");
+            return;
+        }
+
+        if (typeof JitsiMeetExternalAPI === 'undefined') {
+            alert("A biblioteca de vídeo do Jitsi ainda está carregando ou foi bloqueada pela rede. Clique em 'Abrir Externo' no topo da sala.");
+            return;
+        }
+
+        let lobby = document.getElementById('pelotao-lobby-placeholder');
+        let mountNode = document.getElementById('jitsi-pelotao-container');
+        let btnSair = document.getElementById('btn-sair-pelotao');
+        let channelItem = document.getElementById('channel-item-pelotao');
+        let statusPill = document.getElementById('pelotao-status-pill');
+        let channelIcon = document.getElementById('channel-icon-pelotao');
+
+        if (lobby) lobby.style.display = 'none';
+        if (mountNode) {
+            mountNode.style.display = 'block';
+            mountNode.innerHTML = '';
+        }
+        if (btnSair) btnSair.style.display = 'inline-flex';
+        if (channelItem) channelItem.classList.add('connected');
+        if (statusPill) {
+            statusPill.innerText = 'Ao Vivo';
+            statusPill.classList.add('online');
+        }
+        if (channelIcon) channelIcon.style.color = 'var(--accent-green)';
+
+        let patente = obterPatenteAtualTexto();
+        let displayTag = `${globalNickname || 'Recruta'} [${patente}]`;
+
+        const domain = "meet.jit.si";
+        const options = {
+            roomName: JITSI_ROOM_NAME,
+            width: "100%",
+            height: "100%",
+            parentNode: mountNode,
+            userInfo: {
+                email: loggedUserEmail || "",
+                displayName: displayTag
+            },
+            configOverwrite: {
+                startWithAudioMuted: true,
+                startWithVideoMuted: true,
+                prejoinPageEnabled: false,
+                disableDeepLinking: true,
+                subject: "Pelotão de Estudos — Protocolo Controle"
+            },
+            interfaceConfigOverwrite: {
+                SHOW_JITSI_WATERMARK: false,
+                SHOW_WATERMARK_FOR_GUESTS: false,
+                DEFAULT_REMOTE_DISPLAY_NAME: "Combatente",
+                TOOLBAR_BUTTONS: [
+                    'microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen',
+                    'fodeviceselection', 'hangup', 'chat', 'raisehand',
+                    'videoquality', 'filmstrip', 'tileview', 'select-background'
+                ]
+            }
+        };
+
+        try {
+            jitsiApiInstance = new JitsiMeetExternalAPI(domain, options);
+            jitsiApiInstance.addEventListener('readyToClose', () => {
+                desconectarPelotaoJitsi();
+            });
+            mostrarToastTatico("Conectado ao #Pelotão de Estudos! Bom papiro!", "var(--accent-green)");
+        } catch (err) {
+            console.error("Erro ao iniciar Jitsi:", err);
+            desconectarPelotaoJitsi();
+            alert("Não foi possível inicializar a sala embutida. Utilize o botão 'Abrir Externo'.");
+        }
+    }
+
+    function desconectarPelotaoJitsi() {
+        if (jitsiApiInstance) {
+            try { jitsiApiInstance.dispose(); } catch (e) {}
+            jitsiApiInstance = null;
+        }
+        let lobby = document.getElementById('pelotao-lobby-placeholder');
+        let mountNode = document.getElementById('jitsi-pelotao-container');
+        let btnSair = document.getElementById('btn-sair-pelotao');
+        let channelItem = document.getElementById('channel-item-pelotao');
+        let statusPill = document.getElementById('pelotao-status-pill');
+        let channelIcon = document.getElementById('channel-icon-pelotao');
+
+        if (mountNode) {
+            mountNode.innerHTML = '';
+            mountNode.style.display = 'none';
+        }
+        if (lobby) lobby.style.display = 'block';
+        if (btnSair) btnSair.style.display = 'none';
+        if (channelItem) channelItem.classList.remove('connected');
+        if (statusPill) {
+            statusPill.innerText = 'Pronto';
+            statusPill.classList.remove('online');
+        }
+        if (channelIcon) channelIcon.style.color = 'var(--accent-purple)';
+    }
+
+    function toggleTeatroPelotao() {
+        let shell = document.getElementById('pelotao-discord-shell');
+        if (shell) shell.classList.toggle('theater-active');
+    }
+
+    function abrirPelotaoNovaAba() {
+        window.open(`https://meet.jit.si/${JITSI_ROOM_NAME}`, '_blank');
+    }
+
+    function copiarStatusPelotao() {
+        atualizarPainelPelotao();
+        let patente = obterPatenteAtualTexto();
+        let hrsHoje = (dailyMins / 60).toFixed(1);
+        let ofensiva = calcularDiasOfensiva();
+        let alvo = editalAtivoGlobal ? editalAtivoGlobal : "Área de Controle / Engenharia";
+
+        let msg = `🎖️ [STATUS TÁTICO — PELOTÃO DE ESTUDOS]\n` +
+                  `👤 Comandante: ${globalNickname} (${patente})\n` +
+                  `🎯 Alvo: ${alvo}\n` +
+                  `⚡ Hoje: ${dailyQ} questões | ${hrsHoje}h líquidas\n` +
+                  `🔥 Ofensiva: ${ofensiva} dias seguidos | Acumulado: ${totalQHistory.toLocaleString('pt-BR')} Qs`;
+
+        navigator.clipboard.writeText(msg).then(() => {
+            mostrarToastTatico("Status Tático copiado! Cole (Ctrl+V) no chat da Sala de Estudos.", "var(--accent-blue)");
+        });
+    }
     window.onload = function() {
         checkLogin();
     };
