@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Protocolo Controle: Auditor TCE</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="https://meet.jit.si/external_api.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
@@ -211,7 +212,125 @@
         .rank-tabs { display: flex; gap: 5px; margin-bottom: 20px; background: var(--input-bg); padding: 5px; border-radius: 8px; border: 1px solid var(--border-color);}
         .rank-tab-btn { flex: 1; padding: 10px; border: none; background: none; color: #888; cursor: pointer; border-radius: 6px; font-weight: bold; font-size: 0.9em; transition: 0.2s;}
         .rank-tab-btn.active { background: var(--hover-bg); color: var(--text-color); box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
-        .leader-item { background: rgba(242, 201, 76, 0.05); border-left: 3px solid var(--accent-gold) !important; }
+        .leader-item { background: rgba(242, 201, 76, 0.06) !important; }
+
+        /* TABELA DO RANKING DA ELITE (ESTILO TEC / FOCO NO PAPIRO) */
+        .table-ranking {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 620px;
+            font-size: 14px;
+        }
+        .table-ranking thead tr {
+            border-bottom: 2px solid var(--border-color);
+            background-color: rgba(0, 0, 0, 0.18);
+        }
+        .table-ranking th {
+            padding: 13px 16px;
+            font-weight: 700;
+            font-size: 12.5px;
+            color: #8B949E;
+            text-transform: none;
+            letter-spacing: 0.2px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .table-ranking th.col-rank-num {
+            width: 65px;
+            text-align: center;
+        }
+        .table-ranking th.col-rank-user {
+            text-align: left;
+            padding-left: 20px;
+        }
+        .table-ranking th.col-rank-res {
+            text-align: center;
+            width: 150px;
+            color: var(--text-color);
+            background: rgba(88, 166, 255, 0.06);
+        }
+        .table-ranking th.col-rank-metric {
+            text-align: center;
+            width: 140px;
+            color: var(--accent-blue);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .table-ranking tbody tr {
+            transition: background-color 0.15s ease;
+        }
+        .table-ranking tbody tr:hover {
+            background-color: var(--hover-bg);
+        }
+        .table-ranking td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            color: var(--text-color);
+        }
+        .table-ranking td.col-rank-num {
+            text-align: center;
+            font-weight: 700;
+            color: #8B949E;
+            font-size: 14px;
+        }
+        .table-ranking td.col-rank-num.top-pos-1 {
+            color: var(--accent-gold);
+            font-weight: 900;
+            font-size: 15px;
+        }
+        .table-ranking td.col-rank-num.top-pos-2 {
+            color: #C9D1D9;
+            font-weight: 800;
+        }
+        .table-ranking td.col-rank-num.top-pos-3 {
+            color: var(--accent-orange);
+            font-weight: 800;
+        }
+        .table-ranking td.col-rank-user {
+            padding-left: 20px;
+        }
+        .table-ranking td.col-rank-res {
+            text-align: center;
+            font-weight: 700;
+            background: rgba(88, 166, 255, 0.04);
+            color: var(--text-color);
+            font-variant-numeric: tabular-nums;
+        }
+        .table-ranking td.col-rank-acertos {
+            text-align: center;
+            font-weight: 600;
+            color: var(--accent-blue);
+            font-variant-numeric: tabular-nums;
+        }
+        .table-ranking td.col-rank-desemp {
+            text-align: center;
+            font-weight: 700;
+            font-family: monospace;
+            font-size: 13.5px;
+            font-variant-numeric: tabular-nums;
+        }
+        .table-ranking tr.leader-item td {
+            border-top: 1px solid rgba(242, 201, 76, 0.45);
+            border-bottom: 1px solid rgba(242, 201, 76, 0.45);
+        }
+        .table-ranking tr.leader-item td:first-child {
+            border-left: 3px solid var(--accent-gold);
+            color: var(--accent-gold);
+        }
+        .badge-voce-rank {
+            background: var(--accent-gold);
+            color: #0E1116;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 2px 7px;
+            border-radius: 10px;
+            margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            display: inline-block;
+            vertical-align: middle;
+        }
 		
 		.comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px; }
         .comp-card { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
@@ -332,7 +451,7 @@
         .leader-item .avatar-rank-size {
             border-color: var(--accent-gold);
             box-shadow: 0 0 8px rgba(242, 201, 76, 0.35);
-        }
+			}
         .avatar-modal-size {
             width: 84px;
             height: 84px;
@@ -745,6 +864,185 @@
                 grid-template-columns: 1fr;
             }
         }
+		/* SALA DE ESTUDOS - PELOTÃO DE ESTUDOS (LAYOUT ESTILO DISCORD) */
+        .discord-shell {
+            display: grid;
+            grid-template-columns: 270px 1fr;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--accent-purple);
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 640px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+        .discord-shell.theater-active {
+            grid-template-columns: 1fr;
+        }
+        .discord-shell.theater-active .discord-channels-pane {
+            display: none;
+        }
+        .discord-channels-pane {
+            background-color: var(--input-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .discord-server-header {
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--text-color);
+            letter-spacing: 0.3px;
+        }
+        .discord-category-label {
+            padding: 16px 16px 6px 16px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #8B949E;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .discord-channel-item {
+            margin: 4px 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background-color: var(--hover-bg);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--accent-purple);
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 13.5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .discord-channel-item.connected {
+            border-left-color: var(--accent-green);
+            background-color: rgba(35, 134, 54, 0.12);
+        }
+        .discord-live-pill {
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 10px;
+            background-color: var(--border-color);
+            color: #8B949E;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .discord-live-pill.online {
+            background-color: rgba(35, 134, 54, 0.2);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+        .discord-progress-box {
+            margin: 12px 10px;
+            padding: 14px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .discord-progress-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .discord-mini-stat {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+        }
+        .discord-mini-stat span {
+            display: block;
+            font-size: 10px;
+            color: #8B949E;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .discord-mini-stat strong {
+            font-size: 14px;
+            color: var(--text-color);
+            font-family: monospace;
+        }
+        .discord-user-dock {
+            padding: 12px 14px;
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .discord-stage-pane {
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-color);
+            position: relative;
+            min-height: 640px;
+        }
+        .discord-stage-topbar {
+            padding: 12px 20px;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .discord-stage-body {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 100%;
+            min-height: 580px;
+        }
+        .discord-lobby-card {
+            max-width: 480px;
+            width: 90%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        #jitsi-pelotao-container {
+            width: 100%;
+            height: 600px;
+            display: none;
+        }
+        #jitsi-pelotao-container iframe {
+            width: 100% !important;
+            height: 100% !important;
+            border: none;
+        }
+        @media (max-width: 992px) {
+            .discord-shell {
+                grid-template-columns: 1fr;
+            }
+            .discord-channels-pane {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+        }
     </style>
 </head>
 <body>
@@ -820,6 +1118,7 @@
                 <button class="nav-item" onclick="switchView('ranking-view', this); toggleMobileMenu();"><i class="fas fa-trophy"></i> Ranking da Elite</button>
                 <button class="nav-item" onclick="switchView('relatorio-view', this); toggleMobileMenu();"><i class="fas fa-list-alt"></i> Relatórios Gerais</button>
                 <button class="nav-item" onclick="switchView('radar-view', this); toggleMobileMenu();"><i class="fas fa-satellite-dish"></i> Radar de Editais</button>
+				<button class="nav-item" style="color: var(--accent-purple);" onclick="switchView('sala-view', this); toggleMobileMenu();"><i class="fas fa-headset"></i> Sala de Estudos</button>
                 
                 <hr style="border:none; border-top:1px solid var(--border-color); margin: 15px 25px;">
                 
@@ -1033,8 +1332,16 @@
                         </div>
 
                         <div id="leaderboard-table-wrap" style="overflow-x: auto;">
-                            <table style="width:100%; border-collapse:collapse; text-align:left;">
-                                <thead><tr style="color:#888; border-bottom:1px solid var(--border-color);"><th style="padding:15px 10px;">Rank</th><th>Comandante</th><th>Volume Resolvido</th><th>Precisão</th></tr></thead>
+                            <table class="table-ranking">
+                                <thead>
+                                    <tr>
+                                        <th class="col-rank-num">#</th>
+                                        <th class="col-rank-user">Usuário</th>
+                                        <th class="col-rank-res"><i class="fas fa-caret-down" style="margin-right:4px;"></i>Resoluções</th>
+                                        <th class="col-rank-metric">Acertos</th>
+                                        <th class="col-rank-metric">Desempenho</th>
+                                    </tr>
+                                </thead>
                                 <tbody id="leaderboard-body"></tbody>
                             </table>
                         </div>
@@ -1288,9 +1595,124 @@
                     </div>
                 </div>
             </div>
+			<div id="view-sala-view" class="app-view">
+                <div class="discord-shell" id="pelotao-discord-shell">
+                    <div class="discord-channels-pane">
+                        <div>
+                            <div class="discord-server-header">
+                                <span><i class="fas fa-shield-alt" style="color:var(--accent-purple); margin-right:8px;"></i> QG PROTOCOLO CONTROLE</span>
+                                <span style="font-size:11px; color:var(--accent-gold); font-family:monospace;">v2.0</span>
+                            </div>
+
+                            <div class="discord-category-label">
+                                <i class="fas fa-chevron-down" style="font-size:9px;"></i> Canais de Voz & Vídeo (1)
+                            </div>
+
+                            <div class="discord-channel-item" id="channel-item-pelotao" onclick="conectarPelotaoJitsi()">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <i class="fas fa-volume-up" id="channel-icon-pelotao" style="color:var(--accent-purple);"></i>
+                                    <span>Pelotão de Estudos</span>
+                                </div>
+                                <span class="discord-live-pill" id="pelotao-status-pill">Pronto</span>
+                            </div>
+
+                            <div class="discord-category-label" style="margin-top:10px;">
+                                <i class="fas fa-broadcast-tower" style="font-size:9px;"></i> Telemetria p/ Compartilhar
+                            </div>
+
+                            <div class="discord-progress-box">
+                                <div style="font-size:11.5px; color:#8B949E; line-height:1.4;">
+                                    Compartilhe seu progresso em tempo real no chat da sala para motivar o pelotão:
+                                </div>
+                                <div class="discord-progress-stats">
+                                    <div class="discord-mini-stat">
+                                        <span>Qs Hoje</span>
+                                        <strong id="pelotao-stat-q" style="color:var(--accent-blue);">0</strong>
+                                    </div>
+                                    <div class="discord-mini-stat">
+                                        <span>Horas Hoje</span>
+                                        <strong id="pelotao-stat-h" style="color:var(--accent-green);">0.0h</strong>
+                                    </div>
+                                    <div class="discord-mini-stat">
+                                        <span>Ofensiva</span>
+                                        <strong id="pelotao-stat-streak" style="color:var(--accent-orange);">0d 🔥</strong>
+                                    </div>
+                                    <div class="discord-mini-stat">
+                                        <span>Total Geral</span>
+                                        <strong id="pelotao-stat-total" style="color:var(--accent-gold);">0</strong>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn" style="background:var(--hover-bg); border:1px solid var(--accent-blue); color:var(--accent-blue); font-size:12px; width:100%; padding:9px;" onclick="copiarStatusPelotao()">
+                                    <i class="fas fa-share-alt"></i> Copiar Meu Progresso p/ Chat
+                                </button>
+                                <button type="button" class="btn" style="background:rgba(35, 134, 54, 0.12); border:1px solid var(--accent-green); color:var(--text-color); font-size:12px; width:100%; padding:9px;" onclick="openEntryModal()">
+                                    <i class="fas fa-pen-nib" style="color:var(--accent-green);"></i> Lançar Missão Agora
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="discord-user-dock">
+                            <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                                <div id="pelotao-user-avatar" class="user-avatar-circle avatar-rank-size">C</div>
+                                <div style="overflow:hidden;">
+                                    <div id="pelotao-user-nick" style="font-weight:800; font-size:13px; color:var(--text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Comandante</div>
+                                    <div id="pelotao-user-rank" style="font-size:11px; color:var(--accent-gold); font-weight:700;">Iniciante</div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-action-top" onclick="openProfileModal()" title="Configurar Perfil">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="discord-stage-pane">
+                        <div class="discord-stage-topbar">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <i class="fas fa-hashtag" style="color:var(--accent-purple); font-size:1.1em;"></i>
+                                <div>
+                                    <strong style="color:var(--text-color); font-size:15px;">Pelotão de Estudos</strong>
+                                    <span style="color:#8B949E; font-size:12px; margin-left:8px;">• Sala Única de Estudo Conjunto, Pomodoro & Tela Compartilhada</span>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                <button type="button" class="btn-stealth stealth-blue" onclick="toggleTeatroPelotao()" title="Expandir/Recolher Barra Lateral do Canal">
+                                    <i class="fas fa-expand-alt"></i> Modo Teatro
+                                </button>
+                                <button type="button" class="btn-stealth" onclick="abrirPelotaoNovaAba()" title="Abrir em Nova Guia caso o navegador bloqueie câmera/microfone">
+                                    <i class="fas fa-external-link-alt"></i> Abrir Externo
+                                </button>
+                                <button type="button" id="btn-sair-pelotao" class="btn" style="display:none; background:var(--accent-red); padding:6px 12px; font-size:12px;" onclick="desconectarPelotaoJitsi()">
+                                    <i class="fas fa-phone-slash"></i> Desconectar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="discord-stage-body">
+                            <div class="discord-lobby-card" id="pelotao-lobby-placeholder">
+                                <div style="width:68px; height:68px; border-radius:50%; background:rgba(137, 87, 229, 0.15); border:2px solid var(--accent-purple); display:flex; align-items:center; justify-content:center; margin:0 auto 16px auto; font-size:28px; color:var(--accent-purple);">
+                                    <i class="fas fa-headset"></i>
+                                </div>
+                                <h2 style="margin:0 0 8px 0; color:var(--text-color); font-size:1.4em;">Canal de Voz & Vídeo: Pelotão de Estudos</h2>
+                                <p style="color:#8B949E; font-size:13.5px; line-height:1.5; margin-bottom:20px;">
+                                    Estude em tempo real com outros concurseiros da tropa. Você entrará identificado com seu <strong>Codinome e Patente</strong> e com <strong>microfone/câmera desligados por padrão</strong> para não interromper o silêncio do papiro.
+                                </p>
+                                <div style="background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; padding:12px; text-align:left; font-size:12px; color:#8B949E; margin-bottom:22px; line-height:1.6;">
+                                    <div><i class="fas fa-check" style="color:var(--accent-green); margin-right:6px;"></i> Compartilhe sua tela de questões ou PDF se desejar estudar em grupo.</div>
+                                    <div><i class="fas fa-check" style="color:var(--accent-green); margin-right:6px;"></i> Use o botão <strong>"Copiar Meu Progresso p/ Chat"</strong> na barra ao lado para postar suas metas no chat da sala.</div>
+                                </div>
+                                <button type="button" class="btn" style="background:var(--accent-green); width:100%; padding:14px; font-size:15px;" onclick="conectarPelotaoJitsi()">
+                                    <i class="fas fa-plug"></i> INGRESSAR NO PELOTÃO DE ESTUDOS
+                                </button>
+                            </div>
+
+                            <div id="jitsi-pelotao-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
-    </div>
+	</div>
 
 	<div id="radarCarouselModal" class="modal">
         <div class="modal-content" style="max-width: 860px; border-top: 4px solid var(--accent-gold);">
@@ -1658,8 +2080,8 @@ Gostaria que fizesse:
         if(viewId === 'painel' && globalData.length > 0) updateDashboard('all');
         if(viewId === 'radar-view' && feedNoticiasGlobal.length === 0) carregarRadarRSS();
         if(viewId === 'edital-view') atualizarSelectEditaisDisponiveis();
-        
         if(viewId === 'ranking-view') switchLeaderboard(currentRankingTab);
+        if(viewId === 'sala-view') atualizarPainelPelotao();
     }
     
     function toggleTheme() { document.body.classList.toggle('light-mode'); localStorage.setItem('pqdtTheme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); updateChartColors(); if(globalData.length>0) updateDashboard('all'); }
@@ -1714,25 +2136,68 @@ Gostaria que fizesse:
         } else { showScreen('login'); }
     }
 
-    function login() {
-        let elEmail = document.getElementById('log-email'); let elPass = document.getElementById('log-pass');
-        if(!elEmail || !elPass) return;
-        let e = elEmail.value.trim().toLowerCase(); let s = elPass.value.trim();
-        if(!e || !s) return alert("Preencha E-mail e Senha!");
+    async function login() {
+        let elEmail = document.getElementById('log-email');
+        let elPass = document.getElementById('log-pass');
+        if (!elEmail || !elPass) return;
+        let e = elEmail.value.trim().toLowerCase();
+        let s = elPass.value.trim();
+        if (!e || !s) return alert("Preencha E-mail e Senha!");
         
         let btn = document.querySelector('#login-screen .btn-access') || document.querySelector('.btn-access');
-        let originalText = btn ? btn.innerText : 'ENTRAR'; 
-        if(btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando...'; btn.disabled = true; }
+        let originalText = 'ENTRAR NO PAINEL'; 
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando...';
+            btn.disabled = true;
+        }
         
-        fetch(`${WEBHOOK_URL}?acao=login&email=${encodeURIComponent(e)}&senha=${encodeURIComponent(s)}`)
-        .then(res => res.json()).then(data => {
-            if(data.status === "sucesso") {
-                localStorage.setItem('pqdtEmail', e); localStorage.setItem('pqdtSenha', s); 
-                loggedUserEmail = e; loggedUserSenha = s; checkLogin();
-            } else { 
-                alert(data.mensagem); if(btn) { btn.innerHTML = originalText; btn.disabled = false; }
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        try {
+            let urlLogin = `${WEBHOOK_URL}?acao=login&email=${encodeURIComponent(e)}&senha=${encodeURIComponent(s)}&_t=${Date.now()}`;
+            let res = await fetch(urlLogin, {
+                method: 'GET',
+                redirect: 'follow',
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            let text = await res.text();
+            if (text.trim().startsWith('<')) {
+                throw new Error("O Google interceptou a resposta (Verifique se a implantação do Apps Script está como 'Qualquer pessoa').");
             }
-        }).catch(() => { alert("Falha na conexão."); if(btn) { btn.innerHTML = originalText; btn.disabled = false; } });
+
+            let data = JSON.parse(text);
+            if (data.status === "sucesso") {
+                localStorage.setItem('pqdtEmail', e);
+                localStorage.setItem('pqdtSenha', s);
+                loggedUserEmail = e;
+                loggedUserSenha = s;
+                if (btn) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+                checkLogin();
+            } else {
+                alert(data.mensagem || "Credenciais inválidas.");
+                if (btn) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            }
+        } catch (err) {
+            clearTimeout(timeoutId);
+            console.error("Erro no login:", err);
+            let msg = err.name === 'AbortError'
+                ? "Tempo limite excedido (15s). O Google Sheets demorou a responder. Tente novamente."
+                : ("Falha na conexão: " + err.message);
+            alert(msg);
+            if (btn) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
     }
 
     function register() {
@@ -1916,30 +2381,34 @@ Gostaria que fizesse:
         let btns = document.querySelectorAll('.sync-btn-ui');
         btns.forEach(b => b.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo...');
         
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+
         try {
-            // [BLINDAGEM TÁTICA] 
-            // 1. Adicionamos &t=${Date.now()} para forçar uma URL nova a cada milissegundo e quebrar o cache de redirecionamento do navegador.
             let urlSemCache = `${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&senha=${encodeURIComponent(loggedUserSenha)}&_t=${Date.now()}`;
             
-            // 2. Forçamos o cabeçalho 'Accept' para sinalizar ao servidor que queremos JSON.
             let response = await fetch(urlSemCache, { 
                 method: 'GET',
                 redirect: 'follow',
-                headers: {
-                    "Accept": "application/json"
-                }
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
             
             let text = await response.text();
             
-            // [SEGURANÇA DO DOM] Verificação robusta se o retorno é HTML (Página de Login/Erro do Google)
             if (text.trim().startsWith('<')) {
-                console.error("ALERTA TÁTICO - Resposta do Servidor Google (HTML bloqueando o sinal):", text);
-                throw new Error("Sinal interceptado pelo Google. Verifique se o Web App está liberado para 'Qualquer pessoa' ou se o navegador está bloqueando o acesso.");
+                console.error("ALERTA TÁTICO - Resposta HTML do Google:", text);
+                throw new Error("Sinal interceptado pelo Google. Verifique se o Web App está liberado para 'Qualquer pessoa'.");
             }
             
             let data = JSON.parse(text);
-            if (data.status === "erro") throw new Error(data.mensagem);
+            if (data.status === "erro" || data.erro) {
+                if (data.mensagem && (data.mensagem.includes("Credenciais") || data.mensagem.includes("expirou"))) {
+                    logout();
+                    return;
+                }
+                throw new Error(data.mensagem || "Erro ao carregar dados.");
+            }
             
             globalExpiration = data.expiration || "Vitalício"; 
             globalNickname = data.nickname || "Recruta"; 
@@ -1959,15 +2428,17 @@ Gostaria que fizesse:
             processData(data.dados || []); 
             updateLeaderEffects();
             atualizarSelectEditaisDisponiveis();
-            if(editalAtivoGlobal) renderizarEdital(editalAtivoGlobal);
+            if (editalAtivoGlobal) renderizarEdital(editalAtivoGlobal);
             atualizarCampoTopico(); 
             
             btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado');
-            setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> SINC'), 2000);
+            setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sinc'), 2000);
             
         } catch (err) {
+            clearTimeout(timeoutId);
             console.error("Erro na Sincronização:", err); 
-            alert("⚠️ FALHA DE SINCRONIZAÇÃO:\n" + err.message);
+            let msgErro = err.name === 'AbortError' ? "O servidor demorou mais de 20s para responder. Clique em Sinc novamente." : err.message;
+            alert("⚠️ FALHA DE SINCRONIZAÇÃO:\n" + msgErro);
             btns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro');
         }
     }
@@ -2212,29 +2683,43 @@ Gostaria que fizesse:
         if (!body) return;
         
         if (list.length === 0) {
-            body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px; color:#888;">Nenhum registro para este período.</td></tr>';
+            body.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#888;">Nenhum registro para este período.</td></tr>';
             return;
         }
         
         body.innerHTML = list.map((u, i) => {
-            let acc = u.a > 0 && u.q > 0 ? ((u.a / u.q) * 100).toFixed(1) + '%' : '--';
+            let qTotal = Number(u.q) || 0;
+            let aTotal = Number(u.a) || 0;
+            let pctNum = qTotal > 0 ? (aTotal / qTotal) * 100 : 0;
+            let accFormatted = qTotal > 0 ? pctNum.toFixed(3).replace('.', ',') + '%' : '0,000%';
             let isMe = u.nick === globalNickname;
+
+            let posClass = 'col-rank-num';
+            if (i === 0) posClass += ' top-pos-1';
+            else if (i === 1) posClass += ' top-pos-2';
+            else if (i === 2) posClass += ' top-pos-3';
+
             let avatarSrc = (u.avatar && String(u.avatar).startsWith('data:image')) ? u.avatar : (isMe && globalAvatar ? globalAvatar : '');
             let inicial = String(u.nick || 'C').trim().charAt(0).toUpperCase();
             let avatarBadgeHTML = avatarSrc
                 ? `<div class="user-avatar-circle avatar-rank-size"><img src="${avatarSrc}" alt="Avatar"></div>`
                 : `<div class="user-avatar-circle avatar-rank-size">${inicial}</div>`;
 
+            let corDesempenho = qTotal === 0 ? '#8B949E' : (pctNum >= 75 ? 'var(--accent-green)' : (pctNum >= 60 ? 'var(--accent-gold)' : 'var(--accent-red)'));
+            let badgeVoce = isMe ? `<span class="badge-voce-rank">VOCÊ</span>` : '';
+
             return `<tr class="${isMe ? 'leader-item' : ''}">
-                <td style="padding:12px; color:#888;">#${i+1}</td>
-                <td style="font-weight:bold; color: ${isMe ? 'var(--accent-gold)' : 'var(--text-color)'};">
+                <td class="${posClass}">${i + 1}</td>
+                <td class="col-rank-user" style="font-weight:${isMe ? '800' : '500'}; color:${isMe ? 'var(--accent-gold)' : 'var(--text-color)'};">
                     <div class="rank-commander-cell">
                         ${avatarBadgeHTML}
-                        <span>${isMe ? 'VOCÊ (' + u.nick + ')' : u.nick}</span>
+                        <span>${u.nick}</span>
+                        ${badgeVoce}
                     </div>
                 </td>
-                <td>${u.q.toLocaleString()} Qs</td>
-                <td style="color: ${parseFloat(acc) >= 75 ? 'var(--accent-green)' : (acc === '--' ? '#888' : 'var(--accent-red)')}; font-weight:bold;">${acc}</td>
+                <td class="col-rank-res">${qTotal.toLocaleString('pt-BR')}</td>
+                <td class="col-rank-acertos">${aTotal.toLocaleString('pt-BR')}</td>
+                <td class="col-rank-desemp" style="color:${corDesempenho};">${accFormatted}</td>
             </tr>`;
         }).join('');
     }
@@ -4445,7 +4930,162 @@ Gostaria que fizesse:
         } else {
             wDisplay.innerHTML = `<i class="fas fa-cloud"></i> Clima Indisponível`;
         }
-    }    
+    }
+		let jitsiApiInstance = null;
+    const JITSI_ROOM_NAME = "ProtocoloControle_PelotaoDeEstudos_QG";
+
+    function obterPatenteAtualTexto() {
+        let pat = GAMER_RANKS[0].title;
+        for (let i = 0; i < GAMER_RANKS.length; i++) {
+            if (totalQHistory >= GAMER_RANKS[i].threshold) {
+                pat = GAMER_RANKS[i].title;
+            }
+        }
+        return pat;
+    }
+
+    function atualizarPainelPelotao() {
+        let patente = obterPatenteAtualTexto();
+        setSafeText('pelotao-user-nick', globalNickname || 'Comandante');
+        setSafeText('pelotao-user-rank', patente);
+        renderAvatarInsideElement('pelotao-user-avatar', globalAvatar, globalNickname);
+
+        setSafeText('pelotao-stat-q', dailyQ.toLocaleString('pt-BR'));
+        setSafeText('pelotao-stat-h', (dailyMins / 60).toFixed(1) + 'h');
+        setSafeText('pelotao-stat-streak', calcularDiasOfensiva() + 'd 🔥');
+        setSafeText('pelotao-stat-total', totalQHistory.toLocaleString('pt-BR'));
+    }
+
+    function conectarPelotaoJitsi() {
+        atualizarPainelPelotao();
+
+        if (jitsiApiInstance) {
+            mostrarToastTatico("Você já está conectado ao canal #Pelotão de Estudos!", "var(--accent-purple)");
+            return;
+        }
+
+        if (typeof JitsiMeetExternalAPI === 'undefined') {
+            alert("A biblioteca de vídeo do Jitsi ainda está carregando ou foi bloqueada pela rede. Clique em 'Abrir Externo' no topo da sala.");
+            return;
+        }
+
+        let lobby = document.getElementById('pelotao-lobby-placeholder');
+        let mountNode = document.getElementById('jitsi-pelotao-container');
+        let btnSair = document.getElementById('btn-sair-pelotao');
+        let channelItem = document.getElementById('channel-item-pelotao');
+        let statusPill = document.getElementById('pelotao-status-pill');
+        let channelIcon = document.getElementById('channel-icon-pelotao');
+
+        if (lobby) lobby.style.display = 'none';
+        if (mountNode) {
+            mountNode.style.display = 'block';
+            mountNode.innerHTML = '';
+        }
+        if (btnSair) btnSair.style.display = 'inline-flex';
+        if (channelItem) channelItem.classList.add('connected');
+        if (statusPill) {
+            statusPill.innerText = 'Ao Vivo';
+            statusPill.classList.add('online');
+        }
+        if (channelIcon) channelIcon.style.color = 'var(--accent-green)';
+
+        let patente = obterPatenteAtualTexto();
+        let displayTag = `${globalNickname || 'Recruta'} [${patente}]`;
+
+        const domain = "meet.jit.si";
+        const options = {
+            roomName: JITSI_ROOM_NAME,
+            width: "100%",
+            height: "100%",
+            parentNode: mountNode,
+            userInfo: {
+                email: loggedUserEmail || "",
+                displayName: displayTag
+            },
+            configOverwrite: {
+                startWithAudioMuted: true,
+                startWithVideoMuted: true,
+                prejoinPageEnabled: false,
+                disableDeepLinking: true,
+                subject: "Pelotão de Estudos — Protocolo Controle"
+            },
+            interfaceConfigOverwrite: {
+                SHOW_JITSI_WATERMARK: false,
+                SHOW_WATERMARK_FOR_GUESTS: false,
+                DEFAULT_REMOTE_DISPLAY_NAME: "Combatente",
+                TOOLBAR_BUTTONS: [
+                    'microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen',
+                    'fodeviceselection', 'hangup', 'chat', 'raisehand',
+                    'videoquality', 'filmstrip', 'tileview', 'select-background'
+                ]
+            }
+        };
+
+        try {
+            jitsiApiInstance = new JitsiMeetExternalAPI(domain, options);
+            jitsiApiInstance.addEventListener('readyToClose', () => {
+                desconectarPelotaoJitsi();
+            });
+            mostrarToastTatico("Conectado ao #Pelotão de Estudos! Bom papiro!", "var(--accent-green)");
+        } catch (err) {
+            console.error("Erro ao iniciar Jitsi:", err);
+            desconectarPelotaoJitsi();
+            alert("Não foi possível inicializar a sala embutida. Utilize o botão 'Abrir Externo'.");
+        }
+    }
+
+    function desconectarPelotaoJitsi() {
+        if (jitsiApiInstance) {
+            try { jitsiApiInstance.dispose(); } catch (e) {}
+            jitsiApiInstance = null;
+        }
+        let lobby = document.getElementById('pelotao-lobby-placeholder');
+        let mountNode = document.getElementById('jitsi-pelotao-container');
+        let btnSair = document.getElementById('btn-sair-pelotao');
+        let channelItem = document.getElementById('channel-item-pelotao');
+        let statusPill = document.getElementById('pelotao-status-pill');
+        let channelIcon = document.getElementById('channel-icon-pelotao');
+
+        if (mountNode) {
+            mountNode.innerHTML = '';
+            mountNode.style.display = 'none';
+        }
+        if (lobby) lobby.style.display = 'block';
+        if (btnSair) btnSair.style.display = 'none';
+        if (channelItem) channelItem.classList.remove('connected');
+        if (statusPill) {
+            statusPill.innerText = 'Pronto';
+            statusPill.classList.remove('online');
+        }
+        if (channelIcon) channelIcon.style.color = 'var(--accent-purple)';
+    }
+
+    function toggleTeatroPelotao() {
+        let shell = document.getElementById('pelotao-discord-shell');
+        if (shell) shell.classList.toggle('theater-active');
+    }
+
+    function abrirPelotaoNovaAba() {
+        window.open(`https://meet.jit.si/${JITSI_ROOM_NAME}`, '_blank');
+    }
+
+    function copiarStatusPelotao() {
+        atualizarPainelPelotao();
+        let patente = obterPatenteAtualTexto();
+        let hrsHoje = (dailyMins / 60).toFixed(1);
+        let ofensiva = calcularDiasOfensiva();
+        let alvo = editalAtivoGlobal ? editalAtivoGlobal : "Área de Controle / Engenharia";
+
+        let msg = `🎖️ [STATUS TÁTICO — PELOTÃO DE ESTUDOS]\n` +
+                  `👤 Comandante: ${globalNickname} (${patente})\n` +
+                  `🎯 Alvo: ${alvo}\n` +
+                  `⚡ Hoje: ${dailyQ} questões | ${hrsHoje}h líquidas\n` +
+                  `🔥 Ofensiva: ${ofensiva} dias seguidos | Acumulado: ${totalQHistory.toLocaleString('pt-BR')} Qs`;
+
+        navigator.clipboard.writeText(msg).then(() => {
+            mostrarToastTatico("Status Tático copiado! Cole (Ctrl+V) no chat da Sala de Estudos.", "var(--accent-blue)");
+        });
+    }
     window.onload = function() {
         checkLogin();
     };
