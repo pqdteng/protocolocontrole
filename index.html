@@ -2099,20 +2099,7 @@ Gostaria que fizesse:
         let yearStart = new Date(Date.UTC(tempD.getUTCFullYear(),0,1));
         return `${tempD.getUTCFullYear()} - Sem ${Math.ceil((((tempD - yearStart) / 86400000) + 1)/7).toString().padStart(2, '0')}`;
     }
-
-    function checkUpdateNotification() {
-        let versionTag = "v2.6"; 
-        if(localStorage.getItem('pqdtUpdateNotif') !== versionTag) {
-            let md = document.getElementById('updateModal');
-            if(md) md.style.display = 'block';
-        }
-    }
-    function closeUpdateModal() {
-        localStorage.setItem('pqdtUpdateNotif', "v2.6");
-        let md = document.getElementById('updateModal');
-        if(md) md.style.display = 'none';
-    }
-
+    
     function checkLogin() {
         if (loggedUserEmail && loggedUserSenha) {
             let loginScreen = document.getElementById('login-screen'); if (loginScreen) loginScreen.style.display = 'none';
@@ -2256,7 +2243,6 @@ Gostaria que fizesse:
         
         renderDailyVerse();
         loadGoogleSheetsData();
-        checkUpdateNotification(); 
         initWeather();
     }
 
