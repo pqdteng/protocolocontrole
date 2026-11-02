@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Protocolo Controle: Auditor TCE</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script src="https://meet.jit.si/external_api.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
@@ -1601,7 +1600,7 @@
                         <div>
                             <div class="discord-server-header">
                                 <span><i class="fas fa-shield-alt" style="color:var(--accent-purple); margin-right:8px;"></i> QG PROTOCOLO CONTROLE</span>
-                                <span style="font-size:11px; color:var(--accent-gold); font-family:monospace;">v2.0</span>
+                                <span style="font-size:11px; color:var(--accent-gold); font-family:monospace;">ILIMITADO</span>
                             </div>
 
                             <div class="discord-category-label">
@@ -1667,14 +1666,19 @@
 
                     <div class="discord-stage-pane">
                         <div class="discord-stage-topbar">
-                            <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                                 <i class="fas fa-hashtag" style="color:var(--accent-purple); font-size:1.1em;"></i>
                                 <div>
                                     <strong style="color:var(--text-color); font-size:15px;">Pelotão de Estudos</strong>
-                                    <span style="color:#8B949E; font-size:12px; margin-left:8px;">• Sala Única de Estudo Conjunto, Pomodoro & Tela Compartilhada</span>
+                                    <span style="color:var(--accent-green); font-size:11px; margin-left:8px; font-weight:bold;"><i class="fas fa-infinity"></i> Sem limite de tempo</span>
                                 </div>
                             </div>
                             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                <select id="pelotao-server-select" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:6px 10px; border-radius:6px; font-size:11.5px; font-weight:bold; outline:none;" onchange="trocarServidorPelotao()" title="Escolha a Rota de Transmissão">
+                                    <option value="p2p_ninja">⚡ Rota 1: WebRTC P2P Direto (Ilimitado / Recomendado)</option>
+                                    <option value="jitsi_riot">🛡️ Rota 2: Jitsi Comunitário Matrix (Sem trava de 5m)</option>
+                                    <option value="jitsi_systemli">🛰️ Rota 3: Jitsi Comunitário Systemli (Backup)</option>
+                                </select>
                                 <button type="button" class="btn-stealth stealth-blue" onclick="toggleTeatroPelotao()" title="Expandir/Recolher Barra Lateral do Canal">
                                     <i class="fas fa-expand-alt"></i> Modo Teatro
                                 </button>
@@ -1694,11 +1698,12 @@
                                 </div>
                                 <h2 style="margin:0 0 8px 0; color:var(--text-color); font-size:1.4em;">Canal de Voz & Vídeo: Pelotão de Estudos</h2>
                                 <p style="color:#8B949E; font-size:13.5px; line-height:1.5; margin-bottom:20px;">
-                                    Estude em tempo real com outros concurseiros da tropa. Você entrará identificado com seu <strong>Codinome e Patente</strong> e com <strong>microfone/câmera desligados por padrão</strong> para não interromper o silêncio do papiro.
+                                    Conexão <strong>WebRTC P2P Ilimitada</strong> (sem quedas de 5 minutos). Você entrará identificado com seu <strong>Codinome e Patente</strong> e com <strong>microfone/câmera desligados por padrão</strong> para manter o silêncio do papiro.
                                 </p>
                                 <div style="background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; padding:12px; text-align:left; font-size:12px; color:#8B949E; margin-bottom:22px; line-height:1.6;">
-                                    <div><i class="fas fa-check" style="color:var(--accent-green); margin-right:6px;"></i> Compartilhe sua tela de questões ou PDF se desejar estudar em grupo.</div>
-                                    <div><i class="fas fa-check" style="color:var(--accent-green); margin-right:6px;"></i> Use o botão <strong>"Copiar Meu Progresso p/ Chat"</strong> na barra ao lado para postar suas metas no chat da sala.</div>
+                                    <div><i class="fas fa-check" style="color:var(--accent-green); margin-right:6px;"></i> <strong>Tempo Ilimitado:</strong> Estude por horas seguidas sem interrupções ou login externo.</div>
+                                    <div><i class="fas fa-check" style="color:var(--accent-green); margin-right:6px;"></i> <strong>Tela Compartilhada & Chat:</strong> Compartilhe seu PDF/Questões ou poste seu status tático no chat.</div>
+                                    <div><i class="fas fa-random" style="color:var(--accent-blue); margin-right:6px;"></i> <strong>Multi-Rota:</strong> Caso sua rede bloqueie P2P, alterne entre as Rotas 1, 2 e 3 no menu superior.</div>
                                 </div>
                                 <button type="button" class="btn" style="background:var(--accent-green); width:100%; padding:14px; font-size:15px;" onclick="conectarPelotaoJitsi()">
                                     <i class="fas fa-plug"></i> INGRESSAR NO PELOTÃO DE ESTUDOS
@@ -4931,7 +4936,7 @@ Gostaria que fizesse:
             wDisplay.innerHTML = `<i class="fas fa-cloud"></i> Clima Indisponível`;
         }
     }
-		let jitsiApiInstance = null;
+		let pelotaoConectado = false;
     const JITSI_ROOM_NAME = "ProtocoloControle_PelotaoDeEstudos_QG";
 
     function obterPatenteAtualTexto() {
@@ -4956,18 +4961,28 @@ Gostaria que fizesse:
         setSafeText('pelotao-stat-total', totalQHistory.toLocaleString('pt-BR'));
     }
 
+    function construirUrlSalaPelotao() {
+        let selectRota = document.getElementById('pelotao-server-select');
+        let rota = selectRota ? selectRota.value : 'p2p_ninja';
+
+        let patente = obterPatenteAtualTexto();
+        let displayTag = `${globalNickname || 'Recruta'} [${patente}]`;
+        let encodedTag = encodeURIComponent(displayTag);
+
+        if (rota === 'p2p_ninja') {
+            // Motor WebRTC P2P Mesh (VDO.Ninja) - 100% Gratuito, Sem limite de tempo, Auto-join, Mudo e Câmera desligada por padrão, com Chat e ScreenShare ativos
+            return `https://vdo.ninja/?room=${JITSI_ROOM_NAME}&label=${encodedTag}&autostart&muted&webcam=0&chatbutton&screensharebutton&cleanish&darkmode`;
+        } else if (rota === 'jitsi_riot') {
+            // Servidor Jitsi Comunitário (Matrix/Riot) sem limite de 5 minutos
+            return `https://jitsi.riot.im/${JITSI_ROOM_NAME}#userInfo.displayName="${encodedTag}"&config.prejoinPageEnabled=false&config.startWithAudioMuted=true&config.startWithVideoMuted=true&config.disableDeepLinking=true`;
+        } else {
+            // Servidor Jitsi Comunitário (Systemli) sem limite de 5 minutos
+            return `https://meet.systemli.org/${JITSI_ROOM_NAME}#userInfo.displayName="${encodedTag}"&config.prejoinPageEnabled=false&config.startWithAudioMuted=true&config.startWithVideoMuted=true&config.disableDeepLinking=true`;
+        }
+    }
+
     function conectarPelotaoJitsi() {
         atualizarPainelPelotao();
-
-        if (jitsiApiInstance) {
-            mostrarToastTatico("Você já está conectado ao canal #Pelotão de Estudos!", "var(--accent-purple)");
-            return;
-        }
-
-        if (typeof JitsiMeetExternalAPI === 'undefined') {
-            alert("A biblioteca de vídeo do Jitsi ainda está carregando ou foi bloqueada pela rede. Clique em 'Abrir Externo' no topo da sala.");
-            return;
-        }
 
         let lobby = document.getElementById('pelotao-lobby-placeholder');
         let mountNode = document.getElementById('jitsi-pelotao-container');
@@ -4989,56 +5004,34 @@ Gostaria que fizesse:
         }
         if (channelIcon) channelIcon.style.color = 'var(--accent-green)';
 
-        let patente = obterPatenteAtualTexto();
-        let displayTag = `${globalNickname || 'Recruta'} [${patente}]`;
+        let roomUrl = construirUrlSalaPelotao();
 
-        const domain = "meet.jit.si";
-        const options = {
-            roomName: JITSI_ROOM_NAME,
-            width: "100%",
-            height: "100%",
-            parentNode: mountNode,
-            userInfo: {
-                email: loggedUserEmail || "",
-                displayName: displayTag
-            },
-            configOverwrite: {
-                startWithAudioMuted: true,
-                startWithVideoMuted: true,
-                prejoinPageEnabled: false,
-                disableDeepLinking: true,
-                subject: "Pelotão de Estudos — Protocolo Controle"
-            },
-            interfaceConfigOverwrite: {
-                SHOW_JITSI_WATERMARK: false,
-                SHOW_WATERMARK_FOR_GUESTS: false,
-                DEFAULT_REMOTE_DISPLAY_NAME: "Combatente",
-                TOOLBAR_BUTTONS: [
-                    'microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen',
-                    'fodeviceselection', 'hangup', 'chat', 'raisehand',
-                    'videoquality', 'filmstrip', 'tileview', 'select-background'
-                ]
-            }
-        };
+        let iframe = document.createElement('iframe');
+        iframe.src = roomUrl;
+        iframe.allow = "camera; microphone; fullscreen; display-capture; autoplay; clipboard-read; clipboard-write; speaker-selection";
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        iframe.style.border = "none";
+        iframe.setAttribute("allowfullscreen", "true");
 
-        try {
-            jitsiApiInstance = new JitsiMeetExternalAPI(domain, options);
-            jitsiApiInstance.addEventListener('readyToClose', () => {
-                desconectarPelotaoJitsi();
-            });
-            mostrarToastTatico("Conectado ao #Pelotão de Estudos! Bom papiro!", "var(--accent-green)");
-        } catch (err) {
-            console.error("Erro ao iniciar Jitsi:", err);
-            desconectarPelotaoJitsi();
-            alert("Não foi possível inicializar a sala embutida. Utilize o botão 'Abrir Externo'.");
+        if (mountNode) {
+            mountNode.appendChild(iframe);
+        }
+
+        pelotaoConectado = true;
+        mostrarToastTatico("Conectado ao #Pelotão de Estudos (Sessão Ilimitada)! Bom papiro!", "var(--accent-green)");
+    }
+
+    function trocarServidorPelotao() {
+        if (pelotaoConectado) {
+            conectarPelotaoJitsi();
+            mostrarToastTatico("Rota de transmissão alterada com sucesso!", "var(--accent-blue)");
         }
     }
 
     function desconectarPelotaoJitsi() {
-        if (jitsiApiInstance) {
-            try { jitsiApiInstance.dispose(); } catch (e) {}
-            jitsiApiInstance = null;
-        }
+        pelotaoConectado = false;
+
         let lobby = document.getElementById('pelotao-lobby-placeholder');
         let mountNode = document.getElementById('jitsi-pelotao-container');
         let btnSair = document.getElementById('btn-sair-pelotao');
@@ -5058,6 +5051,7 @@ Gostaria que fizesse:
             statusPill.classList.remove('online');
         }
         if (channelIcon) channelIcon.style.color = 'var(--accent-purple)';
+        mostrarToastTatico("Você saiu do canal de voz.", "var(--accent-orange)");
     }
 
     function toggleTeatroPelotao() {
@@ -5066,7 +5060,8 @@ Gostaria que fizesse:
     }
 
     function abrirPelotaoNovaAba() {
-        window.open(`https://meet.jit.si/${JITSI_ROOM_NAME}`, '_blank');
+        let url = construirUrlSalaPelotao();
+        window.open(url, '_blank');
     }
 
     function copiarStatusPelotao() {
