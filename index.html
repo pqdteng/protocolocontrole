@@ -2031,7 +2031,11 @@ Gostaria que fizesse:
         let el = document.getElementById(id);
         if (el) el.innerText = value; 
     }
-	    // Escudo anti-XSS: todo texto de origem externa passa por aqui antes de entrar em innerHTML
+	// Tetos diários anti-fraude (devem espelhar os valores do Apps Script)
+    const LIMITE_Q_DIA = 1500;
+    const LIMITE_MIN_DIA = 1080;
+    const LIMITE_LANC_DIA = 50;
+	// Escudo anti-XSS: todo texto de origem externa passa por aqui antes de entrar em innerHTML
     function escapeHTML(valor) {
         return String(valor === null || typeof valor === 'undefined' ? '' : valor)
             .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -4892,13 +4896,28 @@ Gostaria que fizesse:
         let a = document.getElementById('f-a'); let fas = document.getElementById('f-fase');
         let actionStr = modoEdicao ? "retificar_ultimo" : "lancamento";
 		
-        let qChk = Math.floor(Number(q ? q.value : 0)) || 0;
+                let qChk = Math.floor(Number(q ? q.value : 0)) || 0;
         let aChk = Math.floor(Number(a ? a.value : 0)) || 0;
         let tChk = Math.round(Number(temp ? temp.value : 0)) || 0;
         if (qChk < 0 || aChk < 0 || tChk < 0) return alert("Não use valores negativos.");
         if (aChk > qChk) return alert("Os acertos não podem ser maiores que as questões resolvidas.");
         if (qChk > 1000) return alert("Máximo de 1.000 questões por lançamento. Divida em mais de uma missão.");
         if (tChk > 960) return alert("Máximo de 16h (960 min) por lançamento.");
+
+        // Teto diário: soma o que já existe na data escolhida (na retificação, ignora a linha editada)
+        let anoChk = parseInt(p[0], 10), mesChk = parseInt(p[1], 10), diaChk = parseInt(p[2], 10);
+        let linhaEditada = modoEdicao && globalData.length > 0 ? Math.max(...globalData.map(x => x.origIdx)) : -1;
+        let somaQDia = 0, somaTDia = 0, somaNDia = 0;
+        globalData.forEach(item => {
+            if (item.origIdx === linhaEditada) return;
+            let d = item.date;
+            if (d && d.getFullYear() === anoChk && (d.getMonth() + 1) === mesChk && d.getDate() === diaChk) {
+                somaQDia += item.q; somaTDia += item.t; somaNDia += 1;
+            }
+        });
+        if (somaNDia + 1 > LIMITE_LANC_DIA) return alert("Teto diário: máximo de " + LIMITE_LANC_DIA + " lançamentos por dia de estudo.");
+        if (somaQDia + qChk > LIMITE_Q_DIA) return alert("Teto diário: máximo de " + LIMITE_Q_DIA.toLocaleString('pt-BR') + " questões por dia. Você já registrou " + somaQDia.toLocaleString('pt-BR') + " nesta data.");
+        if (somaTDia + tChk > LIMITE_MIN_DIA) return alert("Teto diário: máximo de " + (LIMITE_MIN_DIA / 60) + "h por dia. Você já registrou " + Math.round(somaTDia) + " min nesta data.");
         
         let matSelecionada = mat && mat.options && mat.selectedIndex >= 0 ? mat.options[mat.selectedIndex].text : "";
         let topicoTexto = top ? top.value.trim() : "";
