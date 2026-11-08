@@ -2135,7 +2135,7 @@ Gostaria que fizesse:
         } else { showScreen('login'); }
     }
 
-        async function login() {
+    async function login() {
         let elEmail = document.getElementById('log-email');
         let elPass = document.getElementById('log-pass');
         if (!elEmail || !elPass) return;
@@ -2154,11 +2154,10 @@ Gostaria que fizesse:
         const timeoutId = setTimeout(() => controller.abort(), 15000);
 
         try {
-            let res = await fetch(WEBHOOK_URL, {
-                method: 'POST',
+            let urlLogin = `${WEBHOOK_URL}?acao=login&email=${encodeURIComponent(e)}&senha=${encodeURIComponent(s)}&_t=${Date.now()}`;
+            let res = await fetch(urlLogin, {
+                method: 'GET',
                 redirect: 'follow',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ acao: 'login', email: e, senha: s }),
                 signal: controller.signal
             });
             clearTimeout(timeoutId);
@@ -2200,23 +2199,24 @@ Gostaria que fizesse:
             }
         }
     }
-    async function register() {
+		
+        async function register() {
         let elEmail = document.getElementById('reg-email'); let elPass = document.getElementById('reg-pass');
         if (!elEmail || !elPass) return;
-        let e = elEmail.value.trim(); let s = elPass.value.trim();
+        let e = elEmail.value.trim().toLowerCase(); let s = elPass.value.trim();
         if (!e || !s) return alert("Preencha tudo!");
 
         let btn = document.querySelector('#register-screen .btn') || null;
         let oldTxt = btn ? btn.innerHTML : "";
         if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...'; btn.disabled = true; }
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 25000);
+
         try {
-            let res = await fetch(WEBHOOK_URL, {
-                method: 'POST',
-                redirect: 'follow',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ acao: "cadastro", email: e, senha: s })
-            });
+            let urlCad = `${WEBHOOK_URL}?acao=cadastro&email=${encodeURIComponent(e)}&senha=${encodeURIComponent(s)}&_t=${Date.now()}`;
+            let res = await fetch(urlCad, { method: 'GET', redirect: 'follow', signal: controller.signal });
+            clearTimeout(timeoutId);
             let text = await res.text();
             if (text.trim().startsWith('<')) throw new Error("O Google interceptou a resposta.");
             let data = JSON.parse(text);
@@ -2227,8 +2227,9 @@ Gostaria que fizesse:
                 alert(data.mensagem || "Não foi possível concluir o cadastro.");
             }
         } catch (err) {
+            clearTimeout(timeoutId);
             console.error("Erro no cadastro:", err);
-            alert("Falha na conexão: " + err.message);
+            alert(err.name === 'AbortError' ? "Tempo limite excedido. Tente novamente." : "Falha na conexão: " + err.message);
         }
         if (btn) { btn.innerHTML = oldTxt; btn.disabled = false; }
     }
