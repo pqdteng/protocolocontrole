@@ -2467,6 +2467,7 @@ Gostaria que fizesse:
             baseEditaisGlobal = data.baseEditais || {};
             editalAtivoGlobal = data.editalAtivo || "";
             try { progressoEditalGlobal = JSON.parse(data.progressoEdital || "{}"); } catch(e) { progressoEditalGlobal = {}; }
+            hidratarProgressoEdital();
 
             setSafeText('greeting-name', globalNickname);
             renderHeaderAvatar();
@@ -3418,16 +3419,71 @@ Gostaria que fizesse:
         salvarProgressoEditalNuvem();
         atualizarContadorProva();
     }
+		
+    // Salva só o que o aluno realmente fez (tópicos marcados, com link, ou a data da prova)
+    function compactarProgressoEdital(origem) {
+        let saida = {};
+        Object.keys(origem || {}).forEach(concurso => {
+            let blocoC = origem[concurso] || {};
+            let novoC = {};
+            Object.keys(blocoC).forEach(mat => {
+                if (mat === '_dataProva') { if (blocoC[mat]) novoC[mat] = blocoC[mat]; return; }
+                let topicos = blocoC[mat] || {};
+                let novoM = {};
+                Object.keys(topicos).forEach(top => {
+                    let t = topicos[top];
+                    if (t && (t.checked || (t.link && String(t.link).trim() !== ''))) {
+                        novoM[top] = { checked: !!t.checked, link: t.link || '' };
+                    }
+                });
+                if (Object.keys(novoM).length > 0) novoC[mat] = novoM;
+            });
+            if (Object.keys(novoC).length > 0) saida[concurso] = novoC;
+        });
+        return saida;
+    }
+
+    // Recria os tópicos pendentes a partir do edital, na ordem original (o GPS e a lista de tópicos dependem disso)
+    function hidratarProgressoEdital() {
+        let concursos = new Set(Object.keys(progressoEditalGlobal || {}));
+        if (editalAtivoGlobal) concursos.add(editalAtivoGlobal);
+        concursos.forEach(concurso => {
+            let linhas = baseEditaisGlobal && baseEditaisGlobal[concurso];
+            if (!Array.isArray(linhas)) return;
+            let antigoC = progressoEditalGlobal[concurso] || {};
+            let novoC = {};
+            linhas.forEach(item => {
+                if (!novoC[item.mat]) novoC[item.mat] = {};
+                let salvo = (antigoC[item.mat] && antigoC[item.mat][item.top]) ? antigoC[item.mat][item.top] : { checked: false, link: "" };
+                novoC[item.mat][item.top] = salvo;
+            });
+            // mantém registros salvos de tópicos que saíram do edital
+            Object.keys(antigoC).forEach(mat => {
+                if (mat === '_dataProva') { novoC._dataProva = antigoC._dataProva; return; }
+                if (!novoC[mat]) novoC[mat] = {};
+                Object.keys(antigoC[mat] || {}).forEach(top => {
+                    if (!novoC[mat][top]) novoC[mat][top] = antigoC[mat][top];
+                });
+            });
+            progressoEditalGlobal[concurso] = novoC;
+        });
+    }
 
     function salvarProgressoEditalNuvem() {
         let btn = document.querySelector('.btn.sync-btn-ui');
-        let oldHTML = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        let oldHTML = btn ? btn.innerHTML : '';
+        if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         
-        let progressoStr = JSON.stringify(progressoEditalGlobal);
+        let progressoStr = JSON.stringify(compactarProgressoEdital(progressoEditalGlobal));
+        if (progressoStr.length > 300000) {
+            alert("Seu progresso de editais ficou grande demais para ser salvo na nuvem. Entre em contato com o Comando.");
+            if (btn) btn.innerHTML = oldHTML;
+            return;
+        }
+
         fetch(WEBHOOK_URL, {method: 'POST', mode: 'no-cors', body: JSON.stringify({acao: "salvar_progresso_edital", email: loggedUserEmail, editalAtivo: editalAtivoGlobal, progressoJson: progressoStr})})
-        .then(() => { setTimeout(() => btn.innerHTML = oldHTML, 1000); })
-        .catch(err => { btn.innerHTML = '<i class="fas fa-exclamation"></i>'; setTimeout(() => btn.innerHTML = oldHTML, 2000); });
+        .then(() => { if (btn) setTimeout(() => btn.innerHTML = oldHTML, 1000); })
+        .catch(err => { if (btn) { btn.innerHTML = '<i class="fas fa-exclamation"></i>'; setTimeout(() => btn.innerHTML = oldHTML, 2000); } });
     }
 
     function enviarSolicitacaoEdital() {
