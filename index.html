@@ -2031,6 +2031,24 @@ Gostaria que fizesse:
         let el = document.getElementById(id);
         if (el) el.innerText = value; 
     }
+	    // Escudo anti-XSS: todo texto de origem externa passa por aqui antes de entrar em innerHTML
+    function escapeHTML(valor) {
+        return String(valor === null || typeof valor === 'undefined' ? '' : valor)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function avatarSeguro(src) {
+        let s = String(src || '');
+        return /^data:image\/(png|jpeg|jpg|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(s) ? s : '';
+    }
+    function linkSeguro(url) {
+        let s = String(url || '').trim();
+        if (!/^https?:\/\//i.test(s)) return '#';
+        return s.replace(/"/g, '%22').replace(/'/g, '%27').replace(/</g, '%3C').replace(/>/g, '%3E');
+    }
+    function textoSeguro(valor) {
+        return String(valor === null || typeof valor === 'undefined' ? '' : valor).replace(/[<>]/g, '').trim();
+    }	
 
     // Leis de Negócio Intactas (22 Disciplinas originais mantidas)
     const TODAS_MATERIAS = [
@@ -2675,7 +2693,7 @@ Gostaria que fizesse:
     let currentCompEvolMode = 'linha';
     let currentCompPerfilMode = 'radar';
 
-    function switchLeaderboard(type) {
+        function switchLeaderboard(type) {
         currentRankingTab = type;
         document.querySelectorAll('#view-ranking-view .rank-tab-btn').forEach(b => b.classList.remove('active'));
         
@@ -2723,8 +2741,8 @@ Gostaria que fizesse:
             else if (i === 1) posClass += ' top-pos-2';
             else if (i === 2) posClass += ' top-pos-3';
 
-            let avatarSrc = (u.avatar && String(u.avatar).startsWith('data:image')) ? u.avatar : (isMe && globalAvatar ? globalAvatar : '');
-            let inicial = String(u.nick || 'C').trim().charAt(0).toUpperCase();
+            let avatarSrc = avatarSeguro(u.avatar) || (isMe ? avatarSeguro(globalAvatar) : '');
+            let inicial = escapeHTML(String(u.nick || 'C').trim().charAt(0).toUpperCase());
             let avatarBadgeHTML = avatarSrc
                 ? `<div class="user-avatar-circle avatar-rank-size"><img src="${avatarSrc}" alt="Avatar"></div>`
                 : `<div class="user-avatar-circle avatar-rank-size">${inicial}</div>`;
@@ -2737,7 +2755,7 @@ Gostaria que fizesse:
                 <td class="col-rank-user" style="font-weight:${isMe ? '800' : '500'}; color:${isMe ? 'var(--accent-gold)' : 'var(--text-color)'};">
                     <div class="rank-commander-cell">
                         ${avatarBadgeHTML}
-                        <span>${u.nick}</span>
+                        <span>${escapeHTML(u.nick)}</span>
                         ${badgeVoce}
                     </div>
                 </td>
@@ -3030,11 +3048,12 @@ Gostaria que fizesse:
     function renderAvatarInsideElement(elId, avatarData, fallbackNick) {
         let el = document.getElementById(elId);
         if (!el) return;
-        if (avatarData && String(avatarData).startsWith('data:image')) {
-            el.innerHTML = `<img src="${avatarData}" alt="Foto de Perfil">`;
+        let avatarOk = avatarSeguro(avatarData);
+        if (avatarOk) {
+            el.innerHTML = `<img src="${avatarOk}" alt="Foto de Perfil">`;
         } else {
             let ini = String(fallbackNick || globalNickname || 'C').trim().charAt(0).toUpperCase();
-            el.innerHTML = `<span>${ini}</span>`;
+            el.innerHTML = `<span>${escapeHTML(ini)}</span>`;
         }
     }
 
@@ -3092,8 +3111,9 @@ Gostaria que fizesse:
     function saveNickname() {
         let inp = document.getElementById('input-nickname'); 
         if (!inp) return; 
-        let n = inp.value.trim(); 
-        if (!n) return alert("Digite um Codinome.");
+        let n = inp.value.replace(/[<>"'`&\\\/=]/g, '').replace(/\s+/g, ' ').trim().substring(0, 20);
+        if (n.length < 3) return alert("Digite um Codinome com ao menos 3 caracteres (sem símbolos especiais).");
+        inp.value = n;
         
         let btn = document.getElementById('btn-save-profile');
         let oldTxt = btn ? btn.innerText : "SALVAR PERFIL NA NUVEM";
@@ -3128,7 +3148,7 @@ Gostaria que fizesse:
             if (btn) { btn.innerText = oldTxt; btn.disabled = false; }
         });
     }
-
+		
     function openRanksModal() {
         let container = document.getElementById('ranks-list-container'); let info = document.getElementById('next-rank-info');
         if(!container || !info) return;
@@ -3472,7 +3492,7 @@ Gostaria que fizesse:
                 let dateObj = new Date(item.pubDate);
                 if (isNaN(dateObj) || dateObj >= limiteDias) {
                     let dateStr = isNaN(dateObj) ? "Data Recente" : dateObj.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
-                    feedNoticiasGlobal.push({ titulo: item.titulo, link: item.link, data: dateStr, dateObj: dateObj });
+                    feedNoticiasGlobal.push({ titulo: textoSeguro(item.titulo) || "Aviso Oficial", link: linkSeguro(item.link), data: dateStr, dateObj: dateObj });
                 }
             });
 
@@ -3486,7 +3506,7 @@ Gostaria que fizesse:
         })
         .catch(err => {
             console.error("Erro Tático no Radar:", err);
-            container.innerHTML = `<p style="color:var(--accent-red); grid-column: 1 / -1; text-align:center; padding: 20px;"><i class="fas fa-exclamation-triangle"></i> Falha de comunicação com a Base: ${err.message}</p>`;
+            container.innerHTML = `<p style="color:var(--accent-red); grid-column: 1 / -1; text-align:center; padding: 20px;"><i class="fas fa-exclamation-triangle"></i> Falha de comunicação com a Base: ${escapeHTML(err.message)}</p>`;
         });
     }
 
@@ -4871,6 +4891,14 @@ Gostaria que fizesse:
         let temp = document.getElementById('f-tempo'); let q = document.getElementById('f-q'); 
         let a = document.getElementById('f-a'); let fas = document.getElementById('f-fase');
         let actionStr = modoEdicao ? "retificar_ultimo" : "lancamento";
+		
+        let qChk = Math.floor(Number(q ? q.value : 0)) || 0;
+        let aChk = Math.floor(Number(a ? a.value : 0)) || 0;
+        let tChk = Math.round(Number(temp ? temp.value : 0)) || 0;
+        if (qChk < 0 || aChk < 0 || tChk < 0) return alert("Não use valores negativos.");
+        if (aChk > qChk) return alert("Os acertos não podem ser maiores que as questões resolvidas.");
+        if (qChk > 1000) return alert("Máximo de 1.000 questões por lançamento. Divida em mais de uma missão.");
+        if (tChk > 960) return alert("Máximo de 16h (960 min) por lançamento.");
         
         let matSelecionada = mat && mat.options && mat.selectedIndex >= 0 ? mat.options[mat.selectedIndex].text : "";
         let topicoTexto = top ? top.value.trim() : "";
