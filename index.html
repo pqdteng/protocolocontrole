@@ -1043,6 +1043,22 @@
             }
         }
     </style>
+	    <style>
+        .vagas-fundador-box {
+            background: var(--hover-bg);
+            border: 1px solid var(--accent-gold);
+            color: var(--accent-gold);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin: 0 0 18px 0;
+            font-size: 0.85em;
+            text-align: center;
+            line-height: 1.4;
+        }
+        .vagas-fundador-box strong { font-size: 1.15em; }
+        .vagas-fundador-box span { color: var(--text-color); opacity: 0.8; }
+        .vagas-fundador-box.esgotado { border-color: var(--accent-red); color: var(--accent-red); }
+    </style>
 </head>
 <body>
 
@@ -1056,6 +1072,7 @@
             </div>
             <h2 style="margin-top:0; color:var(--text-color);">Protocolo Controle</h2>
             <p style="color:#888; font-size:0.9em; margin-bottom:25px;">Versão Beta 2.0</p>
+            <div class="vagas-fundador-box" style="display:none;"></div>
             <input type="email" id="log-email" class="login-input" placeholder="E-mail de acesso">
             <input type="password" id="log-pass" class="login-input" placeholder="Senha">
             <button class="btn btn-access" style="background:var(--accent-blue); width:100%; padding:14px; margin-top:10px;" onclick="login()">ENTRAR NO PAINEL</button>
@@ -1071,6 +1088,7 @@
         <div class="login-box" style="border-top: 4px solid var(--accent-green);">
             <h2><i class="fas fa-user-check" style="color:var(--accent-green)"></i> Ativação</h2>
             <p style="color:#888; font-size:0.9em;">Crie sua credencial com seu e-mail.</p>
+            <div class="vagas-fundador-box" style="display:none;"></div>
             <input type="email" id="reg-email" class="login-input" placeholder="Seu E-mail">
             <input type="password" id="reg-pass" class="login-input" placeholder="Crie uma Senha">
             <button class="btn" style="background:var(--accent-green); width:100%;" onclick="register()">ATIVAR CONTA</button>
@@ -5230,8 +5248,41 @@ Gostaria que fizesse:
             mostrarToastTatico("Status Tático copiado! Cole (Ctrl+V) no chat da Sala de Estudos.", "var(--accent-blue)");
         });
     }
+    // Contador de vagas de fundador (público, só números: sem risco de XSS)
+    async function carregarVagasFundador() {
+        let caixas = document.querySelectorAll('.vagas-fundador-box');
+        if (!caixas.length) return;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        try {
+            let res = await fetch(`${WEBHOOK_URL}?acao=vagas&_t=${Date.now()}`, { method: 'GET', redirect: 'follow', signal: controller.signal });
+            clearTimeout(timeoutId);
+            let text = await res.text();
+            if (text.trim().startsWith('<')) return;
+            let data = JSON.parse(text);
+            if (data.status !== 'sucesso') return;
+
+            let restantes = Number(data.restantes);
+            let limite = Number(data.limite) || 100;
+            let anos = Number(data.anos) || 5;
+            if (!isFinite(restantes)) return;
+
+            let html = restantes > 0
+                ? `<i class="fas fa-fire"></i> <strong>${restantes}</strong> de ${limite} vagas de fundador restantes <span>• ${anos} anos de acesso</span>`
+                : `<i class="fas fa-lock"></i> Vagas de fundador esgotadas <span>• novos e-mails entram na lista de espera</span>`;
+            caixas.forEach(c => {
+                c.innerHTML = html;
+                c.style.display = 'block';
+                c.classList.toggle('esgotado', restantes <= 0);
+            });
+        } catch (err) {
+            clearTimeout(timeoutId); // falha silenciosa: a faixa simplesmente não aparece
+        }
+    }
+
     window.onload = function() {
         checkLogin();
+        if (!(loggedUserEmail && loggedUserToken)) carregarVagasFundador();
     };
     </script>
 </body>
