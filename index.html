@@ -1969,7 +1969,32 @@ Gostaria que fizesse:
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycby2wgtlQzCiHf4vMPqjHjNGTcRxqoeBTjkfUjUFZOhDo_gfM3dCoF6KslhKr2hmJNNl/exec";
     
     let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
-    let loggedUserSenha = localStorage.getItem('pqdtSenha') || "";
+    let loggedUserToken = localStorage.getItem('pqdtToken') || "";
+    localStorage.removeItem('pqdtSenha'); // apaga senha em texto puro de sessões antigas
+
+    // CAMADA DE AUTENTICAÇÃO: injeta e-mail + token em toda chamada à API (GET e POST)
+    (function instalarCamadaAuth() {
+        const fetchOriginal = window.fetch.bind(window);
+        window.fetch = function(url, opts) {
+            try {
+                if (typeof url === 'string' && url.indexOf(WEBHOOK_URL) === 0 && loggedUserToken) {
+                    if (opts && opts.method === 'POST' && typeof opts.body === 'string') {
+                        let payload = JSON.parse(opts.body);
+                        if (payload.acao !== 'login' && payload.acao !== 'cadastro') {
+                            payload.email = loggedUserEmail;
+                            payload.token = loggedUserToken;
+                            opts = Object.assign({}, opts, { body: JSON.stringify(payload) });
+                        }
+                    } else if (!opts || !opts.method || opts.method === 'GET') {
+                        let sep = url.indexOf('?') === -1 ? '?' : '&';
+                        if (url.indexOf('email=') === -1) { url += sep + 'email=' + encodeURIComponent(loggedUserEmail); sep = '&'; }
+                        if (url.indexOf('token=') === -1) { url += sep + 'token=' + encodeURIComponent(loggedUserToken); }
+                    }
+                }
+            } catch (errAuth) { console.error("Camada de autenticação:", errAuth); }
+            return fetchOriginal(url, opts);
+        };
+    })();
     let globalExpiration = ""; let globalNickname = "Recruta"; let globalAvatar = localStorage.getItem('pqdtAvatar') || ""; let tempAvatarBase64 = ""; let globalLeaderboards = {diario:[], semanal:[], mensal:[], geral:[]};
     let isEditingMode = false;
     let currentRankingTab = 'diario'; 
@@ -2101,7 +2126,7 @@ Gostaria que fizesse:
     }
     
     function checkLogin() {
-        if (loggedUserEmail && loggedUserSenha) {
+        if (loggedUserEmail && loggedUserToken) {
             let loginScreen = document.getElementById('login-screen'); if (loginScreen) loginScreen.style.display = 'none';
             let wrapper = document.getElementById('app-wrapper'); let content = document.getElementById('app-content');
             if (wrapper) wrapper.style.display = 'flex'; if (content) content.style.display = 'block';
@@ -2110,7 +2135,7 @@ Gostaria que fizesse:
         } else { showScreen('login'); }
     }
 
-    async function login() {
+        async function login() {
         let elEmail = document.getElementById('log-email');
         let elPass = document.getElementById('log-pass');
         if (!elEmail || !elPass) return;
@@ -2129,10 +2154,11 @@ Gostaria que fizesse:
         const timeoutId = setTimeout(() => controller.abort(), 15000);
 
         try {
-            let urlLogin = `${WEBHOOK_URL}?acao=login&email=${encodeURIComponent(e)}&senha=${encodeURIComponent(s)}&_t=${Date.now()}`;
-            let res = await fetch(urlLogin, {
-                method: 'GET',
+            let res = await fetch(WEBHOOK_URL, {
+                method: 'POST',
                 redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ acao: 'login', email: e, senha: s }),
                 signal: controller.signal
             });
             clearTimeout(timeoutId);
@@ -2143,11 +2169,12 @@ Gostaria que fizesse:
             }
 
             let data = JSON.parse(text);
-            if (data.status === "sucesso") {
+            if (data.status === "sucesso" && data.token) {
                 localStorage.setItem('pqdtEmail', e);
-                localStorage.setItem('pqdtSenha', s);
+                localStorage.setItem('pqdtToken', data.token);
+                localStorage.removeItem('pqdtSenha');
                 loggedUserEmail = e;
-                loggedUserSenha = s;
+                loggedUserToken = data.token;
                 if (btn) {
                     btn.innerHTML = originalText;
                     btn.disabled = false;
@@ -2173,14 +2200,37 @@ Gostaria que fizesse:
             }
         }
     }
-
-    function register() {
+    async function register() {
         let elEmail = document.getElementById('reg-email'); let elPass = document.getElementById('reg-pass');
-        if(!elEmail || !elPass) return;
+        if (!elEmail || !elPass) return;
         let e = elEmail.value.trim(); let s = elPass.value.trim();
-        if(!e || !s) return alert("Preencha tudo!");
-        fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "cadastro", email: e, senha: s})})
-        .then(() => { alert("Verificação enviada! Pode logar."); showScreen('login'); });
+        if (!e || !s) return alert("Preencha tudo!");
+
+        let btn = document.querySelector('#register-screen .btn') || null;
+        let oldTxt = btn ? btn.innerHTML : "";
+        if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...'; btn.disabled = true; }
+
+        try {
+            let res = await fetch(WEBHOOK_URL, {
+                method: 'POST',
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ acao: "cadastro", email: e, senha: s })
+            });
+            let text = await res.text();
+            if (text.trim().startsWith('<')) throw new Error("O Google interceptou a resposta.");
+            let data = JSON.parse(text);
+            if (data.status === "sucesso") {
+                alert("Conta ativada! Agora é só entrar no painel.");
+                showScreen('login');
+            } else {
+                alert(data.mensagem || "Não foi possível concluir o cadastro.");
+            }
+        } catch (err) {
+            console.error("Erro no cadastro:", err);
+            alert("Falha na conexão: " + err.message);
+        }
+        if (btn) { btn.innerHTML = oldTxt; btn.disabled = false; }
     }
 
     function resetPasswordScreens() {
@@ -2358,7 +2408,7 @@ Gostaria que fizesse:
         const timeoutId = setTimeout(() => controller.abort(), 20000);
 
         try {
-            let urlSemCache = `${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&senha=${encodeURIComponent(loggedUserSenha)}&_t=${Date.now()}`;
+            let urlSemCache = `${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&token=${encodeURIComponent(loggedUserToken)}&_t=${Date.now()}`;
             
             let response = await fetch(urlSemCache, { 
                 method: 'GET',
@@ -2376,7 +2426,7 @@ Gostaria que fizesse:
             
             let data = JSON.parse(text);
             if (data.status === "erro" || data.erro) {
-                if (data.mensagem && (data.mensagem.includes("Credenciais") || data.mensagem.includes("expirou"))) {
+                if (data.sessao === false || (data.mensagem && (data.mensagem.includes("Credenciais") || data.mensagem.includes("expirou") || data.mensagem.includes("Sessão")))) {
                     logout();
                     return;
                 }
