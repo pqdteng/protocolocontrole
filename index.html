@@ -359,6 +359,36 @@
         .btn-action-top:hover { background: var(--hover-bg); }
 
         .edital-subject { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+		/* ===== CATÁLOGO DE EDITAIS (estilo Guia TEC) ===== */
+        .catalogo-box { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 25px; overflow: hidden; }
+        .catalogo-busca-row { display: flex; align-items: center; gap: 15px; padding: 18px 20px; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; }
+        .catalogo-busca-row strong { color: var(--text-color); font-size: 14px; white-space: nowrap; }
+        .catalogo-busca-input { flex: 1; min-width: 200px; display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 1px solid var(--input-border); border-radius: 6px; padding: 0 12px; height: 40px; }
+        .catalogo-busca-input i { color: var(--text-color); opacity: 0.5; }
+        .catalogo-busca-input input { flex: 1; background: transparent; border: none; outline: none; color: var(--text-color); font-size: 14px; height: 100%; }
+        .catalogo-contador { padding: 12px 20px; font-size: 14px; color: var(--text-color); opacity: 0.85; border-bottom: 1px solid var(--border-color); }
+        .catalogo-contador strong { color: var(--accent-green); }
+        .catalogo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 15px; padding: 20px; background: var(--bg-color); }
+        .catalogo-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 12px; transition: 0.2s; }
+        .catalogo-card.clicavel { cursor: pointer; }
+        .catalogo-card:hover { border-color: var(--accent-blue); transform: translateY(-2px); }
+        .catalogo-card.ativo { border: 2px solid var(--accent-green); }
+        .catalogo-card-topo { display: flex; align-items: center; gap: 12px; }
+        .catalogo-avatar { width: 52px; height: 52px; min-width: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; color: var(--bg-color); letter-spacing: 0.5px; }
+        .catalogo-orgao { font-size: 17px; font-weight: 800; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .catalogo-sub { font-size: 12px; color: var(--text-color); opacity: 0.6; }
+        .catalogo-info { background: var(--hover-bg); border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+        .catalogo-info span { color: var(--text-color); opacity: 0.6; }
+        .catalogo-info strong { color: var(--text-color); }
+        .catalogo-progress-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-color); opacity: 0.85; }
+        .catalogo-progress-bg { flex: 1; height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; }
+        .catalogo-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-green), var(--accent-blue)); }
+        .catalogo-cargo-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 6px; padding: 7px 10px; font-size: 12px; cursor: pointer; text-align: left; transition: 0.2s; }
+        .catalogo-cargo-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+        .catalogo-cargo-btn.ativo { border-color: var(--accent-green); color: var(--accent-green); font-weight: bold; }
+        .catalogo-cargo-btn small { opacity: 0.7; white-space: nowrap; }
+        .catalogo-vazio { grid-column: 1 / -1; text-align: center; color: var(--text-color); opacity: 0.6; padding: 40px 10px; }
+        .edital-ativo-chip { background: var(--input-bg); border: 1px solid var(--accent-green); color: var(--accent-green); border-radius: 6px; padding: 0 12px; height: 38px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold; max-width: 320px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         .edital-subject-header { padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); transition: 0.2s; }
         .edital-subject-header:hover { background: var(--hover-bg); }
         .edital-progress-bg { flex-grow: 1; height: 8px; background: var(--border-color); border-radius: 4px; margin: 0 20px; overflow: hidden; }
@@ -1278,9 +1308,17 @@
                             <p style="color:#888; font-size:14px; margin:5px 0 0 0;">Controle absoluto do seu progresso Pós-Edital.</p>
                         </div>
                         <div style="display:flex; gap:10px; flex-wrap: wrap; align-items: center;">
-                            <select id="select-edital-ativo" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:10px; border-radius:6px; outline:none; font-weight:bold;" onchange="selecionarNovoEdital(this.value)">
+                            <select id="select-edital-ativo" style="display:none;" onchange="selecionarNovoEdital(this.value)">
                                 <option value="">-- Selecione seu Concurso Alvo --</option>
                             </select>
+
+                            <div class="edital-ativo-chip" title="Concurso ativo">
+                                <i class="fas fa-crosshairs"></i> <span id="edital-ativo-chip">Nenhum concurso selecionado</span>
+                            </div>
+
+                            <button class="btn" style="background:var(--accent-green); border:1px solid var(--accent-green); color:var(--bg-color); height:38px;" onclick="toggleCatalogoEditais()">
+                                <i class="fas fa-th-large"></i> <span id="btn-trocar-edital-txt">Escolher Concurso</span>
+                            </button>
                             
                             <div style="background:var(--input-bg); border:1px solid var(--border-color); border-radius:6px; padding:0 10px; display:flex; align-items:center; gap:8px; height: 38px;">
                                 <label style="font-size:11px; color:#888; font-weight:bold; text-transform:uppercase; margin:0;"><i class="far fa-calendar-check"></i> Prova:</label>
@@ -1291,8 +1329,19 @@
                                 <i class="fas fa-plus"></i> Solicitar Edital
                             </button>
                         </div>
+						
+                    <div id="catalogo-editais-box" class="catalogo-box">
+                        <div class="catalogo-busca-row">
+                            <strong><i class="fas fa-bolt" style="color:var(--accent-gold);"></i> Busca Rápida</strong>
+                            <div class="catalogo-busca-input">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="catalogo-editais-busca" placeholder="Pesquise pelo órgão, cargo ou banca" oninput="renderCatalogoEditais()">
+                            </div>
+                        </div>
+                        <div class="catalogo-contador">Foram encontrados <strong id="catalogo-editais-total">0</strong> editais verticalizados.</div>
+                        <div id="catalogo-editais-grid" class="catalogo-grid"></div>
                     </div>
-                    
+						
                     <div id="edital-progresso-geral" style="display:none; margin-bottom:25px; background:var(--input-bg); padding:20px; border-radius:8px; border:1px solid var(--border-color);">
                         <div style="display:flex; justify-content:space-between; font-size:13px; color:#888; font-weight:bold; margin-bottom:8px;">
                             <span>PROGRESSO GERAL NO EDITAL</span>
@@ -3311,16 +3360,193 @@ Gostaria que fizesse:
 
     function atualizarSelectEditaisDisponiveis() {
         let sel = document.getElementById('select-edital-ativo');
-        if(!sel) return;
-        sel.innerHTML = '<option value="">-- Selecione seu Concurso Alvo --</option>';
-        Object.keys(baseEditaisGlobal).forEach(concurso => {
-            let opt = document.createElement('option');
-            opt.value = concurso; opt.innerText = concurso;
-            sel.appendChild(opt);
-        });
-        if(editalAtivoGlobal && baseEditaisGlobal[editalAtivoGlobal]) {
-            sel.value = editalAtivoGlobal;
+        if (sel) {
+            sel.innerHTML = '<option value="">-- Selecione seu Concurso Alvo --</option>';
+            Object.keys(baseEditaisGlobal).forEach(concurso => {
+                let opt = document.createElement('option');
+                opt.value = concurso; opt.innerText = concurso;
+                sel.appendChild(opt);
+            });
+            if (editalAtivoGlobal && baseEditaisGlobal[editalAtivoGlobal]) {
+                sel.value = editalAtivoGlobal;
+            }
         }
+        let temAtivo = !!(editalAtivoGlobal && baseEditaisGlobal[editalAtivoGlobal]);
+        renderCatalogoEditais();
+        atualizarChipEditalAtivo();
+        toggleCatalogoEditais(!temAtivo);
+    }
+
+    let catalogoEditaisCache = [];
+
+    function escaparHtmlCatalogo(txt) {
+        return String(txt == null ? '' : txt).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function normalizarBuscaCatalogo(txt) {
+        return String(txt || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function extrairOrgaoCargoEdital(nome) {
+        let partes = String(nome).split(/\s+[-–|]\s+/);
+        let orgao = (partes.shift() || String(nome)).trim();
+        let cargo = partes.join(' - ').trim() || 'Cargo único';
+        return { orgao: orgao, cargo: cargo };
+    }
+
+    function formatarDataProvaCatalogo(iso) {
+        if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return '';
+        let p = iso.split('-');
+        return `${p[2]}/${p[1]}/${p[0]}`;
+    }
+
+    function calcularPctEditalCatalogo(concurso) {
+        let linhas = baseEditaisGlobal[concurso] || [];
+        if (!linhas.length) return 0;
+        let prog = (typeof progressoEditalGlobal !== 'undefined' && progressoEditalGlobal[concurso]) ? progressoEditalGlobal[concurso] : {};
+        let feitos = 0;
+        linhas.forEach(l => {
+            if (prog[l.mat] && prog[l.mat][l.top] && prog[l.mat][l.top].checked) feitos++;
+        });
+        return Math.round((feitos / linhas.length) * 100);
+    }
+
+    function renderCatalogoEditais() {
+        let grid = document.getElementById('catalogo-editais-grid');
+        if (!grid) return;
+        let inputBusca = document.getElementById('catalogo-editais-busca');
+        let termo = inputBusca ? normalizarBuscaCatalogo(inputBusca.value.trim()) : '';
+        let coresAvatar = ['--accent-blue', '--accent-green', '--accent-purple', '--accent-orange', '--accent-gold', '--accent-red'];
+
+        catalogoEditaisCache = [];
+        let grupos = {};
+        let totalCargos = 0;
+
+        Object.keys(baseEditaisGlobal).forEach(concurso => {
+            let linhas = baseEditaisGlobal[concurso] || [];
+            let oc = extrairOrgaoCargoEdital(concurso);
+            let banca = (linhas[0] && linhas[0].banca) ? String(linhas[0].banca) : 'A definir';
+            let dataIso = (typeof progressoEditalGlobal !== 'undefined' && progressoEditalGlobal[concurso] && progressoEditalGlobal[concurso]._dataProva) ? progressoEditalGlobal[concurso]._dataProva : '';
+            if (termo && !normalizarBuscaCatalogo(concurso + ' ' + banca).includes(termo)) return;
+
+            let idx = catalogoEditaisCache.push(concurso) - 1;
+            totalCargos++;
+            if (!grupos[oc.orgao]) grupos[oc.orgao] = { orgao: oc.orgao, cargos: [] };
+            grupos[oc.orgao].cargos.push({
+                idx: idx,
+                cargo: oc.cargo,
+                banca: banca,
+                dataIso: dataIso,
+                materias: new Set(linhas.map(l => l.mat)).size,
+                topicos: linhas.length,
+                pct: calcularPctEditalCatalogo(concurso),
+                ativo: concurso === editalAtivoGlobal
+            });
+        });
+
+        let lista = Object.values(grupos);
+        lista.forEach(g => {
+            g.cargos.sort((a, b) => a.cargo.localeCompare(b.cargo, 'pt-BR'));
+            let datas = g.cargos.map(c => c.dataIso).filter(d => d).sort();
+            g.dataMin = datas.length ? datas[0] : '';
+            g.ativo = g.cargos.some(c => c.ativo);
+            g.bancas = [...new Set(g.cargos.map(c => c.banca))].join(' / ');
+        });
+        lista.sort((a, b) => {
+            if (a.ativo !== b.ativo) return a.ativo ? -1 : 1;
+            if (a.dataMin && b.dataMin && a.dataMin !== b.dataMin) return a.dataMin < b.dataMin ? -1 : 1;
+            if (a.dataMin && !b.dataMin) return -1;
+            if (!a.dataMin && b.dataMin) return 1;
+            return a.orgao.localeCompare(b.orgao, 'pt-BR');
+        });
+
+        setSafeText('catalogo-editais-total', String(totalCargos));
+
+        if (!lista.length) {
+            grid.innerHTML = Object.keys(baseEditaisGlobal).length
+                ? `<div class="catalogo-vazio"><i class="fas fa-search fa-2x"></i><br><br>Nenhum edital encontrado para essa busca.</div>`
+                : `<div class="catalogo-vazio"><i class="fas fa-folder-open fa-2x"></i><br><br>Nenhum edital verticalizado na base ainda.<br>Use o botão <strong>Solicitar Edital</strong>.</div>`;
+            return;
+        }
+
+        let html = '';
+        lista.forEach(g => {
+            let hash = 0;
+            for (let i = 0; i < g.orgao.length; i++) hash = (hash + g.orgao.charCodeAt(i)) % coresAvatar.length;
+            let sigla = g.orgao.replace(/[^A-Za-z0-9]/g, '').slice(0, 4).toUpperCase() || '?';
+            let unico = g.cargos.length === 1;
+            let c0 = g.cargos[0];
+            let qtdTxt = unico
+                ? `${c0.materias} matérias · ${c0.topicos} tópicos`
+                : `${g.cargos.length} cargos`;
+
+            let rodape = '';
+            if (unico) {
+                rodape = `
+                    <div style="font-size:12px; color:var(--text-color); opacity:0.75; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${escaparHtmlCatalogo(c0.cargo)}"><i class="fas fa-user-tie"></i> ${escaparHtmlCatalogo(c0.cargo)}</div>
+                    <div class="catalogo-progress-row">
+                        <div class="catalogo-progress-bg"><div class="catalogo-progress-fill" style="width:${c0.pct}%;"></div></div>
+                        <span>${c0.pct}%</span>
+                    </div>`;
+            } else {
+                rodape = '<div style="display:flex; flex-direction:column; gap:6px;">';
+                g.cargos.forEach(c => {
+                    rodape += `<button type="button" class="catalogo-cargo-btn ${c.ativo ? 'ativo' : ''}" onclick="event.stopPropagation(); escolherEditalCatalogo(${c.idx})" title="${escaparHtmlCatalogo(c.cargo)}">
+                        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.ativo ? '<i class="fas fa-check-circle"></i> ' : ''}${escaparHtmlCatalogo(c.cargo)}</span>
+                        <small>${c.pct}%</small>
+                    </button>`;
+                });
+                rodape += '</div>';
+            }
+
+            html += `
+                <div class="catalogo-card ${g.ativo ? 'ativo' : ''} ${unico ? 'clicavel' : ''}" ${unico ? `onclick="escolherEditalCatalogo(${c0.idx})"` : ''}>
+                    <div class="catalogo-card-topo">
+                        <div class="catalogo-avatar" style="background:var(${coresAvatar[hash]});">${escaparHtmlCatalogo(sigla)}</div>
+                        <div style="min-width:0; flex:1;">
+                            <div class="catalogo-orgao" title="${escaparHtmlCatalogo(g.orgao)}">${escaparHtmlCatalogo(g.orgao)}</div>
+                            <div class="catalogo-sub">${qtdTxt}</div>
+                        </div>
+                        ${g.ativo ? '<i class="fas fa-crosshairs" style="color:var(--accent-green);" title="Concurso ativo"></i>' : ''}
+                    </div>
+                    <div class="catalogo-info">
+                        <div><span>Prova:</span> <strong>${formatarDataProvaCatalogo(g.dataMin) || 'A definir'}</strong></div>
+                        <div><span>Banca:</span> <strong>${escaparHtmlCatalogo(g.bancas)}</strong></div>
+                    </div>
+                    ${rodape}
+                </div>`;
+        });
+        grid.innerHTML = html;
+    }
+
+    function escolherEditalCatalogo(idx) {
+        let nome = catalogoEditaisCache[idx];
+        if (!nome) return;
+        let sel = document.getElementById('select-edital-ativo');
+        if (sel) sel.value = nome;
+        selecionarNovoEdital(nome);
+        let view = document.getElementById('view-edital-view');
+        if (view) view.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function toggleCatalogoEditais(forcarAberto) {
+        let box = document.getElementById('catalogo-editais-box');
+        if (!box) return;
+        let abrir = (typeof forcarAberto === 'boolean') ? forcarAberto : (box.style.display === 'none');
+        box.style.display = abrir ? 'block' : 'none';
+        let temAtivo = !!(editalAtivoGlobal && baseEditaisGlobal[editalAtivoGlobal]);
+        setSafeText('btn-trocar-edital-txt', abrir ? (temAtivo ? 'Fechar Catálogo' : 'Escolha abaixo') : 'Trocar Concurso');
+        if (abrir) {
+            let busca = document.getElementById('catalogo-editais-busca');
+            if (busca && window.innerWidth > 768) busca.focus();
+        }
+    }
+
+    function atualizarChipEditalAtivo() {
+        let temAtivo = !!(editalAtivoGlobal && baseEditaisGlobal[editalAtivoGlobal]);
+        setSafeText('edital-ativo-chip', temAtivo ? editalAtivoGlobal : 'Nenhum concurso selecionado');
+        let chip = document.getElementById('edital-ativo-chip');
+        if (chip && chip.parentElement) chip.parentElement.title = temAtivo ? editalAtivoGlobal : 'Nenhum concurso selecionado';
     }
 
     function renderizarEdital(nomeConcurso) {
@@ -3442,7 +3668,10 @@ Gostaria que fizesse:
 
     function selecionarNovoEdital(nomeConcurso) {
         renderizarEdital(nomeConcurso);
-        salvarProgressoEditalNuvem(); 
+        salvarProgressoEditalNuvem();
+        atualizarChipEditalAtivo();
+        renderCatalogoEditais();
+        toggleCatalogoEditais(!nomeConcurso);
     }
 
     function toggleEditalTopic(concurso, mat, top, isChecked) {
