@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Protocolo Controle: Auditor TCE</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script src="https://meet.jit.si/external_api.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
@@ -131,7 +130,7 @@
         th, td { padding: 12px 15px; border-bottom: 1px solid var(--border-color); }
         th { color: #888; font-weight: 600; text-transform: uppercase; font-size: 12px;}
 
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.75); overflow-y: auto; padding: 20px; box-sizing: border-box; backdrop-filter: blur(3px);}
+        .modal { display: none; position: fixed; z-index: 10002; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.75); overflow-y: auto; padding: 20px; box-sizing: border-box; backdrop-filter: blur(3px);}
         .modal-content { background-color: var(--card-bg); margin: 2% auto; padding: 30px; border: 1px solid var(--border-color); width: 100%; max-width: 800px; border-radius: 12px; box-sizing: border-box; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.5);}
         .close-btn { color: #888; position: absolute; right: 20px; top: 20px; font-size: 24px; cursor: pointer; line-height: 1;}
         .close-btn:hover { color: var(--accent-red); }
@@ -175,7 +174,7 @@
         body.focus-mode .btn-timer-sub { width: 45px; height: 45px; font-size: 1.2em; }
         body.focus-mode #btn-play-pause { width: 65px; height: 65px; font-size: 1.8em; box-shadow: 0 4px 15px rgba(35, 134, 54, 0.4); }
         body.focus-mode #btn-exit-foco { display: block; }
-		#tactical-toast { position: fixed; bottom: 25px; right: 25px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-green); padding: 14px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10001; display: none; align-items: center; gap: 12px; font-size: 13px; font-weight: bold; animation: fadeIn 0.25s ease-out; }		
+		#tactical-toast { position: fixed; bottom: 25px; right: 25px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-green); padding: 14px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10005; display: none; align-items: center; gap: 12px; font-size: 13px; font-weight: bold; animation: fadeIn 0.25s ease-out; }		
 
 	.heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
         .heatmap-day-header { text-align: center; color: #888; font-size: 11px; font-weight: bold; padding-bottom: 5px; text-transform: uppercase; }
@@ -1044,6 +1043,22 @@
             }
         }
     </style>
+	    <style>
+        .vagas-fundador-box {
+            background: var(--hover-bg);
+            border: 1px solid var(--accent-gold);
+            color: var(--accent-gold);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin: 0 0 18px 0;
+            font-size: 0.85em;
+            text-align: center;
+            line-height: 1.4;
+        }
+        .vagas-fundador-box strong { font-size: 1.15em; }
+        .vagas-fundador-box span { color: var(--text-color); opacity: 0.8; }
+        .vagas-fundador-box.esgotado { border-color: var(--accent-red); color: var(--accent-red); }
+    </style>
 </head>
 <body>
 
@@ -1057,6 +1072,7 @@
             </div>
             <h2 style="margin-top:0; color:var(--text-color);">Protocolo Controle</h2>
             <p style="color:#888; font-size:0.9em; margin-bottom:25px;">Versão Beta 2.0</p>
+            <div class="vagas-fundador-box" style="display:none;"></div>
             <input type="email" id="log-email" class="login-input" placeholder="E-mail de acesso">
             <input type="password" id="log-pass" class="login-input" placeholder="Senha">
             <button class="btn btn-access" style="background:var(--accent-blue); width:100%; padding:14px; margin-top:10px;" onclick="login()">ENTRAR NO PAINEL</button>
@@ -1072,6 +1088,7 @@
         <div class="login-box" style="border-top: 4px solid var(--accent-green);">
             <h2><i class="fas fa-user-check" style="color:var(--accent-green)"></i> Ativação</h2>
             <p style="color:#888; font-size:0.9em;">Crie sua credencial com seu e-mail.</p>
+            <div class="vagas-fundador-box" style="display:none;"></div>
             <input type="email" id="reg-email" class="login-input" placeholder="Seu E-mail">
             <input type="password" id="reg-pass" class="login-input" placeholder="Crie uma Senha">
             <button class="btn" style="background:var(--accent-green); width:100%;" onclick="register()">ATIVAR CONTA</button>
@@ -1601,7 +1618,7 @@
                         <div>
                             <div class="discord-server-header">
                                 <span><i class="fas fa-shield-alt" style="color:var(--accent-purple); margin-right:8px;"></i> QG PROTOCOLO CONTROLE</span>
-                                <span style="font-size:11px; color:var(--accent-gold); font-family:monospace;">v2.0</span>
+                                <span style="font-size:11px; color:var(--accent-gold); font-family:monospace;">ILIMITADO</span>
                             </div>
 
                             <div class="discord-category-label">
@@ -1667,14 +1684,19 @@
 
                     <div class="discord-stage-pane">
                         <div class="discord-stage-topbar">
-                            <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                                 <i class="fas fa-hashtag" style="color:var(--accent-purple); font-size:1.1em;"></i>
                                 <div>
                                     <strong style="color:var(--text-color); font-size:15px;">Pelotão de Estudos</strong>
-                                    <span style="color:#8B949E; font-size:12px; margin-left:8px;">• Sala Única de Estudo Conjunto, Pomodoro & Tela Compartilhada</span>
+                                    <span style="color:var(--accent-green); font-size:11px; margin-left:8px; font-weight:bold;"><i class="fas fa-infinity"></i> Sem limite de tempo</span>
                                 </div>
                             </div>
                             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                <select id="pelotao-server-select" style="background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-color); padding:6px 10px; border-radius:6px; font-size:11.5px; font-weight:bold; outline:none;" onchange="trocarServidorPelotao()" title="Escolha a Rota de Transmissão">
+                                    <option value="p2p_ninja">⚡ Rota 1: WebRTC P2P Direto (Ilimitado / Recomendado)</option>
+                                    <option value="jitsi_riot">🛡️ Rota 2: Jitsi Comunitário Matrix (Sem trava de 5m)</option>
+                                    <option value="jitsi_systemli">🛰️ Rota 3: Jitsi Comunitário Systemli (Backup)</option>
+                                </select>
                                 <button type="button" class="btn-stealth stealth-blue" onclick="toggleTeatroPelotao()" title="Expandir/Recolher Barra Lateral do Canal">
                                     <i class="fas fa-expand-alt"></i> Modo Teatro
                                 </button>
@@ -1694,11 +1716,12 @@
                                 </div>
                                 <h2 style="margin:0 0 8px 0; color:var(--text-color); font-size:1.4em;">Canal de Voz & Vídeo: Pelotão de Estudos</h2>
                                 <p style="color:#8B949E; font-size:13.5px; line-height:1.5; margin-bottom:20px;">
-                                    Estude em tempo real com outros concurseiros da tropa. Você entrará identificado com seu <strong>Codinome e Patente</strong> e com <strong>microfone/câmera desligados por padrão</strong> para não interromper o silêncio do papiro.
+                                    Conexão <strong>WebRTC P2P Ilimitada</strong> (sem quedas de 5 minutos). Você entrará identificado com seu <strong>Codinome e Patente</strong> e com <strong>microfone/câmera desligados por padrão</strong> para manter o silêncio do papiro.
                                 </p>
                                 <div style="background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; padding:12px; text-align:left; font-size:12px; color:#8B949E; margin-bottom:22px; line-height:1.6;">
-                                    <div><i class="fas fa-check" style="color:var(--accent-green); margin-right:6px;"></i> Compartilhe sua tela de questões ou PDF se desejar estudar em grupo.</div>
-                                    <div><i class="fas fa-check" style="color:var(--accent-green); margin-right:6px;"></i> Use o botão <strong>"Copiar Meu Progresso p/ Chat"</strong> na barra ao lado para postar suas metas no chat da sala.</div>
+                                    <div><i class="fas fa-check" style="color:var(--accent-green); margin-right:6px;"></i> <strong>Tempo Ilimitado:</strong> Estude por horas seguidas sem interrupções ou login externo.</div>
+                                    <div><i class="fas fa-check" style="color:var(--accent-green); margin-right:6px;"></i> <strong>Tela Compartilhada & Chat:</strong> Compartilhe seu PDF/Questões ou poste seu status tático no chat.</div>
+                                    <div><i class="fas fa-random" style="color:var(--accent-blue); margin-right:6px;"></i> <strong>Multi-Rota:</strong> Caso sua rede bloqueie P2P, alterne entre as Rotas 1, 2 e 3 no menu superior.</div>
                                 </div>
                                 <button type="button" class="btn" style="background:var(--accent-green); width:100%; padding:14px; font-size:15px;" onclick="conectarPelotaoJitsi()">
                                     <i class="fas fa-plug"></i> INGRESSAR NO PELOTÃO DE ESTUDOS
@@ -1774,25 +1797,7 @@
             </div>
         </div>
     </div>
-
-    <div id="updateModal" class="modal">
-        <div class="modal-content" style="max-width: 500px; text-align: center; border-top: 4px solid var(--accent-blue);">
-            <span class="close-btn" onclick="closeUpdateModal()">&times;</span>
-            <h2 style="color:var(--text-color); margin-top:0;"><i class="fas fa-rocket" style="color:var(--accent-blue)"></i> Plataforma Atualizada!</h2>
-            <p style="color:#888; font-size:14px; text-align: left; margin-top: 20px;">
-                Comandante, acabamos de liberar novas engrenagens táticas na sua Sala de Comando:
-            </p>
-            <div style="text-align: left; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
-                <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-color); line-height: 1.6;">
-                    <li><strong style="color:var(--accent-red)">Radar do Dia D:</strong> O painel agora possui um relógio regressivo em tempo real até a data da sua prova. Configure-o na aba Edital Verticalizado.</li>
-                    <li><strong style="color:var(--accent-gold)">Ranking Semanal:</strong> Nova aba de competição e correção do bug visual da tabela.</li>
-                    <li><strong style="color:var(--accent-green)">Auto-Discovery de Matérias:</strong> As matérias do seu Edital Verticalizado agora aparecem automaticamente para você montar o Ciclo Tático.</li>
-                </ul>
-            </div>
-            <button class="btn" style="background:var(--accent-blue); width:100%;" onclick="closeUpdateModal()">CIENTE, ENGENHARIA!</button>
-        </div>
-    </div>
-
+    
     <div id="solicitarEditalModal" class="modal">
         <div class="modal-content" style="max-width: 450px; border-top: 4px solid var(--accent-orange);">
             <span class="close-btn" onclick="document.getElementById('solicitarEditalModal').style.display='none'">&times;</span>
@@ -1982,7 +1987,32 @@ Gostaria que fizesse:
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycby2wgtlQzCiHf4vMPqjHjNGTcRxqoeBTjkfUjUFZOhDo_gfM3dCoF6KslhKr2hmJNNl/exec";
     
     let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
-    let loggedUserSenha = localStorage.getItem('pqdtSenha') || "";
+    let loggedUserToken = localStorage.getItem('pqdtToken') || "";
+    localStorage.removeItem('pqdtSenha'); // apaga senha em texto puro de sessões antigas
+
+    // CAMADA DE AUTENTICAÇÃO: injeta e-mail + token em toda chamada à API (GET e POST)
+    (function instalarCamadaAuth() {
+        const fetchOriginal = window.fetch.bind(window);
+        window.fetch = function(url, opts) {
+            try {
+                if (typeof url === 'string' && url.indexOf(WEBHOOK_URL) === 0 && loggedUserToken) {
+                    if (opts && opts.method === 'POST' && typeof opts.body === 'string') {
+                        let payload = JSON.parse(opts.body);
+                        if (['login', 'cadastro', 'ping', 'solicitar_codigo', 'trocarSenhaSegura'].indexOf(payload.acao) === -1) {
+                            payload.email = loggedUserEmail;
+                            payload.token = loggedUserToken;
+                            opts = Object.assign({}, opts, { body: JSON.stringify(payload) });
+                        }
+                    } else if (!opts || !opts.method || opts.method === 'GET') {
+                        let sep = url.indexOf('?') === -1 ? '?' : '&';
+                        if (url.indexOf('email=') === -1) { url += sep + 'email=' + encodeURIComponent(loggedUserEmail); sep = '&'; }
+                        if (url.indexOf('token=') === -1) { url += sep + 'token=' + encodeURIComponent(loggedUserToken); }
+                    }
+                }
+            } catch (errAuth) { console.error("Camada de autenticação:", errAuth); }
+            return fetchOriginal(url, opts);
+        };
+    })();
     let globalExpiration = ""; let globalNickname = "Recruta"; let globalAvatar = localStorage.getItem('pqdtAvatar') || ""; let tempAvatarBase64 = ""; let globalLeaderboards = {diario:[], semanal:[], mensal:[], geral:[]};
     let isEditingMode = false;
     let currentRankingTab = 'diario'; 
@@ -2019,6 +2049,28 @@ Gostaria que fizesse:
         let el = document.getElementById(id);
         if (el) el.innerText = value; 
     }
+	// Tetos diários anti-fraude (devem espelhar os valores do Apps Script)
+    const LIMITE_Q_DIA = 1500;
+    const LIMITE_MIN_DIA = 1080;
+    const LIMITE_LANC_DIA = 50;
+	// Escudo anti-XSS: todo texto de origem externa passa por aqui antes de entrar em innerHTML
+    function escapeHTML(valor) {
+        return String(valor === null || typeof valor === 'undefined' ? '' : valor)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function avatarSeguro(src) {
+        let s = String(src || '');
+        return /^data:image\/(png|jpeg|jpg|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(s) ? s : '';
+    }
+    function linkSeguro(url) {
+        let s = String(url || '').trim();
+        if (!/^https?:\/\//i.test(s)) return '#';
+        return s.replace(/"/g, '%22').replace(/'/g, '%27').replace(/</g, '%3C').replace(/>/g, '%3E');
+    }
+    function textoSeguro(valor) {
+        return String(valor === null || typeof valor === 'undefined' ? '' : valor).replace(/[<>]/g, '').trim();
+    }	
 
     // Leis de Negócio Intactas (22 Disciplinas originais mantidas)
     const TODAS_MATERIAS = [
@@ -2112,22 +2164,59 @@ Gostaria que fizesse:
         let yearStart = new Date(Date.UTC(tempD.getUTCFullYear(),0,1));
         return `${tempD.getUTCFullYear()} - Sem ${Math.ceil((((tempD - yearStart) / 86400000) + 1)/7).toString().padStart(2, '0')}`;
     }
+		
+    // Descobre (uma vez por carregamento) se o navegador consegue LER a resposta de um POST ao Apps Script
+    let _postLegivel = null;
+    async function testarPostLegivel() {
+        if (_postLegivel !== null) return _postLegivel;
+        const ctrl = new AbortController();
+        const tId = setTimeout(() => ctrl.abort(), 10000);
+        try {
+            let r = await fetch(WEBHOOK_URL, {
+                method: 'POST', redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ acao: 'ping' }),
+                signal: ctrl.signal
+            });
+            let d = JSON.parse(await r.text());
+            _postLegivel = !!(d && d.status === 'sucesso');
+        } catch (errSonda) {
+            _postLegivel = false;
+        }
+        clearTimeout(tId);
+        return _postLegivel;
+    }
 
-    function checkUpdateNotification() {
-        let versionTag = "v2.6"; 
-        if(localStorage.getItem('pqdtUpdateNotif') !== versionTag) {
-            let md = document.getElementById('updateModal');
-            if(md) md.style.display = 'block';
+    // Ações públicas (login, cadastro, recuperação): POST com senha no corpo; GET só se o POST não for legível
+    async function chamarAcaoPublica(acao, campos, timeoutMs) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs || 15000);
+        try {
+            let res;
+            if (await testarPostLegivel()) {
+                res = await fetch(WEBHOOK_URL, {
+                    method: 'POST', redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(Object.assign({ acao: acao }, campos)),
+                    signal: controller.signal
+                });
+            } else {
+                console.warn("POST ilegível neste navegador: usando GET temporário para '" + acao + "'.");
+                let qs = Object.keys(campos).map(k => `${k}=${encodeURIComponent(campos[k])}`).join('&');
+                res = await fetch(`${WEBHOOK_URL}?acao=${acao}&${qs}&_t=${Date.now()}`, { method: 'GET', redirect: 'follow', signal: controller.signal });
+            }
+            let text = await res.text();
+            if (text.trim().startsWith('<')) {
+                throw new Error("O Google interceptou a resposta (Verifique se a implantação do Apps Script está como 'Qualquer pessoa').");
+            }
+            return JSON.parse(text);
+        } finally {
+            clearTimeout(timeoutId);
         }
     }
-    function closeUpdateModal() {
-        localStorage.setItem('pqdtUpdateNotif', "v2.6");
-        let md = document.getElementById('updateModal');
-        if(md) md.style.display = 'none';
-    }
-
+		
     function checkLogin() {
-        if (loggedUserEmail && loggedUserSenha) {
+        if (loggedUserEmail && loggedUserToken) {
             let loginScreen = document.getElementById('login-screen'); if (loginScreen) loginScreen.style.display = 'none';
             let wrapper = document.getElementById('app-wrapper'); let content = document.getElementById('app-content');
             if (wrapper) wrapper.style.display = 'flex'; if (content) content.style.display = 'block';
@@ -2150,30 +2239,15 @@ Gostaria que fizesse:
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando...';
             btn.disabled = true;
         }
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
 
         try {
-            let urlLogin = `${WEBHOOK_URL}?acao=login&email=${encodeURIComponent(e)}&senha=${encodeURIComponent(s)}&_t=${Date.now()}`;
-            let res = await fetch(urlLogin, {
-                method: 'GET',
-                redirect: 'follow',
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-
-            let text = await res.text();
-            if (text.trim().startsWith('<')) {
-                throw new Error("O Google interceptou a resposta (Verifique se a implantação do Apps Script está como 'Qualquer pessoa').");
-            }
-
-            let data = JSON.parse(text);
-            if (data.status === "sucesso") {
+            let data = await chamarAcaoPublica('login', { email: e, senha: s }, 20000);
+            if (data.status === "sucesso" && data.token) {
                 localStorage.setItem('pqdtEmail', e);
-                localStorage.setItem('pqdtSenha', s);
+                localStorage.setItem('pqdtToken', data.token);
+                localStorage.removeItem('pqdtSenha');
                 loggedUserEmail = e;
-                loggedUserSenha = s;
+                loggedUserToken = data.token;
                 if (btn) {
                     btn.innerHTML = originalText;
                     btn.disabled = false;
@@ -2187,10 +2261,9 @@ Gostaria que fizesse:
                 }
             }
         } catch (err) {
-            clearTimeout(timeoutId);
             console.error("Erro no login:", err);
             let msg = err.name === 'AbortError'
-                ? "Tempo limite excedido (15s). O Google Sheets demorou a responder. Tente novamente."
+                ? "Tempo limite excedido. O Google Sheets demorou a responder. Tente novamente."
                 : ("Falha na conexão: " + err.message);
             alert(msg);
             if (btn) {
@@ -2199,14 +2272,30 @@ Gostaria que fizesse:
             }
         }
     }
-
-    function register() {
+		
+    async function register() {
         let elEmail = document.getElementById('reg-email'); let elPass = document.getElementById('reg-pass');
-        if(!elEmail || !elPass) return;
-        let e = elEmail.value.trim(); let s = elPass.value.trim();
-        if(!e || !s) return alert("Preencha tudo!");
-        fetch(WEBHOOK_URL, {method: 'POST', mode:'no-cors', body: JSON.stringify({acao: "cadastro", email: e, senha: s})})
-        .then(() => { alert("Verificação enviada! Pode logar."); showScreen('login'); });
+        if (!elEmail || !elPass) return;
+        let e = elEmail.value.trim().toLowerCase(); let s = elPass.value.trim();
+        if (!e || !s) return alert("Preencha tudo!");
+
+        let btn = document.querySelector('#register-screen .btn') || null;
+        let oldTxt = btn ? btn.innerHTML : "";
+        if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...'; btn.disabled = true; }
+
+        try {
+            let data = await chamarAcaoPublica('cadastro', { email: e, senha: s }, 25000);
+            if (data.status === "sucesso") {
+                alert("Conta ativada! Agora é só entrar no painel.");
+                showScreen('login');
+            } else {
+                alert(data.mensagem || "Não foi possível concluir o cadastro.");
+            }
+        } catch (err) {
+            console.error("Erro no cadastro:", err);
+            alert(err.name === 'AbortError' ? "Tempo limite excedido. Tente novamente." : "Falha na conexão: " + err.message);
+        }
+        if (btn) { btn.innerHTML = oldTxt; btn.disabled = false; }
     }
 
     function resetPasswordScreens() {
@@ -2214,41 +2303,44 @@ Gostaria que fizesse:
         document.getElementById('reset-step-2').style.display = 'none';
     }
 
-    function requestResetCode() {
+    async function requestResetCode() {
         let e = document.getElementById('res-email').value.trim();
         if(!e) return alert("Preencha o e-mail comandante!");
         let btn = document.getElementById('btn-req-code');
         let oldTxt = btn.innerText; btn.innerText = "ENVIANDO SINAL..."; btn.disabled = true;
-        
-        fetch(`${WEBHOOK_URL}?acao=solicitar_codigo&email=${encodeURIComponent(e)}`)
-        .then(res => res.json())
-        .then(data => {
-            if(data.status === "sucesso") {
+
+        try {
+            let data = await chamarAcaoPublica('solicitar_codigo', { email: e }, 25000);
+            if (data.status === "sucesso") {
                 document.getElementById('reset-step-1').style.display = 'none';
                 document.getElementById('reset-step-2').style.display = 'block';
             } else { alert(data.mensagem); }
-            btn.innerText = oldTxt; btn.disabled = false;
-        }).catch(() => { alert("Erro de conexão."); btn.innerText = oldTxt; btn.disabled = false; });
+        } catch (err) {
+            alert("Erro de conexão.");
+        }
+        btn.innerText = oldTxt; btn.disabled = false;
     }
 
-    function changePasswordSegura() {
+    async function changePasswordSegura() {
         let e = document.getElementById('res-email').value.trim();
         let c = document.getElementById('res-code').value.trim();
         let p = document.getElementById('res-pass').value.trim();
         if(!e || !p || !c) return alert("Preencha o código e a nova senha!");
+        if(p.length < 6) return alert("A nova senha precisa ter ao menos 6 caracteres.");
         
         let btn = document.getElementById('btn-confirm-pass');
         let oldTxt = btn.innerText; btn.innerText = "VALIDANDO..."; btn.disabled = true;
 
-        fetch(`${WEBHOOK_URL}?acao=trocarSenhaSegura&email=${encodeURIComponent(e)}&codigo=${encodeURIComponent(c)}&novaSenha=${encodeURIComponent(p)}`)
-        .then(res => res.json())
-        .then(data => {
-            if(data.status === "sucesso") {
+        try {
+            let data = await chamarAcaoPublica('trocarSenhaSegura', { email: e, codigo: c, novaSenha: p }, 25000);
+            if (data.status === "sucesso") {
                 alert("Senha atualizada com sucesso! Acesso liberado.");
                 showScreen('login'); resetPasswordScreens();
             } else { alert(data.mensagem); }
-            btn.innerText = oldTxt; btn.disabled = false;
-        }).catch(() => { alert("Erro de conexão."); btn.innerText = oldTxt; btn.disabled = false; });
+        } catch (err) {
+            alert("Erro de conexão.");
+        }
+        btn.innerText = oldTxt; btn.disabled = false;
     }
 
     function logout() { localStorage.clear(); location.reload(); }
@@ -2269,7 +2361,6 @@ Gostaria que fizesse:
         
         renderDailyVerse();
         loadGoogleSheetsData();
-        checkUpdateNotification(); 
         initWeather();
     }
 
@@ -2385,7 +2476,7 @@ Gostaria que fizesse:
         const timeoutId = setTimeout(() => controller.abort(), 20000);
 
         try {
-            let urlSemCache = `${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&senha=${encodeURIComponent(loggedUserSenha)}&_t=${Date.now()}`;
+            let urlSemCache = `${WEBHOOK_URL}?email=${encodeURIComponent(loggedUserEmail)}&token=${encodeURIComponent(loggedUserToken)}&_t=${Date.now()}`;
             
             let response = await fetch(urlSemCache, { 
                 method: 'GET',
@@ -2403,7 +2494,7 @@ Gostaria que fizesse:
             
             let data = JSON.parse(text);
             if (data.status === "erro" || data.erro) {
-                if (data.mensagem && (data.mensagem.includes("Credenciais") || data.mensagem.includes("expirou"))) {
+                if (data.sessao === false || (data.mensagem && (data.mensagem.includes("Credenciais") || data.mensagem.includes("expirou") || data.mensagem.includes("Sessão")))) {
                     logout();
                     return;
                 }
@@ -2421,6 +2512,7 @@ Gostaria que fizesse:
             baseEditaisGlobal = data.baseEditais || {};
             editalAtivoGlobal = data.editalAtivo || "";
             try { progressoEditalGlobal = JSON.parse(data.progressoEdital || "{}"); } catch(e) { progressoEditalGlobal = {}; }
+            hidratarProgressoEdital();
 
             setSafeText('greeting-name', globalNickname);
             renderHeaderAvatar();
@@ -2651,7 +2743,7 @@ Gostaria que fizesse:
     let currentCompEvolMode = 'linha';
     let currentCompPerfilMode = 'radar';
 
-    function switchLeaderboard(type) {
+        function switchLeaderboard(type) {
         currentRankingTab = type;
         document.querySelectorAll('#view-ranking-view .rank-tab-btn').forEach(b => b.classList.remove('active'));
         
@@ -2699,8 +2791,8 @@ Gostaria que fizesse:
             else if (i === 1) posClass += ' top-pos-2';
             else if (i === 2) posClass += ' top-pos-3';
 
-            let avatarSrc = (u.avatar && String(u.avatar).startsWith('data:image')) ? u.avatar : (isMe && globalAvatar ? globalAvatar : '');
-            let inicial = String(u.nick || 'C').trim().charAt(0).toUpperCase();
+            let avatarSrc = avatarSeguro(u.avatar) || (isMe ? avatarSeguro(globalAvatar) : '');
+            let inicial = escapeHTML(String(u.nick || 'C').trim().charAt(0).toUpperCase());
             let avatarBadgeHTML = avatarSrc
                 ? `<div class="user-avatar-circle avatar-rank-size"><img src="${avatarSrc}" alt="Avatar"></div>`
                 : `<div class="user-avatar-circle avatar-rank-size">${inicial}</div>`;
@@ -2713,7 +2805,7 @@ Gostaria que fizesse:
                 <td class="col-rank-user" style="font-weight:${isMe ? '800' : '500'}; color:${isMe ? 'var(--accent-gold)' : 'var(--text-color)'};">
                     <div class="rank-commander-cell">
                         ${avatarBadgeHTML}
-                        <span>${u.nick}</span>
+                        <span>${escapeHTML(u.nick)}</span>
                         ${badgeVoce}
                     </div>
                 </td>
@@ -3006,11 +3098,12 @@ Gostaria que fizesse:
     function renderAvatarInsideElement(elId, avatarData, fallbackNick) {
         let el = document.getElementById(elId);
         if (!el) return;
-        if (avatarData && String(avatarData).startsWith('data:image')) {
-            el.innerHTML = `<img src="${avatarData}" alt="Foto de Perfil">`;
+        let avatarOk = avatarSeguro(avatarData);
+        if (avatarOk) {
+            el.innerHTML = `<img src="${avatarOk}" alt="Foto de Perfil">`;
         } else {
             let ini = String(fallbackNick || globalNickname || 'C').trim().charAt(0).toUpperCase();
-            el.innerHTML = `<span>${ini}</span>`;
+            el.innerHTML = `<span>${escapeHTML(ini)}</span>`;
         }
     }
 
@@ -3068,8 +3161,9 @@ Gostaria que fizesse:
     function saveNickname() {
         let inp = document.getElementById('input-nickname'); 
         if (!inp) return; 
-        let n = inp.value.trim(); 
-        if (!n) return alert("Digite um Codinome.");
+        let n = inp.value.replace(/[<>"'`&\\\/=]/g, '').replace(/\s+/g, ' ').trim().substring(0, 20);
+        if (n.length < 3) return alert("Digite um Codinome com ao menos 3 caracteres (sem símbolos especiais).");
+        inp.value = n;
         
         let btn = document.getElementById('btn-save-profile');
         let oldTxt = btn ? btn.innerText : "SALVAR PERFIL NA NUVEM";
@@ -3104,7 +3198,7 @@ Gostaria que fizesse:
             if (btn) { btn.innerText = oldTxt; btn.disabled = false; }
         });
     }
-
+		
     function openRanksModal() {
         let container = document.getElementById('ranks-list-container'); let info = document.getElementById('next-rank-info');
         if(!container || !info) return;
@@ -3370,16 +3464,71 @@ Gostaria que fizesse:
         salvarProgressoEditalNuvem();
         atualizarContadorProva();
     }
+		
+    // Salva só o que o aluno realmente fez (tópicos marcados, com link, ou a data da prova)
+    function compactarProgressoEdital(origem) {
+        let saida = {};
+        Object.keys(origem || {}).forEach(concurso => {
+            let blocoC = origem[concurso] || {};
+            let novoC = {};
+            Object.keys(blocoC).forEach(mat => {
+                if (mat === '_dataProva') { if (blocoC[mat]) novoC[mat] = blocoC[mat]; return; }
+                let topicos = blocoC[mat] || {};
+                let novoM = {};
+                Object.keys(topicos).forEach(top => {
+                    let t = topicos[top];
+                    if (t && (t.checked || (t.link && String(t.link).trim() !== ''))) {
+                        novoM[top] = { checked: !!t.checked, link: t.link || '' };
+                    }
+                });
+                if (Object.keys(novoM).length > 0) novoC[mat] = novoM;
+            });
+            if (Object.keys(novoC).length > 0) saida[concurso] = novoC;
+        });
+        return saida;
+    }
+
+    // Recria os tópicos pendentes a partir do edital, na ordem original (o GPS e a lista de tópicos dependem disso)
+    function hidratarProgressoEdital() {
+        let concursos = new Set(Object.keys(progressoEditalGlobal || {}));
+        if (editalAtivoGlobal) concursos.add(editalAtivoGlobal);
+        concursos.forEach(concurso => {
+            let linhas = baseEditaisGlobal && baseEditaisGlobal[concurso];
+            if (!Array.isArray(linhas)) return;
+            let antigoC = progressoEditalGlobal[concurso] || {};
+            let novoC = {};
+            linhas.forEach(item => {
+                if (!novoC[item.mat]) novoC[item.mat] = {};
+                let salvo = (antigoC[item.mat] && antigoC[item.mat][item.top]) ? antigoC[item.mat][item.top] : { checked: false, link: "" };
+                novoC[item.mat][item.top] = salvo;
+            });
+            // mantém registros salvos de tópicos que saíram do edital
+            Object.keys(antigoC).forEach(mat => {
+                if (mat === '_dataProva') { novoC._dataProva = antigoC._dataProva; return; }
+                if (!novoC[mat]) novoC[mat] = {};
+                Object.keys(antigoC[mat] || {}).forEach(top => {
+                    if (!novoC[mat][top]) novoC[mat][top] = antigoC[mat][top];
+                });
+            });
+            progressoEditalGlobal[concurso] = novoC;
+        });
+    }
 
     function salvarProgressoEditalNuvem() {
         let btn = document.querySelector('.btn.sync-btn-ui');
-        let oldHTML = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        let oldHTML = btn ? btn.innerHTML : '';
+        if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         
-        let progressoStr = JSON.stringify(progressoEditalGlobal);
+        let progressoStr = JSON.stringify(compactarProgressoEdital(progressoEditalGlobal));
+        if (progressoStr.length > 300000) {
+            alert("Seu progresso de editais ficou grande demais para ser salvo na nuvem. Entre em contato com o Comando.");
+            if (btn) btn.innerHTML = oldHTML;
+            return;
+        }
+
         fetch(WEBHOOK_URL, {method: 'POST', mode: 'no-cors', body: JSON.stringify({acao: "salvar_progresso_edital", email: loggedUserEmail, editalAtivo: editalAtivoGlobal, progressoJson: progressoStr})})
-        .then(() => { setTimeout(() => btn.innerHTML = oldHTML, 1000); })
-        .catch(err => { btn.innerHTML = '<i class="fas fa-exclamation"></i>'; setTimeout(() => btn.innerHTML = oldHTML, 2000); });
+        .then(() => { if (btn) setTimeout(() => btn.innerHTML = oldHTML, 1000); })
+        .catch(err => { if (btn) { btn.innerHTML = '<i class="fas fa-exclamation"></i>'; setTimeout(() => btn.innerHTML = oldHTML, 2000); } });
     }
 
     function enviarSolicitacaoEdital() {
@@ -3448,7 +3597,7 @@ Gostaria que fizesse:
                 let dateObj = new Date(item.pubDate);
                 if (isNaN(dateObj) || dateObj >= limiteDias) {
                     let dateStr = isNaN(dateObj) ? "Data Recente" : dateObj.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
-                    feedNoticiasGlobal.push({ titulo: item.titulo, link: item.link, data: dateStr, dateObj: dateObj });
+                    feedNoticiasGlobal.push({ titulo: textoSeguro(item.titulo) || "Aviso Oficial", link: linkSeguro(item.link), data: dateStr, dateObj: dateObj });
                 }
             });
 
@@ -3462,7 +3611,7 @@ Gostaria que fizesse:
         })
         .catch(err => {
             console.error("Erro Tático no Radar:", err);
-            container.innerHTML = `<p style="color:var(--accent-red); grid-column: 1 / -1; text-align:center; padding: 20px;"><i class="fas fa-exclamation-triangle"></i> Falha de comunicação com a Base: ${err.message}</p>`;
+            container.innerHTML = `<p style="color:var(--accent-red); grid-column: 1 / -1; text-align:center; padding: 20px;"><i class="fas fa-exclamation-triangle"></i> Falha de comunicação com a Base: ${escapeHTML(err.message)}</p>`;
         });
     }
 
@@ -4847,6 +4996,29 @@ Gostaria que fizesse:
         let temp = document.getElementById('f-tempo'); let q = document.getElementById('f-q'); 
         let a = document.getElementById('f-a'); let fas = document.getElementById('f-fase');
         let actionStr = modoEdicao ? "retificar_ultimo" : "lancamento";
+		
+                let qChk = Math.floor(Number(q ? q.value : 0)) || 0;
+        let aChk = Math.floor(Number(a ? a.value : 0)) || 0;
+        let tChk = Math.round(Number(temp ? temp.value : 0)) || 0;
+        if (qChk < 0 || aChk < 0 || tChk < 0) return alert("Não use valores negativos.");
+        if (aChk > qChk) return alert("Os acertos não podem ser maiores que as questões resolvidas.");
+        if (qChk > 1000) return alert("Máximo de 1.000 questões por lançamento. Divida em mais de uma missão.");
+        if (tChk > 960) return alert("Máximo de 16h (960 min) por lançamento.");
+
+        // Teto diário: soma o que já existe na data escolhida (na retificação, ignora a linha editada)
+        let anoChk = parseInt(p[0], 10), mesChk = parseInt(p[1], 10), diaChk = parseInt(p[2], 10);
+        let linhaEditada = modoEdicao && globalData.length > 0 ? Math.max(...globalData.map(x => x.origIdx)) : -1;
+        let somaQDia = 0, somaTDia = 0, somaNDia = 0;
+        globalData.forEach(item => {
+            if (item.origIdx === linhaEditada) return;
+            let d = item.date;
+            if (d && d.getFullYear() === anoChk && (d.getMonth() + 1) === mesChk && d.getDate() === diaChk) {
+                somaQDia += item.q; somaTDia += item.t; somaNDia += 1;
+            }
+        });
+        if (somaNDia + 1 > LIMITE_LANC_DIA) return alert("Teto diário: máximo de " + LIMITE_LANC_DIA + " lançamentos por dia de estudo.");
+        if (somaQDia + qChk > LIMITE_Q_DIA) return alert("Teto diário: máximo de " + LIMITE_Q_DIA.toLocaleString('pt-BR') + " questões por dia. Você já registrou " + somaQDia.toLocaleString('pt-BR') + " nesta data.");
+        if (somaTDia + tChk > LIMITE_MIN_DIA) return alert("Teto diário: máximo de " + (LIMITE_MIN_DIA / 60) + "h por dia. Você já registrou " + Math.round(somaTDia) + " min nesta data.");
         
         let matSelecionada = mat && mat.options && mat.selectedIndex >= 0 ? mat.options[mat.selectedIndex].text : "";
         let topicoTexto = top ? top.value.trim() : "";
@@ -4888,7 +5060,7 @@ Gostaria que fizesse:
         isEditingMode = false;
 
         mostrarToastTatico(
-            modoEdicao ? "Lançamento retificado no painel! Sincronizando nuvem..." : "Missão Cumprida! Painel atualizado instantaneamente.",
+            modoEdicao ? "Lançamento retificado no painel! Sincronizando nuvem..." : "Missão Cumprida! Painel atualizado com sucesso.",
             modoEdicao ? "var(--accent-orange)" : "var(--accent-green)"
         );
 
@@ -4931,7 +5103,7 @@ Gostaria que fizesse:
             wDisplay.innerHTML = `<i class="fas fa-cloud"></i> Clima Indisponível`;
         }
     }
-		let jitsiApiInstance = null;
+		let pelotaoConectado = false;
     const JITSI_ROOM_NAME = "ProtocoloControle_PelotaoDeEstudos_QG";
 
     function obterPatenteAtualTexto() {
@@ -4956,18 +5128,28 @@ Gostaria que fizesse:
         setSafeText('pelotao-stat-total', totalQHistory.toLocaleString('pt-BR'));
     }
 
+    function construirUrlSalaPelotao() {
+        let selectRota = document.getElementById('pelotao-server-select');
+        let rota = selectRota ? selectRota.value : 'p2p_ninja';
+
+        let patente = obterPatenteAtualTexto();
+        let displayTag = `${globalNickname || 'Recruta'} [${patente}]`;
+        let encodedTag = encodeURIComponent(displayTag);
+
+        if (rota === 'p2p_ninja') {
+            // Motor WebRTC P2P Mesh (VDO.Ninja) - 100% Gratuito, Sem limite de tempo, Auto-join, Mudo e Câmera desligada por padrão, com Chat e ScreenShare ativos
+            return `https://vdo.ninja/?room=${JITSI_ROOM_NAME}&label=${encodedTag}&autostart&muted&webcam=0&chatbutton&screensharebutton&cleanish&darkmode`;
+        } else if (rota === 'jitsi_riot') {
+            // Servidor Jitsi Comunitário (Matrix/Riot) sem limite de 5 minutos
+            return `https://jitsi.riot.im/${JITSI_ROOM_NAME}#userInfo.displayName="${encodedTag}"&config.prejoinPageEnabled=false&config.startWithAudioMuted=true&config.startWithVideoMuted=true&config.disableDeepLinking=true`;
+        } else {
+            // Servidor Jitsi Comunitário (Systemli) sem limite de 5 minutos
+            return `https://meet.systemli.org/${JITSI_ROOM_NAME}#userInfo.displayName="${encodedTag}"&config.prejoinPageEnabled=false&config.startWithAudioMuted=true&config.startWithVideoMuted=true&config.disableDeepLinking=true`;
+        }
+    }
+
     function conectarPelotaoJitsi() {
         atualizarPainelPelotao();
-
-        if (jitsiApiInstance) {
-            mostrarToastTatico("Você já está conectado ao canal #Pelotão de Estudos!", "var(--accent-purple)");
-            return;
-        }
-
-        if (typeof JitsiMeetExternalAPI === 'undefined') {
-            alert("A biblioteca de vídeo do Jitsi ainda está carregando ou foi bloqueada pela rede. Clique em 'Abrir Externo' no topo da sala.");
-            return;
-        }
 
         let lobby = document.getElementById('pelotao-lobby-placeholder');
         let mountNode = document.getElementById('jitsi-pelotao-container');
@@ -4989,56 +5171,34 @@ Gostaria que fizesse:
         }
         if (channelIcon) channelIcon.style.color = 'var(--accent-green)';
 
-        let patente = obterPatenteAtualTexto();
-        let displayTag = `${globalNickname || 'Recruta'} [${patente}]`;
+        let roomUrl = construirUrlSalaPelotao();
 
-        const domain = "meet.jit.si";
-        const options = {
-            roomName: JITSI_ROOM_NAME,
-            width: "100%",
-            height: "100%",
-            parentNode: mountNode,
-            userInfo: {
-                email: loggedUserEmail || "",
-                displayName: displayTag
-            },
-            configOverwrite: {
-                startWithAudioMuted: true,
-                startWithVideoMuted: true,
-                prejoinPageEnabled: false,
-                disableDeepLinking: true,
-                subject: "Pelotão de Estudos — Protocolo Controle"
-            },
-            interfaceConfigOverwrite: {
-                SHOW_JITSI_WATERMARK: false,
-                SHOW_WATERMARK_FOR_GUESTS: false,
-                DEFAULT_REMOTE_DISPLAY_NAME: "Combatente",
-                TOOLBAR_BUTTONS: [
-                    'microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen',
-                    'fodeviceselection', 'hangup', 'chat', 'raisehand',
-                    'videoquality', 'filmstrip', 'tileview', 'select-background'
-                ]
-            }
-        };
+        let iframe = document.createElement('iframe');
+        iframe.src = roomUrl;
+        iframe.allow = "camera; microphone; fullscreen; display-capture; autoplay; clipboard-read; clipboard-write; speaker-selection";
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        iframe.style.border = "none";
+        iframe.setAttribute("allowfullscreen", "true");
 
-        try {
-            jitsiApiInstance = new JitsiMeetExternalAPI(domain, options);
-            jitsiApiInstance.addEventListener('readyToClose', () => {
-                desconectarPelotaoJitsi();
-            });
-            mostrarToastTatico("Conectado ao #Pelotão de Estudos! Bom papiro!", "var(--accent-green)");
-        } catch (err) {
-            console.error("Erro ao iniciar Jitsi:", err);
-            desconectarPelotaoJitsi();
-            alert("Não foi possível inicializar a sala embutida. Utilize o botão 'Abrir Externo'.");
+        if (mountNode) {
+            mountNode.appendChild(iframe);
+        }
+
+        pelotaoConectado = true;
+        mostrarToastTatico("Conectado ao #Pelotão de Estudos (Sessão Ilimitada)! Bom papiro!", "var(--accent-green)");
+    }
+
+    function trocarServidorPelotao() {
+        if (pelotaoConectado) {
+            conectarPelotaoJitsi();
+            mostrarToastTatico("Rota de transmissão alterada com sucesso!", "var(--accent-blue)");
         }
     }
 
     function desconectarPelotaoJitsi() {
-        if (jitsiApiInstance) {
-            try { jitsiApiInstance.dispose(); } catch (e) {}
-            jitsiApiInstance = null;
-        }
+        pelotaoConectado = false;
+
         let lobby = document.getElementById('pelotao-lobby-placeholder');
         let mountNode = document.getElementById('jitsi-pelotao-container');
         let btnSair = document.getElementById('btn-sair-pelotao');
@@ -5058,6 +5218,7 @@ Gostaria que fizesse:
             statusPill.classList.remove('online');
         }
         if (channelIcon) channelIcon.style.color = 'var(--accent-purple)';
+        mostrarToastTatico("Você saiu do canal de voz.", "var(--accent-orange)");
     }
 
     function toggleTeatroPelotao() {
@@ -5066,7 +5227,8 @@ Gostaria que fizesse:
     }
 
     function abrirPelotaoNovaAba() {
-        window.open(`https://meet.jit.si/${JITSI_ROOM_NAME}`, '_blank');
+        let url = construirUrlSalaPelotao();
+        window.open(url, '_blank');
     }
 
     function copiarStatusPelotao() {
@@ -5086,8 +5248,41 @@ Gostaria que fizesse:
             mostrarToastTatico("Status Tático copiado! Cole (Ctrl+V) no chat da Sala de Estudos.", "var(--accent-blue)");
         });
     }
+    // Contador de vagas de fundador (público, só números: sem risco de XSS)
+    async function carregarVagasFundador() {
+        let caixas = document.querySelectorAll('.vagas-fundador-box');
+        if (!caixas.length) return;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        try {
+            let res = await fetch(`${WEBHOOK_URL}?acao=vagas&_t=${Date.now()}`, { method: 'GET', redirect: 'follow', signal: controller.signal });
+            clearTimeout(timeoutId);
+            let text = await res.text();
+            if (text.trim().startsWith('<')) return;
+            let data = JSON.parse(text);
+            if (data.status !== 'sucesso') return;
+
+            let restantes = Number(data.restantes);
+            let limite = Number(data.limite) || 100;
+            let anos = Number(data.anos) || 5;
+            if (!isFinite(restantes)) return;
+
+            let html = restantes > 0
+                ? `<i class="fas fa-fire"></i> <strong>${restantes}</strong> de ${limite} vagas de fundador restantes <span>• ${anos} anos de acesso</span>`
+                : `<i class="fas fa-lock"></i> Vagas de fundador esgotadas <span>• novos e-mails entram na lista de espera</span>`;
+            caixas.forEach(c => {
+                c.innerHTML = html;
+                c.style.display = 'block';
+                c.classList.toggle('esgotado', restantes <= 0);
+            });
+        } catch (err) {
+            clearTimeout(timeoutId); // falha silenciosa: a faixa simplesmente não aparece
+        }
+    }
+
     window.onload = function() {
         checkLogin();
+        if (!(loggedUserEmail && loggedUserToken)) carregarVagasFundador();
     };
     </script>
 </body>
