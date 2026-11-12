@@ -2270,7 +2270,40 @@ Gostaria que fizesse:
             clearTimeout(timeoutId);
         }
     }
-		
+
+    // Ações autenticadas (lançamento, perfil, edital...): POST com resposta LIDA, para o aluno saber se o servidor aceitou.
+    // Se o navegador não consegue ler o POST, cai no modo antigo (no-cors) e devolve semConfirmacao: true.
+    async function enviarAcao(payload, timeoutMs) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs || 30000);
+        try {
+            if (!(await testarPostLegivel())) {
+                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload), signal: controller.signal });
+                return { status: 'sucesso', semConfirmacao: true };
+            }
+            let res = await fetch(WEBHOOK_URL, {
+                method: 'POST', redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload),
+                signal: controller.signal
+            });
+            let text = await res.text();
+            if (text.trim().startsWith('<')) throw new Error("O Google interceptou a resposta. Tente novamente.");
+            let data = JSON.parse(text);
+            if (data && data.sessao === false) {
+                alert("Sua sessão expirou. Faça login novamente.");
+                logout();
+            }
+            return data || { status: 'erro', mensagem: 'Resposta vazia do servidor.' };
+        } finally {
+            clearTimeout(timeoutId);
+        }
+    }
+
+    function mensagemFalhaRede(err) {
+        return (err && err.name === 'AbortError') ? "O servidor demorou demais para responder." : ("Falha de conexão: " + (err && err.message ? err.message : err));
+    }
+
     function checkLogin() {
         if (loggedUserEmail && loggedUserToken) {
             let loginScreen = document.getElementById('login-screen'); if (loginScreen) loginScreen.style.display = 'none';
@@ -3232,17 +3265,19 @@ Gostaria que fizesse:
         renderHeaderAvatar();
         switchLeaderboard(currentRankingTab);
 
-        fetch(WEBHOOK_URL, {
-            method: 'POST', 
-            mode: 'no-cors', 
-            body: JSON.stringify({
-                acao: "updateProfile", 
-                email: loggedUserEmail, 
-                nickname: n,
-                avatar: globalAvatar
-            })
+        enviarAcao({
+            acao: "updateProfile",
+            email: loggedUserEmail,
+            nickname: n,
+            avatar: globalAvatar
         })
-        .then(() => { 
+        .then(data => {
+            if (data.status !== 'sucesso') {
+                alert("O perfil NÃO foi salvo: " + (data.mensagem || "erro no servidor."));
+                if (btn) { btn.innerText = oldTxt; btn.disabled = false; }
+                if (data.sessao !== false) loadGoogleSheetsData();
+                return;
+            }
             mostrarToastTatico("Perfil e Foto de Comando atualizados!", "var(--accent-blue)");
             let pm = document.getElementById('profileModal'); 
             if (pm) pm.style.display = 'none'; 
@@ -3762,9 +3797,19 @@ Gostaria que fizesse:
             return;
         }
 
-        fetch(WEBHOOK_URL, {method: 'POST', mode: 'no-cors', body: JSON.stringify({acao: "salvar_progresso_edital", email: loggedUserEmail, editalAtivo: editalAtivoGlobal, progressoJson: progressoStr})})
-        .then(() => { if (btn) setTimeout(() => btn.innerHTML = oldHTML, 1000); })
-        .catch(err => { if (btn) { btn.innerHTML = '<i class="fas fa-exclamation"></i>'; setTimeout(() => btn.innerHTML = oldHTML, 2000); } });
+        enviarAcao({acao: "salvar_progresso_edital", email: loggedUserEmail, editalAtivo: editalAtivoGlobal, progressoJson: progressoStr})
+        .then(data => {
+            if (data.status !== 'sucesso') {
+                mostrarToastTatico("Progresso do edital NÃO salvo: " + (data.mensagem || "erro no servidor."), "var(--accent-red)");
+                if (btn) { btn.innerHTML = '<i class="fas fa-exclamation"></i>'; setTimeout(() => btn.innerHTML = oldHTML, 2000); }
+                return;
+            }
+            if (btn) setTimeout(() => btn.innerHTML = oldHTML, 1000);
+        })
+        .catch(err => {
+            mostrarToastTatico("Progresso do edital sem confirmação da nuvem. " + mensagemFalhaRede(err), "var(--accent-red)");
+            if (btn) { btn.innerHTML = '<i class="fas fa-exclamation"></i>'; setTimeout(() => btn.innerHTML = oldHTML, 2000); }
+        });
     }
 
     function enviarSolicitacaoEdital() {
@@ -3776,8 +3821,9 @@ Gostaria que fizesse:
         let oldHtml = btn.innerHTML;
         btn.innerHTML = "ENVIANDO..."; btn.disabled = true;
 
-        fetch(WEBHOOK_URL, {method: 'POST', mode: 'no-cors', body: JSON.stringify({acao: "solicitar_edital", email: loggedUserEmail, concursoStr: val})})
-        .then(() => { 
+        enviarAcao({acao: "solicitar_edital", email: loggedUserEmail, concursoStr: val})
+        .then(data => {
+            if (data.status !== 'sucesso') { alert("A solicitação NÃO foi enviada: " + (data.mensagem || "erro no servidor.")); btn.innerHTML = oldHtml; btn.disabled = false; return; }
             alert("Solicitação enviada ao Comando! Em breve seu edital será mapeado.");
             document.getElementById('solicitarEditalModal').style.display='none';
             btn.innerHTML = oldHtml; btn.disabled = false; input.value = "";
@@ -4862,14 +4908,22 @@ Gostaria que fizesse:
 
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> INJETANDO NO SERVIDOR...';
 
-            fetch(WEBHOOK_URL, {method: 'POST', mode: 'no-cors', body: JSON.stringify({acao: "importar_historico", email: loggedUserEmail, lancamentos: pacoteLancamentos})})
-            .then(() => { 
-                alert("OPERAÇÃO CONCLUÍDA! " + pacoteLancamentos.length + " missões injetadas no seu histórico.");
+            enviarAcao({acao: "importar_historico", email: loggedUserEmail, lancamentos: pacoteLancamentos}, 120000)
+            .then(data => {
+                btn.innerHTML = oldHtml; btn.disabled = false;
+                if (data.status !== 'sucesso') return alert("A importação NÃO foi concluída: " + (data.mensagem || "erro no servidor."));
+                if (data.semConfirmacao) {
+                    alert("Importação enviada (" + pacoteLancamentos.length + " linhas). Confira o histórico após a sincronização.");
+                } else {
+                    let msg = "OPERAÇÃO CONCLUÍDA! " + data.importados + " missões importadas.";
+                    if (data.ignorados) msg += "\n" + data.ignorados + " linha(s) ignorada(s) (inválidas ou duplicadas" + (data.ignoradosTeto ? ", " + data.ignoradosTeto + " acima do teto diário" : "") + ").";
+                    alert(msg);
+                }
                 document.getElementById('importModal').style.display='none';
-                btn.innerHTML = oldHtml; btn.disabled = false; fileInput.value = "";
-                setTimeout(() => loadGoogleSheetsData(), 1500); 
+                fileInput.value = "";
+                setTimeout(() => loadGoogleSheetsData(), data.semConfirmacao ? 1500 : 0);
             })
-            .catch(err => { alert("Erro de conexão na importação."); btn.innerHTML = oldHtml; btn.disabled = false; });
+            .catch(err => { alert("Erro de conexão na importação. " + mensagemFalhaRede(err) + " Clique em SINC para conferir antes de importar de novo."); btn.innerHTML = oldHtml; btn.disabled = false; });
         };
         reader.readAsText(file);
     }
@@ -4889,15 +4943,20 @@ Gostaria que fizesse:
         if(confirm("ALERTA DE SEGURANÇA: Tem certeza que deseja APAGAR TODO o seu histórico de lançamentos?")) {
             let btn = document.querySelector('button[onclick="confirmDeleteHistory()"]'); let oldTxt = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Apagando...'; btn.disabled = true;
-            fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({acao: "apagar_historico", email: loggedUserEmail}) })
-            .then(() => { 
-                alert("Seu histórico foi completamente apagado."); 
-                setTimeout(() => {
-                    loadGoogleSheetsData(); 
+            enviarAcao({acao: "apagar_historico", email: loggedUserEmail}, 120000)
+            .then(data => {
+                if (data.status !== 'sucesso') {
+                    alert("O histórico NÃO foi apagado: " + (data.mensagem || "erro no servidor."));
                     btn.innerHTML = oldTxt; btn.disabled = false;
-                }, 1500);
+                    return;
+                }
+                alert(data.apagados !== undefined ? ("Seu histórico foi apagado (" + data.apagados + " lançamentos).") : "Seu histórico foi completamente apagado.");
+                setTimeout(() => {
+                    loadGoogleSheetsData();
+                    btn.innerHTML = oldTxt; btn.disabled = false;
+                }, data.semConfirmacao ? 1500 : 0);
             })
-            .catch(err => { alert("Erro ao apagar histórico."); btn.innerHTML = oldTxt; btn.disabled = false; });
+            .catch(err => { alert("Erro ao apagar histórico. " + mensagemFalhaRede(err) + " Clique em SINC para conferir."); btn.innerHTML = oldTxt; btn.disabled = false; });
         }
     }
 
@@ -5094,9 +5153,14 @@ Gostaria que fizesse:
         let btn = document.querySelector('.form-submit-btn'); let originalTxt = btn ? btn.innerText : 'SALVAR';
         if(btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando na Nuvem...'; btn.disabled = true; }
         cicloMaster = JSON.parse(JSON.stringify(tempCiclo)); let cicloStr = JSON.stringify(cicloMaster); localStorage.setItem('pqdtCicloCustom', cicloStr); updateSelects(); updateGPS();
-        fetch(WEBHOOK_URL, {method: 'POST', mode: 'no-cors', body: JSON.stringify({acao: "salvar_ciclo_nuvem", email: loggedUserEmail, cicloJson: cicloStr})})
-        .then(() => { alert("Ciclo sincronizado na Nuvem!"); if(btn) { btn.innerHTML = originalTxt; btn.disabled = false; } switchView('painel', document.querySelector('.nav-item')); })
-        .catch(() => { alert("Erro ao salvar."); if(btn) { btn.innerHTML = originalTxt; btn.disabled = false; } });
+        enviarAcao({acao: "salvar_ciclo_nuvem", email: loggedUserEmail, cicloJson: cicloStr})
+        .then(data => {
+            if(btn) { btn.innerHTML = originalTxt; btn.disabled = false; }
+            if (data.status !== 'sucesso') return alert("O ciclo NÃO foi salvo na nuvem: " + (data.mensagem || "erro no servidor."));
+            alert("Ciclo sincronizado na Nuvem!");
+            switchView('painel', document.querySelector('.nav-item'));
+        })
+        .catch(err => { alert("Erro ao salvar o ciclo. " + mensagemFalhaRede(err)); if(btn) { btn.innerHTML = originalTxt; btn.disabled = false; } });
     }
 
     function openEntryModal() { 
@@ -5304,15 +5368,19 @@ Gostaria que fizesse:
         let syncBtns = document.querySelectorAll('.sync-btn-ui');
         syncBtns.forEach(b => b.innerHTML = '<i class="fas fa-cloud-upload-alt fa-spin"></i> Gravando...');
 
-        fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-        .then(() => { 
-            setTimeout(() => {
-                loadGoogleSheetsData();
-            }, 1500);
+        enviarAcao(payload)
+        .then(data => {
+            if (data.status === 'sucesso') {
+                setTimeout(() => loadGoogleSheetsData(), data.semConfirmacao ? 1500 : 0);
+            } else {
+                // Servidor recusou: avisa e recarrega a verdade da nuvem (desfaz a atualização otimista)
+                mostrarToastTatico("Lançamento NÃO gravado: " + (data.mensagem || "erro no servidor."), "var(--accent-red)");
+                if (data.sessao !== false) loadGoogleSheetsData();
+            }
         })
-        .catch(err => { 
+        .catch(err => {
             console.error("Erro na gravação em segundo plano:", err);
-            mostrarToastTatico("Falha de sinal ao gravar na nuvem. Clique em SINC.", "var(--accent-red)");
+            mostrarToastTatico("Sem confirmação da nuvem (" + mensagemFalhaRede(err) + "). Clique em SINC para conferir.", "var(--accent-red)");
             syncBtns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro');
         });
     }

@@ -137,6 +137,13 @@ function validarLancamento(d) {
   };
 }
 
+// Colunas K e L: mesma regra do painel (fase 4 com aproveitamento >= 85% = consolidado)
+var PCT_CONSOLIDACAO = 0.85;
+function marcasConsolidacao(fase, q, a) {
+  var consolidado = String(fase) === "4" && q > 0 && (a / q) >= PCT_CONSOLIDACAO;
+  return consolidado ? ["OK", "CONSOLIDADO"] : ["", ""];
+}
+
 // Soma o que o aluno já registrou em cada data de estudo (lê só as colunas necessárias).
 // linhaIgnorada: linha da planilha a desconsiderar (usado na retificação).
 function somasDoUsuario(sheetB, email, linhaIgnorada) {
@@ -656,28 +663,52 @@ function doPost(e) {
     }
 
     if (acao === "apagar_historico") {
-      var sheetB = ss.getSheetByName("Base_Dashboard");
-      var dataB = sheetB.getDataRange().getValues();
-      var rowsToDelete = [];
-      for (var i = dataB.length - 1; i > 0; i--) {
-        if (dataB[i].length > 12 && dataB[i][12] && dataB[i][12].toString().toLowerCase() === dados.email.toLowerCase()) {
-          rowsToDelete.push(i + 1);
+      // Dentro da trava: nenhuma outra gravação mexe na planilha enquanto as linhas são localizadas e apagadas,
+      // então os números de linha não mudam no meio do processo (antes, dois "apagar" simultâneos podiam apagar linhas de outro aluno)
+      return comTrava(function() {
+        var sheetB = ss.getSheetByName("Base_Dashboard");
+        var emailH = String(dados.email || "").trim().toLowerCase();
+        if (!emailH) return respJSON({"status": "erro", "mensagem": "E-mail ausente."});
+
+        var apagados = 0;
+        var ultimaH = sheetB.getLastRow();
+        if (ultimaH >= 2) {
+          var emailsH = sheetB.getRange(2, 13, ultimaH - 1, 1).getValues(); // M = e-mail (lê só a coluna necessária)
+
+          // Agrupa linhas consecutivas do aluno em blocos [início, quantidade]
+          var blocos = [];
+          var inicio = -1;
+          for (var r = 0; r < emailsH.length; r++) {
+            var ehDoAluno = emailsH[r][0] && emailsH[r][0].toString().trim().toLowerCase() === emailH;
+            if (ehDoAluno && inicio === -1) inicio = r;
+            if (!ehDoAluno && inicio !== -1) { blocos.push([inicio + 2, r - inicio]); inicio = -1; }
+          }
+          if (inicio !== -1) blocos.push([inicio + 2, emailsH.length - inicio]);
+
+          // O Sheets não deixa apagar todas as linhas não congeladas: garante uma linha vazia de sobra
+          var totalApagar = 0;
+          for (var t = 0; t < blocos.length; t++) totalApagar += blocos[t][1];
+          if (totalApagar > 0 && sheetB.getMaxRows() - totalApagar <= sheetB.getFrozenRows()) {
+            sheetB.insertRowsAfter(sheetB.getMaxRows(), 1);
+          }
+
+          // Apaga de baixo para cima: apagar um bloco não desloca os blocos que ainda faltam
+          for (var b = blocos.length - 1; b >= 0; b--) {
+            sheetB.deleteRows(blocos[b][0], blocos[b][1]);
+            apagados += blocos[b][1];
+          }
         }
-      }
-      for (var k = 0; k < rowsToDelete.length; k++) {
-        sheetB.deleteRow(rowsToDelete[k]);
-      }
-      var dataU = sheetU.getDataRange().getValues();
-      for (var j = 1; j < dataU.length; j++) {
-        if (dataU[j][0].toString().toLowerCase() === dados.email.toLowerCase()) {
-          sheetU.getRange(j + 1, 5).setValue(0);
-          sheetU.getRange(j + 1, 6).setValue(0);
-          sheetU.getRange(j + 1, 7).setValue(0);
-          break;
+
+        var dataU = sheetU.getDataRange().getValues();
+        for (var j = 1; j < dataU.length; j++) {
+          if (dataU[j][0] && dataU[j][0].toString().toLowerCase() === emailH) {
+            sheetU.getRange(j + 1, 5, 1, 3).setValues([[0, 0, 0]]);
+            break;
+          }
         }
-      }
-      SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
-      return ContentService.createTextOutput(JSON.stringify({"status": "sucesso"})).setMimeType(ContentService.MimeType.JSON);
+        SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+        return respJSON({"status": "sucesso", "apagados": apagados});
+      });
     }
 
     if (acao === "retificar_ultimo") {
@@ -704,15 +735,9 @@ function doPost(e) {
         var erroTetoR = verificarTetoDia(somaR, vR.q, vR.t);
         if (erroTetoR !== "") return respJSON({"status": "erro", "mensagem": erroTetoR});
 
-        sheetB.getRange(lastRowIndex, 2).setValue(vR.data);
-        sheetB.getRange(lastRowIndex, 3).setValue(vR.mat);
-        sheetB.getRange(lastRowIndex, 4).setValue(vR.top);
-        sheetB.getRange(lastRowIndex, 5).setValue(vR.tipoLink);
-        sheetB.getRange(lastRowIndex, 6).setValue(vR.t);
-        sheetB.getRange(lastRowIndex, 7).setValue(vR.q);
-        sheetB.getRange(lastRowIndex, 8).setValue(vR.a);
-        sheetB.getRange(lastRowIndex, 9).setValue(vR.fase);
-        sheetB.getRange(lastRowIndex, 10).setValue(vR.met);
+        var marcasR = marcasConsolidacao(vR.fase, vR.q, vR.a);
+        // Colunas B..L numa única gravação (data, matéria, tópico, link, tempo, questões, acertos, fase, método, K, L)
+        sheetB.getRange(lastRowIndex, 2, 1, 11).setValues([[vR.data, vR.mat, vR.top, vR.tipoLink, vR.t, vR.q, vR.a, vR.fase, vR.met, marcasR[0], marcasR[1]]]);
 
         var dataUR = sheetU.getDataRange().getValues();
         for (var j = 1; j < dataUR.length; j++) {
@@ -740,7 +765,8 @@ function doPost(e) {
         var erroTetoL = verificarTetoDia(somasDoUsuario(sheetB, emailL)[vL.data], vL.q, vL.t);
         if (erroTetoL !== "") return respJSON({"status": "erro", "mensagem": erroTetoL});
 
-        sheetB.appendRow([new Date(), vL.data, vL.mat, vL.top, vL.tipoLink, vL.t, vL.q, vL.a, vL.fase, vL.met, "", "", emailL]);
+        var marcasL = marcasConsolidacao(vL.fase, vL.q, vL.a);
+        sheetB.appendRow([new Date(), vL.data, vL.mat, vL.top, vL.tipoLink, vL.t, vL.q, vL.a, vL.fase, vL.met, marcasL[0], marcasL[1], emailL]);
 
         var dataUL = sheetU.getDataRange().getValues();
         for (var i = 1; i < dataUL.length; i++) {
