@@ -1962,12 +1962,170 @@
         <div class="modal-content">
             <span class="close-btn" onclick="document.getElementById('tutorialModal').style.display='none'">&times;</span>
             <h2 style="color: var(--accent-green); margin-top: 0;"><i class="fas fa-book-reader"></i> Metodologias de Estudo</h2>
-            <div style="background: var(--input-bg); padding:20px; border-radius:8px; font-size:14px; margin-bottom: 20px; border: 1px solid var(--border-color);">
-                <h4 style="margin: 0 0 10px 0; color: var(--accent-blue);"><i class="fas fa-tasks"></i> Engenharia Reversa (Método MB)</h4>
-                <p style="margin-top: 0;"><strong>FASE 1: Ambientação</strong> - Imprima 20-30 Qs do assunto, peça explicação à IA. Meta: 75%+</p>
-                <p><strong>FASE 2: Sequencial</strong> - Resolva na sequência. Meta: 80%+</p>
-                <p><strong>FASE 3: Aleatória</strong> - Faça a bateria embaralhada. Meta: 80%+</p>
-                <p><strong>FASE 4: Consolidação</strong> - Repita focando na excelência. Meta: 85%+ para liberar no GPS.</p>
+            <!-- Guia do Método MB (cores ligadas ao tema da plataforma: funciona no modo claro e escuro) -->
+            <style>
+              .mb-guia{color:var(--text-color);font-size:14.5px;line-height:1.6;margin-bottom:20px}
+              .mb-guia *{box-sizing:border-box}
+              .mb-guia h3{color:var(--accent-blue);font-size:17px;margin:0 0 4px}
+              .mb-guia .mb-sub{color:#8B949E;margin:0 0 16px;font-size:14px}
+              .mb-guia details{background:var(--input-bg);border:1px solid var(--border-color);border-radius:10px;margin:0 0 10px;overflow:hidden}
+              .mb-guia summary{cursor:pointer;padding:12px 16px;font-weight:600;color:var(--text-color);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+              .mb-guia summary::-webkit-details-marker{display:none}
+              .mb-guia summary::after{content:"+";color:#8B949E;font-size:18px}
+              .mb-guia details[open] summary::after{content:"–"}
+              .mb-guia .mb-corpo{padding:0 16px 14px}
+              .mb-guia p{margin:6px 0}
+              .mb-guia ul,.mb-guia ol{margin:6px 0;padding-left:20px}
+              .mb-guia li{margin:3px 0}
+              .mb-guia b{color:var(--text-color)}
+              .mb-guia .mb-fase{border-left:3px solid var(--accent-green);background:var(--card-bg);border-radius:6px;padding:10px 12px;margin:8px 0}
+              .mb-guia .mb-fase .mb-tit{font-weight:700;color:var(--text-color)}
+              .mb-guia .mb-meta{display:inline-block;background:rgba(63,185,80,.15);color:#3fb950;border-radius:999px;padding:1px 10px;font-size:13px;font-weight:600;margin-left:6px;white-space:nowrap}
+              body.light-mode .mb-guia .mb-meta{color:#1a7f37}
+              .mb-guia .mb-alerta{background:rgba(227,179,65,.12);border:1px solid rgba(227,179,65,.45);border-radius:8px;padding:10px 12px;margin:8px 0}
+              .mb-guia .mb-perigo{background:rgba(248,81,73,.10);border:1px solid rgba(248,81,73,.45);border-radius:8px;padding:10px 12px;margin:8px 0}
+              .mb-guia .mb-tab{width:100%;border-collapse:collapse;margin:8px 0;font-size:13.5px}
+              .mb-guia .mb-tab th,.mb-guia .mb-tab td{border:1px solid var(--border-color);padding:7px 9px;text-align:left;vertical-align:top}
+              .mb-guia .mb-tab th{background:var(--card-bg);color:var(--text-color)}
+              .mb-guia .mb-scroll{overflow-x:auto}
+              .mb-guia .mb-cred{color:#8B949E;font-size:12.5px;margin-top:12px}
+            </style>
+
+            <div class="mb-guia">
+              <h3>📘 Engenharia Reversa (Método MB) — Guia completo</h3>
+              <p class="mb-sub">Aprender a matéria inteira resolvendo questões, sem ler PDF nem assistir videoaula. Clique em cada item para abrir.</p>
+
+              <details open>
+                <summary>1. A ideia em 30 segundos</summary>
+                <div class="mb-corpo">
+                  <p>Você aprende <b>pelas questões e pelos comentários</b>. As bancas repetem as mesmas ideias e as mesmas pegadinhas, e de tanto girar os cadernos o cérebro passa a reconhecer os padrões sozinho.</p>
+                  <p>Cada assunto passa por <b>4 fases</b>. Quem decide se você avança é <b>o seu percentual de acerto naquele caderno</b>, e não o calendário.</p>
+                  <div class="mb-alerta">⚠️ <b>No começo você vai se sentir "burro". É normal.</b> Errar muito nas primeiras passadas faz parte do método. Tenha paciência: é a repetição que transforma o chute em conhecimento.</div>
+                </div>
+              </details>
+
+              <details>
+                <summary>2. Montando o caderno de um assunto</summary>
+                <div class="mb-corpo">
+                  <ol>
+                    <li>Pegue o <b>edital verticalizado</b> e crie uma <b>pasta por disciplina</b> no TEC.</li>
+                    <li>Monte o filtro com os <b>primeiros assuntos</b> da árvore daquela matéria.</li>
+                    <li><b>Banca:</b> a do seu concurso. Se a matéria for totalmente nova e a banca for outra, comece pela <b>FCC</b>, que é mais literal e mais fácil para aprender. <b>Cebraspe</b> só se for a banca da sua prova (ou houver forte chance de ser).</li>
+                    <li>Marque <b>"remover anuladas"</b> e <b>"remover desatualizadas"</b>.</li>
+                    <li>Limite o caderno a <b>30–50 questões</b>. O que sobrar do filtro é a <b>"gordura"</b>: fica guardada para a Fase 4.<br>
+                      <span style="color:#8B949E">Exemplo: o filtro deu 87 questões → caderno de 50 → 37 ficam de gordura.</span></li>
+                  </ol>
+                </div>
+              </details>
+
+              <details open>
+                <summary>3. As 4 fases de cada caderno</summary>
+                <div class="mb-corpo">
+                  <div class="mb-fase">
+                    <span class="mb-tit">FASE 1 · Ambientação</span> <span class="mb-meta">Meta de referência: ~75%</span>
+                    <p>Gere o caderno e use o <b>Prompt Estratégico</b> (abaixo) para ler um resumo dos pontos cobrados. Depois passe pelas questões <b>em sequência (→)</b>: se não souber, chute, veja o gabarito e <b>observe onde está o erro das outras alternativas</b>. Sem comentário do professor? Vá ao <b>fórum</b> (costuma ser mais direto) ou à lei seca.</p>
+                  </div>
+                  <div class="mb-fase">
+                    <span class="mb-tit">FASE 2 · Sequencial</span> <span class="mb-meta">Meta: 70–75%</span>
+                    <p>Volte à questão 1 e refaça <b>o mesmo caderno, ainda em sequência (→)</b>, tentando lembrar os acertos e os erros.<br>
+                      <b>Abaixo de 60%?</b> Repita a Fase 2. Bateu a meta? Vá para a Fase 3.</p>
+                  </div>
+                  <div class="mb-fase">
+                    <span class="mb-tit">FASE 3 · Aleatória</span> <span class="mb-meta">Meta: 80%+</span>
+                    <p>Refaça o mesmo caderno no <b>modo aleatório (L)</b>. Sem a ordem dos assuntos como muleta, a memória é testada de verdade. Repita até bater 80% ou mais.</p>
+                  </div>
+                  <div class="mb-fase">
+                    <span class="mb-tit">FASE 4 · Consolidação (com a gordura)</span> <span class="mb-meta">Meta: 85%+ (ideal 90%)</span>
+                    <p><b>Copie o filtro</b> e gere um novo caderno <b>sem limite de quantidade</b>, com todas as questões (as 87 do exemplo). Resolva no <b>aleatório</b> até bater e manter 85–90%+. <b>Apague o caderno pequeno.</b><br>
+                      Bateu a meta → assunto <b>✅ CONSOLIDADO</b> e liberado no GPS.</p>
+                    <p style="color:#8B949E">Se o filtro tinha 50 questões ou menos, não há gordura: o assunto consolida direto ao bater a meta no aleatório.</p>
+                  </div>
+                </div>
+              </details>
+
+              <details>
+                <summary>4. O ritmo no ciclo: como as disciplinas andam juntas</summary>
+                <div class="mb-corpo">
+                  <p><b>Você não faz a Fase 1 de todas as matérias para só depois fazer a Fase 2 de todas.</b> Cada disciplina é um "trilho" com o seu próprio caderno, e cada bloco de estudo empurra aquele caderno para frente.</p>
+                  <ul>
+                    <li>Estude <b>o máximo de disciplinas possível no mesmo dia</b>, em blocos curtos (20, 30 ou 45 min).</li>
+                    <li>Uma passada não precisa caber num bloco só: <b>continue de onde parou</b> na próxima vez que a matéria aparecer.</li>
+                    <li>É normal cada matéria estar numa fase diferente.</li>
+                    <li>A velocidade aumenta muito: depois de algumas voltas, um caderno maduro sai a 60–100 questões por hora.</li>
+                  </ul>
+                  <div class="mb-scroll">
+                  <table class="mb-tab">
+                    <tr><th>Giro</th><th>Matéria A</th><th>Matéria B</th><th>Matéria C</th></tr>
+                    <tr><td>1</td><td>Fase 1 (q. 1–25)</td><td>Fase 1 (q. 1–20)</td><td>Fase 1 (q. 1–25)</td></tr>
+                    <tr><td>2</td><td>Fase 1 (q. 26–50)</td><td>Fase 1 (q. 21–40)</td><td>Fase 1 (q. 26–50)</td></tr>
+                    <tr><td>3</td><td>Fase 2: 58% → repete</td><td>Fase 1 (fim) + Fase 2</td><td>Fase 2: 74% ✅</td></tr>
+                    <tr><td>4</td><td>Fase 2: 73% ✅</td><td>Fase 2: 71% ✅</td><td>Fase 3: 83% ✅</td></tr>
+                    <tr><td>5</td><td>Fase 3</td><td>Fase 3</td><td>Fase 4 (com gordura)</td></tr>
+                  </table>
+                  </div>
+                  <p><b>Quantos cadernos novos por matéria?</b> Um de cada vez. Quem tiver mais tempo pode levar <b>dois</b>, alternando os dias. <b>Nunca abra um assunto novo antes de consolidar o atual.</b></p>
+                </div>
+              </details>
+
+              <details>
+                <summary>5. Depois de consolidar: regra 10/20 e unificação</summary>
+                <div class="mb-corpo">
+                  <p>Com o primeiro caderno consolidado, o bloco da matéria passa a ser dividido assim:</p>
+                  <ul>
+                    <li><b>1/3 do tempo</b> (ex.: 10 de 30 min, umas 20 questões) → girar o caderno consolidado, no aleatório;</li>
+                    <li><b>2/3 do tempo</b> (ex.: 20 de 30 min) → caderno novo, começando da Fase 1.</li>
+                  </ul>
+                  <p><b>Unificação:</b> quando o 2º caderno também consolidar, junte os dois.</p>
+                  <ol>
+                    <li>Crie um caderno novo com <b>os filtros dos dois somados</b> (cadernos completos, com a gordura, e nunca os de 50).</li>
+                    <li>Modo <b>aleatório</b>, sem limite de quantidade. Nome sugerido: "Matéria 1,2".</li>
+                    <li><b>Apague</b> os cadernos 1 e 2.</li>
+                    <li>Abra o caderno 3 do zero e continue no 10/20.</li>
+                  </ol>
+                  <p>Repita até a disciplina inteira virar <b>um único caderno</b>, mantido em <b>90%+</b>. Esse giro constante <b>é a sua revisão</b>.</p>
+                </div>
+              </details>
+
+              <details>
+                <summary>6. E se o percentual cair?</summary>
+                <div class="mb-corpo">
+                  <div class="mb-scroll">
+                  <table class="mb-tab">
+                    <tr><th>Caderno consolidado/unificado</th><th>O que fazer</th></tr>
+                    <tr><td><b>85–90%</b></td><td>Normal, principalmente logo após unificar. Siga girando e o caderno novo continua.</td></tr>
+                    <tr><td><b>75–85%</b></td><td>Mude o bloco para <b>15/15</b> e veja no TEC o <b>desempenho por assunto</b> para achar o ponto fraco. Voltou a 85%+? Retome o 10/20.</td></tr>
+                    <tr><td><b>Abaixo de 75%</b></td><td>Separe o assunto fraco num caderno próprio e <b>volte com ele para a Fase 2</b>. Tire esse assunto do caderno unificado até ele se recuperar. Enquanto isso, <b>não abra assunto novo</b> naquela matéria.</td></tr>
+                  </table>
+                  </div>
+                </div>
+              </details>
+
+              <details>
+                <summary>7. O que NÃO fazer</summary>
+                <div class="mb-corpo">
+                  <ul>
+                    <li>❌ <b>Planilha de revisão 24h/7d/30d:</b> não precisa, porque o giro dos cadernos já é a revisão.</li>
+                    <li>❌ <b>Caderno de erros:</b> a questão que você erra hoje você acerta na próxima volta, e vice-versa. O que importa é o <b>percentual do caderno inteiro</b>.</li>
+                    <li>❌ <b>Avançar de assunto sem consolidar.</b></li>
+                    <li>❌ <b>Usar o modo aleatório nas Fases 1 e 2.</b></li>
+                  </ul>
+                  <div class="mb-perigo">🚫 <b>Não traia o método.</b> Ficou com medo de uma matéria difícil? <b>Não volte para a leitura teórica.</b> O próprio Marcelo Barros fez isso com TI no ICMS-GO e tirou a pior nota da matéria entre os 50 primeiros (5/14). No ICMS-SC, ele estudou TI do zero só por questões e fez 14/20.</div>
+                </div>
+              </details>
+
+              <details>
+                <summary>8. Quanto tempo leva e por que manter 90%</summary>
+                <div class="mb-corpo">
+                  <ul>
+                    <li>Em média, <b>6 a 8 semanas</b> para sair do zero e ficar competitivo numa matéria. Todas as matérias andam juntas.</li>
+                    <li>No dia da prova, o rendimento costuma cair alguns pontos. Manter <b>90%+ em casa</b> dá a margem para fazer algo em torno de <b>82–84%</b> no dia.</li>
+                    <li><b>Cebraspe (Certo/Errado):</b> nas Fases 1 e 2, responda 100% dos itens. Nas Fases 3 e 4, treine deixar em branco 10–15% dos itens mais obscuros e mantenha 85–90% de acerto nos que responder.</li>
+                    <li>Pouco tempo? Use blocos menores (20 min) ou menos matérias por dia. <b>Constância vale mais que volume.</b> O método não é ciência exata: adapte à sua rotina.</li>
+                  </ul>
+                </div>
+              </details>
+
+              <p class="mb-cred">Baseado no "Método de Estudo para Concursos por Questões – v1.0", de Marcelo Barros, adaptado ao ciclo de 4 fases do Protocolo Controle.</p>
             </div>
             <h3 style="color: var(--accent-gold); font-size:15px;"><i class="fas fa-robot"></i> Prompt Estratégico (Para Fase 1 - MB)</h3>
             <div style="background: #000; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; font-family: monospace; font-size: 12px; color: var(--accent-orange); white-space: pre-wrap;" id="ai-prompt">RESUMO DE ASSUNTO.
