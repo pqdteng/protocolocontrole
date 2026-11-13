@@ -3,7 +3,7 @@ var ADMIN_EMAIL = "valefvs92@gmail.com"; // troque pelo seu e-mail
 var LIMITE_FUNDADORES = 100;
 var ANOS_FUNDADOR = 5;
 var SESSAO_DIAS = 30;
-var COL = { EMAIL: 0, SENHA: 1, EXPIRA: 2, NICK: 3, CODIGO: 10, AVATAR: 11, TOKEN: 12, TOKEN_EXP: 13, CODIGO_EXP: 14, TENTATIVAS: 15, ORIGEM: 16, CADASTRO_EM: 23, ULTIMO_ACESSO: 24 };
+var COL = { EMAIL: 0, SENHA: 1, EXPIRA: 2, NICK: 3, CODIGO: 10, AVATAR: 11, TOKEN: 12, TOKEN_EXP: 13, CODIGO_EXP: 14, TENTATIVAS: 15, ORIGEM: 16, CADASTRO_EM: 23, ULTIMO_ACESSO: 24, ESCUDOS: 25 };
 
 function respJSON(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
@@ -555,6 +555,14 @@ function doPost(e) {
       });
     }
 
+    if (acao === "comprar_escudo") {
+      return comTrava(function() { return acaoComprarEscudo(ss, sheetU, dados.email); });
+    }
+
+    if (acao === "usar_escudos") {
+      return comTrava(function() { return acaoUsarEscudos(ss, sheetU, dados.email, dados.datas); });
+    }
+
     if (acao === "solicitar_edital") {
       var sheetP = ss.getSheetByName("Pedidos_Editais");
       if(sheetP) {
@@ -697,7 +705,11 @@ function doPost(e) {
         }
 
         var iH = indiceDoUsuario(sheetU, emailH);
-        if (iH !== -1) sheetU.getRange(iH + 1, 5, 1, 3).setValues([[0, 0, 0]]);
+        if (iH !== -1) {
+          sheetU.getRange(iH + 1, 5, 1, 3).setValues([[0, 0, 0]]);
+          // Sem histórico não há moedas: zera também os escudos
+          if (sheetU.getMaxColumns() > COL.ESCUDOS) sheetU.getRange(iH + 1, COL.ESCUDOS + 1).setValue("");
+        }
         SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
         invalidarLinhasAluno(emailH);
         return respJSON({"status": "sucesso", "apagados": apagados});
@@ -863,7 +875,8 @@ function doGet(e) {
       "status": "sucesso", "dados": filtered, "expiration": expirationDate, "nickname": nickname, "avatar": avatarUsuario,
       "leaderboards": agregados.leaderboards, "avatares": avatares, "comparativoGeral": agregados.comparativo,
       "cicloNuvem": cicloSalvoNuvem, "baseEditais": baseEditaisDict,
-      "editalAtivo": editalAtivoUsuario, "progressoEdital": progressoEditalUsuario
+      "editalAtivo": editalAtivoUsuario, "progressoEdital": progressoEditalUsuario,
+      "escudos": lerEscudos(linhaUsuario[COL.ESCUDOS])
     });
 
   } catch(err) {
@@ -1192,6 +1205,115 @@ function obterBaseEditais(ss) {
   }
   cachePutGrande(chave, JSON.stringify(baseEditaisDict), CACHE_EDITAIS_SEG);
   return baseEditaisDict;
+}
+
+// ===== MOEDAS E ESCUDO DE OFENSIVA =====
+// Moedas: 50 por dia com 100+ questões e mais 50 por dia com 2h+ de estudo (mesma regra do painel).
+// Escudo: custa PRECO_ESCUDO moedas, no máximo MAX_ESCUDOS guardados; cobre um dia sem estudo a partir da data da compra.
+// Guardado na coluna Z da aba Usuarios como {"compras":["yyyy-MM-dd",...],"usados":["dd/MM/yyyy",...]}.
+var PRECO_ESCUDO = 300;
+var MAX_ESCUDOS = 2;
+var MOEDAS_META_Q = 100, MOEDAS_META_MIN = 120, MOEDAS_POR_META = 50;
+
+function lerEscudos(valor) {
+  try {
+    var o = JSON.parse(String(valor || "") || "{}");
+    var ehData = function(s) { return typeof s === "string" && s.length <= 10; };
+    return {
+      compras: Array.isArray(o.compras) ? o.compras.filter(ehData) : [],
+      usados: Array.isArray(o.usados) ? o.usados.filter(ehData) : []
+    };
+  } catch (err) {
+    return { compras: [], usados: [] };
+  }
+}
+
+function moedasGanhas(somasPorDia) {
+  var total = 0;
+  for (var dia in somasPorDia) {
+    if (somasPorDia[dia].q >= MOEDAS_META_Q) total += MOEDAS_POR_META;
+    if (somasPorDia[dia].t >= MOEDAS_META_MIN) total += MOEDAS_POR_META;
+  }
+  return total;
+}
+
+function isoDeBR(br) { // "dd/MM/yyyy" -> "yyyy-MM-dd" (permite comparar como texto)
+  var p = String(br).split("/");
+  return p.length === 3 ? p[2] + "-" + ("0" + p[1]).slice(-2) + "-" + ("0" + p[0]).slice(-2) : "";
+}
+
+function gravarEscudos(sheetU, idx, esc) {
+  if (sheetU.getMaxColumns() < COL.ESCUDOS + 1) {
+    sheetU.insertColumnsAfter(sheetU.getMaxColumns(), COL.ESCUDOS + 1 - sheetU.getMaxColumns());
+  }
+  if (!sheetU.getRange(1, COL.ESCUDOS + 1).getValue()) sheetU.getRange(1, COL.ESCUDOS + 1).setValue("Escudos");
+  sheetU.getRange(idx + 1, COL.ESCUDOS + 1).setValue(JSON.stringify(esc));
+}
+
+function resumoMoedas(ganhas, esc) {
+  return { ganhas: ganhas, gastas: esc.compras.length * PRECO_ESCUDO, saldo: Math.max(0, ganhas - esc.compras.length * PRECO_ESCUDO) };
+}
+
+function acaoComprarEscudo(ss, sheetU, email) {
+  var emailN = String(email || "").trim().toLowerCase();
+  var idx = indiceDoUsuario(sheetU, emailN);
+  if (idx === -1) return respJSON({"status": "erro", "mensagem": "Usuário não encontrado."});
+  var esc = lerEscudos(sheetU.getRange(idx + 1, COL.ESCUDOS + 1).getValue());
+
+  if (esc.compras.length - esc.usados.length >= MAX_ESCUDOS) {
+    return respJSON({"status": "erro", "mensagem": "Você já tem " + MAX_ESCUDOS + " escudos guardados (o máximo)."});
+  }
+  var ganhas = moedasGanhas(somasDoUsuario(ss.getSheetByName("Base_Dashboard"), emailN));
+  var saldo = ganhas - esc.compras.length * PRECO_ESCUDO;
+  if (saldo < PRECO_ESCUDO) {
+    return respJSON({"status": "erro", "mensagem": "Moedas insuficientes: o escudo custa " + PRECO_ESCUDO + " e você tem " + Math.max(0, saldo) + "."});
+  }
+
+  esc.compras.push(Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd"));
+  gravarEscudos(sheetU, idx, esc);
+  SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+  return respJSON({"status": "sucesso", "escudos": esc, "moedas": resumoMoedas(ganhas, esc)});
+}
+
+// datas: dias sem estudo ("dd/MM/yyyy") que o aluno quer cobrir. Cada um precisa de um escudo comprado até aquele dia.
+function acaoUsarEscudos(ss, sheetU, email, datas) {
+  var emailN = String(email || "").trim().toLowerCase();
+  if (!Array.isArray(datas) || datas.length === 0 || datas.length > MAX_ESCUDOS) {
+    return respJSON({"status": "erro", "mensagem": "Datas inválidas."});
+  }
+  var idx = indiceDoUsuario(sheetU, emailN);
+  if (idx === -1) return respJSON({"status": "erro", "mensagem": "Usuário não encontrado."});
+  var esc = lerEscudos(sheetU.getRange(idx + 1, COL.ESCUDOS + 1).getValue());
+
+  var tz = Session.getScriptTimeZone();
+  var hojeIso = Utilities.formatDate(new Date(), tz, "yyyy-MM-dd");
+  var somas = somasDoUsuario(ss.getSheetByName("Base_Dashboard"), emailN);
+
+  var novas = [];
+  for (var i = 0; i < datas.length; i++) {
+    var br = String(datas[i] || "").trim();
+    var iso = isoDeBR(br);
+    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(br) || !iso) return respJSON({"status": "erro", "mensagem": "Data inválida: " + br});
+    if (iso >= hojeIso) return respJSON({"status": "erro", "mensagem": "Só dias que já passaram podem ser protegidos."});
+    if (esc.usados.indexOf(br) !== -1 || novas.indexOf(br) !== -1) return respJSON({"status": "erro", "mensagem": "Dia já protegido: " + br});
+    if (somas[br]) return respJSON({"status": "erro", "mensagem": "Você estudou em " + br + ": não precisa de escudo."});
+    novas.push(br);
+  }
+  novas.sort(function(a, b) { return isoDeBR(a) < isoDeBR(b) ? -1 : 1; });
+
+  // Escudos disponíveis: compras ainda não usadas (a ordem de uso é a ordem de compra)
+  var disponiveis = esc.compras.slice().sort().slice(esc.usados.length);
+  if (novas.length > disponiveis.length) return respJSON({"status": "erro", "mensagem": "Escudos insuficientes."});
+  for (var j = 0; j < novas.length; j++) {
+    if (disponiveis[j] > isoDeBR(novas[j])) {
+      return respJSON({"status": "erro", "mensagem": "O escudo foi comprado depois de " + novas[j] + " e não cobre esse dia."});
+    }
+  }
+
+  esc.usados = esc.usados.concat(novas);
+  gravarEscudos(sheetU, idx, esc);
+  SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+  return respJSON({"status": "sucesso", "escudos": esc, "moedas": resumoMoedas(moedasGanhas(somas), esc)});
 }
 
 function migrarUsuariosExistentes() {

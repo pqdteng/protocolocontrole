@@ -97,7 +97,16 @@
         .rank-details p { margin: 4px 0 8px 0; color: #888; font-size: 0.85em; font-weight: bold;}
         
         .streak-badge { background: rgba(240, 136, 62, 0.15); color: var(--accent-orange); font-weight: bold; font-size: 0.85em; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(240, 136, 62, 0.3); display: inline-flex; align-items: center; gap: 5px;}
-        .coin-badge { color: var(--accent-gold); font-weight: bold; font-size: 0.85em; background: rgba(242, 201, 76, 0.15); padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(242, 201, 76, 0.3); margin-left: 5px;}
+        .coin-badge-btn { border: 1px solid rgba(242, 201, 76, 0.35); cursor: pointer; font-family: inherit; transition: 0.2s; }
+        .coin-badge-btn:hover { background: rgba(242, 201, 76, 0.28); }
+        .escudo-badge { margin-left: 4px; padding-left: 6px; border-left: 1px solid rgba(242, 201, 76, 0.4); color: var(--accent-blue); }
+        .loja-saldo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+        .loja-saldo div { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; text-align: center; }
+        .loja-saldo strong { display: block; font-size: 1.3em; color: var(--text-color); }
+        .loja-saldo span { font-size: 11px; color: #8B949E; text-transform: uppercase; letter-spacing: 0.5px; }
+        .loja-item { border: 1px solid var(--border-color); border-left: 4px solid var(--accent-blue); border-radius: 8px; padding: 14px; background: var(--input-bg); }
+        .loja-escudos { font-size: 1.6em; letter-spacing: 4px; margin: 6px 0; }
+        .coin-badge {color: var(--accent-gold); font-weight: bold; font-size: 0.85em; background: rgba(242, 201, 76, 0.15); padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(242, 201, 76, 0.3); margin-left: 5px;}
 
         .xp-bar-container { flex-grow: 1; max-width: 400px; width: 100%; display: flex; flex-direction: column; gap: 8px;}
         .xp-bar-bg { width: 100%; height: 10px; background-color: var(--border-color); border-radius: 5px; overflow: hidden;}
@@ -1256,7 +1265,7 @@
                             <p id="rank-subtitle">Começando a jornada</p>
                             <div style="display:flex; flex-wrap:wrap; gap:8px;">
                                 <div class="streak-badge" id="streak-container"><i class="fas fa-fire"></i> <span id="streak-display">0</span> Dias de Ofensiva</div>
-                                <div class="coin-badge"><i class="fas fa-coins"></i> <span id="coin-display">0</span> Moedas</div>
+                                <button type="button" class="coin-badge coin-badge-btn" onclick="abrirLojaMoedas()" title="Usar moedas: Escudo de Ofensiva"><i class="fas fa-coins"></i> <span id="coin-display">0</span> Moedas <span id="escudo-badge" class="escudo-badge" style="display:none;"></span></button>
                             </div>
                         </div>
                     </div>
@@ -1891,6 +1900,14 @@
         </div>
 	</div>
 
+    <div id="lojaModal" class="modal">
+        <div class="modal-content" style="max-width: 520px; border-top: 4px solid var(--accent-gold);">
+            <span class="close-btn" onclick="document.getElementById('lojaModal').style.display='none'">&times;</span>
+            <h2 style="margin-top:0; color:var(--text-color);"><i class="fas fa-coins" style="color:var(--accent-gold)"></i> Suas Moedas</h2>
+            <div id="loja-conteudo"></div>
+        </div>
+    </div>
+
     <div id="ranksModal" class="modal">
         <div class="modal-content" style="max-width: 550px; border-top: 4px solid var(--accent-gold);">
             <span class="close-btn" onclick="document.getElementById('ranksModal').style.display='none'">&times;</span>
@@ -1958,7 +1975,7 @@
             
             <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-gold);">
                 <strong style="color:var(--text-color); font-size:15px;">4. Gamificação e Ofensiva 🏆</strong><br>
-                <span style="font-size:13px; color:#888;">Estude todos os dias para aumentar suas Chamas de Ofensiva 🔥. Bater a meta de 100 Questões ou 2 Horas no dia te concede Moedas Bônus no Ranking.</span>
+                <span style="font-size:13px; color:#888;">Estude todos os dias para aumentar suas Chamas de Ofensiva 🔥. Cada dia com 100+ questões vale 50 moedas, e cada dia com 2h+ de estudo vale mais 50. Use as moedas para comprar Escudos de Ofensiva 🛡️, que protegem a sua sequência num dia sem estudo.</span>
             </div>
 
             <button class="btn" style="background:var(--accent-blue); width:100%; margin-top:10px;" onclick="document.getElementById('platformTutorialModal').style.display='none'">ENTENDIDO, ENGENHARIA!</button>
@@ -2347,12 +2364,18 @@ Gostaria que fizesse:
         { threshold: 1000, title: "Estudante Focado", icon: "fa-pencil-alt", desc: "Pegando o ritmo" },
         { threshold: 3000, title: "Concurseiro Tático", icon: "fa-crosshairs", desc: "Batendo metas" },
         { threshold: 6000, title: "Especialista", icon: "fa-brain", desc: "Dominando o edital" },
-        { threshold: 10000, title: "Analista", icon: "fa-chart-line", desc: "Alta performance" },
-        { threshold: 15000, title: "Auditor Júnior", icon: "fa-search", desc: "Na lista de aprovados" },
-        { threshold: 20000, title: "Auditor Pleno", icon: "fa-stamp", desc: "Nomeado no D.O.U" },
-        { threshold: 30000, title: "Auditor Sênior", icon: "fa-gem", desc: "Mestre do Controle" },
-        { threshold: 50000, title: "Conselheiro", icon: "fa-landmark", desc: "Autoridade Máxima!" }
+        { threshold: 10000, title: "Elite", icon: "fa-chart-line", desc: "Alta performance" },
+        { threshold: 15000, title: "Classificado", icon: "fa-list-ol", desc: "Nota de corte batida" },
+        { threshold: 20000, title: "Aprovado", icon: "fa-stamp", desc: "Nome na lista" },
+        { threshold: 30000, title: "Nomeado", icon: "fa-id-badge", desc: "Posse no cargo" },
+        { threshold: 50000, title: "Lenda", icon: "fa-crown", desc: "Referência para todos" }
     ];
+
+    // Escudo de Ofensiva: as moedas compram proteção para dias sem estudo (mesmos valores do Apps Script)
+    const PRECO_ESCUDO = 300;
+    const MAX_ESCUDOS = 2;
+    let escudosGlobal = { compras: [], usados: [] };
+    let usandoEscudos = false;
 
     const BIBLE_VERSES = [
         "Tudo posso naquele que me fortalece. (Filipenses 4:13)", 
@@ -2813,13 +2836,15 @@ Gostaria que fizesse:
 
             setSafeText('greeting-name', globalNickname);
             renderHeaderAvatar();
-            loadCiclo(data.cicloNuvem); 
-            processData(data.dados || []); 
+            loadCiclo(data.cicloNuvem);
+            if (data.escudos) escudosGlobal = { compras: data.escudos.compras || [], usados: data.escudos.usados || [] };
+            processData(data.dados || []);
             updateLeaderEffects();
             atualizarSelectEditaisDisponiveis();
             if (editalAtivoGlobal) renderizarEdital(editalAtivoGlobal);
-            atualizarCampoTopico(); 
-            
+            atualizarCampoTopico();
+            verificarEscudosAutomatico();
+
             btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado');
             setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sinc'), 2000);
             
@@ -3016,24 +3041,151 @@ Gostaria que fizesse:
         let p = ((totalQHistory - r.threshold) / (n.threshold - r.threshold)) * 100;
         setSafeText('rank-progress-text', `${totalQHistory.toLocaleString()} / ${n.threshold.toLocaleString()} Q`);
         let bar = document.getElementById('rank-bar'); if(bar) bar.style.width = Math.min(p, 100) + '%';
-        setSafeText('coin-display', totalMoedas.toLocaleString('pt-BR'));
+        atualizarSeloMoedas();
         setSafeText('txt-daily-q', dailyQ); setSafeText('txt-daily-h', (dailyMins/60).toFixed(1));
     }
 
+    // ===== MOEDAS E ESCUDO DE OFENSIVA =====
+    function chaveDiaISO(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    function isoDeBR(br) { let p = String(br).split('/'); return p.length === 3 ? p[2] + '-' + p[1].padStart(2, '0') + '-' + p[0].padStart(2, '0') : ''; }
+    function brDeISO(iso) { let p = String(iso).split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : ''; }
+
+    function moedasGastas() { return (escudosGlobal.compras || []).length * PRECO_ESCUDO; }
+    function moedasSaldo() { return Math.max(0, totalMoedas - moedasGastas()); }
+    function escudosEmEstoque() { return Math.max(0, (escudosGlobal.compras || []).length - (escudosGlobal.usados || []).length); }
+
+    function atualizarSeloMoedas() {
+        setSafeText('coin-display', moedasSaldo().toLocaleString('pt-BR'));
+        let selo = document.getElementById('escudo-badge');
+        if (selo) {
+            let n = escudosEmEstoque();
+            selo.style.display = n > 0 ? 'inline' : 'none';
+            selo.innerText = '🛡️ ' + n;
+        }
+    }
+
+    // Dias seguidos com estudo. Dia protegido por escudo mantém a sequência, mas não soma.
+    // Hoje ainda não conta como falta: se não estudou hoje, a contagem começa ontem.
     function calcularDiasOfensiva() {
-        let datasUnicas = Object.keys(groupedDaily).map(d => { let p = d.split('/'); return new Date(p[2], p[1]-1, p[0]); }).sort((a,b) => b - a);
-        if(datasUnicas.length === 0) return 0;
-        let streak = 0; let hoje = new Date(); hoje.setHours(0,0,0,0); let checkDate = new Date(datasUnicas[0]); checkDate.setHours(0,0,0,0);
-        if(Math.floor((hoje - checkDate) / 86400000) > 1) return 0;
-        let lastDate = null;
-        for(let d of datasUnicas) {
-            d.setHours(0,0,0,0);
-            if(lastDate === null) { streak = 1; } else {
-                let diff = Math.floor((lastDate - d) / 86400000);
-                if(diff === 1) streak++; else if(diff > 1) break;
-            } lastDate = d;
-        } return streak;
+        let estudados = new Set(Object.keys(groupedDaily).map(isoDeBR));
+        if (estudados.size === 0) return 0;
+        let protegidos = new Set((escudosGlobal.usados || []).map(isoDeBR));
+        let d = new Date(); d.setHours(0, 0, 0, 0);
+        if (!estudados.has(chaveDiaISO(d)) && !protegidos.has(chaveDiaISO(d))) d.setDate(d.getDate() - 1);
+        let streak = 0;
+        for (let guarda = 0; guarda < 4000; guarda++) {
+            let k = chaveDiaISO(d);
+            if (estudados.has(k)) streak++;
+            else if (!protegidos.has(k)) break;
+            d.setDate(d.getDate() - 1);
+        }
+        return streak;
 	}
+
+    // Dias sem estudo entre o último dia ativo e ontem (null = a lacuna é maior do que qualquer estoque de escudos)
+    function diasSemEstudoPendentes() {
+        let estudados = new Set(Object.keys(groupedDaily).map(isoDeBR));
+        if (estudados.size === 0) return null;
+        let protegidos = new Set((escudosGlobal.usados || []).map(isoDeBR));
+        let d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - 1); // ontem
+        let faltas = [];
+        for (let i = 0; i <= MAX_ESCUDOS; i++) {
+            let k = chaveDiaISO(d);
+            if (estudados.has(k) || protegidos.has(k)) return faltas.reverse();
+            faltas.push(k);
+            d.setDate(d.getDate() - 1);
+        }
+        return null;
+    }
+
+    // Depois de cada sincronização: se faltou estudar e há escudo guardado (comprado até aquele dia), usa automaticamente
+    async function verificarEscudosAutomatico() {
+        if (usandoEscudos || escudosEmEstoque() === 0) return;
+        let faltas = diasSemEstudoPendentes();
+        if (!faltas || faltas.length === 0 || faltas.length > escudosEmEstoque()) return;
+        let disponiveis = (escudosGlobal.compras || []).slice().sort().slice((escudosGlobal.usados || []).length);
+        if (faltas.some((dia, i) => disponiveis[i] > dia)) return; // escudo comprado depois da falta não cobre
+        if (calcularOfensivaAte(faltas[0]) === 0) return; // não havia sequência para proteger
+
+        usandoEscudos = true;
+        try {
+            let datasBR = faltas.map(brDeISO);
+            let data = await enviarAcao({ acao: 'usar_escudos', email: loggedUserEmail, datas: datasBR });
+            if (data.status === 'sucesso' && data.escudos) {
+                escudosGlobal = data.escudos;
+                setSafeText('streak-display', calcularDiasOfensiva());
+                atualizarSeloMoedas();
+                mostrarToastTatico('🛡️ Escudo usado em ' + datasBR.join(' e ') + ': sua ofensiva foi protegida!', 'var(--accent-blue)');
+            }
+        } catch (err) {
+            console.error('Escudo de Ofensiva:', err);
+        } finally {
+            usandoEscudos = false;
+        }
+    }
+
+    // Sequência que existia antes de um dia (para não gastar escudo sem ter ofensiva)
+    function calcularOfensivaAte(diaISO) {
+        let estudados = new Set(Object.keys(groupedDaily).map(isoDeBR));
+        let protegidos = new Set((escudosGlobal.usados || []).map(isoDeBR));
+        let p = diaISO.split('-'); let d = new Date(p[0], p[1] - 1, p[2]); d.setDate(d.getDate() - 1);
+        let n = 0;
+        for (let guarda = 0; guarda < 4000; guarda++) {
+            let k = chaveDiaISO(d);
+            if (estudados.has(k)) n++; else if (!protegidos.has(k)) break;
+            d.setDate(d.getDate() - 1);
+        }
+        return n;
+    }
+
+    function abrirLojaMoedas() {
+        let el = document.getElementById('loja-conteudo');
+        if (!el) return;
+        let saldo = moedasSaldo(), estoque = escudosEmEstoque();
+        let podeComprar = saldo >= PRECO_ESCUDO && estoque < MAX_ESCUDOS;
+        let motivo = estoque >= MAX_ESCUDOS ? `Você já tem o máximo de ${MAX_ESCUDOS} escudos guardados.`
+            : (saldo < PRECO_ESCUDO ? `Faltam ${(PRECO_ESCUDO - saldo).toLocaleString('pt-BR')} moedas para o próximo escudo.` : '');
+        let slots = '';
+        for (let i = 0; i < MAX_ESCUDOS; i++) slots += i < estoque ? '🛡️' : '<span style="opacity:0.25">🛡️</span>';
+        let usados = (escudosGlobal.usados || []).slice().sort((a, b) => isoDeBR(b) < isoDeBR(a) ? -1 : 1).slice(0, 5);
+
+        el.innerHTML = `
+            <div class="loja-saldo">
+                <div><strong>${saldo.toLocaleString('pt-BR')}</strong><span>Saldo</span></div>
+                <div><strong>${totalMoedas.toLocaleString('pt-BR')}</strong><span>Ganhas</span></div>
+                <div><strong>${moedasGastas().toLocaleString('pt-BR')}</strong><span>Gastas</span></div>
+            </div>
+            <div class="loja-item">
+                <div style="font-weight:bold; color:var(--text-color);"><i class="fas fa-shield-alt" style="color:var(--accent-blue)"></i> Escudo de Ofensiva · ${PRECO_ESCUDO} moedas</div>
+                <p style="font-size:13px; color:#8B949E; margin:6px 0;">Protege a sua sequência num dia sem estudo. É usado sozinho, na sincronização seguinte. Vale para faltas a partir do dia da compra, e você pode guardar até ${MAX_ESCUDOS}.</p>
+                <div class="loja-escudos">${slots}</div>
+                <button type="button" id="btn-comprar-escudo" class="btn" style="width:100%; background:${podeComprar ? 'var(--accent-blue)' : 'var(--hover-bg)'}; color:${podeComprar ? 'white' : '#8B949E'};" ${podeComprar ? '' : 'disabled'} onclick="comprarEscudo()"><i class="fas fa-shopping-cart"></i> Comprar escudo</button>
+                ${motivo ? `<p style="font-size:12px; color:#8B949E; margin:8px 0 0; text-align:center;">${motivo}</p>` : ''}
+            </div>
+            <p style="font-size:13px; color:#8B949E; margin:14px 0 4px;"><b style="color:var(--text-color);">Como ganhar:</b> 50 moedas por dia com 100+ questões e mais 50 por dia com 2h+ de estudo.</p>
+            ${usados.length ? `<p style="font-size:13px; color:#8B949E; margin:4px 0;"><b style="color:var(--text-color);">Dias protegidos:</b> ${usados.map(escapeHTML).join(', ')}</p>` : ''}`;
+        document.getElementById('lojaModal').style.display = 'block';
+    }
+
+    async function comprarEscudo() {
+        let btn = document.getElementById('btn-comprar-escudo');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Comprando...'; }
+        try {
+            let data = await enviarAcao({ acao: 'comprar_escudo', email: loggedUserEmail });
+            if (data.status === 'sucesso' && data.escudos) {
+                escudosGlobal = data.escudos;
+                atualizarSeloMoedas();
+                abrirLojaMoedas();
+                mostrarToastTatico('🛡️ Escudo comprado! Ele protege sua ofensiva num dia sem estudo.', 'var(--accent-blue)');
+            } else {
+                alert(data.mensagem || 'Não foi possível comprar o escudo.');
+                abrirLojaMoedas();
+            }
+        } catch (err) {
+            alert('Erro ao comprar o escudo. ' + mensagemFalhaRede(err));
+            abrirLojaMoedas();
+        }
+    }
 
     let compEvolChartObj = null;
     let compPerfilChartObj = null;
