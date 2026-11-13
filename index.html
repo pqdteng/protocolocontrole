@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protocolo Controle: Auditor TCE</title>
+    <title>Protocolo Controle: Estudo por Questões</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -347,7 +347,12 @@
         .comp-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
         @media (max-width: 992px) { .comp-grid { grid-template-columns: 1fr; } }
 
-        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 15px; max-height: 200px; overflow-y: auto; padding: 10px; background: var(--input-bg); border-radius: 8px; border: 1px solid var(--border-color);}
+        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px 10px; margin-top: 15px; max-height: 340px; overflow-y: auto; padding: 10px; background: var(--input-bg); border-radius: 8px; border: 1px solid var(--border-color);}
+        .ciclo-grupo-titulo { grid-column: 1 / -1; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #8B949E; padding: 8px 5px 2px; border-bottom: 1px solid var(--border-color); }
+        .ciclo-grupo-titulo:first-child { padding-top: 0; }
+        .ciclo-grupo-titulo.edital { color: var(--accent-green); }
+        .busca-materias { width: 100%; box-sizing: border-box; margin-top: 15px; padding: 10px 12px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 6px; outline: none; font-size: 14px; }
+        .ciclo-edital-box { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 15px; padding: 12px 15px; background: rgba(35, 134, 54, 0.08); border: 1px solid var(--accent-green); border-radius: 8px; font-size: 14px; }
         .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 0.9em; cursor: pointer; padding: 5px; border-radius: 4px;}
         .checkbox-label:hover { background: var(--hover-bg); }
         .sortable-list { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; max-height: 250px; overflow-y: auto; margin-bottom: 20px; }
@@ -1369,9 +1374,11 @@
             <div id="view-ciclo-view" class="app-view">
                 <div class="chart-box" style="padding:30px;">
                     <h2 style="margin:0; color:var(--accent-blue);"><i class="fas fa-sync-alt"></i> Engenharia do Ciclo</h2>
-                    <p style="color:#888; font-size:14px;">Selecione as disciplinas do edital e organize a ordem tática de estudos. As matérias do Edital Ativo aparecem com a mira verde.</p>
-                    
-                    <div class="checkbox-grid" id="config-checkboxes" style="margin-top:20px;"></div>
+                    <p style="color:#888; font-size:14px;">Escolha as disciplinas do seu concurso e organize a ordem de estudo. Com um edital ativo, as matérias dele aparecem primeiro, com a mira verde.</p>
+
+                    <div id="ciclo-edital-acao"></div>
+                    <input type="search" id="busca-materias" class="busca-materias" placeholder="Buscar disciplina (ex.: tributário, penal, contabilidade)" autocomplete="off" oninput="filtrarMateriasCiclo(this.value)">
+                    <div class="checkbox-grid" id="config-checkboxes" style="margin-top:12px;"></div>
 
                     <div style="background:var(--input-bg); border:1px solid var(--border-color); border-left:4px solid var(--accent-green); padding:20px; border-radius:8px; margin-top:25px;">
                         <p style="margin:0 0 10px 0; font-weight:bold; font-size:14px;">Criar disciplina customizada extra:</p>
@@ -2286,11 +2293,53 @@ Gostaria que fizesse:
         return String(valor === null || typeof valor === 'undefined' ? '' : valor).replace(/[<>]/g, '').trim();
     }	
 
-    // Leis de Negócio Intactas (22 Disciplinas originais mantidas)
+    // Catálogo geral de disciplinas, por área.
+    // ATENÇÃO: as siglas já usadas NUNCA podem mudar nem sair (os lançamentos antigos guardam a sigla na coluna "Matéria").
+    // Para incluir uma disciplina, acrescente uma linha com sigla nova.
+    const AREAS_CATALOGO = ["Básicas", "Direito", "Gestão, Contas e Controle", "Engenharia", "Discursivas"];
     const TODAS_MATERIAS = [
-        { chaves: ["PNFL"], nome: "Eng: Planejamento de Obras" }, { chaves: ["AFO"], nome: "AFO / Orçamento Público" }, { chaves: ["DCO"], nome: "Direito Constitucional" }, { chaves: ["CEX"], nome: "Controle Externo" }, { chaves: ["CASP"], nome: "Contabilidade Pública" }, { chaves: ["CTG"], nome: "Contabilidade Geral" }, { chaves: ["EDF"], nome: "Eng: Edificações/Estruturas" }, { chaves: ["AMB"], nome: "Eng: Ambiental" }, { chaves: ["DAD"], nome: "Direito Administrativo" }, { chaves: ["POR"], nome: "Português" }, { chaves: ["OR"], nome: "Eng: Rodoviária" }, 
-        { chaves: ["OH"], nome: "Eng: Hídrica" }, { chaves: ["RLM"], nome: "Raciocínio Lógico" }, { chaves: ["INF"], nome: "Informática / TI" }, { chaves: ["AUDG"], nome: "Auditoria Governamental" }, { chaves: ["PARECER"], nome: "Peça Técnica / Parecer" }, { chaves: ["RED"], nome: "Treino: Redação" }, { chaves: ["ADM"], nome: "Administração Pública" }, { chaves: ["ECO"], nome: "Economia" }, { chaves: ["CIV"], nome: "Direito Civil" }, { chaves: ["PEN"], nome: "Direito Penal" }, { chaves: ["EST"], nome: "Estatística" }
+        // Básicas
+        { chaves: ["POR"], nome: "Português", area: "Básicas" },
+        { chaves: ["RLM"], nome: "Raciocínio Lógico", area: "Básicas" },
+        { chaves: ["INF"], nome: "Informática / TI", area: "Básicas" },
+        { chaves: ["ING"], nome: "Inglês", area: "Básicas" },
+        { chaves: ["ATU"], nome: "Atualidades", area: "Básicas" },
+        { chaves: ["ETI"], nome: "Ética no Serviço Público", area: "Básicas" },
+        // Direito
+        { chaves: ["DCO"], nome: "Direito Constitucional", area: "Direito" },
+        { chaves: ["DAD"], nome: "Direito Administrativo", area: "Direito" },
+        { chaves: ["CIV"], nome: "Direito Civil", area: "Direito" },
+        { chaves: ["DPC"], nome: "Direito Processual Civil", area: "Direito" },
+        { chaves: ["PEN"], nome: "Direito Penal", area: "Direito" },
+        { chaves: ["DPP"], nome: "Direito Processual Penal", area: "Direito" },
+        { chaves: ["DTB"], nome: "Direito Tributário", area: "Direito" },
+        { chaves: ["DTR"], nome: "Direito do Trabalho", area: "Direito" },
+        { chaves: ["DPR"], nome: "Direito Previdenciário", area: "Direito" },
+        { chaves: ["DH"], nome: "Direitos Humanos", area: "Direito" },
+        { chaves: ["LEG"], nome: "Legislação Específica", area: "Direito" },
+        // Gestão, Contas e Controle
+        { chaves: ["ADM"], nome: "Administração Pública", area: "Gestão, Contas e Controle" },
+        { chaves: ["ADG"], nome: "Administração Geral", area: "Gestão, Contas e Controle" },
+        { chaves: ["AFO"], nome: "AFO / Orçamento Público", area: "Gestão, Contas e Controle" },
+        { chaves: ["CTG"], nome: "Contabilidade Geral", area: "Gestão, Contas e Controle" },
+        { chaves: ["CASP"], nome: "Contabilidade Pública", area: "Gestão, Contas e Controle" },
+        { chaves: ["CEX"], nome: "Controle Externo", area: "Gestão, Contas e Controle" },
+        { chaves: ["AUDG"], nome: "Auditoria Governamental", area: "Gestão, Contas e Controle" },
+        { chaves: ["ECO"], nome: "Economia", area: "Gestão, Contas e Controle" },
+        { chaves: ["EST"], nome: "Estatística", area: "Gestão, Contas e Controle" },
+        { chaves: ["ARQ"], nome: "Arquivologia", area: "Gestão, Contas e Controle" },
+        // Engenharia
+        { chaves: ["PNFL"], nome: "Eng: Planejamento de Obras", area: "Engenharia" },
+        { chaves: ["EDF"], nome: "Eng: Edificações/Estruturas", area: "Engenharia" },
+        { chaves: ["AMB"], nome: "Eng: Ambiental", area: "Engenharia" },
+        { chaves: ["OR"], nome: "Eng: Rodoviária", area: "Engenharia" },
+        { chaves: ["OH"], nome: "Eng: Hídrica", area: "Engenharia" },
+        // Discursivas
+        { chaves: ["RED"], nome: "Treino: Redação", area: "Discursivas" },
+        { chaves: ["PARECER"], nome: "Peça Técnica / Parecer", area: "Discursivas" }
     ];
+    // Ciclo inicial de quem ainda não configurou e não tem edital ativo
+    const SIGLAS_CICLO_INICIAL = ["POR", "RLM", "DCO", "DAD"];
     
     // Leis de Negócio Intactas (Patentes)
     const GAMER_RANKS = [
@@ -3084,7 +3133,7 @@ Gostaria que fizesse:
 
     function resolverMetaDisciplina(rawMat) {
         let clean = String(rawMat || '').trim();
-        let allKnown = [...TODAS_MATERIAS, ...customSubjects];
+        let allKnown = [...customSubjects, ...TODAS_MATERIAS]; // as do aluno primeiro: uma sigla criada por ele vale mais que a do catálogo
         for (let i = 0; i < allKnown.length; i++) {
             let m = allKnown[i];
             if (m.chaves[0].toLowerCase() === clean.toLowerCase() || m.nome.toLowerCase() === clean.toLowerCase()) {
@@ -5094,7 +5143,7 @@ Gostaria que fizesse:
             let d = r.date.toLocaleDateString('pt-BR'); let topicoSafe = r.topico.replace(/,/g, " "); let metodoSafe = r.metodologia.replace(/,/g, " ");
             csvContent += `${d},${r.mat},${topicoSafe},${metodoSafe},${r.q},${r.a},${r.t},${r.fase}\n`;
         });
-        let encodedUri = encodeURI(csvContent); let link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", "meu_historico_tce.csv");
+        let encodedUri = encodeURI(csvContent); let link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", "meu_historico_protocolo.csv");
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
 
@@ -5192,9 +5241,9 @@ Gostaria que fizesse:
             cicloMaster = JSON.parse(nuvemJson); 
             localStorage.setItem('pqdtCicloCustom', nuvemJson); 
         } else { 
-            let saved = localStorage.getItem('pqdtCicloCustom'); 
-            if(saved) cicloMaster = JSON.parse(saved); 
-            else { cicloMaster = JSON.parse(JSON.stringify(TODAS_MATERIAS)); } 
+            let saved = localStorage.getItem('pqdtCicloCustom');
+            if(saved) cicloMaster = JSON.parse(saved);
+            else { cicloMaster = cicloPadraoInicial(); }
         }
 
         let chavesPadrao = TODAS_MATERIAS.map(m => m.chaves[0]);
@@ -5217,54 +5266,114 @@ Gostaria que fizesse:
         renderConfigUI(); 
     }
         
-    function renderConfigUI() {
-        let containerCB = document.getElementById('config-checkboxes'); 
-        let containerList = document.getElementById('sortable-list');
-        if(!containerCB || !containerList) return; 
-        
-        containerCB.innerHTML = ''; 
-        containerList.innerHTML = '';
-        
-        let allSubjects = [...TODAS_MATERIAS, ...customSubjects];
-
-        if (editalAtivoGlobal && baseEditaisGlobal[editalAtivoGlobal]) {
-            let editalItems = baseEditaisGlobal[editalAtivoGlobal];
-            let matSet = new Set();
-            editalItems.forEach(item => matSet.add(item.mat));
-
-            matSet.forEach(matName => {
-                if (!allSubjects.some(m => m.nome.toLowerCase() === matName.toLowerCase())) {
-                    allSubjects.push({ chaves: [matName], nome: matName, isFromEdital: true });
-                }
-            });
-        }
-
-        allSubjects.forEach(m => {
-            let isChecked = tempCiclo.some(c => c.chaves[0] === m.chaves[0] || c.nome === m.nome) ? 'checked' : '';
-            let badge = m.isFromEdital ? `<span style="color:var(--accent-green); font-size:10px; margin-left:5px;" title="Importado do Edital"><i class="fas fa-crosshairs"></i></span>` : '';
-            containerCB.innerHTML += `<label class="checkbox-label"><input type="checkbox" value="${m.chaves[0]}" data-nome="${m.nome}" ${isChecked} onchange="toggleMateria(this)"> ${m.nome} ${badge}</label>`;
+    // Matérias do edital ativo, na ordem do edital. Se o nome bater com o catálogo, usa a sigla do catálogo.
+    function materiasDoEditalAtivo() {
+        if (!editalAtivoGlobal || !Array.isArray(baseEditaisGlobal[editalAtivoGlobal])) return [];
+        let vistos = new Set(), lista = [];
+        baseEditaisGlobal[editalAtivoGlobal].forEach(item => {
+            let nome = String(item.mat || '').trim();
+            if (!nome || vistos.has(nome.toLowerCase())) return;
+            vistos.add(nome.toLowerCase());
+            let doCatalogo = TODAS_MATERIAS.find(m => m.nome.toLowerCase() === nome.toLowerCase());
+            lista.push(doCatalogo ? { nome: doCatalogo.nome, chaves: [doCatalogo.chaves[0]] } : { nome: nome, chaves: [nome] });
         });
-
-        if(tempCiclo.length === 0) { 
-            containerList.innerHTML = '<p style="color:#888; text-align:center; padding:10px;">O ciclo está vazio.</p>'; 
-            return; 
-        }
-
-        tempCiclo.forEach((m, index) => {
-            let isPadrao = TODAS_MATERIAS.some(padrao => padrao.chaves[0] === m.chaves[0]);
-            let deleteBtn = !isPadrao ? `<button type="button" onclick="deleteCustomSubject('${m.chaves[0].replace(/'/g, "\\'")}')" style="color:var(--accent-red); background:none; border:none; cursor:pointer;" title="Remover Disciplina"><i class="fas fa-trash"></i></button>` : '';
-            
-            containerList.innerHTML += `<div class="sortable-item"><span style="font-size:13px;"><strong>${index + 1}.</strong> ${m.nome}</span><div class="sortable-actions" style="display:flex; gap:5px;">${deleteBtn}<button type="button" onclick="moveItem(${index}, -1)" ${index === 0 ? 'disabled' : ''}><i class="fas fa-chevron-up"></i></button><button type="button" onclick="moveItem(${index}, 1)" ${index === tempCiclo.length - 1 ? 'disabled' : ''}><i class="fas fa-chevron-down"></i></button></div></div>`;
-        });
+        return lista;
     }
 
-    function toggleMateria(cb) { 
-        if(cb.checked) {
-            tempCiclo.push({ nome: cb.getAttribute('data-nome'), chaves: [cb.value] }); 
-        } else {
-            tempCiclo = tempCiclo.filter(c => c.chaves[0] !== cb.value); 
+    // Quem nunca configurou o ciclo: as matérias do edital ativo, ou um ciclo básico
+    function cicloPadraoInicial() {
+        let doEdital = materiasDoEditalAtivo();
+        if (doEdital.length > 0) return doEdital;
+        return TODAS_MATERIAS.filter(m => SIGLAS_CICLO_INICIAL.includes(m.chaves[0])).map(m => ({ nome: m.nome, chaves: [m.chaves[0]] }));
+    }
+
+    function usarMateriasDoEdital() {
+        let lista = materiasDoEditalAtivo();
+        if (lista.length === 0) return alert("O edital ativo não tem matérias cadastradas.");
+        if (tempCiclo.length > 0 && !confirm("Substituir as " + tempCiclo.length + " matérias atuais do ciclo pelas " + lista.length + " matérias do edital?\n(Só vale depois de clicar em SALVAR.)")) return;
+        tempCiclo = lista;
+        renderConfigUI();
+    }
+
+    let filtroMateriasCiclo = '';
+    function filtrarMateriasCiclo(valor) {
+        filtroMateriasCiclo = valor || '';
+        renderConfigUI();
+    }
+
+    function mesmaMateria(a, b) {
+        return a.chaves[0] === b.chaves[0] || String(a.nome).toLowerCase() === String(b.nome).toLowerCase();
+    }
+
+    function renderConfigUI() {
+        let containerCB = document.getElementById('config-checkboxes');
+        let containerList = document.getElementById('sortable-list');
+        if(!containerCB || !containerList) return;
+
+        let materiasEdital = materiasDoEditalAtivo();
+
+        // Atalho: montar o ciclo com as matérias do edital
+        let boxEdital = document.getElementById('ciclo-edital-acao');
+        if (boxEdital) {
+            if (materiasEdital.length > 0) {
+                let faltando = materiasEdital.filter(m => !tempCiclo.some(c => mesmaMateria(c, m))).length;
+                let resumo = faltando === 0
+                    ? `Todas as ${materiasEdital.length} matérias de <strong>${escapeHTML(editalAtivoGlobal)}</strong> já estão no ciclo.`
+                    : `<strong>${escapeHTML(editalAtivoGlobal)}</strong> tem ${materiasEdital.length} matérias (${faltando} fora do ciclo).`;
+                boxEdital.innerHTML = `<div class="ciclo-edital-box"><span><i class="fas fa-crosshairs" style="color:var(--accent-green)"></i> ${resumo}</span>`
+                    + (faltando > 0 ? `<button type="button" class="btn" style="background:var(--accent-green);" onclick="usarMateriasDoEdital()"><i class="fas fa-magic"></i> Usar matérias do edital</button>` : '')
+                    + `</div>`;
+            } else {
+                boxEdital.innerHTML = `<div class="ciclo-edital-box" style="background:transparent; border-color:var(--border-color);"><span style="color:#8B949E;"><i class="fas fa-info-circle"></i> Ative um edital na aba <strong>Edital Verticalizado</strong> para montar o ciclo com as matérias dele em um clique.</span></div>`;
+            }
         }
-        renderConfigUI(); 
+
+        // Grupos: edital ativo → minhas disciplinas → catálogo por área (sem repetir matéria)
+        let grupos = [];
+        if (materiasEdital.length > 0) grupos.push({ titulo: 'Edital ativo: ' + editalAtivoGlobal, itens: materiasEdital, edital: true });
+        let minhas = customSubjects.filter(m => !materiasEdital.some(e => mesmaMateria(e, m)));
+        if (minhas.length > 0) grupos.push({ titulo: 'Minhas disciplinas', itens: minhas });
+        let siglasMinhas = new Set(customSubjects.map(m => m.chaves[0]));
+        AREAS_CATALOGO.forEach(area => {
+            let itens = TODAS_MATERIAS.filter(m => m.area === area && !siglasMinhas.has(m.chaves[0]) && !materiasEdital.some(e => mesmaMateria(e, m)));
+            if (itens.length > 0) grupos.push({ titulo: area, itens: itens });
+        });
+
+        let filtro = normalizarBuscaCatalogo(filtroMateriasCiclo);
+        let html = '';
+        grupos.forEach(g => {
+            let itens = filtro ? g.itens.filter(m => normalizarBuscaCatalogo(m.nome + ' ' + m.chaves[0]).includes(filtro)) : g.itens;
+            if (itens.length === 0) return;
+            html += `<div class="ciclo-grupo-titulo${g.edital ? ' edital' : ''}">${g.edital ? '<i class="fas fa-crosshairs"></i> ' : ''}${escapeHTML(g.titulo)}</div>`;
+            itens.forEach(m => {
+                let isChecked = tempCiclo.some(c => mesmaMateria(c, m)) ? 'checked' : '';
+                html += `<label class="checkbox-label"><input type="checkbox" value="${escapeHTML(m.chaves[0])}" data-nome="${escapeHTML(m.nome)}" ${isChecked} onchange="toggleMateria(this)"> ${escapeHTML(m.nome)}</label>`;
+            });
+        });
+        containerCB.innerHTML = html || '<p style="grid-column:1/-1; color:#888; text-align:center; margin:10px 0;">Nenhuma disciplina encontrada. Crie uma abaixo.</p>';
+
+        if(tempCiclo.length === 0) {
+            containerList.innerHTML = '<p style="color:#888; text-align:center; padding:10px;">O ciclo está vazio.</p>';
+            return;
+        }
+
+        let lista = '';
+        tempCiclo.forEach((m, index) => {
+            let isPadrao = TODAS_MATERIAS.some(padrao => padrao.chaves[0] === m.chaves[0]);
+            let deleteBtn = !isPadrao ? `<button type="button" data-sigla="${escapeHTML(m.chaves[0])}" onclick="deleteCustomSubject(this.dataset.sigla)" style="color:var(--accent-red); background:none; border:none; cursor:pointer;" title="Remover Disciplina"><i class="fas fa-trash"></i></button>` : '';
+            lista += `<div class="sortable-item"><span style="font-size:13px;"><strong>${index + 1}.</strong> ${escapeHTML(m.nome)}</span><div class="sortable-actions" style="display:flex; gap:5px;">${deleteBtn}<button type="button" onclick="moveItem(${index}, -1)" ${index === 0 ? 'disabled' : ''}><i class="fas fa-chevron-up"></i></button><button type="button" onclick="moveItem(${index}, 1)" ${index === tempCiclo.length - 1 ? 'disabled' : ''}><i class="fas fa-chevron-down"></i></button></div></div>`;
+        });
+        containerList.innerHTML = lista;
+    }
+
+    function toggleMateria(cb) {
+        let alvo = { nome: cb.getAttribute('data-nome'), chaves: [cb.value] };
+        if(cb.checked) {
+            if (!tempCiclo.some(c => mesmaMateria(c, alvo))) tempCiclo.push(alvo);
+        } else {
+            tempCiclo = tempCiclo.filter(c => !mesmaMateria(c, alvo));
+        }
+        renderConfigUI();
     }
 
     function moveItem(i, dir) { 
