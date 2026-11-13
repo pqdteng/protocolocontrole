@@ -2227,7 +2227,7 @@ Gostaria que fizesse:
             return fetchOriginal(url, opts);
         };
     })();
-    let globalExpiration = ""; let globalNickname = "Recruta"; let globalAvatar = localStorage.getItem('pqdtAvatar') || ""; let tempAvatarBase64 = ""; let globalLeaderboards = {diario:[], semanal:[], mensal:[], geral:[]};
+    let globalExpiration = ""; let globalNickname = "Recruta"; let globalAvatar = localStorage.getItem('pqdtAvatar') || ""; let tempAvatarBase64 = ""; let globalLeaderboards = {diario:[], semanal:[], mensal:[], geral:[]}; let globalAvatares = {};
     let isEditingMode = false;
     let currentRankingTab = 'diario'; 
 
@@ -2755,6 +2755,7 @@ Gostaria que fizesse:
                 localStorage.setItem('pqdtAvatar', globalAvatar);
             }
             globalLeaderboards = data.leaderboards || {diario:[], semanal:[], mensal:[], geral:[]};
+            globalAvatares = data.avatares || {}; // fotos do ranking: uma por codinome
             window.globalComparativo = data.comparativoGeral || { disciplinas: {}, mensal: {} };
             baseEditaisGlobal = data.baseEditais || {};
             editalAtivoGlobal = data.editalAtivo || "";
@@ -3038,7 +3039,7 @@ Gostaria que fizesse:
             else if (i === 1) posClass += ' top-pos-2';
             else if (i === 2) posClass += ' top-pos-3';
 
-            let avatarSrc = avatarSeguro(u.avatar) || (isMe ? avatarSeguro(globalAvatar) : '');
+            let avatarSrc = avatarSeguro(u.avatar || globalAvatares[u.nick]) || (isMe ? avatarSeguro(globalAvatar) : '');
             let inicial = escapeHTML(String(u.nick || 'C').trim().charAt(0).toUpperCase());
             let avatarBadgeHTML = avatarSrc
                 ? `<div class="user-avatar-circle avatar-rank-size"><img src="${avatarSrc}" alt="Avatar"></div>`

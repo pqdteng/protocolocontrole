@@ -196,7 +196,7 @@ function acaoSolicitarCodigo(emailBruto) {
   if (cacheCod.get("cod_" + emailReq)) return respJSON({"status": "erro", "mensagem": "Aguarde 1 minuto para solicitar um novo código."});
   cacheCod.put("cod_" + emailReq, "1", 60);
 
-  var users = sheetU.getDataRange().getValues();
+  var users = lerUsuariosLeve(sheetU); // só precisa do e-mail
   for (var i = 1; i < users.length; i++) {
     if (users[i][COL.EMAIL] && users[i][COL.EMAIL].toString().toLowerCase() === emailReq) {
       var code = (parseInt(Utilities.getUuid().replace(/-/g, "").substring(0, 8), 16) % 900000 + 100000).toString();
@@ -266,7 +266,7 @@ function acaoVagas() {
     return respJSON({"status": "sucesso", "restantes": parseInt(emCache, 10), "limite": LIMITE_FUNDADORES, "anos": ANOS_FUNDADOR});
   }
   var sheetU = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Usuarios");
-  var users = sheetU.getDataRange().getValues();
+  var users = lerUsuariosLeve(sheetU); // só precisa do e-mail
   var total = 0;
   for (var i = 1; i < users.length; i++) {
     if (users[i][COL.EMAIL]) total++;
@@ -409,7 +409,7 @@ function doPost(e) {
     // PORTÃO: toda ação exige sessão válida, exceto login e cadastro
     var acoesPublicas = ["login", "cadastro", "ping", "solicitar_codigo", "trocarSenhaSegura"];
     if (acoesPublicas.indexOf(acao) === -1) {
-      var linhaAuth = validarSessao(sheetU.getDataRange().getValues(), dados.email, dados.token);
+      var linhaAuth = validarSessao(lerUsuariosLeve(sheetU), dados.email, dados.token);
       if (linhaAuth === -1) return respJSON({"status": "erro", "sessao": false, "mensagem": "Sessão inválida. Faça login novamente."});
       if (linhaAuth === -2) return respJSON({"status": "erro", "mensagem": "Sua assinatura expirou."});
     }
@@ -425,7 +425,7 @@ function doPost(e) {
       var tentativasLog = parseInt(cacheLog.get(chaveTent) || "0", 10);
       if (tentativasLog >= 5) return respJSON({"status": "erro", "mensagem": "Muitas tentativas. Aguarde 15 minutos e tente novamente."});
 
-      var usersLog = sheetU.getDataRange().getValues();
+      var usersLog = lerUsuariosLeve(sheetU); // e-mail, senha, validade (sem fotos nem progresso)
       for (var iL = 1; iL < usersLog.length; iL++) {
         if (usersLog[iL][COL.EMAIL] && usersLog[iL][COL.EMAIL].toString().toLowerCase() === emailLog) {
           if (!conferirSenha(usersLog[iL][COL.SENHA], senhaLog)) break;
@@ -458,7 +458,7 @@ function doPost(e) {
       }
 
       try {
-        var usersCad = sheetU.getDataRange().getValues();
+        var usersCad = lerUsuariosLeve(sheetU);
         var totalCadastros = 0;
         for (var iC = 1; iC < usersCad.length; iC++) {
           if (!usersCad[iC][COL.EMAIL]) continue;
@@ -511,16 +511,11 @@ function doPost(e) {
       }
 
       return comTrava(function() {
-        var emailC = String(dados.email).trim().toLowerCase();
-        var dataUC = sheetU.getDataRange().getValues();
-        for (var i = 1; i < dataUC.length; i++) {
-          if (dataUC[i][0] && dataUC[i][0].toString().toLowerCase() === emailC) {
-            sheetU.getRange(i + 1, 8).setValue(cicloStr);
-            SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
-            return respJSON({"status": "sucesso"});
-          }
-        }
-        return respJSON({"status": "erro", "mensagem": "Usuário não encontrado."});
+        var iC = indiceDoUsuario(sheetU, dados.email);
+        if (iC === -1) return respJSON({"status": "erro", "mensagem": "Usuário não encontrado."});
+        sheetU.getRange(iC + 1, 8).setValue(cicloStr);
+        SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+        return respJSON({"status": "sucesso"});
       });
     }
 
@@ -538,29 +533,25 @@ function doPost(e) {
       }
 
       return comTrava(function() {
-        var emailPG = String(dados.email).trim().toLowerCase();
-        var dataUPG = sheetU.getDataRange().getValues();
-        for (var i = 1; i < dataUPG.length; i++) {
-          if (dataUPG[i][0] && dataUPG[i][0].toString().toLowerCase() === emailPG) {
-            var partes = [];
-            for (var p = 0; p < progStr.length; p += PROG_CHUNK) partes.push(progStr.substring(p, p + PROG_CHUNK));
+        var i = indiceDoUsuario(sheetU, dados.email);
+        if (i === -1) return respJSON({"status": "erro", "mensagem": "Usuário não encontrado."});
 
-            var extras = [];
-            for (var k = 0; k < PROG_COLS_EXTRA; k++) extras.push(partes[k + 1] ? "~" + partes[k + 1] : "");
+        var partes = [];
+        for (var p = 0; p < progStr.length; p += PROG_CHUNK) partes.push(progStr.substring(p, p + PROG_CHUNK));
 
-            var colunasNecessarias = PROG_EXTRA_INI + PROG_COLS_EXTRA;
-            if (sheetU.getMaxColumns() < colunasNecessarias) {
-              sheetU.insertColumnsAfter(sheetU.getMaxColumns(), colunasNecessarias - sheetU.getMaxColumns());
-            }
+        var extras = [];
+        for (var k = 0; k < PROG_COLS_EXTRA; k++) extras.push(partes[k + 1] ? "~" + partes[k + 1] : "");
 
-            sheetU.getRange(i + 1, 9).setValue(editalStr);
-            sheetU.getRange(i + 1, 10).setValue(partes[0] || "{}");
-            sheetU.getRange(i + 1, PROG_EXTRA_INI + 1, 1, PROG_COLS_EXTRA).setValues([extras]);
-            SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
-            return respJSON({"status": "sucesso"});
-          }
+        var colunasNecessarias = PROG_EXTRA_INI + PROG_COLS_EXTRA;
+        if (sheetU.getMaxColumns() < colunasNecessarias) {
+          sheetU.insertColumnsAfter(sheetU.getMaxColumns(), colunasNecessarias - sheetU.getMaxColumns());
         }
-        return respJSON({"status": "erro", "mensagem": "Usuário não encontrado."});
+
+        sheetU.getRange(i + 1, 9).setValue(editalStr);
+        sheetU.getRange(i + 1, 10).setValue(partes[0] || "{}");
+        sheetU.getRange(i + 1, PROG_EXTRA_INI + 1, 1, PROG_COLS_EXTRA).setValues([extras]);
+        SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+        return respJSON({"status": "sucesso"});
       });
     }
 
@@ -611,15 +602,8 @@ function doPost(e) {
 
         if (linhasNovas.length > 0) {
           sheetB.getRange(sheetB.getLastRow() + 1, 1, linhasNovas.length, 13).setValues(linhasNovas);
-          var dataUImp = sheetU.getDataRange().getValues();
-          for (var j = 1; j < dataUImp.length; j++) {
-            if (dataUImp[j][0].toString().toLowerCase() === emailImp) {
-              sheetU.getRange(j + 1, 5).setValue((parseFloat(dataUImp[j][4]) || 0) + totalQ);
-              sheetU.getRange(j + 1, 6).setValue((parseFloat(dataUImp[j][5]) || 0) + totalT);
-              sheetU.getRange(j + 1, 7).setValue((parseFloat(dataUImp[j][6]) || 0) + totalA);
-              break;
-            }
-          }
+          somarTotaisUsuario(sheetU, indiceDoUsuario(sheetU, emailImp), totalQ, totalT, totalA);
+          invalidarLinhasAluno(emailImp);
         }
         SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
         return respJSON({"status": "sucesso", "importados": linhasNovas.length, "ignorados": ignorados, "ignoradosTeto": ignoradosTeto});
@@ -635,7 +619,7 @@ function doPost(e) {
 
       return comTrava(function() {
         var emailP = String(dados.email).trim().toLowerCase();
-        var dataUP = sheetU.getDataRange().getValues();
+        var dataUP = sheetU.getRange(1, 1, Math.max(1, sheetU.getLastRow()), 4).getValues(); // A:D (e-mail e codinome)
         var linhaP = -1;
         var nicksEmUso = {};
         for (var i = 1; i < dataUP.length; i++) {
@@ -653,11 +637,24 @@ function doPost(e) {
           sufixo++;
         }
 
+        var nickAntigo = dataUP[linhaP][3] ? dataUP[linhaP][3].toString() : "";
         sheetU.getRange(linhaP + 1, 4).setValue(nickFinal);
+        var fotoAtual;
         if (typeof dados.avatar !== "undefined") {
           sheetU.getRange(linhaP + 1, 12).setValue(dados.avatar);
+          fotoAtual = String(dados.avatar || "");
+        } else {
+          fotoAtual = String(sheetU.getRange(linhaP + 1, 12).getValue() || "");
         }
         SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+
+        // Cache: foto ligada ao novo codinome, e o ranking passa a mostrar o novo nome
+        try {
+          var cacheP = CacheService.getScriptCache();
+          if (nickAntigo && nickAntigo.toLowerCase() !== nickFinal.toLowerCase()) cacheP.remove(chaveAvatar(nickAntigo));
+          cacheP.put(chaveAvatar(nickFinal), fotoAtual || "-", CACHE_AVATAR_SEG);
+        } catch (errCacheP) {}
+        invalidarAgregados();
         return respJSON({"status": "sucesso"});
       });
     }
@@ -699,14 +696,10 @@ function doPost(e) {
           }
         }
 
-        var dataU = sheetU.getDataRange().getValues();
-        for (var j = 1; j < dataU.length; j++) {
-          if (dataU[j][0] && dataU[j][0].toString().toLowerCase() === emailH) {
-            sheetU.getRange(j + 1, 5, 1, 3).setValues([[0, 0, 0]]);
-            break;
-          }
-        }
+        var iH = indiceDoUsuario(sheetU, emailH);
+        if (iH !== -1) sheetU.getRange(iH + 1, 5, 1, 3).setValues([[0, 0, 0]]);
         SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+        invalidarLinhasAluno(emailH);
         return respJSON({"status": "sucesso", "apagados": apagados});
       });
     }
@@ -718,17 +711,20 @@ function doPost(e) {
       return comTrava(function() {
         var sheetB = ss.getSheetByName("Base_Dashboard");
         var emailR = String(dados.email).trim().toLowerCase();
-        var dataB = sheetB.getDataRange().getValues();
         var lastRowIndex = -1;
         var oldQ = 0, oldT = 0, oldA = 0;
 
-        for (var i = dataB.length - 1; i > 0; i--) {
-          if (dataB[i].length > 12 && dataB[i][12] && dataB[i][12].toString().toLowerCase() === emailR) {
-            lastRowIndex = i + 1; oldT = parseFloat(dataB[i][5]) || 0; oldQ = parseFloat(dataB[i][6]) || 0; oldA = parseFloat(dataB[i][7]) || 0;
-            break;
+        // Lê só a coluna de e-mail (M) para achar o último lançamento do aluno
+        var ultimaR = sheetB.getLastRow();
+        if (ultimaR >= 2) {
+          var emailsR = sheetB.getRange(2, 13, ultimaR - 1, 1).getValues();
+          for (var i = emailsR.length - 1; i >= 0; i--) {
+            if (emailsR[i][0] && emailsR[i][0].toString().toLowerCase() === emailR) { lastRowIndex = i + 2; break; }
           }
         }
         if (lastRowIndex === -1) return respJSON({"status": "erro", "mensagem": "Nenhum lançamento encontrado."});
+        var antigos = sheetB.getRange(lastRowIndex, 6, 1, 3).getValues()[0]; // F = tempo, G = questões, H = acertos
+        oldT = parseFloat(antigos[0]) || 0; oldQ = parseFloat(antigos[1]) || 0; oldA = parseFloat(antigos[2]) || 0;
 
         // Teto do dia desconsiderando a própria linha que está sendo retificada
         var somaR = somasDoUsuario(sheetB, emailR, lastRowIndex)[vR.data];
@@ -739,17 +735,9 @@ function doPost(e) {
         // Colunas B..L numa única gravação (data, matéria, tópico, link, tempo, questões, acertos, fase, método, K, L)
         sheetB.getRange(lastRowIndex, 2, 1, 11).setValues([[vR.data, vR.mat, vR.top, vR.tipoLink, vR.t, vR.q, vR.a, vR.fase, vR.met, marcasR[0], marcasR[1]]]);
 
-        var dataUR = sheetU.getDataRange().getValues();
-        for (var j = 1; j < dataUR.length; j++) {
-          if (dataUR[j][0].toString().toLowerCase() === emailR) {
-            var currentQ = parseFloat(dataUR[j][4]) || 0; var currentT = parseFloat(dataUR[j][5]) || 0; var currentA = parseFloat(dataUR[j][6]) || 0;
-            sheetU.getRange(j + 1, 5).setValue(Math.max(0, currentQ - oldQ + vR.q));
-            sheetU.getRange(j + 1, 6).setValue(Math.max(0, currentT - oldT + vR.t));
-            sheetU.getRange(j + 1, 7).setValue(Math.max(0, currentA - oldA + vR.a));
-            break;
-          }
-        }
+        somarTotaisUsuario(sheetU, indiceDoUsuario(sheetU, emailR), vR.q - oldQ, vR.t - oldT, vR.a - oldA);
         SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+        invalidarLinhasAluno(emailR);
         return respJSON({"status": "sucesso"});
       });
     }
@@ -768,16 +756,9 @@ function doPost(e) {
         var marcasL = marcasConsolidacao(vL.fase, vL.q, vL.a);
         sheetB.appendRow([new Date(), vL.data, vL.mat, vL.top, vL.tipoLink, vL.t, vL.q, vL.a, vL.fase, vL.met, marcasL[0], marcasL[1], emailL]);
 
-        var dataUL = sheetU.getDataRange().getValues();
-        for (var i = 1; i < dataUL.length; i++) {
-          if (dataUL[i][0].toString().toLowerCase() === emailL) {
-            sheetU.getRange(i + 1, 5).setValue((parseFloat(dataUL[i][4]) || 0) + vL.q);
-            sheetU.getRange(i + 1, 6).setValue((parseFloat(dataUL[i][5]) || 0) + vL.t);
-            sheetU.getRange(i + 1, 7).setValue((parseFloat(dataUL[i][6]) || 0) + vL.a);
-            break;
-          }
-        }
+        somarTotaisUsuario(sheetU, indiceDoUsuario(sheetU, emailL), vL.q, vL.t, vL.a);
         SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+        invalidarLinhasAluno(emailL);
         return respJSON({"status": "sucesso"});
       });
     }
@@ -792,16 +773,17 @@ function doGet(e) {
     var acao = e.parameter.acao;
     if (acao === "vagas") return acaoVagas();
     var acoesPublicasGet = ["solicitar_codigo", "trocarSenhaSegura", "login", "cadastro"];
+    var usersLeve = null, linhaAuthGet = -1;
     if (acoesPublicasGet.indexOf(acao) === -1) {
       var sheetUAuth = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Usuarios");
       if (!sheetUAuth) return respJSON({"status": "erro", "erro": true, "mensagem": "Aba 'Usuarios' não encontrada."});
-      var linhaAuthGet = validarSessao(sheetUAuth.getDataRange().getValues(), e.parameter.email, e.parameter.token);
+      usersLeve = lerUsuariosLeve(sheetUAuth); // só e-mail, codinome, validade e token (sem fotos nem progresso)
+      linhaAuthGet = validarSessao(usersLeve, e.parameter.email, e.parameter.token);
       if (linhaAuthGet === -1) return respJSON({"status": "erro", "erro": true, "sessao": false, "mensagem": "Sessão inválida. Faça login novamente."});
       if (linhaAuthGet === -2) return respJSON({"status": "erro", "erro": true, "mensagem": "Sua assinatura expirou."});
     }
 
-    // Login e cadastro chegam por GET (legível pelo navegador) e reutilizam a lógica do doPost
-    // Ações com senha não aceitam mais GET (a senha ficaria exposta na URL)
+    // Ações com senha não aceitam GET (a senha ficaria exposta na URL)
     if (acao === "login" || acao === "cadastro" || acao === "trocarSenhaSegura") {
       return respJSON({"status": "erro", "mensagem": "Versão desatualizada. Atualize a página (Ctrl + F5)."});
     }
@@ -810,234 +792,408 @@ function doGet(e) {
       return acaoSolicitarCodigo(e.parameter.email);
     }
 
-    if (acao === "trocarSenhaSegura") {
-      return acaoTrocarSenha(e.parameter.email, e.parameter.codigo, e.parameter.novaSenha);
-    }
-
-    if (acao === "radar") {
-      try {
-        var url = 'https://www.pciconcursos.com.br/rss/';
-        var opcoesAvancadas = { "muteHttpExceptions": true, "headers": { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" } };
-        var response = UrlFetchApp.fetch(url, opcoesAvancadas);
-        var xml = response.getContentText();
-        
-        if (!xml.includes('<rss') && !xml.includes('<feed')) {
-           xml = ""; 
-           for (var pagina = 1; pagina <= 5; pagina++) {
-             var urlEst = 'https://www.estrategiaconcursos.com.br/blog/feed/?paged=' + pagina;
-             var resEst = UrlFetchApp.fetch(urlEst, opcoesAvancadas);
-             xml += resEst.getContentText(); 
-           }
-        }
-        
-        var newsList = [];
-        var itemRegex = /<item>([\s\S]*?)<\/item>/gi;
-        var match; var limit = 0;
-        
-        while ((match = itemRegex.exec(xml)) !== null && limit < 60) {
-          var block = match[1];
-          var titleRegex = /<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i;
-          var tMatch = titleRegex.exec(block); var titulo = tMatch ? tMatch[1].trim() : "Aviso Oficial";
-          var linkRegex = /<link>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i;
-          var lMatch = linkRegex.exec(block); var link = lMatch ? lMatch[1].trim() : "#";
-          var dateRegex = /<pubDate>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/pubDate>/i;
-          var dMatch = dateRegex.exec(block); var pubDate = dMatch ? dMatch[1].trim() : "";
-          
-          newsList.push({ titulo: titulo, link: link, pubDate: pubDate }); limit++;
-        }
-        return ContentService.createTextOutput(JSON.stringify({ "status": "sucesso", "noticias": newsList })).setMimeType(ContentService.MimeType.JSON);
-      } catch (errRadar) {
-        return ContentService.createTextOutput(JSON.stringify({ "status": "erro", "mensagem": "Falha na varredura regex: " + errRadar.message })).setMimeType(ContentService.MimeType.JSON);
-      }
-    }
+    if (acao === "radar") return acaoRadar();
 
     var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var email = e.parameter.email;
-    var senha = e.parameter.senha;
-    if (!email) return ContentService.createTextOutput(JSON.stringify({"erro": true, "mensagem": "Email ausente"})).setMimeType(ContentService.MimeType.JSON);
-
+    var email = String(e.parameter.email || "").trim().toLowerCase();
     var sheetU = ss.getSheetByName("Usuarios");
-    if(!sheetU) return ContentService.createTextOutput(JSON.stringify({"erro": true, "mensagem": "Aba 'Usuarios' não encontrada."})).setMimeType(ContentService.MimeType.JSON);
-    
-    var users = sheetU.getDataRange().getValues();
-    var userRow = -1;
-    var expirationDate = ""; var nickname = ""; var cicloSalvoNuvem = ""; var nickMap = {};
-    var editalAtivoUsuario = ""; var progressoEditalUsuario = "{}";
 
-    var editalAtivoUsuario = ""; var progressoEditalUsuario = "{}";
-    var avatarUsuario = ""; var avatarByNick = {};
-
-    for (var i = 1; i < users.length; i++) {
-      var uEmail = users[i][0] ? users[i][0].toString().toLowerCase() : "";
-      var uNick = users[i][3] || "Anônimo";
-      var uAvatar = users[i][11] ? users[i][11].toString() : "";
-      if (uEmail) { 
-        nickMap[uEmail] = uNick; 
-        avatarByNick[uNick] = uAvatar;
-      }
-
-      if (uEmail === email.toLowerCase()) {
-        if (acao === "login" && users[i][1].toString() !== senha) { } 
-        else {
-          var dataExpiracao = users[i][2];
-          if (dataExpiracao && dataExpiracao !== "" && !isNaN(new Date(dataExpiracao).getTime())) {
-            if (new Date() > new Date(dataExpiracao)) return ContentService.createTextOutput(JSON.stringify({"status": "erro", "erro": true, "mensagem": "Sua assinatura expirou."})).setMimeType(ContentService.MimeType.JSON);
-            expirationDate = Utilities.formatDate(new Date(dataExpiracao), Session.getScriptTimeZone(), "dd/MM/yyyy");
-          } else { expirationDate = "Vitalício"; }
-          nickname = uNick;
-          cicloSalvoNuvem = users[i][7] || ""; 
-          editalAtivoUsuario = users[i][8] || ""; 
-          progressoEditalUsuario = montarProgresso(users[i]);
-          avatarUsuario = uAvatar;
-          userRow = i;
-        }
-      }
-    }
-
-    if (userRow === -1) return ContentService.createTextOutput(JSON.stringify({"status": "erro", "erro": true, "mensagem": "Credenciais Inválidas ou Assinatura Inativa."})).setMimeType(ContentService.MimeType.JSON);
-    registrarAcessoDiario(sheetU, userRow, users[userRow]);
-
-    var baseEditaisDict = {};
-    var sheetE = ss.getSheetByName("Base_Editais");
-    if (sheetE) {
-      var dataE = sheetE.getDataRange().getValues();
-      for(var e_idx = 1; e_idx < dataE.length; e_idx++) {
-         var conc = dataE[e_idx][0] ? dataE[e_idx][0].toString().trim() : "";
-         if(!conc) continue;
-         if(!baseEditaisDict[conc]) baseEditaisDict[conc] = [];
-         baseEditaisDict[conc].push({
-            banca: dataE[e_idx][1] ? dataE[e_idx][1].toString().trim() : "",
-            bloco: dataE[e_idx][2] ? dataE[e_idx][2].toString().trim() : "",
-            mat: dataE[e_idx][3] ? dataE[e_idx][3].toString().trim() : "",
-            top: dataE[e_idx][4] ? dataE[e_idx][4].toString().trim() : "",
-            linkMaster: dataE[e_idx][5] ? dataE[e_idx][5].toString().trim() : ""
-         });
-      }
-    }
-
-    var sheetB = ss.getSheetByName("Base_Dashboard");
-    if(!sheetB) return ContentService.createTextOutput(JSON.stringify({"erro": true, "mensagem": "Aba 'Base_Dashboard' não encontrada."})).setMimeType(ContentService.MimeType.JSON);
-
-    var dataB_Full = sheetB.getDataRange().getDisplayValues(); 
-    var now = new Date();
+    // Linha completa só do próprio aluno (antes: a aba inteira, com a foto e o progresso de todos)
+    var userRow = linhaAuthGet;
+    var linhaUsuario = sheetU.getRange(userRow + 1, 1, 1, sheetU.getLastColumn()).getValues()[0];
     var tz = Session.getScriptTimeZone();
-    
-    var hojeStr = Utilities.formatDate(now, tz, "dd/MM/yyyy");
-    var mesAnoStr = hojeStr.substring(3);
-    
-    var shiftedNow = new Date(now.getTime() - 86400000);
-    var currentWeekStr = Utilities.formatDate(shiftedNow, tz, "w-yyyy");
-    
-    var rankDiario = {}; var rankSemanal = {}; var rankMensal = {}; var rankGeral = {}; 
-    var compDisciplinas = {}; var compMensal = {};
-    var dateCache = {}; 
-    var filtered = [];
-    
-    if (dataB_Full.length > 0) {
-        filtered.push(dataB_Full[0]); 
+
+    var expirationDate = "Vitalício";
+    var dataExpiracao = linhaUsuario[COL.EXPIRA];
+    if (dataExpiracao && dataExpiracao !== "" && !isNaN(new Date(dataExpiracao).getTime())) {
+      expirationDate = Utilities.formatDate(new Date(dataExpiracao), tz, "dd/MM/yyyy");
+    }
+    var nickname = linhaUsuario[COL.NICK] || "Anônimo";
+    var cicloSalvoNuvem = linhaUsuario[7] || "";
+    var editalAtivoUsuario = linhaUsuario[8] || "";
+    var progressoEditalUsuario = montarProgresso(linhaUsuario);
+    var avatarUsuario = linhaUsuario[COL.AVATAR] ? linhaUsuario[COL.AVATAR].toString() : "";
+    registrarAcessoDiario(sheetU, userRow, linhaUsuario);
+
+    var baseEditaisDict = obterBaseEditais(ss);
+
+    // Lançamentos do aluno + ranking/comparativo: vêm do cache; a Base_Dashboard só é lida quando o cache expira
+    var datas = datasReferencia(tz);
+    var cache = CacheService.getScriptCache();
+    var chaveLin = "lin_" + versaoCache() + "_" + email;
+    var chaveAgg = chaveAgregados(datas);
+    var genAtual = cache.get(chaveGeracao(email)) || "0";
+
+    var filtered = null, agregados = null;
+    var linCache = cacheGetGrande(chaveLin);
+    if (linCache !== null) {
+      try { var objLin = JSON.parse(linCache); if (objLin && objLin.g === genAtual) filtered = objLin.r; } catch (errLin) {}
+    }
+    var aggCache = cacheGetGrande(chaveAgg);
+    if (aggCache !== null) {
+      try { agregados = JSON.parse(aggCache); } catch (errAgg) {}
     }
 
-    if (dataB_Full.length > 1) {
-        for(var r = 1; r < dataB_Full.length; r++) {
-            var row = dataB_Full[r];
-            var dataEstudo = row[1] ? row[1].toString().trim() : ""; 
-            var matEstudo = row[2] ? row[2].toString().trim() : "";
-            var q = parseFloat(String(row[6]).replace(',', '.')) || 0; 
-            var a = parseFloat(String(row[7]).replace(',', '.')) || 0; 
-            var userEmail = row[12] ? row[12].toString().toLowerCase() : ""; 
-            if(!userEmail) continue;
-            
-            if (userEmail === email.toLowerCase()) {
-                filtered.push(row);
-            }
+    if (filtered === null || agregados === null) {
+      var sheetB = ss.getSheetByName("Base_Dashboard");
+      if (!sheetB) return respJSON({"erro": true, "mensagem": "Aba 'Base_Dashboard' não encontrada."});
+      var dataB_Full = sheetB.getDataRange().getDisplayValues();
 
-            if (matEstudo && q > 0) {
-                if (!compDisciplinas[matEstudo]) compDisciplinas[matEstudo] = { q: 0, a: 0 };
-                compDisciplinas[matEstudo].q += q;
-                compDisciplinas[matEstudo].a += a;
-            }
+      var nickMap = {};
+      for (var i = 1; i < usersLeve.length; i++) {
+        var uEmail = usersLeve[i][COL.EMAIL] ? usersLeve[i][COL.EMAIL].toString().toLowerCase() : "";
+        if (uEmail) nickMap[uEmail] = usersLeve[i][COL.NICK] || "Anônimo";
+      }
 
-            var mesChave = dataEstudo.length >= 10 ? dataEstudo.substring(3) : "";
-            if (mesChave && q > 0) {
-                if (!compMensal[mesChave]) compMensal[mesChave] = { q: 0, a: 0 };
-                compMensal[mesChave].q += q;
-                compMensal[mesChave].a += a;
-            }
-
-            var nick = nickMap[userEmail] || "Anônimo";
-
-            if(!rankGeral[nick]) rankGeral[nick] = {q:0, a:0};
-            rankGeral[nick].q += q; rankGeral[nick].a += a;
-
-            if(dataEstudo === hojeStr) {
-              if(!rankDiario[nick]) rankDiario[nick] = {q:0, a:0};
-              rankDiario[nick].q += q; rankDiario[nick].a += a;
-            }
-            
-            if(dataEstudo.substring(3) === mesAnoStr) {
-              if(!rankMensal[nick]) rankMensal[nick] = {q:0, a:0};
-              rankMensal[nick].q += q; rankMensal[nick].a += a;
-            }
-            
-            var rowWeekStr;
-            if (dateCache[dataEstudo]) {
-                rowWeekStr = dateCache[dataEstudo]; 
-            } else {
-                var dParts = dataEstudo.split('/');
-                if(dParts.length === 3) {
-                   var dObj = new Date(dParts[2], dParts[1]-1, dParts[0]);
-                   var shiftedRowDate = new Date(dObj.getTime() - 86400000);
-                   rowWeekStr = Utilities.formatDate(shiftedRowDate, tz, "w-yyyy"); 
-                   dateCache[dataEstudo] = rowWeekStr; 
-                } else {
-                   rowWeekStr = "invalido";
-                   dateCache[dataEstudo] = "invalido";
-                }
-            }
-            
-            if (rowWeekStr === currentWeekStr) {
-               if(!rankSemanal[nick]) rankSemanal[nick] = {q:0, a:0};
-               rankSemanal[nick].q += q; rankSemanal[nick].a += a;
-            }
-        }
+      var calc = calcularAgregados(dataB_Full, email, nickMap, tz, datas);
+      filtered = calc.filtered;
+      agregados = calc.agregados;
+      cachePutGrande(chaveLin, JSON.stringify({ g: genAtual, r: filtered }), CACHE_LINHAS_SEG);
+      cachePutGrande(chaveAgg, JSON.stringify(agregados), CACHE_RANKING_SEG);
     }
 
-    var formatRank = function(obj, limit) { 
-      return Object.keys(obj).map(function(k){ 
-        return {nick: k, q: obj[k].q, a: obj[k].a, avatar: avatarByNick[k] || ""}; 
-      }).sort(function(a,b){return b.q - a.q}).slice(0, limit); 
-    };
+    // Fotos do ranking: uma vez por codinome (antes vinham repetidas em cada entrada dos 4 rankings)
+    var nicksRanking = {};
+    ["diario", "semanal", "mensal", "geral"].forEach(function(tipo) {
+      (agregados.leaderboards[tipo] || []).forEach(function(item) { nicksRanking[item.nick] = true; });
+    });
+    var avatares = obterAvatares(sheetU, Object.keys(nicksRanking));
 
-    var leaderboardsObj = { 
-        "diario": formatRank(rankDiario, 20), 
-        "semanal": formatRank(rankSemanal, 20), 
-        "mensal": formatRank(rankMensal, 20), 
-        "geral": formatRank(rankGeral, 50) 
-    };
-
-    var comparativoGeralObj = {
-        "disciplinas": compDisciplinas,
-        "mensal": compMensal
-    };
-
-    if (acao === "login") {
-      return ContentService.createTextOutput(JSON.stringify({ 
-        "status": "sucesso", "expiration": expirationDate, "nickname": nickname, "avatar": avatarUsuario,
-        "cicloNuvem": cicloSalvoNuvem, "baseEditais": baseEditaisDict,
-        "editalAtivo": editalAtivoUsuario, "progressoEdital": progressoEditalUsuario
-      })).setMimeType(ContentService.MimeType.JSON);
-    }
-    
-    return ContentService.createTextOutput(JSON.stringify({ 
+    return respJSON({
       "status": "sucesso", "dados": filtered, "expiration": expirationDate, "nickname": nickname, "avatar": avatarUsuario,
-      "leaderboards": leaderboardsObj, "comparativoGeral": comparativoGeralObj, "cicloNuvem": cicloSalvoNuvem, 
-      "baseEditais": baseEditaisDict, "editalAtivo": editalAtivoUsuario, "progressoEdital": progressoEditalUsuario
-    })).setMimeType(ContentService.MimeType.JSON);
+      "leaderboards": agregados.leaderboards, "avatares": avatares, "comparativoGeral": agregados.comparativo,
+      "cicloNuvem": cicloSalvoNuvem, "baseEditais": baseEditaisDict,
+      "editalAtivo": editalAtivoUsuario, "progressoEdital": progressoEditalUsuario
+    });
 
   } catch(err) {
     return ContentService.createTextOutput(JSON.stringify({"status": "erro", "erro": true, "mensagem": "Erro no Google Sheets: " + err.message})).setMimeType(ContentService.MimeType.JSON);
   }
 }
+
+// Varre a Base_Dashboard uma vez: separa as linhas do aluno e monta ranking + comparativo geral
+function calcularAgregados(dataB_Full, email, nickMap, tz, datas) {
+  var hojeStr = datas.hoje, mesAnoStr = datas.mesAno, currentWeekStr = datas.semana;
+  var rankDiario = {}, rankSemanal = {}, rankMensal = {}, rankGeral = {};
+  var compDisciplinas = {}, compMensal = {};
+  var dateCache = {};
+  var filtered = [];
+  if (dataB_Full.length > 0) filtered.push(dataB_Full[0]);
+
+  function somar(obj, nick, q, a) {
+    if (!obj[nick]) obj[nick] = { q: 0, a: 0 };
+    obj[nick].q += q; obj[nick].a += a;
+  }
+
+  for (var r = 1; r < dataB_Full.length; r++) {
+    var row = dataB_Full[r];
+    var dataEstudo = row[1] ? row[1].toString().trim() : "";
+    var matEstudo = row[2] ? row[2].toString().trim() : "";
+    var q = parseFloat(String(row[6]).replace(',', '.')) || 0;
+    var a = parseFloat(String(row[7]).replace(',', '.')) || 0;
+    var userEmail = row[12] ? row[12].toString().toLowerCase() : "";
+    if (!userEmail) continue;
+
+    if (userEmail === email) filtered.push(row);
+
+    if (matEstudo && q > 0) {
+      if (!compDisciplinas[matEstudo]) compDisciplinas[matEstudo] = { q: 0, a: 0 };
+      compDisciplinas[matEstudo].q += q; compDisciplinas[matEstudo].a += a;
+    }
+
+    var mesChave = dataEstudo.length >= 10 ? dataEstudo.substring(3) : "";
+    if (mesChave && q > 0) {
+      if (!compMensal[mesChave]) compMensal[mesChave] = { q: 0, a: 0 };
+      compMensal[mesChave].q += q; compMensal[mesChave].a += a;
+    }
+
+    var nick = nickMap[userEmail] || "Anônimo";
+    somar(rankGeral, nick, q, a);
+    if (dataEstudo === hojeStr) somar(rankDiario, nick, q, a);
+    if (dataEstudo.substring(3) === mesAnoStr) somar(rankMensal, nick, q, a);
+
+    var rowWeekStr = dateCache[dataEstudo];
+    if (!rowWeekStr) {
+      var dParts = dataEstudo.split('/');
+      if (dParts.length === 3) {
+        var dObj = new Date(dParts[2], dParts[1] - 1, dParts[0]);
+        rowWeekStr = Utilities.formatDate(new Date(dObj.getTime() - 86400000), tz, "w-yyyy");
+      } else {
+        rowWeekStr = "invalido";
+      }
+      dateCache[dataEstudo] = rowWeekStr;
+    }
+    if (rowWeekStr === currentWeekStr) somar(rankSemanal, nick, q, a);
+  }
+
+  var formatRank = function(obj, limit) {
+    return Object.keys(obj).map(function(k) {
+      return { nick: k, q: obj[k].q, a: obj[k].a };
+    }).sort(function(x, y) { return y.q - x.q; }).slice(0, limit);
+  };
+
+  return {
+    filtered: filtered,
+    agregados: {
+      leaderboards: {
+        "diario": formatRank(rankDiario, 20),
+        "semanal": formatRank(rankSemanal, 20),
+        "mensal": formatRank(rankMensal, 20),
+        "geral": formatRank(rankGeral, 50)
+      },
+      comparativo: { "disciplinas": compDisciplinas, "mensal": compMensal }
+    }
+  };
+}
+
+function acaoRadar() {
+  var chaveRadar = "radar_" + versaoCache();
+  var emCache = cacheGetGrande(chaveRadar);
+  if (emCache !== null) return ContentService.createTextOutput(emCache).setMimeType(ContentService.MimeType.JSON);
+  try {
+    var url = 'https://www.pciconcursos.com.br/rss/';
+    var opcoesAvancadas = { "muteHttpExceptions": true, "headers": { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" } };
+    var response = UrlFetchApp.fetch(url, opcoesAvancadas);
+    var xml = response.getContentText();
+
+    if (!xml.includes('<rss') && !xml.includes('<feed')) {
+      xml = "";
+      for (var pagina = 1; pagina <= 5; pagina++) {
+        var urlEst = 'https://www.estrategiaconcursos.com.br/blog/feed/?paged=' + pagina;
+        var resEst = UrlFetchApp.fetch(urlEst, opcoesAvancadas);
+        xml += resEst.getContentText();
+      }
+    }
+
+    var newsList = [];
+    var itemRegex = /<item>([\s\S]*?)<\/item>/gi;
+    var match; var limit = 0;
+    while ((match = itemRegex.exec(xml)) !== null && limit < 60) {
+      var block = match[1];
+      var tMatch = /<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i.exec(block); var titulo = tMatch ? tMatch[1].trim() : "Aviso Oficial";
+      var lMatch = /<link>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i.exec(block); var link = lMatch ? lMatch[1].trim() : "#";
+      var dMatch = /<pubDate>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/pubDate>/i.exec(block); var pubDate = dMatch ? dMatch[1].trim() : "";
+      newsList.push({ titulo: titulo, link: link, pubDate: pubDate }); limit++;
+    }
+    var json = JSON.stringify({ "status": "sucesso", "noticias": newsList });
+    if (newsList.length > 0) cachePutGrande(chaveRadar, json, CACHE_RADAR_SEG); // só guarda quando a busca deu certo
+    return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
+  } catch (errRadar) {
+    return respJSON({ "status": "erro", "mensagem": "Falha na varredura regex: " + errRadar.message });
+  }
+}
+
+// ===== DESEMPENHO: LEITURAS LEVES E CACHE =====
+// Ranking e comparativo: recalculados no máximo a cada 5 min (ou na hora, quando o próprio aluno grava algo).
+// Lançamentos do aluno: guardados por 1h e descartados a cada gravação dele.
+// Mexeu na planilha à mão? Rode limparCaches() pelo editor (▶) para tudo ser relido na hora.
+var CACHE_RANKING_SEG = 300;
+var CACHE_LINHAS_SEG = 3600;
+var CACHE_GERACAO_SEG = 21600;
+var CACHE_AVATAR_SEG = 21600;
+var CACHE_EDITAIS_SEG = 600;
+var CACHE_RADAR_SEG = 1800;
+var CACHE_PEDACO = 45000;   // o CacheService aceita até 100 KB por chave (acentos ocupam 2 bytes)
+var CACHE_MAX_PEDACOS = 100;
+
+var _versaoCache = null;
+function versaoCache() {
+  if (_versaoCache === null) {
+    _versaoCache = PropertiesService.getScriptProperties().getProperty("CACHE_VERSAO") || "1";
+  }
+  return _versaoCache;
+}
+
+// Rode pelo editor depois de editar a planilha à mão: invalida todos os caches de uma vez
+function limparCaches() {
+  var nova = String(new Date().getTime());
+  PropertiesService.getScriptProperties().setProperty("CACHE_VERSAO", nova);
+  _versaoCache = nova;
+  Logger.log("Caches invalidados (versão " + nova + ").");
+}
+
+// Guarda textos maiores que 100 KB dividindo em pedaços
+function cachePutGrande(chave, texto, seg) {
+  try {
+    var obj = {};
+    var n = 0;
+    for (var p = 0; p < texto.length; p += CACHE_PEDACO) {
+      obj[chave + "_" + n] = texto.substring(p, p + CACHE_PEDACO);
+      n++;
+      if (n > CACHE_MAX_PEDACOS) return; // grande demais: segue sem cache
+    }
+    obj[chave + "_n"] = String(n);
+    CacheService.getScriptCache().putAll(obj, seg);
+  } catch (err) {
+    Logger.log("cachePutGrande(" + chave + "): " + err.message);
+  }
+}
+
+// Devolve o texto guardado, ou null se faltar qualquer pedaço
+function cacheGetGrande(chave) {
+  try {
+    var cache = CacheService.getScriptCache();
+    var cab = cache.get(chave + "_n");
+    if (cab === null) return null;
+    var n = parseInt(cab, 10);
+    if (!(n >= 0)) return null;
+    var chaves = [];
+    for (var i = 0; i < n; i++) chaves.push(chave + "_" + i);
+    var partes = n > 0 ? cache.getAll(chaves) : {};
+    var s = "";
+    for (var j = 0; j < n; j++) {
+      var parte = partes[chave + "_" + j];
+      if (parte === undefined || parte === null) return null;
+      s += parte;
+    }
+    return s;
+  } catch (err) {
+    return null;
+  }
+}
+
+function datasReferencia(tz) {
+  var agora = new Date();
+  var hoje = Utilities.formatDate(agora, tz, "dd/MM/yyyy");
+  return {
+    hoje: hoje,
+    mesAno: hoje.substring(3),
+    semana: Utilities.formatDate(new Date(agora.getTime() - 86400000), tz, "w-yyyy")
+  };
+}
+
+// A chave muda com o dia e a semana: o ranking "diário" nunca atravessa a meia-noite
+function chaveAgregados(datas) {
+  return "agg_" + versaoCache() + "_" + datas.hoje.replace(/\//g, "") + "_" + datas.semana;
+}
+
+function chaveGeracao(email) {
+  return "gen_" + versaoCache() + "_" + email;
+}
+
+// Chamada a cada gravação do aluno: descarta o cache dos lançamentos dele.
+// A "geração" protege contra uma sincronização lenta que leu a planilha antes da gravação e tenta guardar dados velhos.
+function invalidarLinhasAluno(email) {
+  try {
+    CacheService.getScriptCache().put(chaveGeracao(String(email).trim().toLowerCase()), String(new Date().getTime()) + "_" + Math.floor(Math.random() * 1e6), CACHE_GERACAO_SEG);
+  } catch (err) {
+    Logger.log("invalidarLinhasAluno: " + err.message);
+  }
+}
+
+function invalidarAgregados() {
+  try {
+    CacheService.getScriptCache().remove(chaveAgregados(datasReferencia(Session.getScriptTimeZone())) + "_n");
+  } catch (err) {}
+}
+
+// Só as colunas usadas para autenticar (A:D e M:N), nos mesmos índices da linha completa.
+// Evita ler fotos (até 40 KB por aluno) e progresso do edital (até ~315 KB por aluno) a cada requisição.
+function lerUsuariosLeve(sheetU) {
+  var ultima = sheetU.getLastRow();
+  if (ultima < 1) return [];
+  var ad = sheetU.getRange(1, 1, ultima, 4).getValues();
+  var mn = sheetU.getRange(1, COL.TOKEN + 1, ultima, 2).getValues();
+  var out = new Array(ultima);
+  for (var i = 0; i < ultima; i++) {
+    var r = [ad[i][0], ad[i][1], ad[i][2], ad[i][3]];
+    r[COL.TOKEN] = mn[i][0];
+    r[COL.TOKEN_EXP] = mn[i][1];
+    out[i] = r;
+  }
+  return out;
+}
+
+// Índice (base 0, como em getValues) da linha do aluno, lendo só a coluna de e-mail
+function indiceDoUsuario(sheetU, email) {
+  var alvo = String(email || "").trim().toLowerCase();
+  var ultima = sheetU.getLastRow();
+  if (!alvo || ultima < 2) return -1;
+  var col = sheetU.getRange(1, 1, ultima, 1).getValues();
+  for (var i = 1; i < col.length; i++) {
+    if (col[i][0] && col[i][0].toString().trim().toLowerCase() === alvo) return i;
+  }
+  return -1;
+}
+
+// Soma (ou subtrai) nos totais do aluno: colunas E (questões), F (tempo), G (acertos)
+function somarTotaisUsuario(sheetU, idx, dq, dt, da) {
+  if (idx < 0) return;
+  var rg = sheetU.getRange(idx + 1, 5, 1, 3);
+  var v = rg.getValues()[0];
+  rg.setValues([[
+    Math.max(0, (parseFloat(v[0]) || 0) + dq),
+    Math.max(0, (parseFloat(v[1]) || 0) + dt),
+    Math.max(0, (parseFloat(v[2]) || 0) + da)
+  ]]);
+}
+
+function chaveAvatar(nick) {
+  return "av_" + versaoCache() + "_" + String(nick).toLowerCase();
+}
+
+// Fotos dos codinomes do ranking. Vêm do cache; a coluna de fotos só é lida para quem ainda não está nele.
+function obterAvatares(sheetU, nicks) {
+  var mapa = {};
+  if (!nicks || nicks.length === 0) return mapa;
+  var cache = CacheService.getScriptCache();
+  var chaves = nicks.map(chaveAvatar);
+  var achados = {};
+  try { achados = cache.getAll(chaves); } catch (errC) {}
+  var faltando = [];
+  for (var i = 0; i < nicks.length; i++) {
+    var v = achados[chaves[i]];
+    if (v === undefined || v === null) faltando.push(nicks[i]);
+    else if (v !== "-") mapa[nicks[i]] = v;
+  }
+  if (faltando.length === 0) return mapa;
+
+  var ultima = sheetU.getLastRow();
+  if (ultima < 2) return mapa;
+  var nk = sheetU.getRange(2, COL.NICK + 1, ultima - 1, 1).getValues();
+  var av = sheetU.getRange(2, COL.AVATAR + 1, ultima - 1, 1).getValues();
+  var porNick = {};
+  for (var j = 0; j < nk.length; j++) {
+    if (nk[j][0]) porNick[String(nk[j][0]).toLowerCase()] = av[j][0] ? String(av[j][0]) : "";
+  }
+  var novos = {};
+  faltando.forEach(function(n) {
+    var foto = porNick[String(n).toLowerCase()] || "";
+    if (foto) mapa[n] = foto;
+    novos[chaveAvatar(n)] = foto || "-"; // "-" = sem foto (evita reler a coluna)
+  });
+  try { cache.putAll(novos, CACHE_AVATAR_SEG); } catch (errP) {}
+  return mapa;
+}
+
+// Catálogo de editais (muda pouco): guardado por 10 min
+function obterBaseEditais(ss) {
+  var chave = "edt_" + versaoCache();
+  var emCache = cacheGetGrande(chave);
+  if (emCache !== null) {
+    try { return JSON.parse(emCache); } catch (errE) {}
+  }
+  var baseEditaisDict = {};
+  var sheetE = ss.getSheetByName("Base_Editais");
+  if (sheetE) {
+    var dataE = sheetE.getDataRange().getValues();
+    for (var i = 1; i < dataE.length; i++) {
+      var conc = dataE[i][0] ? dataE[i][0].toString().trim() : "";
+      if (!conc) continue;
+      if (!baseEditaisDict[conc]) baseEditaisDict[conc] = [];
+      baseEditaisDict[conc].push({
+        banca: dataE[i][1] ? dataE[i][1].toString().trim() : "",
+        bloco: dataE[i][2] ? dataE[i][2].toString().trim() : "",
+        mat: dataE[i][3] ? dataE[i][3].toString().trim() : "",
+        top: dataE[i][4] ? dataE[i][4].toString().trim() : "",
+        linkMaster: dataE[i][5] ? dataE[i][5].toString().trim() : ""
+      });
+    }
+  }
+  cachePutGrande(chave, JSON.stringify(baseEditaisDict), CACHE_EDITAIS_SEG);
+  return baseEditaisDict;
+}
+
 function migrarUsuariosExistentes() {
   var sheetU = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Usuarios");
   var users = sheetU.getDataRange().getValues();

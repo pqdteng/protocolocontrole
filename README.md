@@ -31,6 +31,21 @@ A planilha usa as abas `Usuarios`, `Base_Dashboard`, `Base_Editais`, `Pedidos_Ed
 
 Motivo: o front novo pode chamar ações que só o backend novo conhece; o contrário costuma ser compatível.
 
+## Cache do servidor (desde a v29-76)
+
+Para não reler a planilha inteira a cada clique, o Apps Script guarda resultados em cache:
+
+| O quê | Validade | Atualiza na hora quando... |
+|---|---|---|
+| Lançamentos do aluno | 1 h | o próprio aluno lança, retifica, importa ou apaga |
+| Ranking e comparativo | 5 min | qualquer aluno grava algo e sincroniza; troca de codinome |
+| Fotos do ranking | 6 h | o aluno troca a foto ou o codinome |
+| Catálogo de editais | 10 min | — |
+| Radar | 30 min | — |
+
+**Editou a planilha à mão** (corrigiu um lançamento, cadastrou edital, mudou um codinome)?
+No editor do Apps Script, escolha a função `limparCaches` e clique em ▶ Executar: tudo é relido na próxima sincronização.
+
 ## Comandos úteis
 
 | Quero... | Comando |
