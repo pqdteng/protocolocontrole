@@ -373,6 +373,28 @@
         .ciclo-grupo-titulo:first-child { padding-top: 0; }
         .ciclo-grupo-titulo.edital { color: var(--accent-green); }
         .busca-materias { width: 100%; box-sizing: border-box; margin-top: 15px; padding: 10px 12px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 6px; outline: none; font-size: 14px; }
+        .leitor-modal { display: none; position: fixed; inset: 0; z-index: 10003; background: var(--bg-color); flex-direction: column; }
+        .leitor-modal.aberto { display: flex; }
+        .leitor-barra { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-wrap: wrap; }
+        .leitor-info { min-width: 0; flex: 0 1 260px; }
+        .leitor-titulo { font-weight: bold; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .leitor-sub { font-size: 12px; color: var(--accent-blue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .leitor-endereco { display: flex; gap: 6px; flex: 1 1 280px; min-width: 0; margin: 0; }
+        .leitor-endereco input { flex: 1; min-width: 0; padding: 8px 10px; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-color); border-radius: 6px; outline: none; font-size: 13px; }
+        .leitor-acoes { display: flex; gap: 8px; align-items: center; }
+        .leitor-acoes .btn { padding: 8px 12px; font-size: 13px; }
+        .leitor-fechar { background: none; border: none; color: #888; font-size: 28px; line-height: 1; cursor: pointer; padding: 0 4px; }
+        .leitor-corpo { flex: 1; position: relative; min-height: 0; }
+        .leitor-corpo iframe { width: 100%; height: 100%; border: 0; background: #fff; display: block; }
+        .leitor-aviso { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; flex-direction: column; gap: 14px; text-align: center; padding: 24px; color: var(--text-color); background: var(--bg-color); }
+        .leitor-aviso.ativo { display: flex; }
+        .leitor-rodape { font-size: 11px; color: #888; padding: 6px 14px; background: var(--card-bg); border-top: 1px solid var(--border-color); }
+        @media (max-width: 768px) {
+            .leitor-barra { gap: 8px; padding: 8px 10px; }
+            .leitor-info { flex-basis: 100%; }
+            .leitor-acoes { width: 100%; }
+            .leitor-acoes .btn { flex: 1; justify-content: center; }
+        }
         .ciclo-edital-box { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 15px; padding: 12px 15px; background: rgba(35, 134, 54, 0.08); border: 1px solid var(--accent-green); border-radius: 8px; font-size: 14px; }
         .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 0.9em; cursor: pointer; padding: 5px; border-radius: 4px;}
         .checkbox-label:hover { background: var(--hover-bg); }
@@ -2213,7 +2235,7 @@ Gostaria que fizesse:
             <form id="studyForm" onsubmit="submitEntry(event)">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <div class="form-group" style="margin:0;"><label>Data</label><input type="date" id="f-data" required></div>
-                    <div class="form-group" style="margin:0;"><label>Matéria</label><select id="f-materia" required onchange="atualizarCampoTopico()"></select></div>
+                    <div class="form-group" style="margin:0;"><label>Matéria</label><select id="f-materia" required onchange="atualizarCampoTopico(); ajustarLinkAutomatico()"></select></div>
                 </div>
                 
                 <div class="form-group">
@@ -2242,6 +2264,29 @@ Gostaria que fizesse:
                 <button type="submit" id="btn-submit-form" class="btn" style="background: var(--accent-green); width:100%; padding:15px; font-size:16px;">ENVIAR PARA A NUVEM</button>
             </form>
         </div>
+    </div>
+
+    <div id="leitorModal" class="leitor-modal" role="dialog" aria-modal="true" aria-labelledby="leitor-titulo">
+        <div class="leitor-barra">
+            <div class="leitor-info">
+                <div id="leitor-titulo" class="leitor-titulo"><i class="fas fa-book-open" style="color:var(--accent-orange)"></i> Caderno</div>
+                <div id="leitor-sub" class="leitor-sub"></div>
+            </div>
+            <form class="leitor-endereco" onsubmit="event.preventDefault(); carregarNoLeitor(document.getElementById('leitor-url').value);">
+                <input type="text" id="leitor-url" placeholder="Cole aqui o link do caderno (TEC, PDF, vídeo...)" autocomplete="off">
+                <button type="submit" class="btn" style="background:var(--accent-blue); padding:8px 12px;" title="Abrir este link"><i class="fas fa-arrow-right"></i></button>
+            </form>
+            <div class="leitor-acoes">
+                <button type="button" class="btn" style="background:var(--hover-bg); color:var(--text-color); border:1px solid var(--border-color);" onclick="abrirLeitorEmNovaGuia()"><i class="fas fa-external-link-alt"></i> Nova guia</button>
+                <button type="button" class="btn" style="background:var(--accent-green);" onclick="lancarBlocoDoLeitor()"><i class="fas fa-pen-nib"></i> Lançar este bloco</button>
+                <button type="button" class="leitor-fechar" onclick="fecharLeitorCaderno()" aria-label="Fechar">&times;</button>
+            </div>
+        </div>
+        <div class="leitor-corpo">
+            <iframe id="leitor-frame" title="Caderno de estudo" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads allow-modals" allow="fullscreen; clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            <div id="leitor-aviso" class="leitor-aviso"></div>
+        </div>
+        <div class="leitor-rodape">Página em branco ou pedindo login toda hora? Alguns sites não funcionam dentro da plataforma. Use <b>Nova guia</b>; o botão <b>Lançar este bloco</b> continua aqui.</div>
     </div>
 
     <script>
@@ -3753,15 +3798,18 @@ Gostaria que fizesse:
             let finalUrl = "";
             if (linkAlvo && linkAlvo.includes('http')) { let ext = linkAlvo.match(/(https?:\/\/[^\s"'<>]+)/); finalUrl = ext ? ext[0] : ""; }
 
+            gpsAlvoAtual = { sigla: p1.chaves[0], nome: p1.nome, topico: topicoAlvo, fase: sug.fase, url: finalUrl };
+
             if(finalUrl) {
-                if(guc) guc.innerHTML = `<a href="${escapeHTML(finalUrl)}" target="_blank" rel="noopener" class="btn" style="background:var(--accent-orange); color:black; width:100%; box-sizing:border-box; justify-content:center; margin-bottom:8px; text-decoration:none; white-space:normal; text-align:center;"><i class="fas fa-external-link-alt"></i> ${sug.novoAssunto ? 'ABRIR MATERIAL' : 'RETOMAR CADERNO'}</a><div style="font-size:11px; color:#888;">${escapeHTML(p1.nome)}</div>${badgeHTML}`;
+                if(guc) guc.innerHTML = `<button type="button" onclick="abrirLeitorCaderno()" class="btn" style="background:var(--accent-orange); color:black; width:100%; box-sizing:border-box; justify-content:center; margin-bottom:8px; white-space:normal; text-align:center;"><i class="fas fa-book-open"></i> ${sug.novoAssunto ? 'ABRIR MATERIAL' : 'RETOMAR CADERNO'}</button><div style="font-size:11px; color:#888;">${escapeHTML(p1.nome)}</div>${badgeHTML}`;
             } else {
-                if(guc) guc.innerHTML = `<div style="background:var(--bg-color); border: 1px solid var(--border-color); padding:10px; border-radius:8px; width:100%; box-sizing:border-box;">Alvo: <strong style="color:var(--text-color);">${escapeHTML(p1.chaves[0])}</strong><br><span style="color:var(--accent-orange); font-size:11px;">${sug.novoAssunto ? 'Gere o caderno do novo assunto.' : 'Sem link anexado.'}</span></div>${badgeHTML}`;
+                if(guc) guc.innerHTML = `<div style="background:var(--bg-color); border: 1px solid var(--border-color); padding:10px; border-radius:8px; width:100%; box-sizing:border-box;">Alvo: <strong style="color:var(--text-color);">${escapeHTML(p1.chaves[0])}</strong><br><span style="color:var(--accent-orange); font-size:11px;">${sug.novoAssunto ? 'Gere o caderno do novo assunto.' : 'Sem link anexado.'}</span></div><button type="button" onclick="abrirLeitorCaderno()" class="btn" style="background:transparent; border:1px dashed var(--accent-orange); color:var(--accent-orange); width:100%; box-sizing:border-box; justify-content:center; margin-top:8px; font-size:12px;"><i class="fas fa-paste"></i> Colar link do caderno</button>${badgeHTML}`;
             }
         } else {
             let p1 = cicloMaster[0];
+            gpsAlvoAtual = { sigla: p1.chaves[0], nome: p1.nome, topico: "", fase: 1, url: "" };
             if(ml) ml.innerHTML = `<li style="color:var(--accent-green); margin-bottom:10px;">Inicie o seu Ciclo:</li><li class="now"><strong>Agora:</strong> ${escapeHTML(p1.nome)} <br><span style="color:var(--accent-blue); font-size:11px;"><i class="fas fa-route"></i> Comece pela Fase 1 (ambientação).</span></li>`;
-            if(guc) guc.innerHTML = `<div style="background:var(--bg-color); border: 1px solid var(--border-color); padding:10px; border-radius:8px; width:100%; box-sizing:border-box; margin-bottom:8px;">Alvo: <strong style="color:var(--text-color);">${escapeHTML(p1.chaves[0])}</strong><br><span style="color:var(--accent-orange); font-size:11px;">Pendente.</span></div>`;
+            if(guc) guc.innerHTML = `<div style="background:var(--bg-color); border: 1px solid var(--border-color); padding:10px; border-radius:8px; width:100%; box-sizing:border-box; margin-bottom:8px;">Alvo: <strong style="color:var(--text-color);">${escapeHTML(p1.chaves[0])}</strong><br><span style="color:var(--accent-orange); font-size:11px;">Pendente.</span></div><button type="button" onclick="abrirLeitorCaderno()" class="btn" style="background:transparent; border:1px dashed var(--accent-orange); color:var(--accent-orange); width:100%; box-sizing:border-box; justify-content:center; font-size:12px;"><i class="fas fa-paste"></i> Colar link do caderno</button>`;
         }
     }
 
@@ -3791,6 +3839,135 @@ Gostaria que fizesse:
             : { fase: 2, novoAssunto: false, texto: `Fase 2${pctTxt}: repita em sequência até 70–75%.` };
         return { fase: 1, novoAssunto: false, texto: `Fase 1${pctTxt}: continue o caderno; se terminou, vá para a Fase 2.` };
     }
+
+    // ===== Leitor de caderno: abre o material dentro da plataforma =====
+    var gpsAlvoAtual = null;   // o que o GPS está indicando agora (var: updateGPS pode rodar antes desta linha)
+    var cadernoAberto = null;  // o último caderno aberto no leitor (pré-preenche o lançamento)
+    var CHAVE_CADERNO_ABERTO = 'pqdtCadernoAberto';
+    var VALIDADE_CADERNO_ABERTO_MS = 12 * 60 * 60 * 1000;
+    // Sites que se recusam a abrir dentro de outro site: vão direto para uma nova guia
+    const SITES_SEM_LEITOR = ['qconcursos.com', 'grancursosonline.com.br', 'estrategiaconcursos.com.br', 'estrategia.com', 'focusconcursos.com.br', 'docs.google.com'];
+
+    function normalizarLinkCaderno(valor) {
+        let s = String(valor || '').trim();
+        if(!s) return '';
+        let achado = s.match(/https?:\/\/[^\s"'<>]+/i);
+        if(achado) s = achado[0];
+        else if(/^[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(s)) s = 'https://' + s;
+        else return '';
+        try { let u = new URL(s); return (u.protocol === 'https:' || u.protocol === 'http:') ? u.href : ''; } catch(e) { return ''; }
+    }
+
+    function siteSemLeitor(url) {
+        try { let h = new URL(url).hostname.toLowerCase(); return SITES_SEM_LEITOR.some(d => h === d || h.endsWith('.' + d)); } catch(e) { return false; }
+    }
+
+    // Alguns links só abrem embutidos no formato "embed" (Drive, YouTube)
+    function linkParaEmbutir(url) {
+        try {
+            let u = new URL(url); let h = u.hostname.replace(/^www\./, '').toLowerCase();
+            let drive = u.pathname.match(/^\/file\/d\/([^\/]+)/);
+            if(h === 'drive.google.com' && drive) return `https://drive.google.com/file/d/${drive[1]}/preview`;
+            if((h === 'youtube.com' || h === 'm.youtube.com') && u.searchParams.get('v')) return `https://www.youtube.com/embed/${encodeURIComponent(u.searchParams.get('v'))}`;
+            if(h === 'youtu.be' && u.pathname.length > 1) return `https://www.youtube.com/embed/${encodeURIComponent(u.pathname.slice(1))}`;
+        } catch(e) {}
+        return url;
+    }
+
+    function salvarCadernoAberto() {
+        try { localStorage.setItem(CHAVE_CADERNO_ABERTO, JSON.stringify(cadernoAberto)); } catch(e) {}
+    }
+
+    function cadernoAbertoRecente() {
+        if(!cadernoAberto) { try { cadernoAberto = JSON.parse(localStorage.getItem(CHAVE_CADERNO_ABERTO) || 'null'); } catch(e) { cadernoAberto = null; } }
+        if(!cadernoAberto || !cadernoAberto.url || !cadernoAberto.quando) return null;
+        return (Date.now() - cadernoAberto.quando) < VALIDADE_CADERNO_ABERTO_MS ? cadernoAberto : null;
+    }
+
+    function abrirLeitorCaderno() {
+        let alvo = gpsAlvoAtual || { sigla: '', nome: '', topico: '', fase: 1, url: '' };
+        cadernoAberto = { sigla: alvo.sigla, nome: alvo.nome, topico: alvo.topico || '', fase: alvo.fase || 1, url: alvo.url || '', quando: Date.now() };
+        let tit = document.getElementById('leitor-titulo');
+        if(tit) tit.innerHTML = `<i class="fas fa-book-open" style="color:var(--accent-orange)"></i> ${escapeHTML(alvo.nome || 'Caderno')}${alvo.topico ? ' · ' + escapeHTML(alvo.topico) : ''}`;
+        setSafeText('leitor-sub', `Fase sugerida: ${alvo.fase || 1}`);
+        let m = document.getElementById('leitorModal');
+        if(m) m.classList.add('aberto');
+        document.body.style.overflow = 'hidden';
+        if(alvo.url) carregarNoLeitor(alvo.url);
+        else {
+            mostrarAvisoLeitor(`<i class="fas fa-paste" style="font-size:32px; color:var(--accent-orange)"></i><div>Cole o link do caderno no campo acima para abri-lo aqui.</div>`);
+            let inp = document.getElementById('leitor-url'); if(inp) { inp.value = ''; inp.focus(); }
+        }
+    }
+
+    function mostrarAvisoLeitor(html) {
+        let av = document.getElementById('leitor-aviso'); let fr = document.getElementById('leitor-frame');
+        if(fr) fr.src = 'about:blank';
+        if(av) { av.innerHTML = html; av.classList.add('ativo'); }
+    }
+
+    function carregarNoLeitor(valor) {
+        let url = normalizarLinkCaderno(valor);
+        let inp = document.getElementById('leitor-url');
+        if(!url) { alert('Link inválido. Cole um endereço começando com https://'); return; }
+        if(inp) inp.value = url;
+        if(cadernoAberto) { cadernoAberto.url = url; cadernoAberto.quando = Date.now(); salvarCadernoAberto(); }
+        let av = document.getElementById('leitor-aviso'); let fr = document.getElementById('leitor-frame');
+        if(siteSemLeitor(url)) {
+            mostrarAvisoLeitor(`<i class="fas fa-external-link-alt" style="font-size:32px; color:var(--accent-orange)"></i><div>Este site não permite abrir dentro da plataforma, então ele foi aberto em uma <b>nova guia</b>.</div><div style="font-size:13px; color:#888;">Quando terminar o bloco, volte aqui e use <b>Lançar este bloco</b>: o link já vai preenchido.</div><button type="button" class="btn" style="background:var(--accent-orange); color:black;" onclick="abrirLeitorEmNovaGuia()"><i class="fas fa-external-link-alt"></i> Abrir de novo</button>`);
+            window.open(url, '_blank', 'noopener');
+            return;
+        }
+        if(av) { av.classList.remove('ativo'); av.innerHTML = ''; }
+        if(fr) fr.src = linkParaEmbutir(url);
+    }
+
+    function abrirLeitorEmNovaGuia() {
+        let url = (cadernoAberto && cadernoAberto.url) || normalizarLinkCaderno((document.getElementById('leitor-url') || {}).value);
+        if(!url) return alert('Cole primeiro o link do caderno.');
+        window.open(url, '_blank', 'noopener');
+    }
+
+    function fecharLeitorCaderno() {
+        let m = document.getElementById('leitorModal'); if(m) m.classList.remove('aberto');
+        let fr = document.getElementById('leitor-frame'); if(fr) fr.src = 'about:blank';
+        document.body.style.overflow = '';
+    }
+
+    // Preenche o Diário de Batalha com o caderno aberto (matéria, assunto, fase e link)
+    function preencherLancamentoComCaderno(cad) {
+        if(!cad) return;
+        let elM = document.getElementById('f-materia');
+        if(elM && cad.sigla && Array.from(elM.options).some(o => o.value === cad.sigla)) { elM.value = cad.sigla; atualizarCampoTopico(); }
+        if(elM && elM.value !== cad.sigla) return; // matéria fora do ciclo: não arrisca preencher errado
+        let elMet = document.getElementById('f-metodo'); if(elMet) elMet.value = 'Método MB (Questões)';
+        let elT = document.getElementById('f-topico'); if(elT && cad.topico) elT.value = cad.topico;
+        let elF = document.getElementById('f-fase'); if(elF && cad.fase) elF.value = String(cad.fase);
+        let elL = document.getElementById('f-tipo-link'); if(elL && cad.url) { elL.value = cad.url; elL.dataset.auto = cad.url; }
+    }
+
+    function lancarBlocoDoLeitor() {
+        let cad = cadernoAberto;
+        let digitado = normalizarLinkCaderno((document.getElementById('leitor-url') || {}).value);
+        if(cad && digitado && digitado !== cad.url) { cad.url = digitado; cad.quando = Date.now(); salvarCadernoAberto(); }
+        fecharLeitorCaderno();
+        openEntryModal();
+        preencherLancamentoComCaderno(cad);
+    }
+
+    // Ao trocar de matéria no lançamento, o link automático só fica se for daquela matéria
+    function ajustarLinkAutomatico() {
+        let elM = document.getElementById('f-materia'); let elL = document.getElementById('f-tipo-link');
+        if(!elM || !elL) return;
+        let cad = cadernoAbertoRecente();
+        if(cad && elM.value === cad.sigla) { if(!elL.value) { elL.value = cad.url; elL.dataset.auto = cad.url; } }
+        else if(elL.dataset.auto && elL.value === elL.dataset.auto) { elL.value = ''; delete elL.dataset.auto; }
+    }
+
+    document.addEventListener('keydown', function(e) {
+        let m = document.getElementById('leitorModal');
+        if(e.key === 'Escape' && m && m.classList.contains('aberto')) fecharLeitorCaderno();
+    });
 
     function updateDashboard(f) {
         let d = f === 'all' ? globalData : globalData.filter(x => x.mat === f);
@@ -5748,7 +5925,9 @@ Gostaria que fizesse:
         if(t && secs > 0) t.value = Math.floor(secs / 60);
         
         atualizarCampoTopico();
-        let em = document.getElementById('entryModal'); 
+        let elL = document.getElementById('f-tipo-link'); if(elL) delete elL.dataset.auto;
+        preencherLancamentoComCaderno(cadernoAbertoRecente()); // caderno aberto há pouco no leitor
+        let em = document.getElementById('entryModal');
         if(em) em.style.display='block';
     }
 
@@ -5909,6 +6088,11 @@ Gostaria que fizesse:
             tempo: temp?temp.value:"", questoes: q?q.value:"", acertos: a?a.value:"", 
             fase: fas?fas.value:"", metodologia: met?met.value:"" 
         };
+
+        // O caderno aberto no leitor já foi lançado: não pré-preenche o próximo lançamento com ele
+        if(!modoEdicao && cadernoAberto && cadernoAberto.sigla === payload.materia) {
+            cadernoAberto = null; try { localStorage.removeItem(CHAVE_CADERNO_ABERTO); } catch(e2) {}
+        }
 
         // 1. ATUALIZAÇÃO IMEDIATA NA TELA (OPTIMISTIC UI - 0ms)
         aplicarLancamentoOtimista(payload, modoEdicao);
