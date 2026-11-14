@@ -373,6 +373,7 @@
         .ciclo-grupo-titulo:first-child { padding-top: 0; }
         .ciclo-grupo-titulo.edital { color: var(--accent-green); }
         .busca-materias { width: 100%; box-sizing: border-box; margin-top: 15px; padding: 10px 12px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 6px; outline: none; font-size: 14px; }
+        .badge-andamento { font-size: 10px; font-weight: bold; color: var(--accent-orange); border: 1px solid var(--accent-orange); background: rgba(240, 136, 62, 0.1); border-radius: 4px; padding: 1px 6px; white-space: nowrap; }
         .leitor-modal { display: none; position: fixed; inset: 0; z-index: 10003; background: var(--bg-color); flex-direction: column; }
         .leitor-modal.aberto { display: flex; }
         .leitor-barra { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-wrap: wrap; }
@@ -3820,6 +3821,21 @@ Gostaria que fizesse:
         return m === String(materia.chaves[0]).trim().toLowerCase() || m === String(materia.nome).trim().toLowerCase();
     }
 
+    // Fase do último lançamento de cada assunto (chave "Matéria||Assunto"), para o selo "em andamento" do edital
+    function fasesEmAndamento() {
+        let mapa = {};
+        globalData.forEach(x => { // globalData vem do mais recente para o mais antigo: o primeiro visto vale
+            if(!x.topico || !/^[1-4]$/.test(String(x.fase))) return;
+            let metodo = String(x.metodologia || '').trim();
+            if(metodo === 'Leitura (PDF)' || metodo === 'Videoaula') return;
+            [resolverMetaDisciplina(x.mat).nome, String(x.mat).trim()].forEach(nomeMat => {
+                let chave = nomeMat + '||' + x.topico;
+                if(!(chave in mapa)) mapa[chave] = String(x.fase);
+            });
+        });
+        return mapa;
+    }
+
     // Próximo passo de um trilho (matéria) pelas regras das 4 fases do Método MB
     function sugestaoFaseMB(reg) {
         if(!reg) return { fase: 1, novoAssunto: true, texto: "Primeira vez no ciclo: comece pela Fase 1 (ambientação)." };
@@ -4218,6 +4234,7 @@ Gostaria que fizesse:
 
         cont.innerHTML = '';
         let totalTopicosGeral = 0; let concluidosGeral = 0;
+        let andamento = fasesEmAndamento();
 
         Object.keys(materiasDict).forEach((matName, idx) => {
             let infoMat = materiasDict[matName];
@@ -4248,6 +4265,7 @@ Gostaria que fizesse:
                         <label style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer;">
                             <input type="checkbox" class="topic-checkbox" onchange="toggleEditalTopic('${nomeConcurso}', '${matName}', '${top.replace(/'/g, "\\'")}', this.checked)" ${isChecked ? 'checked' : ''}>
                             <span style="color: ${isChecked ? 'var(--accent-green)' : 'var(--text-color)'}; text-decoration: ${isChecked ? 'line-through' : 'none'};">${top}</span>
+                            ${!isChecked && andamento[matName + '||' + top] ? `<span class="badge-andamento" title="Último lançamento deste assunto">Fase ${escapeHTML(andamento[matName + '||' + top])}</span>` : ''}
                         </label>
                         ${uiLink}
                     </div>
@@ -6076,9 +6094,14 @@ Gostaria que fizesse:
             }
 
             if(assuntos[matchedKey]) {
-                assuntos[matchedKey].checked = true;
-                if(tlnk && tlnk.value) assuntos[matchedKey].link = tlnk.value;
-                salvarProgressoEditalNuvem(); 
+                // Método MB: o assunto só fica concluído no edital quando consolida (Fase 4 com 85%+, mesma regra do servidor).
+                // Nas outras fases ele aparece como "em andamento"; o link do caderno é guardado sempre.
+                let faseLanc = fas ? String(fas.value) : '';
+                let consolidou = faseLanc === '4' && qChk > 0 && (aChk / qChk) >= 0.85;
+                let mudou = false;
+                if(consolidou && !assuntos[matchedKey].checked) { assuntos[matchedKey].checked = true; mudou = true; }
+                if(tlnk && tlnk.value && assuntos[matchedKey].link !== tlnk.value) { assuntos[matchedKey].link = tlnk.value; mudou = true; }
+                if(mudou) salvarProgressoEditalNuvem();
             }
         }
 
