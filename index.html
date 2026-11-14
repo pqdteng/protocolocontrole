@@ -1309,7 +1309,7 @@
                                 <ul class="mission-list" id="mission-list"><li>Aguardando Sincronização...</li></ul>
                             </div>
                             <div class="action-box">
-                                <h4 style="margin:0 0 10px 0; color:#888; font-size:12px; text-transform:uppercase;"><i class="fas fa-link"></i> Última Operação</h4>
+                                <h4 style="margin:0 0 10px 0; color:#888; font-size:12px; text-transform:uppercase;"><i class="fas fa-link"></i> Caderno do Alvo</h4>
                                 <div id="gps-ultimo-caderno" style="text-align:center; font-size:13px;">Aguardando...</div>
                             </div>
                         </div>
@@ -2084,7 +2084,7 @@
                   <div class="mb-fase">
                     <span class="mb-tit">FASE 4 · Consolidação (com a gordura)</span> <span class="mb-meta">Meta: 85%+ (ideal 90%)</span>
                     <p><b>Copie o filtro</b> e gere um novo caderno <b>sem limite de quantidade</b>, com todas as questões (as 87 do exemplo). Resolva no <b>aleatório</b> até bater e manter 85–90%+. <b>Apague o caderno pequeno.</b><br>
-                      Bateu a meta → assunto <b>✅ CONSOLIDADO</b> e liberado no GPS.</p>
+                      Bateu a meta → assunto <b>✅ CONSOLIDADO</b>: na próxima vez que a matéria aparecer no GPS, ele já indica o próximo assunto.</p>
                     <p style="color:#8B949E">Se o filtro tinha 50 questões ou menos, não há gordura: o assunto consolida direto ao bater a meta no aleatório.</p>
                   </div>
                 </div>
@@ -3703,59 +3703,93 @@ Gostaria que fizesse:
         setSafeText('lbl-q-feito', qFeitas); setSafeText('lbl-q-pct', pctQ + '%'); let bq = document.getElementById('bar-q'); if(bq) bq.style.width = pctQ + '%';
 
         let ml = document.getElementById('mission-list'); let guc = document.getElementById('gps-ultimo-caderno');
+        if(!cicloMaster || cicloMaster.length === 0) {
+            if(ml) ml.innerHTML = `<li style="color:var(--accent-orange); margin-bottom:10px;">Monte o seu ciclo de matérias para ativar o GPS.</li>`;
+            if(guc) guc.innerHTML = 'Aguardando...';
+            return;
+        }
         if(globalData.length > 0) {
+            // Método MB: o ciclo gira a cada bloco de estudo, em qualquer fase.
+            // Cada matéria é um "trilho" próprio: o GPS mostra onde aquele trilho parou e qual fase fazer agora.
             let last = globalData[0];
-            let valFase = String(last.fase).trim(); let valK = String(last.k).toUpperCase().trim(); let valL = String(last.l).toUpperCase().trim();
-            let metodoUsado = last.metodologia ? String(last.metodologia).trim() : "Método MB (Questões)";
-            let isConsolidated = (metodoUsado === "Leitura (PDF)" || metodoUsado === "Videoaula") ? true : (valFase === "4" && valK === "OK" && valL.includes("CONSOLIDADO"));
+            let idx = cicloMaster.findIndex(d => registroDaMateria(last, d));
+            let p1 = idx === -1 ? cicloMaster[0] : cicloMaster[(idx + 1) % cicloMaster.length];
+            let p1Pos = cicloMaster.indexOf(p1);
+            let p2 = cicloMaster[(p1Pos + 1) % cicloMaster.length];
 
-            let lastMatClean = String(last.mat).trim().toLowerCase();
-            let idx = cicloMaster.findIndex(d => lastMatClean === String(d.chaves[0]).trim().toLowerCase() || lastMatClean === String(d.nome).trim().toLowerCase()); 
-            if(idx === -1) idx = 0;
-            
-            let p1 = cicloMaster[idx] || cicloMaster[0]; let p2 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0];
-            
-            if (isConsolidated) {
-                p1 = cicloMaster[(idx + 1) % cicloMaster.length] || cicloMaster[0]; 
-                p2 = cicloMaster[(idx + 2) % cicloMaster.length] || cicloMaster[0];
-            }
+            let ultimoP1 = globalData.find(x => registroDaMateria(x, p1));
+            let sug = sugestaoFaseMB(ultimoP1);
 
-            let topicoAlvo = "";
-            let linkAlvo = "";
-            if(editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal] && progressoEditalGlobal[editalAtivoGlobal][p1.nome]) {
-                let assuntos = progressoEditalGlobal[editalAtivoGlobal][p1.nome];
-                for(let t in assuntos) {
-                    if(!assuntos[t].checked && t !== "_dataProva") { topicoAlvo = t; linkAlvo = assuntos[t].link || ""; break; }
+            // Assunto: o que está em andamento; se consolidou (ou ainda não começou), o próximo pendente do edital
+            let topicoAlvo = ""; let linkAlvo = "";
+            let assuntos = (editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal]) ? progressoEditalGlobal[editalAtivoGlobal][p1.nome] : null;
+            if(sug.novoAssunto) {
+                if(assuntos) {
+                    for(let t in assuntos) {
+                        if(t !== "_dataProva" && !assuntos[t].checked && (!ultimoP1 || t !== ultimoP1.topico)) { topicoAlvo = t; linkAlvo = assuntos[t].link || ""; break; }
+                    }
                 }
+            } else if(ultimoP1) {
+                topicoAlvo = ultimoP1.topico;
+                // o caderno do assunto: o link mais recente lançado para ele (nem todo lançamento repete o link)
+                let comLink = globalData.find(x => registroDaMateria(x, p1) && x.topico === topicoAlvo && x.link && x.link.includes('http'));
+                linkAlvo = comLink ? comLink.link : ((assuntos && assuntos[topicoAlvo] && assuntos[topicoAlvo].link) || "");
             }
 
-            let nomeMateriaExibida = p1.nome;
-            if(topicoAlvo) nomeMateriaExibida += ` <br><span style="color:var(--accent-gold); font-size:11px;"><i class="fas fa-crosshairs"></i> Alvo: ${topicoAlvo}</span>`;
+            let nomeMateriaExibida = escapeHTML(p1.nome);
+            if(topicoAlvo) nomeMateriaExibida += ` <br><span style="color:var(--accent-gold); font-size:11px;"><i class="fas fa-crosshairs"></i> Alvo: ${escapeHTML(topicoAlvo)}</span>`;
+            else if(sug.novoAssunto && ultimoP1) nomeMateriaExibida += ` <br><span style="color:var(--accent-gold); font-size:11px;"><i class="fas fa-crosshairs"></i> Alvo: próximo assunto</span>`;
+            nomeMateriaExibida += ` <br><span style="color:var(--accent-blue); font-size:11px;"><i class="fas fa-route"></i> ${escapeHTML(sug.texto)}</span>`;
 
-            if (isConsolidated) {
-                if(ml) ml.innerHTML = `<li style="color:var(--accent-green); margin-bottom:10px;">Missão Cumprida! Próximo Alvo:</li><li class="now"><strong>Agora:</strong> ${nomeMateriaExibida}</li><li><strong>Passo 2:</strong> ${p2.nome}</li>`;
-            } else {
-                if(ml) ml.innerHTML = `<li style="color:var(--accent-red); margin-bottom:10px;">Não Consolidada! Retome:</li><li class="now"><strong>Agora:</strong> ${nomeMateriaExibida}</li><li><strong>Próximo:</strong> ${p2.nome}</li>`;
-            }
+            let pctLast = last.q > 0 ? Math.round((last.a / last.q) * 100) + '%' : '';
+            let faseLast = /^[1-4]$/.test(String(last.fase)) ? `Fase ${last.fase}` : (last.metodologia || '');
+            let resumoLast = escapeHTML(resolverMetaDisciplina(last.mat).nome) + (faseLast ? ` · ${escapeHTML(faseLast)}` : '') + (pctLast ? ` · ${pctLast}` : '');
+            if(ml) ml.innerHTML = `<li style="color:var(--accent-green); margin-bottom:10px;">Último bloco: ${resumoLast}. Gire o ciclo:</li><li class="now"><strong>Agora:</strong> ${nomeMateriaExibida}</li><li><strong>Depois:</strong> ${escapeHTML(p2.nome)}</li>`;
 
-            let cad = globalData.find(x => x.mat === p1.chaves[0] || String(x.mat).includes(p1.nome));
-            let badgeMetodoHtml = `<span class="badge" style="font-size:10px; background:rgba(240, 136, 62, 0.1); border:1px solid var(--accent-orange); color:var(--accent-orange); padding:2px 5px; border-radius:4px;">${metodoUsado}</span>`;
-            let badgeHTML = !isConsolidated ? `<div style="display:flex; gap:5px; margin-top:10px; justify-content:center;"><span class="badge" style="font-size:10px; background:rgba(88,166,255,0.1); border:1px solid var(--accent-blue); color:var(--accent-blue); padding:2px 5px; border-radius:4px;">Fase Atual: ${valFase||"?"}</span>${badgeMetodoHtml}</div>` : `<div style="display:flex; gap:5px; margin-top:10px; justify-content:center;">${badgeMetodoHtml}</div>`;
-            
+            let metodoUsado = (ultimoP1 && ultimoP1.metodologia) ? ultimoP1.metodologia : "Método MB (Questões)";
+            let badgeMetodoHtml = `<span class="badge" style="font-size:10px; background:rgba(240, 136, 62, 0.1); border:1px solid var(--accent-orange); color:var(--accent-orange); padding:2px 5px; border-radius:4px;">${escapeHTML(metodoUsado)}</span>`;
+            let badgeHTML = `<div style="display:flex; gap:5px; margin-top:10px; justify-content:center; flex-wrap:wrap;"><span class="badge" style="font-size:10px; background:rgba(88,166,255,0.1); border:1px solid var(--accent-blue); color:var(--accent-blue); padding:2px 5px; border-radius:4px;">Fase sugerida: ${sug.fase}</span>${ultimoP1 ? badgeMetodoHtml : ''}</div>`;
+
             let finalUrl = "";
-            if (linkAlvo && linkAlvo.includes('http')) { finalUrl = linkAlvo; }
-            else if (cad && cad.link && cad.link.includes('http')) { let ext = cad.link.match(/(https?:\/\/[^\s]+)/g); finalUrl = ext ? ext[0] : cad.link; }
+            if (linkAlvo && linkAlvo.includes('http')) { let ext = linkAlvo.match(/(https?:\/\/[^\s"'<>]+)/); finalUrl = ext ? ext[0] : ""; }
 
             if(finalUrl) {
-                if(guc) guc.innerHTML = `<a href="${finalUrl}" target="_blank" class="btn" style="background:var(--accent-orange); color:black; width:100%; box-sizing:border-box; justify-content:center; margin-bottom:8px; text-decoration:none; white-space:normal; text-align:center;"><i class="fas fa-external-link-alt"></i> RETOMAR MATERIAL</a><div style="font-size:11px; color:#888;">Link Tático Encontrado</div>${badgeHTML}`;
+                if(guc) guc.innerHTML = `<a href="${escapeHTML(finalUrl)}" target="_blank" rel="noopener" class="btn" style="background:var(--accent-orange); color:black; width:100%; box-sizing:border-box; justify-content:center; margin-bottom:8px; text-decoration:none; white-space:normal; text-align:center;"><i class="fas fa-external-link-alt"></i> ${sug.novoAssunto ? 'ABRIR MATERIAL' : 'RETOMAR CADERNO'}</a><div style="font-size:11px; color:#888;">${escapeHTML(p1.nome)}</div>${badgeHTML}`;
             } else {
-                if(guc) guc.innerHTML = `<div style="background:var(--bg-color); border: 1px solid var(--border-color); padding:10px; border-radius:8px; width:100%; box-sizing:border-box;">Alvo: <strong style="color:white;">${p1.chaves[0]}</strong><br><span style="color:var(--accent-orange); font-size:11px;">Sem link anexado.</span></div><div style="font-size:11px; color:#888; margin-top:8px;">Aguardando primeiro acesso.</div>${badgeHTML}`;
+                if(guc) guc.innerHTML = `<div style="background:var(--bg-color); border: 1px solid var(--border-color); padding:10px; border-radius:8px; width:100%; box-sizing:border-box;">Alvo: <strong style="color:var(--text-color);">${escapeHTML(p1.chaves[0])}</strong><br><span style="color:var(--accent-orange); font-size:11px;">${sug.novoAssunto ? 'Gere o caderno do novo assunto.' : 'Sem link anexado.'}</span></div>${badgeHTML}`;
             }
         } else {
-            let p1 = cicloMaster[0] || {nome: "Ciclo Vazio", chaves: ["-"]};
-            if(ml) ml.innerHTML = `<li style="color:var(--accent-green); margin-bottom:10px;">Inicie o seu Ciclo:</li><li class="now"><strong>Agora:</strong> ${p1.nome}</li>`;
-            if(guc) guc.innerHTML = `<div style="background:var(--bg-color); border: 1px solid var(--border-color); padding:10px; border-radius:8px; width:100%; box-sizing:border-box; margin-bottom:8px;">Alvo: <strong style="color:white;">${p1.chaves[0]}</strong><br><span style="color:var(--accent-orange); font-size:11px;">Pendente.</span></div>`;
+            let p1 = cicloMaster[0];
+            if(ml) ml.innerHTML = `<li style="color:var(--accent-green); margin-bottom:10px;">Inicie o seu Ciclo:</li><li class="now"><strong>Agora:</strong> ${escapeHTML(p1.nome)} <br><span style="color:var(--accent-blue); font-size:11px;"><i class="fas fa-route"></i> Comece pela Fase 1 (ambientação).</span></li>`;
+            if(guc) guc.innerHTML = `<div style="background:var(--bg-color); border: 1px solid var(--border-color); padding:10px; border-radius:8px; width:100%; box-sizing:border-box; margin-bottom:8px;">Alvo: <strong style="color:var(--text-color);">${escapeHTML(p1.chaves[0])}</strong><br><span style="color:var(--accent-orange); font-size:11px;">Pendente.</span></div>`;
         }
+    }
+
+    // Um lançamento pertence à matéria do ciclo pela sigla ou pelo nome
+    function registroDaMateria(reg, materia) {
+        if(!reg || !materia) return false;
+        let m = String(reg.mat).trim().toLowerCase();
+        return m === String(materia.chaves[0]).trim().toLowerCase() || m === String(materia.nome).trim().toLowerCase();
+    }
+
+    // Próximo passo de um trilho (matéria) pelas regras das 4 fases do Método MB
+    function sugestaoFaseMB(reg) {
+        if(!reg) return { fase: 1, novoAssunto: true, texto: "Primeira vez no ciclo: comece pela Fase 1 (ambientação)." };
+        let metodo = String(reg.metodologia || '').trim();
+        if(metodo === "Leitura (PDF)" || metodo === "Videoaula") return { fase: 1, novoAssunto: false, texto: "Teoria feita: agora a Fase 1 das questões desse assunto." };
+        let fase = parseInt(reg.fase, 10);
+        let pct = reg.q > 0 ? Math.round((reg.a / reg.q) * 100) : null;
+        let pctTxt = pct === null ? '' : ` (${pct}%)`;
+        let consolidado = fase === 4 && String(reg.k).toUpperCase().trim() === "OK" && String(reg.l).toUpperCase().includes("CONSOLIDADO");
+        if(consolidado) return { fase: 1, novoAssunto: true, texto: `Assunto consolidado${pctTxt}! Próximo assunto, Fase 1.` };
+        if(fase === 4) return { fase: 4, novoAssunto: false, texto: `Fase 4${pctTxt}: repita no aleatório até 85%+.` };
+        if(fase === 3) return (pct !== null && pct >= 80)
+            ? { fase: 4, novoAssunto: false, texto: `Fase 3 batida${pctTxt}: vá para a Fase 4 (com a gordura).` }
+            : { fase: 3, novoAssunto: false, texto: `Fase 3${pctTxt}: repita no aleatório até 80%+.` };
+        if(fase === 2) return (pct !== null && pct >= 70)
+            ? { fase: 3, novoAssunto: false, texto: `Fase 2 batida${pctTxt}: vá para a Fase 3 (aleatória).` }
+            : { fase: 2, novoAssunto: false, texto: `Fase 2${pctTxt}: repita em sequência até 70–75%.` };
+        return { fase: 1, novoAssunto: false, texto: `Fase 1${pctTxt}: continue o caderno; se terminou, vá para a Fase 2.` };
     }
 
     function updateDashboard(f) {
