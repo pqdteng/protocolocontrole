@@ -564,12 +564,13 @@ function doPost(e) {
     }
 
     if (acao === "solicitar_edital") {
-      var sheetP = ss.getSheetByName("Pedidos_Editais");
-      if(sheetP) {
-        sheetP.appendRow([new Date(), dados.email, dados.concursoStr]);
-        SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
-        return ContentService.createTextOutput(JSON.stringify({"status": "sucesso"})).setMimeType(ContentService.MimeType.JSON);
-      }
+      var concursoPed = limparTexto(dados.concursoStr, 200); // remove < > e o que o Sheets leria como fórmula
+      if (concursoPed.length < 3) return respJSON({"status": "erro", "mensagem": "Informe o nome do concurso e o cargo."});
+      return comTrava(function() { return acaoSolicitarEdital(ss, dados.email, concursoPed); });
+    }
+
+    if (acao === "atualizar_pedido") {
+      return comTrava(function() { return acaoAtualizarPedido(ss, dados.email, dados.id, dados.status, dados.emailPedido); });
     }
 
     if (acao === "importar_historico") {
@@ -808,6 +809,7 @@ function doGet(e) {
 
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var email = String(e.parameter.email || "").trim().toLowerCase();
+    if (acao === "meus_pedidos") return respJSON({"status": "sucesso", "pedidos": meusPedidos(ss, email)});
     var sheetU = ss.getSheetByName("Usuarios");
 
     // Linha completa só do próprio aluno (antes: a aba inteira, com a foto e o progresso de todos)
@@ -876,7 +878,8 @@ function doGet(e) {
       "leaderboards": agregados.leaderboards, "avatares": avatares, "comparativoGeral": agregados.comparativo,
       "cicloNuvem": cicloSalvoNuvem, "baseEditais": baseEditaisDict,
       "editalAtivo": editalAtivoUsuario, "progressoEdital": progressoEditalUsuario,
-      "escudos": lerEscudos(linhaUsuario[COL.ESCUDOS])
+      "escudos": lerEscudos(linhaUsuario[COL.ESCUDOS]),
+      "pedidosAdmin": ehAdmin(email) ? resumoPedidosAdmin(ss) : null // só o administrador recebe (e só para ele a aba é lida)
     });
 
   } catch(err) {
@@ -1205,6 +1208,99 @@ function obterBaseEditais(ss) {
   }
   cachePutGrande(chave, JSON.stringify(baseEditaisDict), CACHE_EDITAIS_SEG);
   return baseEditaisDict;
+}
+
+// ===== PEDIDOS DE EDITAL =====
+// Aba Pedidos_Editais: A = data, B = e-mail, C = concurso pedido, D = status (vazio conta como Pendente), E = data da resposta
+var STATUS_PEDIDO = ["Pendente", "Mapeado", "Recusado"];
+var MAX_PEDIDOS_PENDENTES_ALUNO = 5;
+
+function ehAdmin(email) {
+  return String(email || "").trim().toLowerCase() === String(ADMIN_EMAIL).trim().toLowerCase();
+}
+
+function abaPedidos(ss) {
+  var sheetP = ss.getSheetByName("Pedidos_Editais");
+  if (!sheetP) {
+    sheetP = ss.insertSheet("Pedidos_Editais");
+    sheetP.appendRow(["Data", "Email", "Concurso", "Status", "Respondido_Em"]);
+  }
+  // Completa o cabeçalho das colunas novas (só se a linha 1 for mesmo um cabeçalho, e não um pedido)
+  if (!(sheetP.getRange(1, 1).getValue() instanceof Date)) {
+    if (!sheetP.getRange(1, 4).getValue()) sheetP.getRange(1, 4).setValue("Status");
+    if (!sheetP.getRange(1, 5).getValue()) sheetP.getRange(1, 5).setValue("Respondido_Em");
+  }
+  return sheetP;
+}
+
+function lerPedidos(ss) {
+  var sheetP = ss.getSheetByName("Pedidos_Editais");
+  if (!sheetP) return [];
+  var ultima = sheetP.getLastRow();
+  if (ultima < 2) return [];
+  var tz = Session.getScriptTimeZone();
+  var dados = sheetP.getRange(2, 1, ultima - 1, 5).getValues();
+  var out = [];
+  for (var i = 0; i < dados.length; i++) {
+    var r = dados[i];
+    if (!r[1] && !r[2]) continue;
+    var st = String(r[3] || "").trim();
+    if (STATUS_PEDIDO.indexOf(st) === -1) st = "Pendente";
+    out.push({
+      id: i + 2, // linha na planilha
+      data: r[0] instanceof Date ? Utilities.formatDate(r[0], tz, "dd/MM/yyyy HH:mm") : String(r[0] || ""),
+      email: String(r[1] || "").trim().toLowerCase(),
+      concurso: String(r[2] || ""),
+      status: st,
+      respondido: r[4] instanceof Date ? Utilities.formatDate(r[4], tz, "dd/MM/yyyy") : ""
+    });
+  }
+  return out;
+}
+
+// Para o sininho do administrador: total pendente + os 50 mais recentes
+function resumoPedidosAdmin(ss) {
+  var pend = lerPedidos(ss).filter(function(p) { return p.status === "Pendente"; });
+  return { pendentes: pend.length, lista: pend.slice(-50).reverse() };
+}
+
+// Pedidos do próprio aluno (os 10 mais recentes), sem expor e-mails
+function meusPedidos(ss, email) {
+  return lerPedidos(ss).filter(function(p) { return p.email === email; }).slice(-10).reverse().map(function(p) {
+    return { data: p.data, concurso: p.concurso, status: p.status, respondido: p.respondido };
+  });
+}
+
+function acaoSolicitarEdital(ss, email, concurso) {
+  var emailPed = String(email || "").trim().toLowerCase();
+  var sheetP = abaPedidos(ss);
+  var pendentes = lerPedidos(ss).filter(function(p) { return p.email === emailPed && p.status === "Pendente"; });
+  if (pendentes.some(function(p) { return p.concurso.toLowerCase() === concurso.toLowerCase(); })) {
+    return respJSON({"status": "erro", "mensagem": "Você já pediu este edital. Ele está aguardando mapeamento."});
+  }
+  if (pendentes.length >= MAX_PEDIDOS_PENDENTES_ALUNO) {
+    return respJSON({"status": "erro", "mensagem": "Você já tem " + MAX_PEDIDOS_PENDENTES_ALUNO + " pedidos aguardando. Espere algum ser respondido."});
+  }
+  sheetP.appendRow([new Date(), emailPed, concurso, "Pendente"]);
+  SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+  return respJSON({"status": "sucesso", "pedidos": meusPedidos(ss, emailPed)});
+}
+
+// Só o administrador: marca um pedido como Mapeado, Recusado ou de volta a Pendente
+function acaoAtualizarPedido(ss, email, id, status, emailPedido) {
+  if (!ehAdmin(email)) return respJSON({"status": "erro", "mensagem": "Ação restrita ao administrador."});
+  if (STATUS_PEDIDO.indexOf(status) === -1) return respJSON({"status": "erro", "mensagem": "Status inválido."});
+  var sheetP = abaPedidos(ss);
+  var linha = parseInt(id, 10);
+  if (!(linha >= 2 && linha <= sheetP.getLastRow())) return respJSON({"status": "erro", "mensagem": "Pedido não encontrado."});
+  // Confere se a linha ainda é o mesmo pedido (alguém pode ter apagado linhas na planilha)
+  var r = sheetP.getRange(linha, 1, 1, 3).getValues()[0];
+  if (String(r[1] || "").trim().toLowerCase() !== String(emailPedido || "").trim().toLowerCase()) {
+    return respJSON({"status": "erro", "mensagem": "A planilha mudou desde a última sincronização. Clique em Sinc e tente de novo."});
+  }
+  sheetP.getRange(linha, 4, 1, 2).setValues([[status, status === "Pendente" ? "" : new Date()]]);
+  SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
+  return respJSON({"status": "sucesso", "pedidosAdmin": resumoPedidosAdmin(ss)});
 }
 
 // ===== MOEDAS E ESCUDO DE OFENSIVA =====

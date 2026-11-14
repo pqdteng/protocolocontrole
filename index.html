@@ -97,7 +97,19 @@
         .rank-details p { margin: 4px 0 8px 0; color: #888; font-size: 0.85em; font-weight: bold;}
         
         .streak-badge { background: rgba(240, 136, 62, 0.15); color: var(--accent-orange); font-weight: bold; font-size: 0.85em; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(240, 136, 62, 0.3); display: inline-flex; align-items: center; gap: 5px;}
-        .coin-badge-btn { border: 1px solid rgba(242, 201, 76, 0.35); cursor: pointer; font-family: inherit; transition: 0.2s; }
+        .btn-sino { position: relative; }
+        .btn-sino.tem-pendente { color: var(--accent-orange); border-color: rgba(240, 136, 62, 0.5); }
+        .sino-contador { margin-left: 2px; font-weight: 700; font-size: 11px; }
+        .pedido-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; margin-bottom: 8px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; }
+        .pedido-item .pedido-info { flex: 1; min-width: 180px; font-size: 13px; color: #8B949E; }
+        .pedido-item .pedido-info b { display: block; color: var(--text-color); font-size: 14px; margin-bottom: 2px; word-break: break-word; }
+        .pedido-acoes { display: flex; gap: 6px; }
+        .pedido-acoes button { padding: 6px 10px; font-size: 12px; }
+        .pedido-status { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+        .pedido-status.Pendente { background: rgba(240, 136, 62, 0.15); color: var(--accent-orange); }
+        .pedido-status.Mapeado { background: rgba(35, 134, 54, 0.15); color: #3fb950; }
+        .pedido-status.Recusado { background: rgba(218, 54, 51, 0.12); color: var(--accent-red); }
+        .coin-badge-btn {border: 1px solid rgba(242, 201, 76, 0.35); cursor: pointer; font-family: inherit; transition: 0.2s; }
         .coin-badge-btn:hover { background: rgba(242, 201, 76, 0.28); }
         .escudo-badge { margin-left: 4px; padding-left: 6px; border-left: 1px solid rgba(242, 201, 76, 0.4); color: var(--accent-blue); }
         .loja-saldo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
@@ -1241,6 +1253,7 @@
                     <button class="btn-action-top" onclick="toggleTheme()" title="Trocar Tema"><i class="fas fa-adjust"></i></button>
                     <button class="btn-stealth stealth-red" onclick="toggleFocus()" title="Ativar Modo Foco"><i class="fas fa-crosshairs"></i> Foco</button>
                     <button class="btn-stealth stealth-mission" onclick="openEntryModal()"><i class="fas fa-pen-nib"></i> Lançar Missão</button>
+                    <button type="button" class="btn-action-top btn-sino" id="btn-pedidos-admin" style="display:none;" onclick="abrirPedidosAdmin()" title="Pedidos de edital pendentes"><i class="fas fa-bell"></i><span id="sino-contador" class="sino-contador"></span></button>
                     <button class="btn-stealth stealth-blue sync-btn-ui" id="btn-sync" onclick="loadGoogleSheetsData()" title="Sincronizar com a Nuvem"><i class="fas fa-sync-alt"></i> Sinc</button>
                 </div>
             </div>
@@ -1344,7 +1357,7 @@
                                 <input type="date" id="input-data-prova" style="background:transparent; border:none; color:var(--text-color); outline:none; font-family:monospace; font-size:13px; height:100%; cursor:pointer;" onchange="salvarDataProva(this.value)">
                             </div>
 
-                            <button class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); height:38px;" onclick="document.getElementById('solicitarEditalModal').style.display='block'">
+                            <button class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); height:38px;" onclick="abrirSolicitarEdital()">
                                 <i class="fas fa-plus"></i> Solicitar Edital
                             </button>
                         </div>
@@ -1875,8 +1888,18 @@
             <span class="close-btn" onclick="document.getElementById('solicitarEditalModal').style.display='none'">&times;</span>
             <h2 style="margin-top:0; color:var(--text-color);"><i class="fas fa-envelope"></i> Solicitar Edital</h2>
             <p style="color:#888; font-size:13px; margin-bottom:20px;">Seu concurso ainda não está na nossa base? Informe a nossa equipe para realizarmos a verticalização e inserirmos na plataforma.</p>
-            <input type="text" id="input-solicitar-edital" class="login-input" placeholder="Ex: TCE-MS - Engenharia Civil">
+            <input type="text" id="input-solicitar-edital" class="login-input" placeholder="Ex: TCE-MS - Engenharia Civil" maxlength="200">
             <button class="btn" style="background:var(--accent-orange); color:black; width:100%;" onclick="enviarSolicitacaoEdital()">ENVIAR SOLICITAÇÃO</button>
+            <div id="meus-pedidos-lista" style="margin-top:18px;"></div>
+        </div>
+    </div>
+
+    <div id="pedidosAdminModal" class="modal">
+        <div class="modal-content" style="max-width: 560px; border-top: 4px solid var(--accent-orange);">
+            <span class="close-btn" onclick="document.getElementById('pedidosAdminModal').style.display='none'">&times;</span>
+            <h2 style="margin-top:0; color:var(--text-color);"><i class="fas fa-bell" style="color:var(--accent-orange)"></i> Pedidos de Edital</h2>
+            <p style="color:#888; font-size:13px; margin:0 0 14px;">Marque cada pedido depois de cadastrar o edital na aba <b>Base_Editais</b> (ou recuse). O aluno vê a resposta na tela de solicitação.</p>
+            <div id="pedidos-admin-lista"></div>
         </div>
     </div>
 
@@ -2838,6 +2861,7 @@ Gostaria que fizesse:
             renderHeaderAvatar();
             loadCiclo(data.cicloNuvem);
             if (data.escudos) escudosGlobal = { compras: data.escudos.compras || [], usados: data.escudos.usados || [] };
+            atualizarSinoPedidos(data.pedidosAdmin);
             processData(data.dados || []);
             updateLeaderEffects();
             atualizarSelectEditaisDisponiveis();
@@ -4176,18 +4200,99 @@ Gostaria que fizesse:
         let input = document.getElementById('input-solicitar-edital');
         let val = input.value.trim();
         if(!val) return alert("Por favor, digite o nome do concurso e cargo.");
-        
+
         let btn = document.querySelector('#solicitarEditalModal .btn');
         let oldHtml = btn.innerHTML;
         btn.innerHTML = "ENVIANDO..."; btn.disabled = true;
 
         enviarAcao({acao: "solicitar_edital", email: loggedUserEmail, concursoStr: val})
         .then(data => {
-            if (data.status !== 'sucesso') { alert("A solicitação NÃO foi enviada: " + (data.mensagem || "erro no servidor.")); btn.innerHTML = oldHtml; btn.disabled = false; return; }
-            alert("Solicitação enviada ao Comando! Em breve seu edital será mapeado.");
-            document.getElementById('solicitarEditalModal').style.display='none';
-            btn.innerHTML = oldHtml; btn.disabled = false; input.value = "";
-        }).catch(err => { alert("Erro ao enviar."); btn.innerHTML = oldHtml; btn.disabled = false; });
+            btn.innerHTML = oldHtml; btn.disabled = false;
+            if (data.status !== 'sucesso') return alert("A solicitação NÃO foi enviada: " + (data.mensagem || "erro no servidor."));
+            input.value = "";
+            mostrarToastTatico("Solicitação enviada! Acompanhe a resposta aqui mesmo, em \"Seus pedidos\".", "var(--accent-orange)");
+            if (Array.isArray(data.pedidos)) renderMeusPedidos(data.pedidos);
+            else carregarMeusPedidos();
+        }).catch(err => { alert("Erro ao enviar. " + mensagemFalhaRede(err)); btn.innerHTML = oldHtml; btn.disabled = false; });
+    }
+
+    // ===== PEDIDOS DE EDITAL: visão do aluno =====
+    function abrirSolicitarEdital() {
+        document.getElementById('solicitarEditalModal').style.display = 'block';
+        carregarMeusPedidos();
+    }
+
+    async function carregarMeusPedidos() {
+        let el = document.getElementById('meus-pedidos-lista');
+        if (!el) return;
+        el.innerHTML = '<p style="color:#888; font-size:12px; text-align:center;"><i class="fas fa-spinner fa-spin"></i> Carregando seus pedidos...</p>';
+        try {
+            let res = await fetch(`${WEBHOOK_URL}?acao=meus_pedidos&_t=${Date.now()}`, { method: 'GET', redirect: 'follow' });
+            let data = JSON.parse(await res.text());
+            if (data.status !== 'sucesso') throw new Error(data.mensagem || 'erro');
+            renderMeusPedidos(data.pedidos || []);
+        } catch (err) {
+            el.innerHTML = '';
+        }
+    }
+
+    function renderMeusPedidos(lista) {
+        let el = document.getElementById('meus-pedidos-lista');
+        if (!el) return;
+        if (!lista.length) { el.innerHTML = ''; return; }
+        el.innerHTML = '<p style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#8B949E; margin:0 0 8px;">Seus pedidos</p>'
+            + lista.map(p => `<div class="pedido-item"><div class="pedido-info"><b>${escapeHTML(p.concurso)}</b>Pedido em ${escapeHTML(p.data)}${p.respondido ? ' · respondido em ' + escapeHTML(p.respondido) : ''}</div><span class="pedido-status ${escapeHTML(p.status)}">${escapeHTML(p.status)}</span></div>`).join('')
+            + (lista.some(p => p.status === 'Mapeado') ? '<p style="font-size:12px; color:#8B949E; margin:6px 0 0;">Pedido mapeado? Escolha o edital no catálogo da aba <b>Edital Verticalizado</b>.</p>' : '');
+    }
+
+    // ===== PEDIDOS DE EDITAL: sininho do administrador (o servidor só manda para o e-mail de admin) =====
+    let pedidosAdminGlobal = null;
+
+    function atualizarSinoPedidos(resumo) {
+        pedidosAdminGlobal = resumo || null;
+        let btn = document.getElementById('btn-pedidos-admin');
+        if (!btn) return;
+        if (!pedidosAdminGlobal) { btn.style.display = 'none'; return; }
+        let n = pedidosAdminGlobal.pendentes || 0;
+        btn.style.display = 'inline-flex';
+        btn.classList.toggle('tem-pendente', n > 0);
+        btn.title = n > 0 ? n + ' pedido(s) de edital pendente(s)' : 'Nenhum pedido de edital pendente';
+        setSafeText('sino-contador', n > 0 ? (n > 99 ? '99+' : String(n)) : '');
+    }
+
+    function abrirPedidosAdmin() {
+        renderPedidosAdmin();
+        document.getElementById('pedidosAdminModal').style.display = 'block';
+    }
+
+    function renderPedidosAdmin() {
+        let el = document.getElementById('pedidos-admin-lista');
+        if (!el) return;
+        let lista = (pedidosAdminGlobal && pedidosAdminGlobal.lista) || [];
+        if (!lista.length) { el.innerHTML = '<p style="text-align:center; color:#888; padding:20px 0;"><i class="fas fa-check-circle" style="color:var(--accent-green)"></i> Nenhum pedido pendente.</p>'; return; }
+        let total = pedidosAdminGlobal.pendentes || lista.length;
+        el.innerHTML = (total > lista.length ? `<p style="font-size:12px; color:#888;">Mostrando os ${lista.length} mais recentes de ${total}.</p>` : '')
+            + lista.map(p => `<div class="pedido-item"><div class="pedido-info"><b>${escapeHTML(p.concurso)}</b>${escapeHTML(p.email)} · ${escapeHTML(p.data)}</div>`
+                + `<div class="pedido-acoes" data-id="${escapeHTML(p.id)}" data-email="${escapeHTML(p.email)}">`
+                + `<button type="button" class="btn" style="background:var(--accent-green);" onclick="marcarPedido(this, 'Mapeado')"><i class="fas fa-check"></i> Mapeado</button>`
+                + `<button type="button" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color);" onclick="marcarPedido(this, 'Recusado')">Recusar</button>`
+                + `</div></div>`).join('');
+    }
+
+    async function marcarPedido(botao, status) {
+        let box = botao.closest('.pedido-acoes');
+        if (!box) return;
+        box.querySelectorAll('button').forEach(b => b.disabled = true);
+        botao.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        try {
+            let data = await enviarAcao({ acao: 'atualizar_pedido', email: loggedUserEmail, id: box.dataset.id, emailPedido: box.dataset.email, status: status });
+            if (data.status !== 'sucesso') { alert(data.mensagem || 'Não foi possível atualizar o pedido.'); renderPedidosAdmin(); return; }
+            atualizarSinoPedidos(data.pedidosAdmin);
+            renderPedidosAdmin();
+        } catch (err) {
+            alert('Erro ao atualizar o pedido. ' + mensagemFalhaRede(err));
+            renderPedidosAdmin();
+        }
     }
 
     function atualizarCampoTopico() {
