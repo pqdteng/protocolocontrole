@@ -2019,35 +2019,143 @@
     </div>
 
     <div id="platformTutorialModal" class="modal">
-        <div class="modal-content" style="max-width: 700px; border-top: 4px solid var(--accent-blue);">
+        <div class="modal-content" style="max-width: 760px; border-top: 4px solid var(--accent-blue);">
             <span class="close-btn" onclick="document.getElementById('platformTutorialModal').style.display='none'">&times;</span>
-            <h2 style="color: var(--text-color); margin-top: 0;"><i class="fas fa-laptop-code" style="color:var(--accent-blue)"></i> Manual do Recruta</h2>
-            <p style="font-size: 14px; line-height: 1.6; color: #888; margin-bottom:20px;">Bem-vindo à Sala de Comando. Entenda como utilizar as principais engrenagens para extrair o máximo do seu potencial tático:</p>
-            
-            <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-green);">
-                <strong style="color:var(--text-color); font-size:15px;">1. Edital Verticalizado 🎯</strong><br>
-                <span style="font-size:13px; color:#888;">Nesta aba, você escolhe o seu Concurso Alvo. A plataforma plota todas as matérias e tópicos com barras de progresso. Ao fazer um "Lançamento", o sistema reconhece o tópico estudado e avança sua barra automaticamente.</span>
+            <h2 style="color: var(--text-color); margin-top: 0;"><i class="fas fa-laptop-code" style="color:var(--accent-blue)"></i> Guia da Plataforma</h2>
+            <style>
+              .pg-passos{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 18px}
+              .pg-passo{background:var(--input-bg);border:1px solid var(--border-color);border-radius:10px;padding:12px 14px}
+              .pg-passo .pg-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--accent-blue);color:#fff;font-weight:700;font-size:13px;margin-bottom:6px}
+              .pg-passo .pg-t{display:block;color:var(--text-color);margin-bottom:3px}
+              .pg-passo span{font-size:13px;color:#8B949E;line-height:1.5}
+              .pg-ciclo{display:flex;flex-wrap:wrap;align-items:center;gap:6px;background:var(--input-bg);border:1px solid var(--border-color);border-left:4px solid var(--accent-green);border-radius:10px;padding:12px 14px;margin:0 0 18px;font-size:13px}
+              .pg-ciclo .pg-etapa{background:var(--card-bg);border:1px solid var(--border-color);border-radius:999px;padding:4px 10px;color:var(--text-color);white-space:nowrap}
+              .pg-ciclo .pg-seta{color:#8B949E}
+              .pg-ciclo .pg-tit{width:100%;font-weight:700;color:var(--text-color);margin-bottom:4px;font-size:14px}
+              .pg-selo{display:inline-block;font-size:11px;font-weight:700;border-radius:4px;padding:0 6px;border:1px solid var(--accent-orange);color:var(--accent-orange);background:rgba(240,136,62,.1)}
+              #platformTutorialModal .mb-tab{min-width:0}
+              @media (max-width:600px){.pg-passos{grid-template-columns:1fr}}
+            </style>
+
+            <div class="mb-guia">
+              <p class="mb-sub">A plataforma organiza o seu estudo por questões no <b>Método MB</b>: você monta o ciclo uma vez, e o <b>GPS</b> diz o que estudar em cada bloco. Comece pelos 3 passos abaixo.</p>
+
+              <div class="pg-passos">
+                <div class="pg-passo"><div class="pg-num">1</div><b class="pg-t">Escolha o edital</b><span><b>Edital Verticalizado</b> → <b>Escolher Concurso</b>. Não achou o seu? Use <b>Solicitar Edital</b>.</span></div>
+                <div class="pg-passo"><div class="pg-num">2</div><b class="pg-t">Monte o ciclo</b><span><b>Meu Ciclo Tático</b>: use as matérias do edital e arraste para definir a ordem do giro.</span></div>
+                <div class="pg-passo"><div class="pg-num">3</div><b class="pg-t">Siga o GPS</b><span>No <b>Painel de Controle</b>, o GPS mostra a matéria, o assunto e a fase do próximo bloco.</span></div>
+              </div>
+
+              <div class="pg-ciclo">
+                <div class="pg-tit"><i class="fas fa-sync-alt" style="color:var(--accent-green)"></i> A rotina de cada bloco de estudo</div>
+                <span class="pg-etapa">🧭 GPS indica a matéria</span><span class="pg-seta">→</span>
+                <span class="pg-etapa">📖 Retomar caderno</span><span class="pg-seta">→</span>
+                <span class="pg-etapa">⏱️ Cronômetro</span><span class="pg-seta">→</span>
+                <span class="pg-etapa">✍️ Lançar este bloco</span><span class="pg-seta">→</span>
+                <span class="pg-etapa">🔁 GPS gira para a próxima</span>
+              </div>
+
+              <details open>
+                <summary>🧭 GPS de Direcionamento (Painel de Controle)</summary>
+                <div class="mb-corpo">
+                  <p>A cada lançamento, <b>em qualquer fase</b>, o GPS gira para a <b>próxima matéria do ciclo</b>. Você não precisa consolidar um assunto para seguir em frente: cada matéria anda no seu próprio ritmo.</p>
+                  <p>Para a matéria indicada, ele mostra o <b>assunto em andamento</b> e a <b>fase sugerida</b>, calculada pelo seu último resultado nela:</p>
+                  <div class="mb-scroll"><table class="mb-tab">
+                    <tr><th>Último resultado da matéria</th><th>O GPS sugere</th></tr>
+                    <tr><td>Fase 1</td><td>Continuar o caderno; se terminou, Fase 2</td></tr>
+                    <tr><td>Fase 2 abaixo de 70%</td><td>Repetir a Fase 2</td></tr>
+                    <tr><td>Fase 2 com 70%+</td><td>Fase 3 (aleatória)</td></tr>
+                    <tr><td>Fase 3 com 80%+</td><td>Fase 4 (com a gordura)</td></tr>
+                    <tr><td>Fase 4 com 85%+ (consolidado)</td><td>Próximo assunto do edital, Fase 1</td></tr>
+                  </table></div>
+                  <p>No mesmo painel ficam as <b>Metas da Semana</b> (horas e questões, você define os valores), os indicadores e os gráficos de desempenho.</p>
+                </div>
+              </details>
+
+              <details>
+                <summary>📖 Leitor de caderno</summary>
+                <div class="mb-corpo">
+                  <p>O botão <b>Retomar caderno</b> abre o material <b>dentro da plataforma</b>. Na barra do topo você tem:</p>
+                  <ul>
+                    <li>um campo para <b>colar outro link</b> e abri-lo ali mesmo;</li>
+                    <li><b>Nova guia</b>, se preferir estudar fora da plataforma;</li>
+                    <li><b>Lançar este bloco</b>, que abre o lançamento já preenchido.</li>
+                  </ul>
+                  <p>Ainda sem link? Use <b>Colar link do caderno</b> no GPS.</p>
+                  <div class="mb-alerta">💡 O <b>TEC Concursos</b> abre dentro da plataforma. <b>QConcursos, Gran e Estratégia</b> não permitem e abrem direto em nova guia. No <b>iPhone</b>, se o site pedir login toda hora, use <b>Nova guia</b>.</div>
+                </div>
+              </details>
+
+              <details>
+                <summary>✍️ Lançamento (Diário de Batalha)</summary>
+                <div class="mb-corpo">
+                  <p>Abra por <b>Lançar este bloco</b> (no leitor), por <b>Lançar Missão</b> (topo da tela) ou pelo ícone 💾 do cronômetro.</p>
+                  <ul>
+                    <li>Vindo do leitor, a <b>matéria, o assunto, a fase e o link</b> já chegam preenchidos. Os <b>minutos</b> vêm do cronômetro. Você só digita <b>questões e acertos</b>.</li>
+                    <li>Lançou errado? Use <b>Corrigir Meu Último Lançamento</b>, no topo do formulário.</li>
+                    <li>Limites por dia: 1.500 questões, 18h e 50 lançamentos.</li>
+                  </ul>
+                </div>
+              </details>
+
+              <details>
+                <summary>🎯 Edital Verticalizado</summary>
+                <div class="mb-corpo">
+                  <ul>
+                    <li>Mostra todas as matérias e assuntos do concurso escolhido, com o progresso de cada um.</li>
+                    <li>Assunto em andamento ganha o selo <span class="pg-selo">Fase 2</span> com a fase do último lançamento.</li>
+                    <li>O assunto só fica <b>✅ concluído</b> quando <b>consolida</b>: Fase 4 com 85% ou mais. Você também pode marcar ou desmarcar à mão.</li>
+                    <li>Cole o link do caderno de cada assunto; ele é usado pelo GPS e pelo leitor.</li>
+                    <li>Informe a <b>data da prova</b> para acompanhar a contagem.</li>
+                    <li><b>Solicitar Edital</b>: peça o concurso que ainda não está na lista e acompanhe o status (Pendente, Mapeado ou Recusado) na mesma janela.</li>
+                  </ul>
+                </div>
+              </details>
+
+              <details>
+                <summary>🔁 Meu Ciclo Tático</summary>
+                <div class="mb-corpo">
+                  <ul>
+                    <li>Com um edital ativo, use <b>Usar matérias do edital</b> para montar o ciclo de uma vez.</li>
+                    <li>Procure matérias pela busca, marque as que entram e <b>arraste</b> para definir a ordem do giro.</li>
+                    <li>Falta alguma matéria? Crie a sua, com sigla e nome.</li>
+                  </ul>
+                </div>
+              </details>
+
+              <details>
+                <summary>🔥 Ofensiva, moedas, escudos e patentes</summary>
+                <div class="mb-corpo">
+                  <ul>
+                    <li><b>Ofensiva 🔥</b>: dias seguidos com estudo lançado.</li>
+                    <li><b>Moedas 🪙</b>: cada dia com 100+ questões vale 50 moedas, e cada dia com 2h+ de estudo vale mais 50.</li>
+                    <li><b>Escudo de Ofensiva 🛡️</b>: clique nas moedas para abrir a loja. Cada escudo custa 300 moedas, e você guarda até 2. Num dia sem estudo, o escudo é usado <b>sozinho</b> e mantém a sua sequência. O dia protegido não soma à ofensiva, só evita perdê-la.</li>
+                    <li><b>Patentes 🏅</b>: sobem com o total de questões resolvidas, de Iniciante até Lenda.</li>
+                  </ul>
+                </div>
+              </details>
+
+              <details>
+                <summary>📊 Outras áreas da plataforma</summary>
+                <div class="mb-corpo">
+                  <ul>
+                    <li><b>Mapa de Força</b>: o calendário de intensidade, mostrando quantas questões você resolveu em cada dia.</li>
+                    <li><b>Ranking da Elite</b>: o ranking dos alunos e o comparativo do seu desempenho.</li>
+                    <li><b>Relatórios Gerais</b>: o histórico completo com filtros. <b>Exportar CSV</b> baixa os seus dados, e <b>Importar</b> traz o histórico de outra plataforma pela planilha padrão.</li>
+                    <li><b>Radar de Editais</b>: as últimas notícias de concursos, por área.</li>
+                    <li><b>Sala de Estudos</b>: a sala de voz e vídeo para estudar junto com outros alunos.</li>
+                    <li><b>Ficha do Aluno</b>: o seu codinome no ranking, a sua foto e a vigência do plano.</li>
+                    <li><b>Foco</b> (topo da tela): esconde as distrações. O botão <b>◐</b> alterna entre o tema claro e o escuro.</li>
+                  </ul>
+                </div>
+              </details>
+
+              <div class="mb-alerta">📘 Quer entender as 4 fases a fundo? Abra <a href="#" style="color:var(--accent-blue); font-weight:600;" onclick="event.preventDefault(); document.getElementById('platformTutorialModal').style.display='none'; document.getElementById('tutorialModal').style.display='block';">Metodologias de Estudo</a>. Dúvidas? Fale com a gente no <a href="https://t.me/protocolocontrole" target="_blank" rel="noopener" style="color:var(--accent-blue); font-weight:600;">grupo do Telegram</a>.</div>
             </div>
 
-            <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-orange);">
-                <strong style="color:var(--text-color); font-size:15px;">2. Meu Ciclo Tático (A Nuvem) ☁️</strong><br>
-                <span style="font-size:13px; color:#888;">Selecione as matérias do seu edital e arraste para montar a ordem de estudo. Essa ordem alimentará o seu GPS de Direcionamento.</span>
-            </div>
-            
-            <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-blue);">
-                <strong style="color:var(--text-color); font-size:15px;">3. Importação de Dados 📥</strong><br>
-                <span style="font-size:13px; color:#888;">Veio de outra plataforma? Vá em Relatórios Gerais > Importar. Baixe a planilha padrão, preencha com seu histórico antigo e suba o arquivo para unificar suas estatísticas de longo prazo.</span>
-            </div>
-            
-            <div style="background:var(--input-bg); padding:15px 20px; border-radius:8px; margin-bottom:15px; border-left: 4px solid var(--accent-gold);">
-                <strong style="color:var(--text-color); font-size:15px;">4. Gamificação e Ofensiva 🏆</strong><br>
-                <span style="font-size:13px; color:#888;">Estude todos os dias para aumentar suas Chamas de Ofensiva 🔥. Cada dia com 100+ questões vale 50 moedas, e cada dia com 2h+ de estudo vale mais 50. Use as moedas para comprar Escudos de Ofensiva 🛡️, que protegem a sua sequência num dia sem estudo.</span>
-            </div>
-
-            <button class="btn" style="background:var(--accent-blue); width:100%; margin-top:10px;" onclick="document.getElementById('platformTutorialModal').style.display='none'">ENTENDIDO, ENGENHARIA!</button>
+            <button class="btn" style="background:var(--accent-blue); width:100%; margin-top:10px;" onclick="document.getElementById('platformTutorialModal').style.display='none'">ENTENDIDO, VAMOS ESTUDAR!</button>
         </div>
     </div>
-
     <div id="tutorialModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="document.getElementById('tutorialModal').style.display='none'">&times;</span>
