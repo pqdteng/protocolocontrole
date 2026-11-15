@@ -44,6 +44,8 @@
         .nav-item { width: 100%; background: none; border: none; padding: 10px 22px; color: #8B949E; text-align: left; font-size: 13.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; border-left: 4px solid transparent;}
         .nav-item:hover { color: var(--text-color); background-color: var(--hover-bg); }
         .nav-item.active { background-color: var(--hover-bg); color: var(--text-color); border-left-color: var(--accent-blue); }
+        .pc-copy { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font-size: 11px; color: #8B949E; pointer-events: none; }
+        .pc-copy-side { font-size: 10px; color: #8B949E; text-align: center; margin-top: 4px; }
         .sidebar-footer { padding: 12px 15px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px; background-color: rgba(0,0,0,0.1);}
 
         .main-content { margin-left: var(--sidebar-width); flex-grow: 1; padding: 30px; box-sizing: border-box; transition: margin-left 0.3s ease; width: calc(100% - var(--sidebar-width)); min-height: 100vh;}
@@ -1154,6 +1156,7 @@
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMobileMenu()"></div>
 
     <div id="login-screen">
+        <div class="pc-copy">© 2026 Protocolo Controle. Todos os direitos reservados.</div>
         <div class="login-box">
             <div style="margin-bottom: 20px; display: flex; justify-content: center;">
                 <img src="https://raw.githubusercontent.com/pqdteng/protocolocontrole/main/logo.png" alt="Logo" style="max-height: 130px; width: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
@@ -1173,6 +1176,7 @@
     </div>
 
     <div id="register-screen" style="display:none;">
+        <div class="pc-copy">© 2026 Protocolo Controle. Todos os direitos reservados.</div>
         <div class="login-box" style="border-top: 4px solid var(--accent-green);">
             <h2><i class="fas fa-user-check" style="color:var(--accent-green)"></i> Ativação</h2>
             <p style="color:#888; font-size:0.9em;">Crie sua credencial com seu e-mail.</p>
@@ -1185,6 +1189,7 @@
     </div>
 
     <div id="reset-screen" style="display:none;">
+        <div class="pc-copy">© 2026 Protocolo Controle. Todos os direitos reservados.</div>
         <div class="login-box" style="border-top: 4px solid var(--accent-orange);">
             <h2><i class="fas fa-key" style="color:var(--accent-orange)"></i> Nova Senha</h2>
             
@@ -1236,7 +1241,6 @@
                 <div id="clock-container">
                     <div class="clock-top-row">
                         <div id="clock-display">00:00:00</div>
-                        <div id="weather-display"><i class="fas fa-satellite-dish fa-spin"></i> Clima...</div>
                     </div>
                     <div id="clock-date-display">--</div>
                 </div>
@@ -1259,6 +1263,7 @@
             <div class="sidebar-footer">
                 <div style="font-size: 11px; color: #888; text-align:center; margin-bottom:10px;">Autenticado como:<br><strong style="color:var(--accent-blue);" id="sidebar-user-email">--</strong></div>
                 <button class="btn" style="background: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color); width:100%;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Deslogar</button>
+                <div class="pc-copy-side">© 2026 Protocolo Controle · Todos os direitos reservados</div>
             </div>
         </div>
 
@@ -1276,7 +1281,7 @@
                         <p id="current-date-text" style="margin: 5px 0 0 0; color: #888; font-size: 0.9em;"></p>
                     </div>
                 </div>
-                <div id="daily-verse-top" class="daily-verse-top"></div>
+                <div id="daily-verse-top" class="daily-verse-top" title="Citação breve da Bíblia Sagrada, usada como inspiração."></div>
                 <div class="header-actions">
                     <button class="btn-action-top" onclick="toggleTheme()" title="Trocar Tema"><i class="fas fa-adjust"></i></button>
                     <button class="btn-stealth stealth-red" onclick="toggleFocus()" title="Ativar Modo Foco"><i class="fas fa-crosshairs"></i> Foco</button>
@@ -1720,7 +1725,7 @@
                             <button type="button" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color);" onclick="carregarRadarRSS()"><i class="fas fa-sync"></i> Atualizar Sinal</button>
                         </div>
                     </div>
-                    <p id="radar-subtitle-text" style="color:#888; font-size:14px; margin-bottom:20px;">Feed via satélite com as últimas publicações oficiais. Mantenha-se informado sem perder o foco na missão.</p>
+                    <p id="radar-subtitle-text" style="color:#888; font-size:14px; margin-bottom:20px;">Últimas notícias de concursos, com crédito e link para a fonte original. Mantenha-se informado sem perder o foco na missão.</p>
                     <div id="radar-cards-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
                         <p style="color:#888; text-align:center; grid-column: 1 / -1;"><i class="fas fa-satellite fa-spin"></i> Aguardando conexão com satélite...</p>
                     </div>
@@ -1897,12 +1902,12 @@
 
                 <div class="carousel-caption-box">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <strong style="font-size:13px; color:var(--text-color);"><i class="fab fa-telegram-plane" style="color:var(--accent-blue);"></i> Legenda & Links Oficiais (Telegram / Instagram)</strong>
+                        <strong style="font-size:13px; color:var(--text-color);"><i class="fab fa-telegram-plane" style="color:var(--accent-blue);"></i> Legenda & Links das Fontes (Telegram / Instagram)</strong>
                         <span style="font-size:11px; color:#888;">Editável</span>
                     </div>
                     <textarea id="carousel-caption-output" class="carousel-caption-textarea"></textarea>
                     <button type="button" class="btn" style="background:var(--accent-orange); color:#000; width:100%;" onclick="copiarLegendaCarrosselRadar()">
-                        <i class="fas fa-copy"></i> COPIAR TEXTO COM LINKS OFICIAIS
+                        <i class="fas fa-copy"></i> COPIAR TEXTO COM LINKS DAS FONTES
                     </button>
                     <button type="button" class="btn" style="background:var(--hover-bg); border:1px solid var(--accent-blue); color:var(--accent-blue); width:100%; font-size:12px;" onclick="compartilharDiretoTelegram()">
                         <i class="fab fa-telegram-plane"></i> ENVIAR DIRETO PARA O TELEGRAM
@@ -2877,7 +2882,7 @@ Gostaria que fizesse:
         
         renderDailyVerse();
         loadGoogleSheetsData();
-        initWeather();
+        // Clima removido (v29-85): a API gratuita do Open-Meteo não permite uso comercial e pedia a localização do aluno.
     }
 
     function atualizarContadorProva() {
@@ -4704,7 +4709,8 @@ Gostaria que fizesse:
                 let dateObj = new Date(item.pubDate);
                 if (isNaN(dateObj) || dateObj >= limiteDias) {
                     let dateStr = isNaN(dateObj) ? "Data Recente" : dateObj.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
-                    feedNoticiasGlobal.push({ titulo: textoSeguro(item.titulo) || "Aviso Oficial", link: linkSeguro(item.link), data: dateStr, dateObj: dateObj });
+                    let linkOk = linkSeguro(item.link);
+                    feedNoticiasGlobal.push({ titulo: textoSeguro(item.titulo) || "Aviso de concurso", link: linkOk, data: dateStr, dateObj: dateObj, fonte: textoSeguro(item.fonte) || fonteDoLinkRadar(linkOk) });
                 }
             });
 
@@ -4722,7 +4728,22 @@ Gostaria que fizesse:
         });
     }
 
-    const ADMIN_RADAR_EMAIL = "valefvs92@gmail.com";
+    // Crédito da fonte de cada notícia do Radar (o servidor manda "fonte"; respostas antigas em cache não têm)
+    function fonteDoLinkRadar(link) {
+        try {
+            let h = new URL(link).hostname.replace(/^www\./, '');
+            if (h.includes('pciconcursos')) return 'PCI Concursos';
+            if (h.includes('estrategia')) return 'Blog Estratégia Concursos';
+            return h;
+        } catch (e) { return 'site de origem'; }
+    }
+
+    // O e-mail do admin não fica escrito no código público: só o hash SHA-256 dele.
+    // Isso só decide o que aparece na tela; o servidor confere o admin de verdade (ehAdmin no Apps Script).
+    const ADMIN_EMAIL_SHA256 = "9ba3803adce83ce105497f8ac0a6b4885bb505bfb2b475d7c34f67d3f3c59a59";
+    let adminEmailVerificado = null; // e-mail cuja verificação já terminou
+    let adminConfirmado = false;
+    let adminVerificando = null;
     let radarSelecionadas = [];
     let radarUltimasFiltradas = [];
     let slidesCarrosselRadar = [];
@@ -4730,7 +4751,28 @@ Gostaria que fizesse:
     let logoImgCarrossel = null;
 
     function isCommanderAdmin() {
-        return String(loggedUserEmail || "").trim().toLowerCase() === ADMIN_RADAR_EMAIL;
+        let em = String(loggedUserEmail || "").trim().toLowerCase();
+        if (!em) return false;
+        if (adminEmailVerificado === em) return adminConfirmado;
+        verificarAdminEmSegundoPlano(em);
+        return false;
+    }
+
+    // crypto.subtle é assíncrono: confere uma vez por e-mail e depois atualiza os botões de admin
+    function verificarAdminEmSegundoPlano(em) {
+        if (adminVerificando === em || !(window.crypto && crypto.subtle)) return;
+        adminVerificando = em;
+        crypto.subtle.digest('SHA-256', new TextEncoder().encode(em)).then(buf => {
+            let hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+            adminConfirmado = hex === ADMIN_EMAIL_SHA256;
+            adminEmailVerificado = em;
+            adminVerificando = null;
+            if (!adminConfirmado) return;
+            sincronizarPermissaoRadarUI();
+            let btnShareDia = document.getElementById('btn-compartilhar-dia');
+            if (btnShareDia) btnShareDia.style.display = 'inline-flex';
+            if (radarUltimasFiltradas.length || feedNoticiasGlobal.length) aplicarFiltroRadar();
+        }).catch(() => { adminVerificando = null; });
     }
 
     function sincronizarPermissaoRadarUI() {
@@ -4743,7 +4785,7 @@ Gostaria que fizesse:
         if (subTxt) {
             subTxt.innerText = isAdmin
                 ? "Modo Comando Ativo: Selecione as notícias abaixo para gerar um Carrossel (Instagram) e Boletim com Links (Telegram)."
-                : "Feed via satélite com as últimas publicações oficiais. Mantenha-se informado sem perder o foco na missão.";
+                : "Últimas notícias de concursos, com crédito e link para a fonte original. Mantenha-se informado sem perder o foco na missão.";
         }
     }
 
@@ -4821,7 +4863,7 @@ Gostaria que fizesse:
         container.innerHTML = ''; 
         
         if (!listaNoticias || listaNoticias.length === 0) {
-            container.innerHTML = '<p style="color:#888; grid-column: 1 / -1; text-align:center;">Nenhum edital oficial publicado nos últimos 3 dias.</p>';
+            container.innerHTML = '<p style="color:#888; grid-column: 1 / -1; text-align:center;">Nenhum edital publicado nos últimos 3 dias.</p>';
             return;
         }
 
@@ -4861,7 +4903,7 @@ Gostaria que fizesse:
                         <div>
                             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                                 <span class="badge" style="background:rgba(88,166,255,0.1); color:var(--accent-blue); font-size:10px; border:1px solid var(--accent-blue); padding: 3px 6px; border-radius: 4px;">
-                                    <i class="fas fa-rss"></i> Aviso Oficial
+                                    <i class="fas fa-rss"></i> Fonte: ${escapeHTML(noticia.fonte || fonteDoLinkRadar(noticia.link))}
                                 </span>
                                 <span style="color:#888; font-size:11px;"><i class="far fa-calendar-alt"></i> ${noticia.data}</span>
                             </div>
@@ -4870,7 +4912,7 @@ Gostaria que fizesse:
                             </h4>
                         </div>
                         <a href="${noticia.link}" target="_blank" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); font-size:12px; width:100%; text-decoration:none;">
-                            VER OFICIAL <i class="fas fa-external-link-alt" style="margin-left:5px;"></i>
+                            LER NA FONTE <i class="fas fa-external-link-alt" style="margin-left:5px;"></i>
                         </a>
                     </div>
                 `;
@@ -4887,7 +4929,7 @@ Gostaria que fizesse:
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:6px;">
                             <span class="badge" style="background:rgba(88,166,255,0.1); color:var(--accent-blue); font-size:10px; border:1px solid var(--accent-blue); padding: 3px 6px; border-radius: 4px;">
-                                <i class="fas fa-rss"></i> Aviso Oficial
+                                <i class="fas fa-rss"></i> Fonte: ${escapeHTML(noticia.fonte || fonteDoLinkRadar(noticia.link))}
                             </span>
                             <div style="display:flex; align-items:center; gap:6px;">
                                 <span style="color:#888; font-size:11px;"><i class="far fa-calendar-alt"></i> ${noticia.data}</span>
@@ -4902,7 +4944,7 @@ Gostaria que fizesse:
                     </div>
                     <div style="display:flex; gap:8px;">
                         <a href="${noticia.link}" target="_blank" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); font-size:11.5px; flex:1; text-decoration:none;">
-                            VER OFICIAL <i class="fas fa-external-link-alt"></i>
+                            LER NA FONTE <i class="fas fa-external-link-alt"></i>
                         </a>
                         <button type="button" class="btn" style="background:rgba(242, 201, 76, 0.14); border:1px solid var(--accent-gold); color:var(--accent-gold); font-size:11.5px; padding:8px 10px;" onclick="gerarCardUnicoRadar('${linkEnc}')" title="Gerar Post desta notícia">
                             <i class="fas fa-camera-retro"></i> Post
@@ -5063,7 +5105,7 @@ Gostaria que fizesse:
             let u = new URL(url);
             return u.hostname.replace(/^www\./, '');
         } catch (e) {
-            return 'portal oficial';
+            return 'fonte original';
         }
     }
 
@@ -5147,7 +5189,7 @@ Gostaria que fizesse:
             ctx.fillStyle = '#58A6FF';
             ctx.font = 'bold 23px monospace';
             ctx.textAlign = 'left';
-            ctx.fillText(`📡 BOLETIM OFICIAL • ${hojeStr}`, 125, 285);
+            ctx.fillText(`📡 BOLETIM • ${hojeStr}`, 125, 285);
 
             ctx.fillStyle = '#FFFFFF';
             ctx.font = '800 64px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
@@ -5248,7 +5290,7 @@ Gostaria que fizesse:
                 ctx.fillStyle = '#8B949E';
                 ctx.font = 'bold 22px monospace';
                 ctx.textAlign = 'right';
-                ctx.fillText(`📅 ${n.data} • ${extrairDominioFonte(n.link)}`, W - 90, boxY + 53);
+                ctx.fillText(`📅 ${n.data} • Fonte: ${n.fonte || fonteDoLinkRadar(n.link)}`, W - 90, boxY + 53);
 
                 ctx.textAlign = 'left';
                 ctx.fillStyle = '#FFFFFF';
@@ -5260,7 +5302,7 @@ Gostaria que fizesse:
 
                 ctx.fillStyle = '#58A6FF';
                 ctx.font = 'bold 20px monospace';
-                ctx.fillText('🔗 Link oficial liberado no Boletim do Telegram', 90, boxY + 260);
+                ctx.fillText('🔗 Link da fonte no Boletim do Telegram', 90, boxY + 260);
             });
 
         } else if (slide.tipo === 'cta') {
@@ -5273,7 +5315,7 @@ Gostaria que fizesse:
 
             ctx.fillStyle = '#FFFFFF';
             ctx.font = '800 54px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-            ctx.fillText('ACESSE OS LINKS OFICIAIS', W / 2, 365);
+            ctx.fillText('ACESSE OS LINKS', W / 2, 365);
             ctx.fillText('E COMECE A OPERAÇÃO', W / 2, 430);
 
             desenharRetanguloArredondado(ctx, 105, 495, W - 210, 240, 16, 'rgba(88, 166, 255, 0.12)', '#58A6FF', 2);
@@ -5321,7 +5363,7 @@ Gostaria que fizesse:
         noticias.forEach((n, idx) => {
             linhas.push(`🔹 *${idx + 1}. ${n.titulo}*`);
             linhas.push(`📅 Publicação: ${n.data}`);
-            linhas.push(`🔗 Link Oficial: ${n.link}`);
+            linhas.push(`🔗 Fonte: ${n.fonte || fonteDoLinkRadar(n.link)} · ${n.link}`);
             linhas.push(``);
         });
 
@@ -6282,28 +6324,6 @@ Gostaria que fizesse:
         });
     }
     
-    function initWeather() {
-        let wDisplay = document.getElementById('weather-display');
-        if (!wDisplay) return;
-        if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(pos => {
-                let lat = pos.coords.latitude;
-                let lon = pos.coords.longitude;
-                fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
-                .then(res => res.json())
-                .then(data => {
-                    let temp = Math.round(data.current_weather.temperature);
-                    wDisplay.innerHTML = `<i class="fas fa-temperature-high"></i> ${temp}°C - Base Local`;
-                }).catch(e => {
-                    wDisplay.innerHTML = `<i class="fas fa-cloud"></i> Clima Offline`;
-                });
-            }, err => {
-                wDisplay.innerHTML = `<i class="fas fa-map-marker-alt"></i> Radar GPS Desativado`;
-            });
-        } else {
-            wDisplay.innerHTML = `<i class="fas fa-cloud"></i> Clima Indisponível`;
-        }
-    }
 		let pelotaoConectado = false;
     const JITSI_ROOM_NAME = "ProtocoloControle_PelotaoDeEstudos_QG";
 

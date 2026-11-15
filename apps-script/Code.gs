@@ -1,5 +1,11 @@
 // ===== AUTENTICAÇÃO / REGRAS DE ACESSO =====
-var ADMIN_EMAIL = "valefvs92@gmail.com"; // troque pelo seu e-mail
+// E-mail do admin: fica nas Propriedades do script (Configurações do projeto → Propriedades do script → ADMIN_EMAIL),
+// e não no código, porque o repositório é público. Sem a propriedade, ninguém é admin.
+var ADMIN_EMAIL = null;
+function emailAdmin() {
+  if (ADMIN_EMAIL === null) ADMIN_EMAIL = String(PropertiesService.getScriptProperties().getProperty("ADMIN_EMAIL") || "");
+  return String(ADMIN_EMAIL).trim().toLowerCase();
+}
 var LIMITE_FUNDADORES = 100;
 var ANOS_FUNDADOR = 5;
 var SESSAO_DIAS = 30;
@@ -968,12 +974,15 @@ function acaoRadar() {
   if (emCache !== null) return ContentService.createTextOutput(emCache).setMimeType(ContentService.MimeType.JSON);
   try {
     var url = 'https://www.pciconcursos.com.br/rss/';
-    var opcoesAvancadas = { "muteHttpExceptions": true, "headers": { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" } };
+    // Identificação honesta (não se passa por navegador). A fonte de cada notícia vai junto para ser creditada na tela.
+    var opcoesAvancadas = { "muteHttpExceptions": true, "headers": { "User-Agent": "Mozilla/5.0 (compatible; ProtocoloControle-Radar/1.0; +https://t.me/protocolocontrole)" } };
+    var fonte = "PCI Concursos";
     var response = UrlFetchApp.fetch(url, opcoesAvancadas);
     var xml = response.getContentText();
 
     if (!xml.includes('<rss') && !xml.includes('<feed')) {
       xml = "";
+      fonte = "Blog Estratégia Concursos";
       for (var pagina = 1; pagina <= 5; pagina++) {
         var urlEst = 'https://www.estrategiaconcursos.com.br/blog/feed/?paged=' + pagina;
         var resEst = UrlFetchApp.fetch(urlEst, opcoesAvancadas);
@@ -989,7 +998,7 @@ function acaoRadar() {
       var tMatch = /<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i.exec(block); var titulo = tMatch ? tMatch[1].trim() : "Aviso Oficial";
       var lMatch = /<link>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i.exec(block); var link = lMatch ? lMatch[1].trim() : "#";
       var dMatch = /<pubDate>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/pubDate>/i.exec(block); var pubDate = dMatch ? dMatch[1].trim() : "";
-      newsList.push({ titulo: titulo, link: link, pubDate: pubDate }); limit++;
+      newsList.push({ titulo: titulo, link: link, pubDate: pubDate, fonte: fonte }); limit++;
     }
     var json = JSON.stringify({ "status": "sucesso", "noticias": newsList });
     if (newsList.length > 0) cachePutGrande(chaveRadar, json, CACHE_RADAR_SEG); // só guarda quando a busca deu certo
@@ -1216,7 +1225,8 @@ var STATUS_PEDIDO = ["Pendente", "Mapeado", "Recusado"];
 var MAX_PEDIDOS_PENDENTES_ALUNO = 5;
 
 function ehAdmin(email) {
-  return String(email || "").trim().toLowerCase() === String(ADMIN_EMAIL).trim().toLowerCase();
+  var adm = emailAdmin();
+  return adm !== "" && String(email || "").trim().toLowerCase() === adm;
 }
 
 function abaPedidos(ss) {
@@ -1423,7 +1433,7 @@ function migrarUsuariosExistentes() {
     var em = users[i][COL.EMAIL] ? users[i][COL.EMAIL].toString().toLowerCase() : "";
     if (!em) continue;
     posicao++;
-    if (em === ADMIN_EMAIL.toLowerCase()) continue;
+    if (ehAdmin(em)) continue;
     var exp = users[i][COL.EXPIRA];
     var semData = !exp || exp === "" || isNaN(new Date(exp).getTime());
     if (!semData) continue;
