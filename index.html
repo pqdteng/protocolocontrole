@@ -1183,6 +1183,8 @@
             <div class="vagas-fundador-box" style="display:none;"></div>
             <input type="email" id="reg-email" class="login-input" placeholder="Seu E-mail">
             <input type="password" id="reg-pass" class="login-input" placeholder="Crie uma Senha">
+            <input type="text" id="reg-nick" class="login-input" placeholder="Seu Codinome (Ex: Pqdt_Engenheiro)" maxlength="15" autocomplete="nickname">
+            <p style="color:#888; font-size:0.8em; margin:-4px 0 12px; text-align:left;">É o nome que aparece no ranking e na Sala de Estudos. De 3 a 15 caracteres; você pode trocar depois na Ficha do Aluno.</p>
             <button class="btn" style="background:var(--accent-green); width:100%;" onclick="register()">ATIVAR CONTA</button>
             <div class="access-links" style="justify-content:center"><a onclick="showScreen('login')">Voltar ao Login</a></div>
         </div>
@@ -2468,7 +2470,7 @@ Gostaria que fizesse:
             return fetchOriginal(url, opts);
         };
     })();
-    let globalExpiration = ""; let globalNickname = "Recruta"; let globalAvatar = localStorage.getItem('pqdtAvatar') || ""; let tempAvatarBase64 = ""; let globalLeaderboards = {diario:[], semanal:[], mensal:[], geral:[]}; let globalAvatares = {};
+    let globalExpiration = ""; let globalNickname = "Aluno"; let globalAvatar = localStorage.getItem('pqdtAvatar') || ""; let tempAvatarBase64 = ""; let globalLeaderboards = {diario:[], semanal:[], mensal:[], geral:[]}; let globalAvatares = {};
     let isEditingMode = false;
     let currentRankingTab = 'diario'; 
 
@@ -2820,14 +2822,18 @@ Gostaria que fizesse:
         let elEmail = document.getElementById('reg-email'); let elPass = document.getElementById('reg-pass');
         if (!elEmail || !elPass) return;
         let e = elEmail.value.trim().toLowerCase(); let s = elPass.value.trim();
-        if (!e || !s) return alert("Preencha tudo!");
+        let elNick = document.getElementById('reg-nick');
+        let n = elNick ? elNick.value.replace(/[<>"'`&\\\/=]/g, '').replace(/\s+/g, ' ').trim().replace(/^[+\-@]+/, '').trim().substring(0, 15) : '';
+        if (!e || !s || !n) return alert("Preencha tudo, inclusive o seu codinome!");
+        if (n.length < 3) return alert("Digite um Codinome com ao menos 3 caracteres (sem símbolos especiais).");
+        if (elNick) elNick.value = n;
 
         let btn = document.querySelector('#register-screen .btn') || null;
         let oldTxt = btn ? btn.innerHTML : "";
         if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...'; btn.disabled = true; }
 
         try {
-            let data = await chamarAcaoPublica('cadastro', { email: e, senha: s }, 25000);
+            let data = await chamarAcaoPublica('cadastro', { email: e, senha: s, nickname: n }, 25000);
             if (data.status === "sucesso") {
                 alert("Conta ativada! Agora é só entrar no painel.");
                 showScreen('login');
@@ -3045,7 +3051,7 @@ Gostaria que fizesse:
             }
             
             globalExpiration = data.expiration || "Vitalício"; 
-            globalNickname = data.nickname || "Recruta"; 
+            globalNickname = data.nickname || "Aluno"; 
             if (typeof data.avatar !== "undefined") {
                 globalAvatar = data.avatar || "";
                 localStorage.setItem('pqdtAvatar', globalAvatar);
@@ -6376,7 +6382,7 @@ Gostaria que fizesse:
         let rota = selectRota ? selectRota.value : 'p2p_ninja';
 
         let patente = obterPatenteAtualTexto();
-        let displayTag = `${globalNickname || 'Recruta'} [${patente}]`;
+        let displayTag = `${globalNickname || 'Aluno'} [${patente}]`;
         let encodedTag = encodeURIComponent(displayTag);
 
         if (rota === 'p2p_ninja') {

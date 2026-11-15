@@ -457,6 +457,11 @@ function doPost(e) {
       var senhaCad = String(dados.senha || "");
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailCad)) return respJSON({"status": "erro", "mensagem": "E-mail inválido."});
       if (senhaCad.length < 6) return respJSON({"status": "erro", "mensagem": "A senha precisa ter ao menos 6 caracteres."});
+      // Codinome escolhido pelo aluno no cadastro (front antigo em cache não envia: aí cai no codinome provisório)
+      var nickCad = limparNick(dados.nickname);
+      var nickInformado = typeof dados.nickname !== "undefined" && String(dados.nickname).trim() !== "";
+      if (nickInformado && nickCad.length < 3) return respJSON({"status": "erro", "mensagem": "Codinome inválido (mínimo de 3 caracteres, sem símbolos especiais)."});
+      if (!nickInformado) nickCad = "Aluno_" + Math.floor(1000 + Math.random() * 9000);
 
       var lockCad = LockService.getScriptLock();
       try { lockCad.waitLock(15000); } catch (errLock) {
@@ -465,6 +470,16 @@ function doPost(e) {
 
       try {
         var usersCad = lerUsuariosLeve(sheetU);
+        // O ranking agrupa por codinome: não pode repetir o de outro aluno
+        for (var iN = 1; iN < usersCad.length; iN++) {
+          if (!usersCad[iN][COL.EMAIL] || !usersCad[iN][COL.NICK]) continue;
+          if (usersCad[iN][COL.EMAIL].toString().toLowerCase() === emailCad) continue;
+          if (usersCad[iN][COL.NICK].toString().toLowerCase() === nickCad.toLowerCase()) {
+            if (nickInformado) return respJSON({"status": "erro", "mensagem": "O codinome \"" + nickCad + "\" já está em uso. Escolha outro."});
+            nickCad = "Aluno_" + Math.floor(1000 + Math.random() * 9000);
+            iN = 0; // provisório repetido: sorteia de novo e reconfere
+          }
+        }
         var totalCadastros = 0;
         for (var iC = 1; iC < usersCad.length; iC++) {
           if (!usersCad[iC][COL.EMAIL]) continue;
@@ -479,7 +494,7 @@ function doPost(e) {
               return respJSON({"status": "erro", "mensagem": "Conta já ativada!"});
             }
             sheetU.getRange(iC + 1, COL.SENHA + 1).setValue(gerarHashSenha(senhaCad));
-            sheetU.getRange(iC + 1, COL.NICK + 1).setValue("Recruta_" + Math.floor(Math.random() * 1000));
+            sheetU.getRange(iC + 1, COL.NICK + 1).setValue(nickCad);
             registrarCadastroEm(sheetU, iC + 1);
             SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
             return respJSON({"status": "sucesso"});
@@ -496,8 +511,7 @@ function doPost(e) {
 
         var expFund = new Date();
         expFund.setFullYear(expFund.getFullYear() + ANOS_FUNDADOR);
-        var novoNickname = "Recruta_" + Math.floor(Math.random() * 1000);
-        sheetU.appendRow([emailCad, gerarHashSenha(senhaCad), expFund, novoNickname, 0, 0, 0, "", "", "{}", "", "", "", "", "", "", "FUNDADOR"]);
+        sheetU.appendRow([emailCad, gerarHashSenha(senhaCad), expFund, nickCad, 0, 0, 0, "", "", "{}", "", "", "", "", "", "", "FUNDADOR"]);
         registrarCadastroEm(sheetU, sheetU.getLastRow());
         CacheService.getScriptCache().remove("vagas_restantes");
         SpreadsheetApp.flush(); // TRAVA DE SEGURANÇA
