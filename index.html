@@ -111,6 +111,11 @@
         .pedido-status.Recusado { background: rgba(218, 54, 51, 0.12); color: var(--accent-red); }
         .coin-badge-btn {border: 1px solid rgba(242, 201, 76, 0.35); cursor: pointer; font-family: inherit; transition: 0.2s; }
         .coin-badge-btn:hover { background: rgba(242, 201, 76, 0.28); }
+        .share-dia-btn { color: var(--accent-blue); background: rgba(88, 166, 255, 0.12); border-color: rgba(88, 166, 255, 0.35); }
+        .share-dia-btn:hover { background: rgba(88, 166, 255, 0.25); }
+        .share-dia-preview { width: 100%; max-width: 300px; aspect-ratio: 9 / 16; display: block; margin: 0 auto 14px; border-radius: 10px; border: 1px solid var(--border-color); }
+        .share-dia-acoes { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .share-dia-acoes .btn { font-size: 12px; padding: 8px 12px; }
         .escudo-badge { margin-left: 4px; padding-left: 6px; border-left: 1px solid rgba(242, 201, 76, 0.4); color: var(--accent-blue); }
         .loja-saldo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
         .loja-saldo div { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; text-align: center; }
@@ -1302,6 +1307,7 @@
                             <div style="display:flex; flex-wrap:wrap; gap:8px;">
                                 <div class="streak-badge" id="streak-container"><i class="fas fa-fire"></i> <span id="streak-display">0</span> Dias de Ofensiva</div>
                                 <button type="button" class="coin-badge coin-badge-btn" onclick="abrirLojaMoedas()" title="Usar moedas: Escudo de Ofensiva"><i class="fas fa-coins"></i> <span id="coin-display">0</span> Moedas <span id="escudo-badge" class="escudo-badge" style="display:none;"></span></button>
+                                <button type="button" class="coin-badge coin-badge-btn share-dia-btn" id="btn-compartilhar-dia" style="display:none;" onclick="abrirCompartilharDia()" title="Gerar imagem do meu dia para postar"><i class="fas fa-share-alt"></i> Compartilhar meu dia</button>
                             </div>
                         </div>
                     </div>
@@ -1914,6 +1920,20 @@
             <input type="text" id="input-solicitar-edital" class="login-input" placeholder="Ex: TCE-MS - Engenharia Civil" maxlength="200">
             <button class="btn" style="background:var(--accent-orange); color:black; width:100%;" onclick="enviarSolicitacaoEdital()">ENVIAR SOLICITAÇÃO</button>
             <div id="meus-pedidos-lista" style="margin-top:18px;"></div>
+        </div>
+    </div>
+
+    <div id="compartilharDiaModal" class="modal">
+        <div class="modal-content" style="max-width: 420px; border-top: 4px solid var(--accent-blue);">
+            <span class="close-btn" onclick="document.getElementById('compartilharDiaModal').style.display='none'">&times;</span>
+            <h2 style="margin-top:0; color:var(--text-color); font-size:18px;"><i class="fas fa-share-alt" style="color:var(--accent-blue)"></i> Compartilhar meu dia</h2>
+            <p style="color:#888; font-size:12px; margin:0 0 12px;">Imagem 1080×1920 (story / TikTok) com os números de hoje. Só a sua conta vê este botão.</p>
+            <canvas id="compartilharDiaCanvas" class="share-dia-preview" width="1080" height="1920"></canvas>
+            <div class="share-dia-acoes">
+                <button type="button" class="btn" style="background:var(--accent-blue);" onclick="compartilharImagemDia()"><i class="fas fa-share-square"></i> Compartilhar</button>
+                <button type="button" class="btn" style="background:#30363D;" onclick="baixarImagemDia()"><i class="fas fa-download"></i> Baixar PNG</button>
+                <button type="button" class="btn" style="background:#30363D;" onclick="copiarLegendaDia()"><i class="fas fa-copy"></i> Copiar legenda</button>
+            </div>
         </div>
     </div>
 
@@ -2959,7 +2979,8 @@ Gostaria que fizesse:
             let geralKey = "Histórico Completo";
             
             if(dayKey === todayStr) { dailyQ += q; dailyMins += t; }
-            
+
+
             globalData.push({ date: dateObj, mat: mat, topico: r[3]?String(r[3]).trim():'', link: r[4]?String(r[4]).trim():'', q: q, a: a, t: t, fase: r[8]?String(r[8]).trim():'', metodologia: r[9]?String(r[9]).trim():'', k: r[10]?String(r[10]).trim():'', l: r[11]?String(r[11]).trim():'', origIdx: i });
             
             addStats(groupedDaily, dayKey, q, a, t, mat, dateObj);
@@ -2981,6 +3002,8 @@ Gostaria que fizesse:
         });
         
         setSafeText('streak-display', calcularDiasOfensiva());
+        let btnShareDia = document.getElementById('btn-compartilhar-dia');
+        if (btnShareDia) btnShareDia.style.display = isCommanderAdmin() ? 'inline-flex' : 'none';
         updateRank(); updateGPS(); updateDashboard('all'); renderReport();
         initHeatmap();
         switchLeaderboard(currentRankingTab);
@@ -6318,6 +6341,223 @@ Gostaria que fizesse:
             mostrarToastTatico("Status Tático copiado! Cole (Ctrl+V) no chat da Sala de Estudos.", "var(--accent-blue)");
         });
     }
+    // ===== COMPARTILHAR MEU DIA: imagem 1080x1920 para story/TikTok (só a conta admin) =====
+    function nomeMateriaPorSigla(sigla) {
+        let m = TODAS_MATERIAS.find(x => x.chaves.includes(sigla));
+        return m ? m.nome : sigla;
+    }
+
+    function diasParaProvaAtiva() {
+        let prog = editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal];
+        if (!prog || !prog._dataProva) return null;
+        let p = String(prog._dataProva).split('-');
+        if (p.length !== 3) return null;
+        let alvo = new Date(p[0], p[1] - 1, p[2]);
+        let hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+        return Math.round((alvo - hoje) / 86400000);
+    }
+
+    function dadosDoDiaParaCompartilhar() {
+        let hojeStr = new Date().toLocaleDateString('pt-BR');
+        let dia = groupedDaily[hojeStr] || { q: 0, a: 0, t: 0, subjects: {} };
+        let materias = Object.keys(dia.subjects)
+            .map(s => ({ nome: nomeMateriaPorSigla(s), q: dia.subjects[s].q, a: dia.subjects[s].a }))
+            .filter(m => m.q > 0)
+            .sort((x, y) => y.q - x.q);
+        return {
+            data: hojeStr,
+            q: dia.q, a: dia.a, mins: dia.t,
+            pct: dia.q > 0 ? Math.round(dia.a / dia.q * 100) : 0,
+            materias: materias,
+            ofensiva: calcularDiasOfensiva(),
+            patente: obterPatenteAtualTexto(),
+            total: totalQHistory,
+            edital: editalAtivoGlobal || '',
+            diasProva: diasParaProvaAtiva()
+        };
+    }
+
+    function cortarTextoCanvas(ctx, texto, larguraMax) {
+        if (ctx.measureText(texto).width <= larguraMax) return texto;
+        while (texto.length > 1 && ctx.measureText(texto + '…').width > larguraMax) texto = texto.slice(0, -1);
+        return texto + '…';
+    }
+
+    function corDoPct(pct) {
+        return pct >= 80 ? '#3FB950' : pct >= 70 ? '#F2C94C' : '#F85149';
+    }
+
+    function desenharImagemDia() {
+        let canvas = document.getElementById('compartilharDiaCanvas');
+        if (!canvas) return;
+        let ctx = canvas.getContext('2d');
+        let W = 1080, H = 1920, M = 70;
+        let d = dadosDoDiaParaCompartilhar();
+        const FONTE = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+        // fundo
+        let grad = ctx.createLinearGradient(0, 0, W, H);
+        grad.addColorStop(0, '#0B0E14'); grad.addColorStop(0.5, '#121822'); grad.addColorStop(1, '#0D1117');
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = 'rgba(88, 166, 255, 0.04)'; ctx.lineWidth = 1;
+        for (let x = 0; x < W; x += 60) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+        for (let y = 0; y < H; y += 60) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+        ctx.fillStyle = '#58A6FF'; ctx.fillRect(0, 0, W, 12);
+
+        // cabeçalho (fica abaixo da faixa de nome/perfil do story)
+        let y = 190;
+        let xTexto = M;
+        if (logoImgCarrossel) {
+            try { ctx.drawImage(logoImgCarrossel, M, y - 62, 84, 84); xTexto = M + 108; } catch (e) {}
+        }
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#C9D1D9'; ctx.font = `bold 40px ${FONTE}`;
+        ctx.fillText('PROTOCOLO CONTROLE', xTexto, y - 12);
+        ctx.fillStyle = '#58A6FF'; ctx.font = 'bold 26px monospace';
+        ctx.fillText('MEU DIA DE ESTUDOS · ' + d.data, xTexto, y + 26);
+
+        // contagem regressiva
+        y = 300;
+        if (d.edital && d.diasProva !== null && d.diasProva >= 0) {
+            desenharRetanguloArredondado(ctx, M, y, W - 2 * M, 150, 18, 'rgba(218, 54, 51, 0.12)', '#DA3633', 3);
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#F85149'; ctx.font = `bold 64px ${FONTE}`;
+            ctx.fillText(d.diasProva === 0 ? 'É HOJE!' : `FALTAM ${d.diasProva} DIAS`, W / 2, y + 72);
+            ctx.fillStyle = '#C9D1D9'; ctx.font = `28px ${FONTE}`;
+            ctx.fillText(cortarTextoCanvas(ctx, d.edital, W - 2 * M - 60), W / 2, y + 118);
+            y += 190;
+        } else {
+            y += 20;
+        }
+
+        // números grandes do dia
+        let horas = (d.mins / 60);
+        let horasTxt = Math.floor(horas) + 'h' + String(Math.round((horas % 1) * 60)).padStart(2, '0');
+        let cartoes = [
+            { valor: d.q.toLocaleString('pt-BR'), rotulo: 'QUESTÕES', cor: '#58A6FF' },
+            { valor: d.q > 0 ? d.pct + '%' : '--', rotulo: 'DE ACERTO', cor: d.q > 0 ? corDoPct(d.pct) : '#8B949E' },
+            { valor: horasTxt, rotulo: 'LÍQUIDAS', cor: '#BC8CFF' }
+        ];
+        let gap = 24, cw = (W - 2 * M - 2 * gap) / 3, ch = 230;
+        cartoes.forEach((c, i) => {
+            let x = M + i * (cw + gap);
+            desenharRetanguloArredondado(ctx, x, y, cw, ch, 18, 'rgba(22, 27, 34, 0.95)', '#30363D', 2);
+            ctx.textAlign = 'center';
+            ctx.fillStyle = c.cor; ctx.font = `bold 84px ${FONTE}`;
+            ctx.fillText(c.valor, x + cw / 2, y + 125);
+            ctx.fillStyle = '#8B949E'; ctx.font = 'bold 26px monospace';
+            ctx.fillText(c.rotulo, x + cw / 2, y + 185);
+        });
+        y += ch + 30;
+
+        // ofensiva + patente
+        desenharRetanguloArredondado(ctx, M, y, W - 2 * M, 120, 18, 'rgba(242, 201, 76, 0.10)', 'rgba(242, 201, 76, 0.5)', 2);
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#F2C94C'; ctx.font = `bold 44px ${FONTE}`;
+        ctx.fillText(`🔥 ${d.ofensiva} ${d.ofensiva === 1 ? 'dia' : 'dias'} de ofensiva`, M + 36, y + 76);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#C9D1D9'; ctx.font = `bold 32px ${FONTE}`;
+        ctx.fillText('🎖️ ' + d.patente, W - M - 36, y + 74);
+        y += 170;
+
+        // matérias do dia
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#58A6FF'; ctx.font = 'bold 30px monospace';
+        ctx.fillText('// MATÉRIAS DE HOJE', M, y);
+        y += 30;
+        let lista = d.materias.slice(0, 5);
+        let alturaLinha = 112;
+        let alturaCaixa = Math.max(1, lista.length) * alturaLinha + 30;
+        desenharRetanguloArredondado(ctx, M, y, W - 2 * M, alturaCaixa, 18, 'rgba(22, 27, 34, 0.95)', '#30363D', 2);
+        if (lista.length === 0) {
+            ctx.fillStyle = '#8B949E'; ctx.font = `32px ${FONTE}`; ctx.textAlign = 'center';
+            ctx.fillText('Nenhum bloco lançado hoje ainda', W / 2, y + 85);
+        }
+        lista.forEach((m, i) => {
+            let ly = y + 30 + i * alturaLinha;
+            let pct = m.q > 0 ? Math.round(m.a / m.q * 100) : 0;
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#C9D1D9'; ctx.font = `bold 34px ${FONTE}`;
+            ctx.fillText(cortarTextoCanvas(ctx, m.nome, W - 2 * M - 300), M + 36, ly + 42);
+            ctx.textAlign = 'right';
+            ctx.fillStyle = corDoPct(pct); ctx.font = `bold 34px ${FONTE}`;
+            ctx.fillText(pct + '%', W - M - 36, ly + 42);
+            ctx.fillStyle = '#8B949E'; ctx.font = `28px ${FONTE}`;
+            ctx.fillText(m.q + ' Qs', W - M - 150, ly + 42);
+            let bx = M + 36, bw = W - 2 * M - 72;
+            desenharRetanguloArredondado(ctx, bx, ly + 62, bw, 14, 7, '#21262D', null, 0);
+            if (pct > 0) desenharRetanguloArredondado(ctx, bx, ly + 62, Math.max(14, bw * pct / 100), 14, 7, corDoPct(pct), null, 0);
+        });
+        if (d.materias.length > lista.length) {
+            ctx.textAlign = 'right'; ctx.fillStyle = '#8B949E'; ctx.font = `26px ${FONTE}`;
+            ctx.fillText(`+${d.materias.length - lista.length} matéria(s)`, W - M, y + alturaCaixa + 40);
+        }
+
+        // rodapé (acima da caixa de resposta do story)
+        let fy = H - 300;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#8B949E'; ctx.font = `30px ${FONTE}`;
+        ctx.fillText(`Acumulado: ${d.total.toLocaleString('pt-BR')} questões resolvidas`, W / 2, fy);
+        desenharRetanguloArredondado(ctx, M + 60, fy + 40, W - 2 * M - 120, 96, 48, 'rgba(88, 166, 255, 0.15)', '#58A6FF', 3);
+        ctx.fillStyle = '#58A6FF'; ctx.font = `bold 36px ${FONTE}`;
+        ctx.fillText('Estudo reverso por questões · link na bio', W / 2, fy + 102);
+    }
+
+    function legendaDoDia() {
+        let d = dadosDoDiaParaCompartilhar();
+        let horas = (d.mins / 60).toFixed(1).replace('.', ',');
+        let linhas = [];
+        if (d.edital && d.diasProva !== null && d.diasProva > 0) linhas.push(`Faltam ${d.diasProva} dias para a prova (${d.edital}).`);
+        linhas.push(`Hoje: ${d.q} questões, ${d.pct}% de acerto e ${horas}h líquidas. 🔥 ${d.ofensiva} dias de ofensiva.`);
+        if (d.materias.length) linhas.push('Matérias: ' + d.materias.map(m => m.nome).join(', ') + '.');
+        linhas.push('', 'Eu estudo pelo método reverso (questão primeiro, teoria depois) e acompanho tudo na plataforma que eu criei: Protocolo Controle. Link na bio! 👆');
+        linhas.push('', '#concurseiro #rotinadeestudos #estudoreverso #questoesdeconcurso #concursospublicos');
+        return linhas.join('\n');
+    }
+
+    function abrirCompartilharDia() {
+        if (!isCommanderAdmin()) return;
+        desenharImagemDia();
+        document.getElementById('compartilharDiaModal').style.display = 'block';
+    }
+
+    function nomeArquivoDia() {
+        return 'ProtocoloControle_MeuDia_' + new Date().toISOString().slice(0, 10) + '.png';
+    }
+
+    function baixarImagemDia() {
+        if (!isCommanderAdmin()) return;
+        let canvas = document.getElementById('compartilharDiaCanvas');
+        let link = document.createElement('a');
+        link.download = nomeArquivoDia();
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        mostrarToastTatico('Imagem do dia baixada (1080x1920)!', 'var(--accent-blue)');
+    }
+
+    function compartilharImagemDia() {
+        if (!isCommanderAdmin()) return;
+        let canvas = document.getElementById('compartilharDiaCanvas');
+        canvas.toBlob(async blob => {
+            let arquivo = blob && new File([blob], nomeArquivoDia(), { type: 'image/png' });
+            if (arquivo && navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+                try {
+                    await navigator.clipboard.writeText(legendaDoDia()).catch(() => {});
+                    await navigator.share({ files: [arquivo] });
+                    mostrarToastTatico('Legenda copiada: é só colar no post.', 'var(--accent-green)');
+                } catch (e) { /* usuário cancelou */ }
+            } else {
+                baixarImagemDia(); // computador: sem compartilhamento nativo de arquivo
+            }
+        }, 'image/png');
+    }
+
+    function copiarLegendaDia() {
+        navigator.clipboard.writeText(legendaDoDia()).then(() => {
+            mostrarToastTatico('Legenda copiada! Cole no TikTok/Instagram.', 'var(--accent-blue)');
+        });
+    }
+
     // Contador de vagas de fundador (público, só números: sem risco de XSS)
     async function carregarVagasFundador() {
         let caixas = document.querySelectorAll('.vagas-fundador-box');
