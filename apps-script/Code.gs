@@ -994,25 +994,37 @@ function acaoRadar() {
     var response = UrlFetchApp.fetch(url, opcoesAvancadas);
     var xml = response.getContentText();
 
-    if (!xml.includes('<rss') && !xml.includes('<feed')) {
-      xml = "";
-      fonte = "Blog Estratégia Concursos";
-      for (var pagina = 1; pagina <= 5; pagina++) {
-        var urlEst = 'https://www.estrategiaconcursos.com.br/blog/feed/?paged=' + pagina;
-        var resEst = UrlFetchApp.fetch(urlEst, opcoesAvancadas);
-        xml += resEst.getContentText();
+    var newsList = [];
+    var vistos = {}; // a mesma notícia (link ou título) entra uma vez só
+    // Devolve quantas notícias novas o trecho de XML trouxe
+    function extrairItensRadar(trechoXml, fonteItem) {
+      var novos = 0;
+      var itemRegex = /<item>([\s\S]*?)<\/item>/gi;
+      var match;
+      while ((match = itemRegex.exec(trechoXml)) !== null && newsList.length < 60) {
+        var block = match[1];
+        var tMatch = /<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i.exec(block); var titulo = tMatch ? tMatch[1].trim() : "Notícia de concurso";
+        var lMatch = /<link>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i.exec(block); var link = lMatch ? lMatch[1].trim() : "#";
+        var dMatch = /<pubDate>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/pubDate>/i.exec(block); var pubDate = dMatch ? dMatch[1].trim() : "";
+        var chaveL = "l:" + link.toLowerCase().replace(/[?#].*$/, "").replace(/\/+$/, "");
+        var chaveT = "t:" + titulo.toLowerCase().replace(/\s+/g, " ");
+        if (vistos[chaveL] || vistos[chaveT]) continue;
+        vistos[chaveL] = true; vistos[chaveT] = true;
+        newsList.push({ titulo: titulo, link: link, pubDate: pubDate, fonte: fonteItem });
+        novos++;
       }
+      return novos;
     }
 
-    var newsList = [];
-    var itemRegex = /<item>([\s\S]*?)<\/item>/gi;
-    var match; var limit = 0;
-    while ((match = itemRegex.exec(xml)) !== null && limit < 60) {
-      var block = match[1];
-      var tMatch = /<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i.exec(block); var titulo = tMatch ? tMatch[1].trim() : "Aviso Oficial";
-      var lMatch = /<link>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i.exec(block); var link = lMatch ? lMatch[1].trim() : "#";
-      var dMatch = /<pubDate>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/pubDate>/i.exec(block); var pubDate = dMatch ? dMatch[1].trim() : "";
-      newsList.push({ titulo: titulo, link: link, pubDate: pubDate, fonte: fonte }); limit++;
+    if (xml.includes('<rss') || xml.includes('<feed')) {
+      extrairItensRadar(xml, fonte);
+    } else {
+      fonte = "Blog Estratégia Concursos";
+      for (var pagina = 1; pagina <= 5 && newsList.length < 60; pagina++) {
+        var urlEst = 'https://www.estrategiaconcursos.com.br/blog/feed/?paged=' + pagina;
+        var resEst = UrlFetchApp.fetch(urlEst, opcoesAvancadas);
+        if (extrairItensRadar(resEst.getContentText(), fonte) === 0) break; // página repetida: o feed não pagina, para aqui
+      }
     }
     var json = JSON.stringify({ "status": "sucesso", "noticias": newsList });
     if (newsList.length > 0) cachePutGrande(chaveRadar, json, CACHE_RADAR_SEG); // só guarda quando a busca deu certo

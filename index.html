@@ -1862,10 +1862,10 @@
         <div class="modal-content" style="max-width: 860px; border-top: 4px solid var(--accent-gold);">
             <span class="close-btn" onclick="document.getElementById('radarCarouselModal').style.display='none'">&times;</span>
             <h2 style="margin:0; color:var(--text-color); font-size:1.35em;">
-                <i class="fas fa-broadcast-tower" style="color:var(--accent-gold);"></i> Estúdio Tático: Carrossel Instagram & Boletim Telegram
+                <i class="fas fa-broadcast-tower" style="color:var(--accent-gold);"></i> Estúdio: Carrossel do Instagram
             </h2>
             <p style="color:#888; font-size:13px; margin:5px 0 15px 0;">
-                Imagens geradas na proporção oficial 4:5 (1080x1350px) com a assinatura do <strong>Protocolo Controle</strong> e links prontos para disparo.
+                Imagens no formato 4:5 do feed (1080x1350px) com a assinatura <strong>@pqdt.eng</strong>. Reescreva os títulos com as suas palavras e confira cada informação no edital oficial antes de publicar.
             </p>
 
             <div style="display:flex; gap:10px; flex-wrap:wrap; background:var(--input-bg); padding:12px; border-radius:8px; border:1px solid var(--border-color); align-items:center; justify-content:space-between;">
@@ -1891,6 +1891,14 @@
                     <div class="carousel-canvas-wrap">
                         <canvas id="radarCarouselCanvas" width="1080" height="1350"></canvas>
                     </div>
+                    <div id="carousel-titulo-editor" style="display:none; width:100%; margin-top:10px;">
+                        <label for="carousel-titulo-input" style="font-size:11px; color:#888; font-weight:bold; text-transform:uppercase;">Título deste slide (com as suas palavras)</label>
+                        <textarea id="carousel-titulo-input" maxlength="140" rows="2" style="width:100%; box-sizing:border-box; margin-top:4px; background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-color); border-radius:6px; padding:8px; font-size:13px; resize:vertical;" oninput="editarTituloSlideRadar(this.value)"></textarea>
+                        <div style="display:flex; justify-content:space-between; gap:8px; font-size:11px; color:#888;">
+                            <span id="carousel-titulo-original"></span>
+                            <a href="#" style="color:var(--accent-blue); white-space:nowrap;" onclick="event.preventDefault(); restaurarTituloSlideRadar();">Voltar ao original</a>
+                        </div>
+                    </div>
                     <div class="carousel-slide-nav">
                         <button type="button" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); padding:6px 14px;" onclick="mudarSlideCarrosselRadar(-1)">
                             <i class="fas fa-chevron-left"></i> Anterior
@@ -1904,16 +1912,14 @@
 
                 <div class="carousel-caption-box">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <strong style="font-size:13px; color:var(--text-color);"><i class="fab fa-telegram-plane" style="color:var(--accent-blue);"></i> Legenda & Links das Fontes (Telegram / Instagram)</strong>
+                        <strong style="font-size:13px; color:var(--text-color);"><i class="fab fa-instagram" style="color:var(--accent-gold);"></i> Legenda do Instagram</strong>
                         <span style="font-size:11px; color:#888;">Editável</span>
                     </div>
                     <textarea id="carousel-caption-output" class="carousel-caption-textarea"></textarea>
                     <button type="button" class="btn" style="background:var(--accent-orange); color:#000; width:100%;" onclick="copiarLegendaCarrosselRadar()">
-                        <i class="fas fa-copy"></i> COPIAR TEXTO COM LINKS DAS FONTES
+                        <i class="fas fa-copy"></i> COPIAR LEGENDA
                     </button>
-                    <button type="button" class="btn" style="background:var(--hover-bg); border:1px solid var(--accent-blue); color:var(--accent-blue); width:100%; font-size:12px;" onclick="compartilharDiretoTelegram()">
-                        <i class="fab fa-telegram-plane"></i> ENVIAR DIRETO PARA O TELEGRAM
-                    </button>
+                    <p style="font-size:11px; color:#888; margin:0; line-height:1.5;">A legenda cita a fonte de cada notícia. Links não são clicáveis no Instagram, por isso ficam de fora.</p>
                 </div>
             </div>
         </div>
@@ -4763,12 +4769,18 @@ Gostaria que fizesse:
             limiteDias.setDate(limiteDias.getDate() - 3);
 
             feedNoticiasGlobal = [];
+            let vistasRadar = new Set(); // o feed pode repetir a mesma notícia: entra uma vez só
             data.noticias.forEach(item => {
                 let dateObj = new Date(item.pubDate);
                 if (isNaN(dateObj) || dateObj >= limiteDias) {
                     let dateStr = isNaN(dateObj) ? "Data Recente" : dateObj.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
                     let linkOk = linkSeguro(item.link);
-                    feedNoticiasGlobal.push({ titulo: textoSeguro(item.titulo) || "Aviso de concurso", link: linkOk, data: dateStr, dateObj: dateObj, fonte: textoSeguro(item.fonte) || fonteDoLinkRadar(linkOk) });
+                    let titulo = textoSeguro(decodificarEntidadesRadar(item.titulo)) || "Notícia de concurso";
+                    let chaveL = 'l:' + linkOk.toLowerCase().replace(/[?#].*$/, '').replace(/\/+$/, '');
+                    let chaveT = 't:' + titulo.toLowerCase().replace(/\s+/g, ' ');
+                    if ((linkOk !== '#' && vistasRadar.has(chaveL)) || vistasRadar.has(chaveT)) return;
+                    vistasRadar.add(chaveL); vistasRadar.add(chaveT);
+                    feedNoticiasGlobal.push({ titulo: titulo, link: linkOk, data: dateStr, dateObj: dateObj, fonte: textoSeguro(item.fonte) || fonteDoLinkRadar(linkOk) });
                 }
             });
 
@@ -4784,6 +4796,13 @@ Gostaria que fizesse:
             console.error("Erro Tático no Radar:", err);
             container.innerHTML = `<p style="color:var(--accent-red); grid-column: 1 / -1; text-align:center; padding: 20px;"><i class="fas fa-exclamation-triangle"></i> Falha de comunicação com a Base: ${escapeHTML(err.message)}</p>`;
         });
+    }
+
+    // Títulos de RSS chegam com entidades (&#8211;, &amp;...): vira texto puro (DOMParser não executa nada)
+    function decodificarEntidadesRadar(txt) {
+        let s = String(txt || '');
+        if (!/&[#a-z0-9]+;/i.test(s)) return s;
+        try { return new DOMParser().parseFromString(s, 'text/html').documentElement.textContent || s; } catch (e) { return s; }
     }
 
     // Crédito da fonte de cada notícia do Radar (o servidor manda "fonte"; respostas antigas em cache não têm)
@@ -4842,7 +4861,7 @@ Gostaria que fizesse:
         let subTxt = document.getElementById('radar-subtitle-text');
         if (subTxt) {
             subTxt.innerText = isAdmin
-                ? "Modo Comando Ativo: Selecione as notícias abaixo para gerar um Carrossel (Instagram) e Boletim com Links (Telegram)."
+                ? "Modo Comando Ativo: selecione as notícias abaixo para gerar o carrossel do Instagram (@pqdt.eng) com legenda pronta."
                 : "Últimas notícias de concursos, com crédito e link para a fonte original. Mantenha-se informado sem perder o foco na missão.";
         }
     }
@@ -4966,7 +4985,7 @@ Gostaria que fizesse:
                                 <span style="color:#888; font-size:11px;"><i class="far fa-calendar-alt"></i> ${noticia.data}</span>
                             </div>
                             <h4 style="margin: 0 0 15px 0; color:var(--text-color); font-size:14px; line-height: 1.4;">
-                                ${noticia.titulo}
+                                ${escapeHTML(noticia.titulo)}
                             </h4>
                         </div>
                         <a href="${noticia.link}" target="_blank" class="btn" style="background:var(--hover-bg); border:1px solid var(--border-color); color:var(--text-color); font-size:12px; width:100%; text-decoration:none;">
@@ -4997,7 +5016,7 @@ Gostaria que fizesse:
                             </div>
                         </div>
                         <h4 style="margin: 0 0 15px 0; color:var(--text-color); font-size:14px; line-height: 1.4;">
-                            ${noticia.titulo}
+                            ${escapeHTML(noticia.titulo)}
                         </h4>
                     </div>
                     <div style="display:flex; gap:8px;">
@@ -5070,11 +5089,13 @@ Gostaria que fizesse:
 
         slidesCarrosselRadar = [];
 
+        let areaCurtaMap = { 'engenharia': 'Engenharia', 'controle': 'Controle Externo', 'policial': 'Carreiras Policiais', 'tribunais': 'Tribunais' };
         slidesCarrosselRadar.push({
             tipo: 'capa',
             area: nomeArea,
+            areaCurta: areaCurtaMap[filtroEl ? filtroEl.value : 'todas'] || '',
             totalNoticias: noticiasAlvo.length,
-            manchetePrincipal: noticiasAlvo[0].titulo
+            noticias: noticiasAlvo
         });
 
         if (modo === 'destaque') {
@@ -5167,62 +5188,150 @@ Gostaria que fizesse:
         }
     }
 
-    function desenharBaseTaticaSlide(ctx, W, H, numSlide, totalSlides) {
-        let grad = ctx.createLinearGradient(0, 0, W, H);
-        grad.addColorStop(0, '#0B0E14');
-        grad.addColorStop(0.5, '#121822');
-        grad.addColorStop(1, '#0D1117');
+    // ===== CARROSSEL DO INSTAGRAM (@pqdt.eng) =====
+    // Cada post sai com a assinatura do perfil, o crédito da fonte e o aviso para conferir o edital oficial.
+    const PERFIL_INSTAGRAM = '@pqdt.eng';
+    const FONTE_SLIDE = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+    let radarTitulosEditados = {}; // link -> título reescrito pelo admin
+
+    function tituloPostRadar(n) {
+        let ed = n && radarTitulosEditados[n.link];
+        return (ed && ed.trim()) ? ed.trim() : (n ? n.titulo : '');
+    }
+
+    // Selo do tipo de notícia, deduzido do título
+    function statusNoticiaRadar(titulo) {
+        let t = String(titulo || '').toLowerCase();
+        if (/inscri[çc][õo]es (abertas|come[çc]am|iniciadas)|edital (publicado|aberto|saiu|divulgado)|saiu o edital|edital na rua/.test(t)) return { txt: 'EDITAL PUBLICADO', cor: '#3FB950' };
+        if (/inscri[çc]/.test(t)) return { txt: 'INSCRIÇÕES', cor: '#3FB950' };
+        if (/resultado|gabarito|aprovados|convoca|nomea|lota[çc]/.test(t)) return { txt: 'RESULTADO', cor: '#BC8CFF' };
+        if (/banca (contratada|definida|escolhida|confirmada)/.test(t)) return { txt: 'BANCA DEFINIDA', cor: '#58A6FF' };
+        if (/autoriza/.test(t)) return { txt: 'AUTORIZADO', cor: '#58A6FF' };
+        if (/prova|local de prova/.test(t)) return { txt: 'PROVAS', cor: '#F0883E' };
+        if (/iminente|em breve|previsto|previs[ãa]o|comiss[ãa]o|solicita|pedido|novo concurso|vem a[íi]/.test(t)) return { txt: 'EM BREVE', cor: '#F2C94C' };
+        return { txt: 'NOVIDADE', cor: '#58A6FF' };
+    }
+
+    // Destaques numéricos do título (vagas, salário)
+    function destaquesNoticiaRadar(titulo) {
+        let t = String(titulo || '');
+        let out = [];
+        let mV = /(\d{1,3}(?:\.\d{3})*|\d+)\s*(?:mil\s*)?vagas/i.exec(t);
+        if (mV) out.push({ ic: '👥', txt: mV[0].replace(/\s+/g, ' ') });
+        let mS = /R\$\s?\d{1,3}(?:\.\d{3})*(?:,\d{2})?(?:\s?mil)?/i.exec(t);
+        if (mS) out.push({ ic: '💰', txt: mS[0].replace(/\s+/g, ' ') });
+        return out;
+    }
+
+    function dataPorExtensoRadar() {
+        let d = new Date();
+        let dia = d.toLocaleDateString('pt-BR', { weekday: 'long' });
+        let resto = d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+        return { semana: dia.charAt(0).toUpperCase() + dia.slice(1), data: resto };
+    }
+
+    // Escreve um texto em várias linhas, diminuindo a fonte até caber na área
+    function medirTextoQueCabe(ctx, texto, maxW, maxH, tamMax, tamMin, peso, altLinha) {
+        let tam = tamMax, linhas = [];
+        for (; tam >= tamMin; tam -= 2) {
+            ctx.font = `${peso} ${tam}px ${FONTE_SLIDE}`;
+            linhas = quebrarTextoCanvas(ctx, texto, maxW);
+            if (linhas.length * tam * altLinha <= maxH) break;
+        }
+        if (tam < tamMin) tam = tamMin;
+        ctx.font = `${peso} ${tam}px ${FONTE_SLIDE}`;
+        let maxLinhas = Math.max(1, Math.floor(maxH / (tam * altLinha)));
+        if (linhas.length > maxLinhas) {
+            linhas = linhas.slice(0, maxLinhas);
+            linhas[maxLinhas - 1] = linhas[maxLinhas - 1].replace(/\s*\S*$/, '') + '…';
+        }
+        return { tam, linhas, altura: linhas.length * tam * altLinha };
+    }
+
+    function textoQueCabe(ctx, texto, x, y, maxW, maxH, tamMax, tamMin, peso, cor, altLinha) {
+        let { tam, linhas } = medirTextoQueCabe(ctx, texto, maxW, maxH, tamMax, tamMin, peso, altLinha);
+        ctx.font = `${peso} ${tam}px ${FONTE_SLIDE}`;
+        ctx.fillStyle = cor;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+        linhas.forEach((l, i) => ctx.fillText(l, x, y + tam + i * tam * altLinha));
+        return y + linhas.length * tam * altLinha;
+    }
+
+    function seloRadar(ctx, x, y, txt, cor, tam) {
+        tam = tam || 26;
+        ctx.font = `800 ${tam}px ${FONTE_SLIDE}`;
+        let w = ctx.measureText(txt).width + tam * 1.4;
+        let h = tam * 1.9;
+        desenharRetanguloArredondado(ctx, x, y, w, h, h / 2, cor + '26', cor, 2);
+        ctx.fillStyle = cor;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(txt, x + tam * 0.7, y + h / 2 + 1);
+        ctx.textBaseline = 'alphabetic';
+        return w;
+    }
+
+    function desenharBaseTaticaSlide(ctx, W, H, numSlide, totalSlides, fonteRodape) {
+        // Fundo azul-noite com brilho dourado no canto
+        let grad = ctx.createLinearGradient(0, 0, 0, H);
+        grad.addColorStop(0, '#0B1324');
+        grad.addColorStop(1, '#070B14');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, W, H);
+        let brilho = ctx.createRadialGradient(W - 80, 60, 20, W - 80, 60, 700);
+        brilho.addColorStop(0, 'rgba(242, 201, 76, 0.20)');
+        brilho.addColorStop(1, 'rgba(242, 201, 76, 0)');
+        ctx.fillStyle = brilho;
+        ctx.fillRect(0, 0, W, H);
+        let brilho2 = ctx.createRadialGradient(0, H, 20, 0, H, 650);
+        brilho2.addColorStop(0, 'rgba(88, 166, 255, 0.16)');
+        brilho2.addColorStop(1, 'rgba(88, 166, 255, 0)');
+        ctx.fillStyle = brilho2;
+        ctx.fillRect(0, 0, W, H);
 
-        ctx.strokeStyle = 'rgba(88, 166, 255, 0.04)';
-        ctx.lineWidth = 1;
-        for (let x = 0; x < W; x += 60) {
-            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-        }
-        for (let y = 0; y < H; y += 60) {
-            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-        }
-
-        ctx.fillStyle = '#58A6FF';
-        ctx.fillRect(0, 0, W, 10);
-
-        desenharRetanguloArredondado(ctx, 55, 50, W - 110, 100, 14, 'rgba(22, 27, 34, 0.92)', '#30363D', 2);
-
-        let offsetTextoX = 85;
+        // Cabeçalho: logo + perfil + contador
+        let x = 72;
         if (logoImgCarrossel) {
             try {
-                ctx.drawImage(logoImgCarrossel, 75, 68, 64, 64);
-                offsetTextoX = 155;
-            } catch (e) {
-                offsetTextoX = 85;
-            }
+                ctx.save();
+                ctx.beginPath(); ctx.arc(x + 34, 96, 34, 0, Math.PI * 2); ctx.closePath(); ctx.clip();
+                ctx.fillStyle = '#FFFFFF'; ctx.fillRect(x, 62, 68, 68);
+                ctx.drawImage(logoImgCarrossel, x, 62, 68, 68);
+                ctx.restore();
+                x += 88;
+            } catch (e) { ctx.restore(); }
         }
-
-        ctx.fillStyle = '#C9D1D9';
-        ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText('PROTOCOLO CONTROLE', offsetTextoX, 95);
-
-        ctx.fillStyle = '#58A6FF';
-        ctx.font = 'bold 19px monospace';
-        ctx.fillText('SALA DE COMANDO // RADAR DE EDITAIS', offsetTextoX, 125);
-
-        desenharRetanguloArredondado(ctx, W - 210, 74, 130, 52, 26, 'rgba(242, 201, 76, 0.14)', '#F2C94C', 2);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = `800 32px ${FONTE_SLIDE}`;
+        ctx.fillText(PERFIL_INSTAGRAM, x, 92);
         ctx.fillStyle = '#F2C94C';
-        ctx.font = 'bold 24px monospace';
+        ctx.font = `700 21px ${FONTE_SLIDE}`;
+        ctx.fillText('RADAR DE CONCURSOS', x, 122);
+
+        ctx.font = `800 24px ${FONTE_SLIDE}`;
+        let cont = `${numSlide}/${totalSlides}`;
+        let wc = ctx.measureText(cont).width + 36;
+        desenharRetanguloArredondado(ctx, W - 72 - wc, 72, wc, 48, 24, 'rgba(255,255,255,0.06)', 'rgba(255,255,255,0.18)', 1.5);
+        ctx.fillStyle = '#C9D1D9';
         ctx.textAlign = 'center';
-        ctx.fillText(`${numSlide}/${totalSlides}`, W - 145, 108);
+        ctx.fillText(cont, W - 72 - wc / 2, 104);
 
-        desenharRetanguloArredondado(ctx, 55, H - 125, W - 110, 75, 12, 'rgba(22, 27, 34, 0.92)', '#30363D', 2);
-        ctx.fillStyle = '#8B949E';
-        ctx.font = 'bold 21px monospace';
+        // Rodapé: fonte (quando houver) e convite para arrastar
+        ctx.fillStyle = 'rgba(255,255,255,0.10)';
+        ctx.fillRect(72, H - 118, W - 144, 2);
+        ctx.font = `600 22px ${FONTE_SLIDE}`;
         ctx.textAlign = 'left';
-        ctx.fillText('📲 @pqdtnocontrole', 85, H - 80);
-
-        ctx.fillStyle = '#58A6FF';
-        ctx.textAlign = 'right';
-        ctx.fillText('✈️ t.me/protocolocontrole', W - 85, H - 80);
+        ctx.fillStyle = '#8B949E';
+        ctx.fillText(fonteRodape || 'Confira sempre o edital oficial.', 72, H - 68);
+        if (numSlide < totalSlides) {
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#F2C94C';
+            ctx.font = `800 24px ${FONTE_SLIDE}`;
+            ctx.fillText('ARRASTE  ➜', W - 72, H - 68);
+        }
+        ctx.textAlign = 'left';
     }
 
     function desenharSlideCarrosselRadar(idx) {
@@ -5233,203 +5342,231 @@ Gostaria que fizesse:
         let H = canvas.height;
         let slide = slidesCarrosselRadar[idx];
         let totalSlides = slidesCarrosselRadar.length;
+        let M = 72; // margem lateral
 
-        desenharBaseTaticaSlide(ctx, W, H, idx + 1, totalSlides);
-
-        let hojeStr = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        let rodape = null;
+        if (slide.tipo === 'noticia_unica') rodape = `Fonte: ${slide.noticia.fonte || fonteDoLinkRadar(slide.noticia.link)} · ${slide.noticia.data}`;
+        else if (slide.tipo === 'lista_noticias') rodape = 'Fontes na legenda · Confira o edital oficial.';
+        else if (slide.tipo === 'capa') rodape = 'Resumo das notícias públicas do dia.';
+        desenharBaseTaticaSlide(ctx, W, H, idx + 1, totalSlides, rodape);
 
         if (slide.tipo === 'capa') {
-            desenharRetanguloArredondado(ctx, 55, 195, W - 110, 980, 20, 'rgba(22, 27, 34, 0.88)', '#30363D', 2);
-            ctx.fillStyle = '#F2C94C';
-            ctx.fillRect(55, 195, 10, 980);
+            let ext = dataPorExtensoRadar();
+            seloRadar(ctx, M, 200, '📡  RADAR DE CONCURSOS', '#F2C94C', 26);
 
-            desenharRetanguloArredondado(ctx, 105, 250, 460, 54, 8, 'rgba(88, 166, 255, 0.14)', '#58A6FF', 2);
-            ctx.fillStyle = '#58A6FF';
-            ctx.font = 'bold 23px monospace';
             ctx.textAlign = 'left';
-            ctx.fillText(`📡 BOLETIM • ${hojeStr}`, 125, 285);
-
+            ctx.fillStyle = '#8B949E';
+            ctx.font = `700 34px ${FONTE_SLIDE}`;
+            ctx.fillText(ext.semana, M, 330);
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = '800 64px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-            ctx.fillText('RADAR DE EDITAIS', 105, 395);
+            ctx.font = `900 92px ${FONTE_SLIDE}`;
+            ctx.fillText(ext.data, M, 425);
 
             ctx.fillStyle = '#F2C94C';
-            ctx.font = 'bold 34px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-            ctx.fillText(slide.area, 105, 455);
+            ctx.fillRect(M, 462, 120, 8);
 
-            ctx.strokeStyle = '#30363D';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(105, 495);
-            ctx.lineTo(W - 105, 495);
-            ctx.stroke();
+            let qtd = slide.totalNoticias;
+            let sub = `${qtd} ${qtd === 1 ? 'notícia de concurso' : 'notícias de concursos'} para ficar de olho` + (slide.areaCurta ? ` · ${slide.areaCurta}` : '');
+            textoQueCabe(ctx, sub, M, 492, W - 2 * M, 90, 36, 28, 700, '#C9D1D9', 1.25);
 
-            ctx.fillStyle = '#8B949E';
-            ctx.font = 'bold 25px monospace';
-            ctx.fillText('DESTAQUE MONITORADO VIA SATÉLITE:', 105, 555);
-
-            ctx.fillStyle = '#C9D1D9';
-            ctx.font = 'bold 42px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-            let linhasDestaque = quebrarTextoCanvas(ctx, `"${slide.manchetePrincipal}"`, W - 210).slice(0, 5);
-            linhasDestaque.forEach((l, i) => {
-                ctx.fillText(l, 105, 625 + (i * 58));
+            // Índice das manchetes
+            let y = 610;
+            let lista = slide.noticias.slice(0, 5);
+            let espaco = (H - 150 - y) / Math.max(lista.length, 1);
+            let alturaItem = Math.min(espaco, 150);
+            lista.forEach((n, i) => {
+                desenharRetanguloArredondado(ctx, M, y, W - 2 * M, alturaItem - 18, 18, 'rgba(255,255,255,0.045)', 'rgba(255,255,255,0.10)', 1.5);
+                ctx.fillStyle = '#F2C94C';
+                ctx.font = `900 40px ${FONTE_SLIDE}`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(String(i + 1).padStart(2, '0'), M + 52, y + (alturaItem - 18) / 2);
+                ctx.textBaseline = 'alphabetic';
+                let st = statusNoticiaRadar(tituloPostRadar(n));
+                ctx.fillStyle = st.cor;
+                ctx.font = `800 18px ${FONTE_SLIDE}`;
+                ctx.textAlign = 'left';
+                ctx.fillText(st.txt, M + 108, y + 36);
+                textoQueCabe(ctx, tituloPostRadar(n), M + 108, y + 40, W - 2 * M - 140, alturaItem - 70, 30, 22, 700, '#FFFFFF', 1.2);
+                y += alturaItem;
             });
-
-            desenharRetanguloArredondado(ctx, 105, 975, W - 210, 130, 14, 'rgba(35, 134, 54, 0.16)', '#238636', 2);
-            ctx.fillStyle = '#39D353';
-            ctx.font = 'bold 30px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-            ctx.fillText(`🎯 ${slide.totalNoticias} ${slide.totalNoticias === 1 ? 'Publicação Mapeada' : 'Publicações Mapeadas'} no Radar`, 140, 1030);
-            ctx.fillStyle = '#C9D1D9';
-            ctx.font = 'bold 24px monospace';
-            ctx.fillText('Arraste para o lado para inspecionar os editais >>>', 140, 1075);
+            if (slide.totalNoticias > lista.length) {
+                ctx.fillStyle = '#8B949E';
+                ctx.font = `700 22px ${FONTE_SLIDE}`;
+                ctx.fillText(`+ ${slide.totalNoticias - lista.length} nos próximos slides`, M, y + 6);
+            }
 
         } else if (slide.tipo === 'noticia_unica') {
             let n = slide.noticia;
-            desenharRetanguloArredondado(ctx, 55, 195, W - 110, 980, 20, 'rgba(22, 27, 34, 0.92)', '#30363D', 2);
-            ctx.fillStyle = '#58A6FF';
-            ctx.fillRect(55, 195, 10, 980);
+            let titulo = tituloPostRadar(n);
+            let st = statusNoticiaRadar(titulo);
 
-            desenharRetanguloArredondado(ctx, 105, 245, 320, 54, 8, 'rgba(242, 201, 76, 0.15)', '#F2C94C', 2);
-            ctx.fillStyle = '#F2C94C';
-            ctx.font = 'bold 25px monospace';
+            // Número grande de fundo
+            ctx.fillStyle = 'rgba(255,255,255,0.05)';
+            ctx.font = `900 360px ${FONTE_SLIDE}`;
+            ctx.textAlign = 'right';
+            ctx.fillText(String(slide.ordem).padStart(2, '0'), W - 40, 520);
             ctx.textAlign = 'left';
-            ctx.fillText(`ALERTA #${String(slide.ordem).padStart(2, '0')} DE ${String(slide.totalNoticias).padStart(2, '0')}`, 130, 281);
 
-            desenharRetanguloArredondado(ctx, W - 365, 245, 260, 54, 8, 'rgba(88, 166, 255, 0.12)', '#58A6FF', 1.5);
-            ctx.fillStyle = '#58A6FF';
-            ctx.font = 'bold 24px monospace';
-            ctx.textAlign = 'center';
-            ctx.fillText(`📅 ${n.data}`, W - 235, 281);
+            // Bloco (selo + título + destaques) centralizado na vertical entre o cabeçalho e o aviso
+            let dest = destaquesNoticiaRadar(titulo);
+            let med = medirTextoQueCabe(ctx, titulo, W - 2 * M - 40, 620, 84, 44, 900, 1.14);
+            let altBloco = 57 + 50 + med.altura + 60 + 76;
+            let topo = Math.max(190, Math.round(190 + (1110 - 190 - altBloco) / 2));
 
-            ctx.textAlign = 'left';
-            ctx.fillStyle = '#8B949E';
-            ctx.font = 'bold 22px monospace';
-            ctx.fillText(`SETOR: ${slide.area}`, 105, 355);
+            seloRadar(ctx, M, topo, st.txt, st.cor, 30);
+            let yT = topo + 57 + 50;
+            ctx.fillStyle = st.cor;
+            ctx.fillRect(M, yT + med.tam * 0.18, 10, med.altura - med.tam * 0.05);
+            let fimTitulo = textoQueCabe(ctx, titulo, M + 40, yT, W - 2 * M - 40, 620, 84, 44, 900, '#FFFFFF', 1.14);
 
-            ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 48px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-            let linhasTitulo = quebrarTextoCanvas(ctx, n.titulo, W - 210).slice(0, 7);
-            linhasTitulo.forEach((l, i) => {
-                ctx.fillText(l, 105, 435 + (i * 66));
+            let yD = fimTitulo + 60;
+            let xD = M;
+            dest.forEach(d => {
+                ctx.font = `800 34px ${FONTE_SLIDE}`;
+                let w = ctx.measureText(`${d.ic} ${d.txt}`).width + 56;
+                desenharRetanguloArredondado(ctx, xD, yD, w, 76, 20, 'rgba(242, 201, 76, 0.12)', 'rgba(242, 201, 76, 0.55)', 2);
+                ctx.fillStyle = '#F2C94C';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`${d.ic} ${d.txt}`, xD + 28, yD + 39);
+                ctx.textBaseline = 'alphabetic';
+                xD += w + 16;
             });
+            if (!dest.length) {
+                ctx.fillStyle = '#8B949E';
+                ctx.font = `600 28px ${FONTE_SLIDE}`;
+                ctx.fillText('📌 Salve para acompanhar os próximos passos.', M, yD + 46);
+            }
 
-            desenharRetanguloArredondado(ctx, 105, 920, W - 210, 195, 14, '#0D1117', '#30363D', 2);
-            ctx.fillStyle = '#F0883E';
-            ctx.font = 'bold 24px monospace';
-            ctx.fillText(`🔗 FONTE / PORTAL: ${extrairDominioFonte(n.link).toUpperCase()}`, 140, 972);
-
-            ctx.fillStyle = '#C9D1D9';
-            ctx.font = '25px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-            ctx.fillText('Link direto da notícia e acompanhamento verticalizado', 140, 1022);
-            ctx.fillStyle = '#39D353';
-            ctx.font = 'bold 26px monospace';
-            ctx.fillText('disponíveis no nosso Grupo do Telegram: t.me/protocolocontrole', 140, 1068);
+            // Aviso de conferência no edital
+            desenharRetanguloArredondado(ctx, M, 1130, W - 2 * M, 78, 18, 'rgba(88, 166, 255, 0.10)', 'rgba(88, 166, 255, 0.45)', 1.5);
+            ctx.fillStyle = '#9CC8FF';
+            ctx.font = `700 25px ${FONTE_SLIDE}`;
+            ctx.textBaseline = 'middle';
+            ctx.fillText('ℹ️  Confira datas e requisitos no edital oficial do órgão.', M + 26, 1170);
+            ctx.textBaseline = 'alphabetic';
 
         } else if (slide.tipo === 'lista_noticias') {
-            ctx.fillStyle = '#F2C94C';
-            ctx.font = 'bold 26px monospace';
-            ctx.textAlign = 'left';
-            ctx.fillText(`📡 GIRO TÁTICO // ${slide.area}`, 60, 215);
-
-            slide.itens.forEach((n, idxItem) => {
-                let boxY = 245 + (idxItem * 310);
-                let numGlobal = slide.inicioIdx + idxItem;
-
-                desenharRetanguloArredondado(ctx, 55, boxY, W - 110, 285, 16, 'rgba(22, 27, 34, 0.94)', '#30363D', 2);
-                ctx.fillStyle = idxItem % 2 === 0 ? '#58A6FF' : '#238636';
-                ctx.fillRect(55, boxY, 10, 285);
-
-                desenharRetanguloArredondado(ctx, 90, boxY + 25, 150, 42, 6, 'rgba(242, 201, 76, 0.15)', '#F2C94C', 1.5);
+            seloRadar(ctx, M, 200, `📡  NOTÍCIAS ${slide.inicioIdx} A ${slide.inicioIdx + slide.itens.length - 1}`, '#F2C94C', 24);
+            let y = 300;
+            let alt = 270;
+            slide.itens.forEach((n, i) => {
+                let titulo = tituloPostRadar(n);
+                let st = statusNoticiaRadar(titulo);
+                desenharRetanguloArredondado(ctx, M, y, W - 2 * M, alt - 24, 22, 'rgba(255,255,255,0.045)', 'rgba(255,255,255,0.10)', 1.5);
+                ctx.fillStyle = st.cor;
+                ctx.fillRect(M, y + 24, 8, alt - 72);
                 ctx.fillStyle = '#F2C94C';
-                ctx.font = 'bold 22px monospace';
-                ctx.textAlign = 'center';
-                ctx.fillText(`ALVO #0${numGlobal}`, 165, boxY + 53);
-
+                ctx.font = `900 30px ${FONTE_SLIDE}`;
+                ctx.fillText(String(slide.inicioIdx + i).padStart(2, '0'), M + 36, y + 56);
+                ctx.fillStyle = st.cor;
+                ctx.font = `800 20px ${FONTE_SLIDE}`;
+                ctx.fillText(st.txt, M + 96, y + 54);
                 ctx.fillStyle = '#8B949E';
-                ctx.font = 'bold 22px monospace';
+                ctx.font = `600 20px ${FONTE_SLIDE}`;
                 ctx.textAlign = 'right';
-                ctx.fillText(`📅 ${n.data} • Fonte: ${n.fonte || fonteDoLinkRadar(n.link)}`, W - 90, boxY + 53);
-
+                ctx.fillText(`${n.fonte || fonteDoLinkRadar(n.link)} · ${n.data}`, W - M - 30, y + 54);
                 ctx.textAlign = 'left';
-                ctx.fillStyle = '#FFFFFF';
-                ctx.font = 'bold 33px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-                let linhas = quebrarTextoCanvas(ctx, n.titulo, W - 180).slice(0, 3);
-                linhas.forEach((l, li) => {
-                    ctx.fillText(l, 90, boxY + 115 + (li * 46));
-                });
-
-                ctx.fillStyle = '#58A6FF';
-                ctx.font = 'bold 20px monospace';
-                ctx.fillText('🔗 Link da fonte no Boletim do Telegram', 90, boxY + 260);
+                textoQueCabe(ctx, titulo, M + 36, y + 70, W - 2 * M - 72, alt - 110, 40, 26, 800, '#FFFFFF', 1.18);
+                y += alt;
             });
 
         } else if (slide.tipo === 'cta') {
-            desenharRetanguloArredondado(ctx, 55, 195, W - 110, 980, 20, 'rgba(22, 27, 34, 0.92)', '#F2C94C', 2.5);
-
-            ctx.fillStyle = '#F2C94C';
-            ctx.font = 'bold 28px monospace';
-            ctx.textAlign = 'center';
-            ctx.fillText('MISSÃO DADA É MISSÃO CUMPRIDA', W / 2, 285);
-
+            ctx.textAlign = 'left';
+            seloRadar(ctx, M, 220, '✅  RADAR DE HOJE CONCLUÍDO', '#3FB950', 26);
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = '800 54px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-            ctx.fillText('ACESSE OS LINKS', W / 2, 365);
-            ctx.fillText('E COMECE A OPERAÇÃO', W / 2, 430);
-
-            desenharRetanguloArredondado(ctx, 105, 495, W - 210, 240, 16, 'rgba(88, 166, 255, 0.12)', '#58A6FF', 2);
-            ctx.fillStyle = '#58A6FF';
-            ctx.font = 'bold 34px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-            ctx.fillText('✈️ COMUNIDADE NO TELEGRAM', W / 2, 560);
-            ctx.fillStyle = '#C9D1D9';
-            ctx.font = '28px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-            ctx.fillText('Todos os links clicáveis deste boletim estão', W / 2, 615);
-            ctx.fillText('disponíveis gratuitamente no nosso canal:', W / 2, 655);
+            ctx.font = `900 84px ${FONTE_SLIDE}`;
+            ctx.fillText('Não perca', M, 400);
+            ctx.fillText('nenhum edital.', M, 495);
             ctx.fillStyle = '#F2C94C';
-            ctx.font = 'bold 32px monospace';
-            ctx.fillText('t.me/protocolocontrole', W / 2, 705);
+            ctx.fillRect(M, 530, 120, 8);
 
-            desenharRetanguloArredondado(ctx, 105, 775, W - 210, 230, 16, 'rgba(35, 134, 54, 0.14)', '#238636', 2);
-            ctx.fillStyle = '#39D353';
-            ctx.font = 'bold 34px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-            ctx.fillText('🎯 SALA DE COMANDO (DASHBOARD)', W / 2, 840);
-            ctx.fillStyle = '#C9D1D9';
-            ctx.font = '28px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-            ctx.fillText('Edital Verticalizado • Ciclo Tático • Raio-X • Ranking', W / 2, 895);
-            ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 30px monospace';
-            ctx.fillText('Siga: @pqdtnocontrole', W / 2, 955);
+            let acoes = [
+                { ic: '💾', t: 'Salve este post', s: 'para lembrar dos prazos.' },
+                { ic: '📤', t: 'Envie para quem estuda', s: 'com você e marque nos comentários.' },
+                { ic: '🔔', t: `Siga ${PERFIL_INSTAGRAM}`, s: 'radar de concursos todos os dias.' }
+            ];
+            let y = 590;
+            acoes.forEach(a => {
+                desenharRetanguloArredondado(ctx, M, y, W - 2 * M, 136, 22, 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.12)', 1.5);
+                ctx.font = `48px ${FONTE_SLIDE}`;
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#FFFFFF'; // emoji herda a transparência do preenchimento anterior
+                ctx.fillText(a.ic, M + 34, y + 68);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = `800 38px ${FONTE_SLIDE}`;
+                ctx.fillText(a.t, M + 120, y + 50);
+                ctx.fillStyle = '#8B949E';
+                ctx.font = `600 27px ${FONTE_SLIDE}`;
+                ctx.fillText(a.s, M + 120, y + 95);
+                ctx.textBaseline = 'alphabetic';
+                y += 160;
+            });
 
-            ctx.fillStyle = '#8B949E';
-            ctx.font = 'bold 24px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-            ctx.fillText('💬 Salve este post e compartilhe com seu pelotão de estudos!', W / 2, 1095);
+            ctx.fillStyle = '#6E7681';
+            ctx.font = `600 22px ${FONTE_SLIDE}`;
+            ctx.fillText('Resumo de notícias públicas, com a fonte na legenda.', M, 1150);
+            ctx.fillText('As informações oficiais estão sempre no edital de cada órgão.', M, 1184);
         }
 
         setSafeText('carousel-slide-indicator', `Slide ${idx + 1} / ${totalSlides}`);
+        atualizarEditorTituloRadar();
+    }
+
+    // Editor do título do slide atual (reescrever com as próprias palavras)
+    function atualizarEditorTituloRadar() {
+        let box = document.getElementById('carousel-titulo-editor');
+        let inp = document.getElementById('carousel-titulo-input');
+        let slide = slidesCarrosselRadar[slideAtualCarrosselIdx];
+        if (!box || !inp) return;
+        if (!slide || slide.tipo !== 'noticia_unica') { box.style.display = 'none'; return; }
+        box.style.display = 'block';
+        if (document.activeElement !== inp) inp.value = tituloPostRadar(slide.noticia);
+        setSafeText('carousel-titulo-original', 'Original: ' + slide.noticia.titulo);
+    }
+
+    function editarTituloSlideRadar(valor) {
+        let slide = slidesCarrosselRadar[slideAtualCarrosselIdx];
+        if (!slide || slide.tipo !== 'noticia_unica') return;
+        radarTitulosEditados[slide.noticia.link] = textoSeguro(valor).substring(0, 140);
+        desenharSlideCarrosselRadar(slideAtualCarrosselIdx);
+        gerarLegendaBoletimRadar(obterNoticiasAlvoCarrossel(), slide.area);
+    }
+
+    function restaurarTituloSlideRadar() {
+        let slide = slidesCarrosselRadar[slideAtualCarrosselIdx];
+        if (!slide || slide.tipo !== 'noticia_unica') return;
+        delete radarTitulosEditados[slide.noticia.link];
+        let inp = document.getElementById('carousel-titulo-input');
+        if (inp) inp.value = slide.noticia.titulo;
+        desenharSlideCarrosselRadar(slideAtualCarrosselIdx);
+        gerarLegendaBoletimRadar(obterNoticiasAlvoCarrossel(), slide.area);
     }
 
     function gerarLegendaBoletimRadar(noticias, nomeArea) {
         let txtArea = document.getElementById('carousel-caption-output');
         if (!txtArea) return;
 
-        let hojeStr = new Date().toLocaleDateString('pt-BR');
+        let ext = dataPorExtensoRadar();
         let linhas = [];
-        linhas.push(`📡 *RADAR DE EDITAIS & CONCURSOS* (${hojeStr})`);
-        linhas.push(`🎯 *Setor:* ${nomeArea}`);
-        linhas.push(`🛡️ *Protocolo Controle* — Sala de Comando`);
+        linhas.push(`📡 Radar de Concursos | ${ext.semana}, ${ext.data}`);
+        if (nomeArea && nomeArea !== 'GIRO GERAL DE CONCURSOS') linhas.push(`Área: ${nomeArea}`);
+        linhas.push(``);
+        linhas.push(`As notícias de concursos que separei hoje para você ficar de olho 👇`);
         linhas.push(``);
 
         noticias.forEach((n, idx) => {
-            linhas.push(`🔹 *${idx + 1}. ${n.titulo}*`);
-            linhas.push(`📅 Publicação: ${n.data}`);
-            linhas.push(`🔗 Fonte: ${n.fonte || fonteDoLinkRadar(n.link)} · ${n.link}`);
+            linhas.push(`${String(idx + 1).padStart(2, '0')}. ${tituloPostRadar(n)}`);
+            linhas.push(`Fonte: ${n.fonte || fonteDoLinkRadar(n.link)} (${n.data})`);
             linhas.push(``);
         });
 
-        linhas.push(`🚀 *Entre na Comunidade Tática no Telegram:*`);
-        linhas.push(`👉 https://t.me/protocolocontrole`);
+        linhas.push(`ℹ️ Resumo de notícias públicas. Datas, vagas e requisitos valem sempre conforme o edital oficial de cada órgão.`);
         linhas.push(``);
-        linhas.push(`📲 Siga no Instagram: @pqdtnocontrole`);
-        linhas.push(`#concursopublico #engenhariacivil #controleexterno #tce #tcu #estudos #protocolocontrole`);
+        linhas.push(`💾 Salve para não perder os prazos e envie para quem estuda com você.`);
+        linhas.push(`🔔 Siga ${PERFIL_INSTAGRAM} para o radar diário.`);
+        linhas.push(``);
+        linhas.push(`#concursos #concursopublico #concurseiros #editais #estudos #aprovacao #radardeconcursos`);
 
         txtArea.value = linhas.join('\n');
     }
@@ -5438,16 +5575,8 @@ Gostaria que fizesse:
         let txtArea = document.getElementById('carousel-caption-output');
         if (!txtArea) return;
         navigator.clipboard.writeText(txtArea.value).then(() => {
-            mostrarToastTatico("Boletim com links copiado! Pronto para colar no Telegram e Instagram.", "var(--accent-gold)");
+            mostrarToastTatico("Legenda copiada! Pronta para colar no Instagram.", "var(--accent-gold)");
         });
-    }
-
-    function compartilharDiretoTelegram() {
-        let txtArea = document.getElementById('carousel-caption-output');
-        if (!txtArea) return;
-        let texto = txtArea.value;
-        let urlTelegram = `https://t.me/share/url?url=${encodeURIComponent('https://t.me/protocolocontrole')}&text=${encodeURIComponent(texto)}`;
-        window.open(urlTelegram, '_blank');
     }
 
     function baixarSlideAtualRadar() {
@@ -5456,7 +5585,7 @@ Gostaria que fizesse:
         if (!canvas) return;
         let link = document.createElement('a');
         let num = String(slideAtualCarrosselIdx + 1).padStart(2, '0');
-        link.download = `ProtocoloControle_Radar_Slide_${num}.png`;
+        link.download = `PqdtEng_Radar_Slide_${num}.png`;
         link.href = canvas.toDataURL('image/png');
         document.body.appendChild(link);
         link.click();
@@ -5477,7 +5606,7 @@ Gostaria que fizesse:
                 if (canvas) {
                     let link = document.createElement('a');
                     let num = String(i + 1).padStart(2, '0');
-                    link.download = `ProtocoloControle_Radar_Slide_${num}.png`;
+                    link.download = `PqdtEng_Radar_Slide_${num}.png`;
                     link.href = canvas.toDataURL('image/png');
                     document.body.appendChild(link);
                     link.click();
