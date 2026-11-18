@@ -4157,6 +4157,22 @@ Gostaria que fizesse:
         renderCharts(f, Object.keys(g), Object.keys(g).map(l => g[l].q>0 ? ((g[l].a/g[l].q)*100).toFixed(1) : 0), Object.keys(g).map(l => (g[l].t/60).toFixed(1)), Object.keys(g).map(l => g[l].q));
     }
 
+    // Radar com muitos eixos fica ilegível: mostra só as matérias com mais questões (as demais seguem no gráfico de barras e no filtro)
+    const MAX_EIXOS_RADAR = 12;
+    function dadosDoRadar(l, a, h, v) {
+        let itens = l.map((nome, i) => ({ nome: String(nome), a: Number(a[i]) || 0, h: Number(h[i]) || 0, q: Number(v[i]) || 0 }));
+        itens.sort((x, y) => y.q - x.q);
+        let agrupadas = itens.length > MAX_EIXOS_RADAR;
+        let vis = agrupadas ? itens.slice(0, MAX_EIXOS_RADAR) : itens;
+        return { nomes: vis.map(x => x.nome), a: vis.map(x => +x.a.toFixed(1)), h: vis.map(x => +x.h.toFixed(1)), agrupadas, mostradas: vis.length };
+    }
+    function rotuloCurtoRadar(rot, max) {
+        let s = String(rot || '').replace(/\s+/g, ' ').trim();
+        let corte = s.split(/\s[–—-]\s|:/)[0].trim(); // "Obras – Definições..." vira "Obras"
+        if (corte.length >= 3) s = corte;
+        return s.length > max ? s.substring(0, max - 1).trim() + '…' : s;
+    }
+
     function renderCharts(m, l, a, h, v) {
         if(chart1Obj) chart1Obj.destroy(); if(chart2Obj) chart2Obj.destroy(); if(chart3Obj) chart3Obj.destroy();
         let el1 = document.getElementById('chart1'); let el2 = document.getElementById('chart2'); let el3 = document.getElementById('chart3'); if(!el1 || !el2 || !el3) return;
@@ -4164,9 +4180,23 @@ Gostaria que fizesse:
         let isLight = document.body.classList.contains('light-mode'); let gridColor = isLight ? '#D0D7DE' : '#30363D';
         let chartOptions = { maintainAspectRatio: false, scales: m === 'all' ? { r: { grid: { color: gridColor }, angleLines: { color: gridColor } } } : { x: { grid: { color: gridColor } }, y: { grid: { color: gridColor } } } };
         if(m === 'all') {
-            chart1Obj = new Chart(c1, { type:'radar', data:{labels:l, datasets:[{label:'% Acerto', data:a, borderColor:'#238636', backgroundColor:'rgba(35, 134, 54, 0.2)'}]}, options: chartOptions });
-            chart2Obj = new Chart(c2, { type:'radar', data:{labels:l, datasets:[{label:'Horas', data:h, borderColor:'#8957E5', backgroundColor:'rgba(137, 87, 229, 0.2)'}]}, options: chartOptions });
-            chart3Obj = new Chart(c3, { type:'bar', data:{labels:l, datasets:[{label:'Questões', data:v, backgroundColor:'#58A6FF'}]}, options: { maintainAspectRatio: false, scales: { x: { grid: { color: gridColor } }, y: { grid: { color: gridColor } } } } });
+            let rd = dadosDoRadar(l, a, h, v);
+            let corTexto = isLight ? '#24292F' : '#C9D1D9';
+            let estreito = window.innerWidth < 600;
+            let opcoesRadar = (maxEscala) => ({
+                maintainAspectRatio: false,
+                layout: { padding: { left: 14, right: 14, top: 4, bottom: 4 } },
+                scales: { r: {
+                    min: 0, max: maxEscala, beginAtZero: true,
+                    grid: { color: gridColor }, angleLines: { color: gridColor },
+                    ticks: { showLabelBackdrop: false, color: '#8B949E', font: { size: 9 }, maxTicksLimit: 5 },
+                    pointLabels: { color: corTexto, font: { size: estreito ? 9 : 11, weight: 'bold' }, callback: (rot) => rotuloCurtoRadar(rot, estreito ? 10 : 14) }
+                } },
+                plugins: { tooltip: { callbacks: { title: (it) => it.length ? rd.nomes[it[0].dataIndex] : '' } } }
+            });
+            chart1Obj = new Chart(c1, { type:'radar', data:{labels:rd.nomes, datasets:[{label: rd.agrupadas ? `% Acerto (top ${rd.mostradas} em questões)` : '% Acerto', data:rd.a, borderColor:'#238636', backgroundColor:'rgba(35, 134, 54, 0.2)', pointRadius: 3}]}, options: opcoesRadar(100) });
+            chart2Obj = new Chart(c2, { type:'radar', data:{labels:rd.nomes, datasets:[{label: rd.agrupadas ? `Horas (top ${rd.mostradas} em questões)` : 'Horas', data:rd.h, borderColor:'#8957E5', backgroundColor:'rgba(137, 87, 229, 0.2)', pointRadius: 3}]}, options: opcoesRadar(undefined) });
+            chart3Obj = new Chart(c3, { type:'bar', data:{labels:l, datasets:[{label:'Questões', data:v, backgroundColor:'#58A6FF'}]}, options: { maintainAspectRatio: false, scales: { x: { grid: { color: gridColor }, ticks: { autoSkip: false, maxRotation: 60, minRotation: 0, font: { size: estreito ? 9 : 11 }, callback: (val, i) => rotuloCurtoRadar(l[i], 12) } }, y: { grid: { color: gridColor } } } } });
         } else {
             let cols = a.map(x => x < 75 ? 'rgba(218, 54, 51, 0.8)' : 'rgba(35, 134, 54, 0.8)');
             chart1Obj = new Chart(c1, { type:'bar', data:{labels:l, datasets:[{label:'% Acerto', data:a, backgroundColor:cols}]}, options: { indexAxis:'y', ...chartOptions } });
