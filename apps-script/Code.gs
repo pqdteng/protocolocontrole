@@ -982,6 +982,19 @@ function calcularAgregados(dataB_Full, email, nickMap, tz, datas) {
   };
 }
 
+// HTML do feed vira texto curto: sem tags, sem o rodapé "O post ... apareceu primeiro em ..." e sem "[…]"
+function textoLimpoRadar(html, max) {
+  var t = String(html || "");
+  t = t.replace(/<p>\s*(O post|The post)[\s\S]*?(apareceu primeiro em|appeared first on)[\s\S]*?<\/p>/gi, " ");
+  t = t.replace(/<(script|style|figure)[\s\S]*?<\/\1>/gi, " ");
+  t = t.replace(/<\/(td|th)>/gi, ": "); // quadro-resumo "Banca | FGV" vira "Banca: FGV"
+  t = t.replace(/<br\s*\/?>|<\/(p|li|h\d|div|tr)>/gi, ". ");
+  t = t.replace(/<[^>]+>/g, " ");
+  t = t.replace(/\[(&#8230;|…|\.\.\.)\]/g, " ");
+  t = t.replace(/\s+/g, " ").replace(/:\s*\./g, ".").replace(/([.!?])\s*\./g, "$1").replace(/(\.\s*){2,}/g, ". ").trim();
+  return t.substring(0, max || 600);
+}
+
 function acaoRadar() {
   var chaveRadar = "radar_" + versaoCache();
   var emCache = cacheGetGrande(chaveRadar);
@@ -1010,7 +1023,18 @@ function acaoRadar() {
         var chaveT = "t:" + titulo.toLowerCase().replace(/\s+/g, " ");
         if (vistos[chaveL] || vistos[chaveT]) continue;
         vistos[chaveL] = true; vistos[chaveT] = true;
-        newsList.push({ titulo: titulo, link: link, pubDate: pubDate, fonte: fonteItem });
+        // Resumo, categorias e o começo da matéria: a tela tira daí vagas, banca, salário e local (não reproduz o texto)
+        var desMatch = /<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i.exec(block);
+        var conMatch = /<content:encoded>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/content:encoded>/i.exec(block);
+        var categorias = [];
+        var catRegex = /<category>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/category>/gi, catM;
+        while ((catM = catRegex.exec(block)) !== null && categorias.length < 8) categorias.push(textoLimpoRadar(catM[1], 60));
+        newsList.push({
+          titulo: titulo, link: link, pubDate: pubDate, fonte: fonteItem,
+          descricao: desMatch ? textoLimpoRadar(desMatch[1], 600) : "",
+          trecho: conMatch ? textoLimpoRadar(conMatch[1], 2000) : "",
+          categorias: categorias
+        });
         novos++;
       }
       return novos;
