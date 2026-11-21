@@ -2472,9 +2472,9 @@ Gostaria que fizesse:
     <script>
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycby2wgtlQzCiHf4vMPqjHjNGTcRxqoeBTjkfUjUFZOhDo_gfM3dCoF6KslhKr2hmJNNl/exec";
 
-    // ===== BACKEND SUPABASE (transição) =====
-    // Padrão: Google Sheets. Para testar o Supabase sem afetar ninguém: abra o site com ?backend=supabase
-    // (fica gravado neste navegador; ?backend=sheets volta ao normal).
+    // ===== BACKEND: SUPABASE (padrão desde a virada de 22/11/2026) =====
+    // Plano B, só em emergência: ?backend=sheets faz ESTE navegador voltar ao Google Sheets
+    // (fica gravado neste navegador; ?backend=supabase volta ao padrão).
     // No modo Supabase, as chamadas ao WEBHOOK_URL são atendidas aqui e devolvem o MESMO formato
     // de resposta do Apps Script — o resto da plataforma não percebe a troca.
     const SUPABASE_URL = "https://nydspkbnbahclgkjfotc.supabase.co";
@@ -2482,16 +2482,20 @@ Gostaria que fizesse:
     (function escolherBackend() {
         try {
             const pedido = new URLSearchParams(location.search).get('backend');
-            if (pedido !== 'supabase' && pedido !== 'sheets') return;
-            const atual = localStorage.getItem('pqdtBackend') === 'supabase' ? 'supabase' : 'sheets';
-            if (pedido !== atual) { // trocou de servidor: a sessão do outro não vale aqui
-                localStorage.removeItem('pqdtToken'); localStorage.removeItem('pqdtSb');
+            const atual = localStorage.getItem('pqdtBackend') === 'sheets' ? 'sheets' : 'supabase';
+            if (pedido === 'supabase' || pedido === 'sheets') {
+                if (pedido !== atual) { // trocou de servidor: a sessão do outro não vale aqui
+                    localStorage.removeItem('pqdtToken'); localStorage.removeItem('pqdtSb');
+                }
+                if (pedido === 'sheets') localStorage.setItem('pqdtBackend', 'sheets');
+                else localStorage.removeItem('pqdtBackend');
+            } else if (atual === 'supabase' && localStorage.getItem('pqdtToken') && localStorage.getItem('pqdtToken') !== 'supabase') {
+                // Sessão da planilha, de antes da virada: pede o login de novo (mesma senha), já no Supabase
+                localStorage.removeItem('pqdtToken');
             }
-            if (pedido === 'supabase') localStorage.setItem('pqdtBackend', 'supabase');
-            else localStorage.removeItem('pqdtBackend');
         } catch (e) {}
     })();
-    const BACKEND = (function() { try { return localStorage.getItem('pqdtBackend') === 'supabase' ? 'supabase' : 'sheets'; } catch (e) { return 'sheets'; } })();
+    const BACKEND = (function() { try { return localStorage.getItem('pqdtBackend') === 'sheets' ? 'sheets' : 'supabase'; } catch (e) { return 'supabase'; } })();
 
     if (BACKEND === 'supabase') (function instalarBackendSupabase() {
         const fetchNativo = window.fetch.bind(window);
@@ -2652,16 +2656,17 @@ Gostaria que fizesse:
             return fetchNativo(url, opts);
         };
 
-        // Selo discreto para lembrar que este navegador está no modo de teste
-        document.addEventListener('DOMContentLoaded', () => {
-            const selo = document.createElement('a');
-            selo.href = '?backend=sheets';
-            selo.title = 'Você está usando o banco novo (Supabase). Clique para voltar ao Google Sheets.';
-            selo.textContent = 'SUPABASE · TESTE';
-            selo.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99999;background:#3ecf8e;color:#08130d;font:700 10px/1 sans-serif;letter-spacing:1px;padding:5px 8px;border-radius:6px;text-decoration:none;opacity:.85';
-            document.body.appendChild(selo);
-        });
     })();
+
+    // Plano B ativo neste navegador: selo para lembrar (e voltar ao padrão com um clique)
+    if (BACKEND === 'sheets') document.addEventListener('DOMContentLoaded', () => {
+        const selo = document.createElement('a');
+        selo.href = '?backend=supabase';
+        selo.title = 'Este navegador está usando a planilha antiga (plano B). Clique para voltar ao padrão.';
+        selo.textContent = 'PLANILHA · PLANO B';
+        selo.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99999;background:#f0b429;color:#1a1300;font:700 10px/1 sans-serif;letter-spacing:1px;padding:5px 8px;border-radius:6px;text-decoration:none;opacity:.85';
+        document.body.appendChild(selo);
+    });
     
     let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
     let loggedUserToken = localStorage.getItem('pqdtToken') || "";
@@ -3028,7 +3033,7 @@ Gostaria que fizesse:
         } catch (err) {
             console.error("Erro no login:", err);
             let msg = err.name === 'AbortError'
-                ? "Tempo limite excedido. O Google Sheets demorou a responder. Tente novamente."
+                ? "Tempo limite excedido. O servidor demorou a responder. Tente novamente."
                 : ("Falha na conexão: " + err.message);
             alert(msg);
             if (btn) {
