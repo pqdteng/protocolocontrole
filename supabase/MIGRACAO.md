@@ -157,3 +157,10 @@ Backups com mais de 8 semanas vão para a lixeira do Drive. As senhas antigas n�
 
 - A importação de CSV marca tudo como consolidado (fase 4). O comportamento foi mantido igual; decidir se muda.
 - No plano Free não há backup automático. Antes de ter alunos pagantes, passar ao Pro ou agendar uma exportação semanal.
+
+## Fase 3: Flashcards (v29-94)
+
+1. No **SQL Editor**, rode `supabase/fase3_flashcards.sql`. Deve aparecer *Flashcards instalados*.
+2. Rode `supabase/teste_flashcards.sql`. O resultado esperado é **FLASHCARDS OK**, e nada fica gravado.
+3. Só depois disso a versão nova do site é publicada.
+4. No Apps Script, atualize o `BackupSupabase.gs` com a versão do repositório, que inclui as tabelas `flashcards` e `revisoes_flashcards` no backup.

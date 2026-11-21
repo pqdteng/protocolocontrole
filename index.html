@@ -1136,6 +1136,74 @@
                 border-bottom: 1px solid var(--border-color);
             }
         }
+        /* ===== FLASHCARDS (v29-94) ===== */
+        .fc-badge-nav { display: none; margin-left: auto; background: var(--accent-purple); color: #fff; font-size: 11px; font-weight: bold; border-radius: 10px; padding: 1px 7px; }
+        .fc-badge-painel { background: rgba(137, 87, 229, 0.15); color: var(--accent-purple); border: 1px solid rgba(137, 87, 229, 0.35); font-weight: bold; font-size: 0.85em; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 5px; }
+        .fc-badge-painel:hover { background: rgba(137, 87, 229, 0.28); }
+        .fc-box { padding: 25px; min-height: 0; }
+        .fc-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; flex-wrap: wrap; margin-bottom: 18px; }
+        .fc-titulo { margin: 0; font-size: 1.4em; color: var(--accent-purple); }
+        .fc-sub { margin: 6px 0 0; color: #8B949E; font-size: 13px; }
+        .fc-acoes-topo { display: flex; gap: 8px; flex-wrap: wrap; }
+        .fc-btn-revisar { background: var(--accent-purple); }
+        .fc-btn-revisar:disabled { opacity: 0.5; cursor: default; }
+        .fc-btn-novo { background: var(--hover-bg); color: var(--text-color); border: 1px solid var(--border-color); }
+        .fc-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+        .fc-stat { background: var(--hover-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; text-align: center; }
+        .fc-stat strong { display: block; font-size: 1.4em; color: var(--text-color); }
+        .fc-stat span { font-size: 11px; color: #8B949E; text-transform: uppercase; letter-spacing: 0.5px; }
+        .fc-filtros { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .fc-filtros input, .fc-filtros select { width: 100%; box-sizing: border-box; }
+        .fc-lista { display: flex; flex-direction: column; gap: 10px; }
+        .fc-item { border: 1px solid var(--border-color); border-left: 4px solid var(--accent-purple); border-radius: 8px; padding: 12px 14px; background: var(--card-bg); }
+        .fc-item.fc-item-hoje { border-left-color: var(--accent-orange); }
+        .fc-item-topo { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 11px; color: #8B949E; margin-bottom: 6px; }
+        .fc-tag { font-weight: bold; color: var(--accent-purple); border: 1px solid rgba(137, 87, 229, 0.4); border-radius: 4px; padding: 1px 6px; }
+        .fc-prox { margin-left: auto; white-space: nowrap; }
+        .fc-prox.hoje { color: var(--accent-orange); font-weight: bold; }
+        .fc-item-frente { color: var(--text-color); font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+        .fc-item details { margin-top: 6px; font-size: 13px; }
+        .fc-item summary { cursor: pointer; color: var(--accent-blue); font-size: 12px; }
+        .fc-item-verso { margin-top: 6px; color: var(--text-color); line-height: 1.45; overflow-wrap: anywhere; }
+        .fc-item-acoes { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 11px; color: #8B949E; flex-wrap: wrap; }
+        .fc-item-acoes button { background: none; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 5px; padding: 3px 8px; cursor: pointer; font-size: 11px; font-family: inherit; }
+        .fc-item-acoes button:hover { background: var(--hover-bg); }
+        .fc-item-acoes .fc-desempenho { margin-left: auto; }
+        .fc-vazio { text-align: center; color: #8B949E; padding: 35px 10px; line-height: 1.6; }
+        .fc-gabarito { display: inline-block; font-weight: bold; font-size: 12px; padding: 1px 8px; border-radius: 4px; margin-bottom: 4px; }
+        .fc-gabarito.certo { color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .fc-gabarito.errado { color: var(--accent-red); border: 1px solid var(--accent-red); }
+        .fc-tipos { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+        .fc-tipo-op { flex: 1; min-width: 150px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; cursor: pointer; font-size: 13px; color: var(--text-color); }
+        .fc-tipo-op:has(input:checked) { border-color: var(--accent-purple); background: rgba(137, 87, 229, 0.1); }
+        .fc-form textarea { width: 100%; box-sizing: border-box; resize: vertical; font-family: inherit; }
+        .fc-aviso { font-size: 11px; color: #8B949E; margin: 4px 0 14px; line-height: 1.4; }
+        .fc-botoes-salvar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .fc-check-lanc { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--accent-purple); margin: 0 0 12px; cursor: pointer; }
+        .btn-card-edital { background: none; border: 1px solid rgba(137, 87, 229, 0.45); color: var(--accent-purple); border-radius: 5px; padding: 4px 8px; cursor: pointer; font-size: 11px; white-space: nowrap; }
+        .btn-card-edital:hover { background: rgba(137, 87, 229, 0.12); }
+        .fc-rev-topo { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; color: #8B949E; margin: 0 30px 8px 0; }
+        .fc-rev-barra { height: 4px; background: var(--hover-bg); border-radius: 2px; overflow: hidden; margin-bottom: 20px; }
+        .fc-rev-barra div { height: 100%; background: var(--accent-purple); transition: width 0.3s; }
+        .fc-rev-cartao { background: var(--hover-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; min-height: 120px; font-size: 17px; line-height: 1.5; color: var(--text-color); overflow-wrap: anywhere; }
+        .fc-rev-rotulo { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #8B949E; margin-bottom: 8px; }
+        .fc-rev-verso { margin-top: 14px; border-top: 1px dashed var(--border-color); padding-top: 14px; font-size: 15px; }
+        .fc-rev-resultado { font-weight: bold; margin-bottom: 8px; }
+        .fc-rev-botoes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 18px; }
+        .fc-rev-botoes.dois { grid-template-columns: 1fr 1fr; }
+        .fc-rev-botoes.um { grid-template-columns: 1fr; }
+        .fc-rev-botoes .btn { flex-direction: column; gap: 2px; padding: 12px 8px; }
+        .fc-rev-botoes .btn small { font-weight: normal; font-size: 11px; opacity: 0.85; }
+        .fc-rev-fim { text-align: center; padding: 10px 0; }
+        .fc-rev-fim h3 { color: var(--accent-purple); margin: 0 0 10px; }
+        .fc-atalhos { text-align: center; font-size: 11px; color: #8B949E; margin-top: 12px; }
+        @media (max-width: 768px) {
+            .fc-stats { grid-template-columns: repeat(2, 1fr); }
+            .fc-filtros { grid-template-columns: 1fr; }
+            .fc-botoes-salvar { grid-template-columns: 1fr; }
+            .fc-rev-cartao { padding: 18px; font-size: 16px; }
+            .fc-atalhos { display: none; }
+        }
     </style>
 	    <style>
         .vagas-fundador-box {
@@ -1231,7 +1299,8 @@
                 <button class="nav-item" onclick="openConfigModal(this); toggleMobileMenu();"><i class="fas fa-sync-alt"></i> Meu Ciclo Tático</button>
 		<button class="nav-item" onclick="switchView('heatmap-view', this); toggleMobileMenu();"><i class="fas fa-fire-alt"></i> Mapa de Força</button>
                 <button class="nav-item" style="color: var(--accent-green);" onclick="switchView('edital-view', this); toggleMobileMenu();"><i class="fas fa-tasks"></i> Edital Verticalizado</button>
-                <button class="nav-item" onclick="switchView('ranking-view', this); toggleMobileMenu();"><i class="fas fa-trophy"></i> Ranking da Elite</button>
+                <button class="nav-item" style="color: var(--accent-purple);" onclick="switchView('flashcards-view', this); toggleMobileMenu();"><i class="fas fa-clone"></i> Flashcards <span id="fc-badge-nav" class="fc-badge-nav"></span></button>
+<button class="nav-item" onclick="switchView('ranking-view', this); toggleMobileMenu();"><i class="fas fa-trophy"></i> Ranking da Elite</button>
                 <button class="nav-item" onclick="switchView('relatorio-view', this); toggleMobileMenu();"><i class="fas fa-list-alt"></i> Relatórios Gerais</button>
                 <button class="nav-item" onclick="switchView('radar-view', this); toggleMobileMenu();"><i class="fas fa-satellite-dish"></i> Radar de Editais</button>
 				<button class="nav-item" style="color: var(--accent-purple);" onclick="switchView('sala-view', this); toggleMobileMenu();"><i class="fas fa-headset"></i> Sala de Estudos</button>
@@ -1317,7 +1386,8 @@
                             <div style="display:flex; flex-wrap:wrap; gap:8px;">
                                 <div class="streak-badge" id="streak-container"><i class="fas fa-fire"></i> <span id="streak-display">0</span> Dias de Ofensiva</div>
                                 <button type="button" class="coin-badge coin-badge-btn" onclick="abrirLojaMoedas()" title="Usar moedas: Escudo de Ofensiva"><i class="fas fa-coins"></i> <span id="coin-display">0</span> Moedas <span id="escudo-badge" class="escudo-badge" style="display:none;"></span></button>
-                                <button type="button" class="coin-badge coin-badge-btn share-dia-btn" id="btn-compartilhar-dia" style="display:none;" onclick="abrirCompartilharDia()" title="Gerar imagem do meu dia para postar"><i class="fas fa-share-alt"></i> Compartilhar meu dia</button>
+                                <button type="button" class="fc-badge-painel" id="fc-badge-painel" style="display:none;" onclick="irParaFlashcards()" title="Revisar os flashcards de hoje"></button>
+<button type="button" class="coin-badge coin-badge-btn share-dia-btn" id="btn-compartilhar-dia" style="display:none;" onclick="abrirCompartilharDia()" title="Gerar imagem do meu dia para postar"><i class="fas fa-share-alt"></i> Compartilhar meu dia</button>
                             </div>
                         </div>
                     </div>
@@ -1701,6 +1771,33 @@
                             </span>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div id="view-flashcards-view" class="app-view">
+                <div class="chart-box fc-box">
+                    <div class="fc-topo">
+                        <div>
+                            <h3 class="fc-titulo"><i class="fas fa-clone"></i> Flashcards</h3>
+                            <p class="fc-sub">Fixe o que você errou. A plataforma avisa quando revisar cada card, e revisar conta para a ofensiva.</p>
+                        </div>
+                        <div class="fc-acoes-topo">
+                            <button type="button" class="btn fc-btn-revisar" id="fc-btn-revisar" onclick="iniciarRevisaoFlashcards()"><i class="fas fa-play"></i> Revisar agora (<span id="fc-qtd-hoje">0</span>)</button>
+                            <button type="button" class="btn fc-btn-novo" onclick="abrirNovoFlashcard()"><i class="fas fa-plus"></i> Novo card</button>
+                        </div>
+                    </div>
+                    <div class="fc-stats" id="fc-stats"></div>
+                    <div class="fc-filtros">
+                        <input type="search" id="fc-busca" placeholder="Buscar nos cards..." oninput="renderizarListaFlashcards()">
+                        <select id="fc-filtro-materia" onchange="renderizarListaFlashcards()"><option value="">Todas as matérias</option></select>
+                        <select id="fc-filtro-status" onchange="renderizarListaFlashcards()">
+                            <option value="">Todos os cards</option>
+                            <option value="hoje">Para revisar hoje</option>
+                            <option value="novos">Nunca revisados</option>
+                            <option value="dificeis">Mais errados</option>
+                        </select>
+                    </div>
+                    <div id="fc-lista" class="fc-lista"><div class="fc-vazio">Carregando...</div></div>
                 </div>
             </div>
 
@@ -2158,10 +2255,23 @@
               </details>
 
               <details>
+                <summary>🃏 Flashcards</summary>
+                <div class="met-corpo">
+                  <ul>
+                    <li>Use para fixar o que você <b>errou</b> nas questões. Dois formatos: <b>Pergunta e resposta</b> e <b>Certo ou Errado</b> (estilo Cebraspe).</li>
+                    <li>Crie pela aba <b>Flashcards</b>, marcando <b>Criar flashcard deste assunto</b> ao lançar uma missão, ou pelo botão <i class="fas fa-clone"></i> ao lado de cada assunto no Edital Verticalizado.</li>
+                    <li>A plataforma agenda as revisões sozinha: <b>Errei</b> volta amanhã, <b>Difícil</b> em 3 dias e <b>Fácil</b> em 7, depois 15, 30, 60 e 120 dias.</li>
+                    <li>Os cards do dia aparecem no painel e na aba. <b>Revisar os cards do dia conta para a ofensiva.</b></li>
+                    <li>Escreva com as suas palavras: não copie enunciados nem comentários de sites de questões.</li>
+                  </ul>
+                </div>
+              </details>
+
+              <details>
                 <summary>🔥 Ofensiva, moedas, escudos e patentes</summary>
                 <div class="met-corpo">
                   <ul>
-                    <li><b>Ofensiva 🔥</b>: dias seguidos com estudo lançado.</li>
+                    <li><b>Ofensiva 🔥</b>: dias seguidos com estudo lançado ou com revisão de flashcards.</li>
                     <li><b>Moedas 🪙</b>: cada dia com 100+ questões vale 50 moedas, e cada dia com 2h+ de estudo vale mais 50.</li>
                     <li><b>Escudo de Ofensiva 🛡️</b>: clique nas moedas para abrir a loja. Cada escudo custa 300 moedas, e você guarda até 2. Num dia sem estudo, o escudo é usado <b>sozinho</b> e mantém a sua sequência. O dia protegido não soma à ofensiva, só evita perdê-la.</li>
                     <li><b>Patentes 🏅</b>: sobem com o total de questões resolvidas, de Iniciante até Lenda.</li>
@@ -2439,8 +2549,49 @@ Gostaria que fizesse:
                     <div class="form-group" style="margin:0;"><label>Acertos</label><input type="number" id="f-a" value="0"></div>
                 </div>
                 <div class="form-group"><label>Fase de Estudo (só no Método Protocolo Controle)</label><select id="f-fase"><option value="1">Fase 1 (Ambientação)</option><option value="2">Fase 2 (Sequencial)</option><option value="3">Fase 3 (Aleatória)</option><option value="4">Fase 4 (Consolidação)</option></select></div>
+                <label class="fc-check-lanc"><input type="checkbox" id="f-criar-card"> <i class="fas fa-clone"></i> Criar flashcard deste assunto depois de enviar</label>
                 <button type="submit" id="btn-submit-form" class="btn" style="background: var(--accent-green); width:100%; padding:15px; font-size:16px;">ENVIAR PARA A NUVEM</button>
             </form>
+        </div>
+    </div>
+
+    <div id="flashcardModal" class="modal">
+        <div class="modal-content fc-form" style="max-width: 580px; border-top: 4px solid var(--accent-purple);">
+            <span class="close-btn" onclick="fecharModalFlashcard()">&times;</span>
+            <h2 style="color: var(--text-color); margin-top: 0; margin-bottom: 18px;"><i class="fas fa-clone" style="color:var(--accent-purple)"></i> <span id="fc-modal-titulo">Novo flashcard</span></h2>
+            <input type="hidden" id="fc-id">
+            <div class="fc-tipos">
+                <label class="fc-tipo-op"><input type="radio" name="fc-tipo" value="pergunta" checked onchange="ajustarFormFlashcard()"> <span><b>Pergunta e resposta</b><br><small style="color:#8B949E">Frente e verso</small></span></label>
+                <label class="fc-tipo-op"><input type="radio" name="fc-tipo" value="certo_errado" onchange="ajustarFormFlashcard()"> <span><b>Certo ou Errado</b><br><small style="color:#8B949E">Estilo Cebraspe</small></span></label>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group" style="margin:0 0 12px;"><label>Matéria</label><input type="text" id="fc-materia" list="fc-lista-materias" maxlength="120" placeholder="Ex: Direito Administrativo"></div>
+                <div class="form-group" style="margin:0 0 12px;"><label>Assunto</label><input type="text" id="fc-topico" maxlength="200" placeholder="Ex: Licitações"></div>
+            </div>
+            <datalist id="fc-lista-materias"></datalist>
+            <div class="form-group"><label id="fc-rot-frente">Pergunta (frente do card)</label><textarea id="fc-frente" rows="3" maxlength="1000" placeholder="Ex: Qual o prazo para interpor recurso no pregão?"></textarea></div>
+            <div class="form-group" id="fc-grupo-gabarito" style="display:none;">
+                <label>Gabarito</label>
+                <div class="fc-tipos" style="margin:0;">
+                    <label class="fc-tipo-op"><input type="radio" name="fc-gabarito" value="true"> <b style="color:var(--accent-green)">CERTO</b></label>
+                    <label class="fc-tipo-op"><input type="radio" name="fc-gabarito" value="false"> <b style="color:var(--accent-red)">ERRADO</b></label>
+                </div>
+            </div>
+            <div class="form-group"><label id="fc-rot-verso">Resposta (verso do card)</label><textarea id="fc-verso" rows="3" maxlength="2000" placeholder="Ex: 3 dias úteis, após a manifestação imediata da intenção de recorrer."></textarea></div>
+            <p class="fc-aviso"><i class="fas fa-info-circle"></i> Escreva com as suas palavras. Não copie enunciados nem comentários de sites de questões: o card é a sua anotação, e assim você também memoriza melhor.</p>
+            <div class="fc-botoes-salvar">
+                <button type="button" class="btn" id="fc-btn-salvar-outro" style="background: var(--hover-bg); color: var(--text-color); border: 1px solid var(--border-color);" onclick="salvarFlashcard(true)"><i class="fas fa-plus"></i> Salvar e criar outro</button>
+                <button type="button" class="btn" id="fc-btn-salvar" style="background: var(--accent-purple);" onclick="salvarFlashcard(false)"><i class="fas fa-check"></i> Salvar card</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="revisaoFlashcardModal" class="modal">
+        <div class="modal-content" style="max-width: 640px; border-top: 4px solid var(--accent-purple);">
+            <span class="close-btn" onclick="encerrarRevisaoFlashcards()">&times;</span>
+            <div class="fc-rev-topo"><span id="fc-rev-progresso"></span><span id="fc-rev-assunto"></span></div>
+            <div class="fc-rev-barra"><div id="fc-rev-barra-fill" style="width:0%"></div></div>
+            <div id="fc-rev-corpo"></div>
         </div>
     </div>
 
@@ -2598,8 +2749,11 @@ Gostaria que fizesse:
         }
 
         async function painel() {
-            const [dados, catalogo] = await Promise.all([rpc('carregar_painel'), rpc('catalogo_editais')]);
-            if (dados && dados.status === 'sucesso') dados.baseEditais = (catalogo && !catalogo.status) ? catalogo : {};
+            const [dados, catalogo, cards] = await Promise.all([rpc('carregar_painel'), rpc('catalogo_editais'), rpc('resumo_flashcards')]);
+            if (dados && dados.status === 'sucesso') {
+                dados.baseEditais = (catalogo && !catalogo.status) ? catalogo : {};
+                dados.flashcards = (cards && cards.status === 'sucesso') ? cards : null;
+            }
             return dados;
         }
 
@@ -2642,6 +2796,10 @@ Gostaria que fizesse:
                 case 'usar_escudos': return rpc('usar_escudos', { p_datas: p.datas || [] });
                 case 'solicitar_edital': return rpc('solicitar_edital', { p_concurso: p.concursoStr });
                 case 'atualizar_pedido': return rpc('atualizar_pedido', { p_id: Number(p.id), p_status: p.status });
+                case 'flashcards_listar': return rpc('meus_flashcards');
+                case 'flashcard_salvar': return rpc('salvar_flashcard', { d: p.card || {} });
+                case 'flashcard_excluir': return rpc('excluir_flashcard', { p_id: Number(p.id) });
+                case 'flashcard_revisar': return rpc('revisar_flashcard', { p_id: Number(p.id), p_resposta: p.resposta });
                 default: return { status: 'erro', mensagem: "Ação desconhecida." };
             }
         }
@@ -2869,6 +3027,7 @@ Gostaria que fizesse:
         if(viewId === 'edital-view') atualizarSelectEditaisDisponiveis();
         if(viewId === 'ranking-view') switchLeaderboard(currentRankingTab);
         if(viewId === 'sala-view') atualizarPainelPelotao();
+        if(viewId === 'flashcards-view') { atualizarBadgesFlashcards(); if (flashcardsGlobal) renderizarListaFlashcards(); carregarFlashcards(); }
     }
     
     function toggleTheme() { document.body.classList.toggle('light-mode'); localStorage.setItem('pqdtTheme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); updateChartColors(); if(globalData.length>0) updateDashboard('all'); }
@@ -3337,6 +3496,7 @@ Gostaria que fizesse:
             renderHeaderAvatar();
             loadCiclo(data.cicloNuvem);
             if (data.escudos) escudosGlobal = { compras: data.escudos.compras || [], usados: data.escudos.usados || [] };
+            if (data.flashcards) aplicarResumoFlashcards(data.flashcards);
             atualizarSinoPedidos(data.pedidosAdmin);
             processData(data.dados || []);
             updateLeaderEffects();
@@ -3572,7 +3732,7 @@ Gostaria que fizesse:
     // Dias seguidos com estudo. Dia protegido por escudo mantém a sequência, mas não soma.
     // Hoje ainda não conta como falta: se não estudou hoje, a contagem começa ontem.
     function calcularDiasOfensiva() {
-        let estudados = new Set(Object.keys(groupedDaily).map(isoDeBR));
+        let estudados = diasEstudadosISO();
         if (estudados.size === 0) return 0;
         let protegidos = new Set((escudosGlobal.usados || []).map(isoDeBR));
         let d = new Date(); d.setHours(0, 0, 0, 0);
@@ -3589,7 +3749,7 @@ Gostaria que fizesse:
 
     // Dias sem estudo entre o último dia ativo e ontem (null = a lacuna é maior do que qualquer estoque de escudos)
     function diasSemEstudoPendentes() {
-        let estudados = new Set(Object.keys(groupedDaily).map(isoDeBR));
+        let estudados = diasEstudadosISO();
         if (estudados.size === 0) return null;
         let protegidos = new Set((escudosGlobal.usados || []).map(isoDeBR));
         let d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - 1); // ontem
@@ -3631,7 +3791,7 @@ Gostaria que fizesse:
 
     // Sequência que existia antes de um dia (para não gastar escudo sem ter ofensiva)
     function calcularOfensivaAte(diaISO) {
-        let estudados = new Set(Object.keys(groupedDaily).map(isoDeBR));
+        let estudados = diasEstudadosISO();
         let protegidos = new Set((escudosGlobal.usados || []).map(isoDeBR));
         let p = diaISO.split('-'); let d = new Date(p[0], p[1] - 1, p[2]); d.setDate(d.getDate() - 1);
         let n = 0;
@@ -4732,6 +4892,7 @@ Gostaria que fizesse:
                             <span style="color: ${isChecked ? 'var(--accent-green)' : 'var(--text-color)'}; text-decoration: ${isChecked ? 'line-through' : 'none'};">${top}</span>
                             ${!isChecked && andamento[matName + '||' + top] ? `<span class="badge-andamento" title="Último lançamento deste assunto">Fase ${escapeHTML(andamento[matName + '||' + top])}</span>` : ''}
                         </label>
+                        <button type="button" class="btn-card-edital" title="Criar flashcard deste assunto" data-mat="${escapeHTML(matName)}" data-top="${escapeHTML(top)}" onclick="abrirNovoFlashcardDoBotao(this)"><i class="fas fa-clone"></i></button>
                         ${uiLink}
                     </div>
                 `;
@@ -6743,6 +6904,400 @@ Gostaria que fizesse:
         if(btn) { btn.innerText = "SALVAR RETIFICAÇÃO"; btn.style.background = "var(--accent-orange)"; btn.style.color = "black"; }
     }
 
+
+    // ===== FLASHCARDS (v29-94) =====
+    // Cards de pergunta/resposta e de Certo/Errado. Revisão espaçada (mesma regra do servidor):
+    // Errei → amanhã · Difícil → 3 dias (ou metade do intervalo, se maior) · Fácil → 7, 15, 30, 60, 120 dias.
+    // Dia com revisão conta para a ofensiva.
+    let flashcardsGlobal = null;   // null = ainda não carregados
+    let resumoFlashcards = { total: 0, hoje: 0, revisadosHoje: 0, diasRevisao: [] };
+    let revisaoFC = null;
+
+    function hojeISO() { return chaveDiaISO(new Date()); }
+
+    // Dias que contam para a ofensiva: lançamentos + revisões de flashcards
+    function diasEstudadosISO() {
+        let dias = new Set(Object.keys(groupedDaily).map(isoDeBR));
+        (resumoFlashcards.diasRevisao || []).forEach(d => dias.add(d));
+        return dias;
+    }
+
+    function aplicarResumoFlashcards(r) {
+        if (!r) return;
+        resumoFlashcards = { total: r.total || 0, hoje: r.hoje || 0, revisadosHoje: r.revisadosHoje || 0, diasRevisao: r.diasRevisao || [] };
+        atualizarBadgesFlashcards();
+    }
+
+    function recontarFlashcards() {
+        if (!flashcardsGlobal) return;
+        let hoje = hojeISO();
+        resumoFlashcards.total = flashcardsGlobal.length;
+        resumoFlashcards.hoje = flashcardsGlobal.filter(c => c.proxima <= hoje).length;
+    }
+
+    function atualizarBadgesFlashcards() {
+        let n = resumoFlashcards.hoje || 0;
+        let nav = document.getElementById('fc-badge-nav');
+        if (nav) { nav.textContent = n; nav.style.display = n > 0 ? 'inline-block' : 'none'; }
+        let painel = document.getElementById('fc-badge-painel');
+        if (painel) {
+            painel.style.display = n > 0 ? 'inline-flex' : 'none';
+            painel.innerHTML = `<i class="fas fa-clone"></i> ${n} ${n === 1 ? 'card' : 'cards'} para revisar`;
+        }
+        setSafeText('fc-qtd-hoje', n);
+        let btn = document.getElementById('fc-btn-revisar');
+        if (btn) btn.disabled = n === 0;
+        let st = document.getElementById('fc-stats');
+        if (st) {
+            let materias = flashcardsGlobal ? new Set(flashcardsGlobal.map(c => c.materia || '—')).size : '–';
+            st.innerHTML = `
+                <div class="fc-stat"><strong>${resumoFlashcards.total}</strong><span>Cards</span></div>
+                <div class="fc-stat"><strong style="color:var(--accent-orange)">${n}</strong><span>Para hoje</span></div>
+                <div class="fc-stat"><strong style="color:var(--accent-green)">${resumoFlashcards.revisadosHoje}</strong><span>Revisados hoje</span></div>
+                <div class="fc-stat"><strong>${materias}</strong><span>Matérias</span></div>`;
+        }
+    }
+
+    function irParaFlashcards() {
+        let botao = Array.from(document.querySelectorAll('.nav-item')).find(b => (b.getAttribute('onclick') || '').indexOf('flashcards-view') !== -1);
+        switchView('flashcards-view', botao);
+    }
+
+    async function carregarFlashcards() {
+        if (BACKEND !== 'supabase') {
+            let lista = document.getElementById('fc-lista');
+            if (lista) lista.innerHTML = '<div class="fc-vazio">Os flashcards funcionam só no servidor novo. Abra a plataforma sem <code>?backend=sheets</code> no endereço.</div>';
+            return;
+        }
+        try {
+            let data = await enviarAcao({ acao: 'flashcards_listar' });
+            if (data.status !== 'sucesso') throw new Error(data.mensagem || 'erro no servidor');
+            flashcardsGlobal = data.cards || [];
+            recontarFlashcards();
+            atualizarBadgesFlashcards();
+            renderizarListaFlashcards();
+        } catch (err) {
+            let lista = document.getElementById('fc-lista');
+            if (lista) lista.innerHTML = `<div class="fc-vazio">Não foi possível carregar os flashcards (${escapeHTML(err.message || err)}). Tente de novo em instantes.</div>`;
+        }
+    }
+
+    function textoCard(t) { return escapeHTML(t || '').replace(/\n/g, '<br>'); }
+    function rotuloAssunto(c) { return [c.materia, c.topico].filter(Boolean).map(escapeHTML).join(' · '); }
+
+    function renderizarListaFlashcards() {
+        let lista = document.getElementById('fc-lista');
+        if (!lista) return;
+        if (BACKEND !== 'supabase') return carregarFlashcards();
+        if (!flashcardsGlobal) { lista.innerHTML = '<div class="fc-vazio">Carregando...</div>'; return; }
+
+        // Filtro de matérias
+        let sel = document.getElementById('fc-filtro-materia');
+        if (sel) {
+            let atual = sel.value;
+            let mats = [...new Set(flashcardsGlobal.map(c => c.materia).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+            sel.innerHTML = '<option value="">Todas as matérias</option>' + mats.map(m => `<option value="${escapeHTML(m)}">${escapeHTML(m)}</option>`).join('');
+            if (mats.indexOf(atual) !== -1) sel.value = atual;
+        }
+
+        if (flashcardsGlobal.length === 0) {
+            lista.innerHTML = `<div class="fc-vazio"><i class="fas fa-clone fa-2x" style="color:var(--accent-purple)"></i><br><br>
+                Você ainda não tem flashcards.<br>Crie o primeiro com <b>Novo card</b>, marque <b>Criar flashcard</b> ao lançar uma missão,<br>
+                ou use o botão <i class="fas fa-clone"></i> ao lado de cada assunto no Edital Verticalizado.</div>`;
+            return;
+        }
+
+        let busca = (document.getElementById('fc-busca') || {}).value || '';
+        busca = busca.trim().toLowerCase();
+        let mat = sel ? sel.value : '';
+        let status = (document.getElementById('fc-filtro-status') || {}).value || '';
+        let hoje = hojeISO();
+        let filtrados = flashcardsGlobal.filter(c => {
+            if (mat && c.materia !== mat) return false;
+            if (status === 'hoje' && c.proxima > hoje) return false;
+            if (status === 'novos' && c.revisoes > 0) return false;
+            if (status === 'dificeis' && !(c.revisoes > 0 && c.acertos / c.revisoes < 0.7)) return false;
+            if (busca && (c.frente + ' ' + c.verso + ' ' + c.materia + ' ' + c.topico).toLowerCase().indexOf(busca) === -1) return false;
+            return true;
+        });
+        if (status === 'dificeis') filtrados.sort((a, b) => (a.acertos / a.revisoes) - (b.acertos / b.revisoes));
+        if (filtrados.length === 0) { lista.innerHTML = '<div class="fc-vazio">Nenhum card com esses filtros.</div>'; return; }
+
+        const LIMITE = 200;
+        lista.innerHTML = filtrados.slice(0, LIMITE).map(c => {
+            let paraHoje = c.proxima <= hoje;
+            let prox = paraHoje ? 'Revisar hoje' : 'Próxima: ' + brDeISO(c.proxima).substring(0, 5);
+            let gabarito = c.tipo === 'certo_errado'
+                ? `<span class="fc-gabarito ${c.gabarito ? 'certo' : 'errado'}">${c.gabarito ? 'CERTO' : 'ERRADO'}</span><br>` : '';
+            let desempenho = c.revisoes > 0 ? `${c.revisoes} ${c.revisoes === 1 ? 'revisão' : 'revisões'} · ${Math.round(100 * c.acertos / c.revisoes)}% de acerto` : 'Nunca revisado';
+            return `<div class="fc-item ${paraHoje ? 'fc-item-hoje' : ''}">
+                <div class="fc-item-topo"><span class="fc-tag">${c.tipo === 'certo_errado' ? 'C / E' : 'P / R'}</span><span>${rotuloAssunto(c)}</span><span class="fc-prox ${paraHoje ? 'hoje' : ''}">${prox}</span></div>
+                <div class="fc-item-frente">${textoCard(c.frente)}</div>
+                <details><summary>Ver ${c.tipo === 'certo_errado' ? 'gabarito' : 'resposta'}</summary><div class="fc-item-verso">${gabarito}${textoCard(c.verso)}</div></details>
+                <div class="fc-item-acoes">
+                    <button type="button" onclick="editarFlashcard(${c.id})"><i class="fas fa-pen"></i> Editar</button>
+                    <button type="button" onclick="excluirFlashcard(${c.id})"><i class="fas fa-trash"></i> Excluir</button>
+                    <span class="fc-desempenho">${desempenho}</span>
+                </div>
+            </div>`;
+        }).join('') + (filtrados.length > LIMITE ? `<div class="fc-vazio">Mostrando ${LIMITE} de ${filtrados.length} cards. Use a busca ou os filtros para achar os demais.</div>` : '');
+    }
+
+    // ----- Criar / editar -----
+    function preencherListaMateriasFlashcard() {
+        let dl = document.getElementById('fc-lista-materias');
+        if (!dl) return;
+        let mats = new Set();
+        let selLanc = document.getElementById('f-materia');
+        if (selLanc) Array.from(selLanc.options).forEach(o => { if (o.text && o.value) mats.add(o.text); });
+        (flashcardsGlobal || []).forEach(c => { if (c.materia) mats.add(c.materia); });
+        dl.innerHTML = [...mats].sort((a, b) => a.localeCompare(b, 'pt-BR')).map(m => `<option value="${escapeHTML(m)}"></option>`).join('');
+    }
+
+    function ajustarFormFlashcard() {
+        let ce = (document.querySelector('input[name="fc-tipo"]:checked') || {}).value === 'certo_errado';
+        document.getElementById('fc-grupo-gabarito').style.display = ce ? 'block' : 'none';
+        document.getElementById('fc-rot-frente').textContent = ce ? 'Afirmação (como na prova)' : 'Pergunta (frente do card)';
+        document.getElementById('fc-rot-verso').textContent = ce ? 'Justificativa (opcional, mas ajuda muito)' : 'Resposta (verso do card)';
+        document.getElementById('fc-frente').placeholder = ce ? 'Ex: No pregão, admite-se o critério de julgamento técnica e preço.' : 'Ex: Qual o prazo para interpor recurso no pregão?';
+        document.getElementById('fc-verso').placeholder = ce ? 'Ex: ERRADO. O pregão usa menor preço ou maior desconto.' : 'Ex: 3 dias úteis, após a manifestação imediata da intenção de recorrer.';
+    }
+
+    function abrirNovoFlashcard(dados) {
+        if (BACKEND !== 'supabase') return alert('Os flashcards funcionam só no servidor novo. Abra a plataforma sem ?backend=sheets no endereço.');
+        dados = dados || {};
+        document.getElementById('fc-id').value = dados.id || '';
+        document.getElementById('fc-modal-titulo').textContent = dados.id ? 'Editar flashcard' : 'Novo flashcard';
+        document.querySelectorAll('input[name="fc-tipo"]').forEach(r => { r.checked = r.value === (dados.tipo || 'pergunta'); });
+        document.querySelectorAll('input[name="fc-gabarito"]').forEach(r => { r.checked = dados.tipo === 'certo_errado' && String(dados.gabarito) === r.value; });
+        document.getElementById('fc-materia').value = dados.materia || '';
+        document.getElementById('fc-topico').value = dados.topico || '';
+        document.getElementById('fc-frente').value = dados.frente || '';
+        document.getElementById('fc-verso').value = dados.verso || '';
+        document.getElementById('fc-btn-salvar-outro').style.display = dados.id ? 'none' : '';
+        preencherListaMateriasFlashcard();
+        ajustarFormFlashcard();
+        document.getElementById('flashcardModal').style.display = 'block';
+        setTimeout(() => document.getElementById('fc-frente').focus(), 50);
+    }
+
+    function abrirNovoFlashcardDoBotao(el) {
+        abrirNovoFlashcard({ materia: el.getAttribute('data-mat') || '', topico: el.getAttribute('data-top') || '' });
+    }
+
+    function editarFlashcard(id) {
+        let c = (flashcardsGlobal || []).find(x => x.id === id);
+        if (c) abrirNovoFlashcard(c);
+    }
+
+    function fecharModalFlashcard() { document.getElementById('flashcardModal').style.display = 'none'; }
+
+    async function salvarFlashcard(criarOutro) {
+        let tipo = (document.querySelector('input[name="fc-tipo"]:checked') || {}).value || 'pergunta';
+        let gab = (document.querySelector('input[name="fc-gabarito"]:checked') || {}).value;
+        let card = {
+            id: document.getElementById('fc-id').value || null,
+            tipo: tipo,
+            materia: document.getElementById('fc-materia').value.trim(),
+            topico: document.getElementById('fc-topico').value.trim(),
+            frente: document.getElementById('fc-frente').value.trim(),
+            verso: document.getElementById('fc-verso').value.trim(),
+            gabarito: tipo === 'certo_errado' ? gab === 'true' : null
+        };
+        if (!card.frente) return alert(tipo === 'certo_errado' ? 'Escreva a afirmação.' : 'Escreva a pergunta.');
+        if (tipo === 'pergunta' && !card.verso) return alert('Escreva a resposta (verso do card).');
+        if (tipo === 'certo_errado' && !gab) return alert('Marque se a afirmação está CERTA ou ERRADA.');
+
+        let botoes = [document.getElementById('fc-btn-salvar'), document.getElementById('fc-btn-salvar-outro')];
+        botoes.forEach(b => { if (b) b.disabled = true; });
+        try {
+            let data = await enviarAcao({ acao: 'flashcard_salvar', card: card });
+            if (data.status !== 'sucesso') return alert(data.mensagem || 'Não foi possível salvar o card.');
+            let salvo = data.card;
+            if (flashcardsGlobal) {
+                let i = flashcardsGlobal.findIndex(x => x.id === salvo.id);
+                if (i === -1) flashcardsGlobal.push(salvo); else flashcardsGlobal[i] = salvo;
+                recontarFlashcards();
+            } else if (!card.id) {
+                resumoFlashcards.total++; resumoFlashcards.hoje++;
+            }
+            atualizarBadgesFlashcards();
+            renderizarListaFlashcards();
+            mostrarToastTatico(card.id ? 'Card atualizado!' : 'Card criado! Ele já entra na revisão de hoje.', 'var(--accent-purple)');
+            if (criarOutro) {
+                document.getElementById('fc-frente').value = '';
+                document.getElementById('fc-verso').value = '';
+                document.querySelectorAll('input[name="fc-gabarito"]').forEach(r => { r.checked = false; });
+                document.getElementById('fc-frente').focus();
+            } else {
+                fecharModalFlashcard();
+            }
+        } catch (err) {
+            alert('Erro ao salvar o card. ' + mensagemFalhaRede(err));
+        } finally {
+            botoes.forEach(b => { if (b) b.disabled = false; });
+        }
+    }
+
+    async function excluirFlashcard(id) {
+        if (!confirm('Excluir este card? Não dá para desfazer.')) return;
+        try {
+            let data = await enviarAcao({ acao: 'flashcard_excluir', id: id });
+            if (data.status !== 'sucesso') return alert(data.mensagem || 'Não foi possível excluir.');
+            flashcardsGlobal = (flashcardsGlobal || []).filter(c => c.id !== id);
+            recontarFlashcards();
+            atualizarBadgesFlashcards();
+            renderizarListaFlashcards();
+        } catch (err) {
+            alert('Erro ao excluir o card. ' + mensagemFalhaRede(err));
+        }
+    }
+
+    // ----- Revisão -----
+    function proximoIntervaloFC(c, resposta) {
+        if (resposta === 'errei') return 1;
+        if (resposta === 'dificil') return Math.max(3, Math.floor((c.intervalo || 0) / 2));
+        return [7, 15, 30, 60, 120].find(x => x > (c.intervalo || 0)) || 120;
+    }
+    function textoDias(n) { return n === 1 ? 'amanhã' : `${n} dias`; }
+
+    async function iniciarRevisaoFlashcards() {
+        if (BACKEND !== 'supabase') return alert('Os flashcards funcionam só no servidor novo.');
+        if (!flashcardsGlobal) await carregarFlashcards();
+        if (!flashcardsGlobal) return;
+        let hoje = hojeISO();
+        let fila = flashcardsGlobal.filter(c => c.proxima <= hoje);
+        if (fila.length === 0) return mostrarToastTatico('Nenhum card para revisar hoje. Tudo em dia! 🎉', 'var(--accent-purple)');
+        for (let i = fila.length - 1; i > 0; i--) { let j = Math.floor(Math.random() * (i + 1)); [fila[i], fila[j]] = [fila[j], fila[i]]; }
+        revisaoFC = { fila: fila, idx: 0, mostrou: false, acertouCE: null, enviando: false, placar: { errei: 0, dificil: 0, facil: 0 } };
+        document.getElementById('revisaoFlashcardModal').style.display = 'block';
+        renderizarRevisaoFC();
+    }
+
+    function renderizarRevisaoFC() {
+        let r = revisaoFC;
+        if (!r) return;
+        let corpo = document.getElementById('fc-rev-corpo');
+        let total = r.fila.length;
+        document.getElementById('fc-rev-barra-fill').style.width = Math.round(100 * r.idx / total) + '%';
+
+        if (r.idx >= total) {
+            document.getElementById('fc-rev-progresso').textContent = `${total} de ${total}`;
+            document.getElementById('fc-rev-assunto').textContent = '';
+            corpo.innerHTML = `<div class="fc-rev-fim">
+                <h3><i class="fas fa-check-circle"></i> Revisão concluída!</h3>
+                <p style="color:var(--text-color)">${total} ${total === 1 ? 'card revisado' : 'cards revisados'}:
+                   <b style="color:var(--accent-red)">${r.placar.errei}</b> errei ·
+                   <b style="color:var(--accent-orange)">${r.placar.dificil}</b> difícil ·
+                   <b style="color:var(--accent-green)">${r.placar.facil}</b> fácil</p>
+                <p style="color:var(--accent-orange); font-weight:bold;">🔥 Revisão de hoje registrada na sua ofensiva.</p>
+                <button type="button" class="btn" style="background:var(--accent-purple); margin-top:8px;" onclick="encerrarRevisaoFlashcards()">Fechar</button>
+            </div>`;
+            return;
+        }
+
+        let c = r.fila[r.idx];
+        document.getElementById('fc-rev-progresso').textContent = `Card ${r.idx + 1} de ${total}`;
+        document.getElementById('fc-rev-assunto').innerHTML = rotuloAssunto(c);
+        let ce = c.tipo === 'certo_errado';
+        let html = `<div class="fc-rev-cartao"><div class="fc-rev-rotulo">${ce ? 'Julgue a afirmação' : 'Pergunta'}</div>${textoCard(c.frente)}`;
+        let atalhos = '';
+
+        if (!r.mostrou) {
+            html += '</div>';
+            if (ce) {
+                html += `<div class="fc-rev-botoes dois">
+                    <button type="button" class="btn" style="background:var(--accent-green)" onclick="responderCertoErradoFC(true)">CERTO<small>tecla C</small></button>
+                    <button type="button" class="btn" style="background:var(--accent-red)" onclick="responderCertoErradoFC(false)">ERRADO<small>tecla E</small></button></div>`;
+            } else {
+                html += `<div class="fc-rev-botoes um"><button type="button" class="btn" style="background:var(--accent-purple)" onclick="mostrarRespostaFC()">Mostrar resposta<small>barra de espaço</small></button></div>`;
+            }
+        } else {
+            if (ce) {
+                let acertou = r.acertouCE;
+                html += `<div class="fc-rev-verso"><div class="fc-rev-resultado" style="color:${acertou ? 'var(--accent-green)' : 'var(--accent-red)'}">
+                    ${acertou ? '✔ Você acertou!' : '✘ Você errou.'} Gabarito: ${c.gabarito ? 'CERTO' : 'ERRADO'}</div>${textoCard(c.verso)}</div></div>`;
+                if (acertou) {
+                    html += `<div class="fc-rev-botoes dois">
+                        <button type="button" class="btn" style="background:var(--accent-orange)" onclick="responderFC('dificil')">Acertei com dúvida<small>volta em ${textoDias(proximoIntervaloFC(c, 'dificil'))} · tecla 2</small></button>
+                        <button type="button" class="btn" style="background:var(--accent-green)" onclick="responderFC('facil')">Acertei com certeza<small>volta em ${textoDias(proximoIntervaloFC(c, 'facil'))} · tecla 3</small></button></div>`;
+                } else {
+                    html += `<div class="fc-rev-botoes um"><button type="button" class="btn" style="background:var(--accent-red)" onclick="responderFC('errei')">Próximo card<small>este volta amanhã · tecla 1</small></button></div>`;
+                }
+            } else {
+                html += `<div class="fc-rev-verso"><div class="fc-rev-rotulo">Resposta</div>${textoCard(c.verso)}</div></div>
+                    <div class="fc-rev-botoes">
+                        <button type="button" class="btn" style="background:var(--accent-red)" onclick="responderFC('errei')">Errei<small>${textoDias(1)} · tecla 1</small></button>
+                        <button type="button" class="btn" style="background:var(--accent-orange)" onclick="responderFC('dificil')">Difícil<small>${textoDias(proximoIntervaloFC(c, 'dificil'))} · tecla 2</small></button>
+                        <button type="button" class="btn" style="background:var(--accent-green)" onclick="responderFC('facil')">Fácil<small>${textoDias(proximoIntervaloFC(c, 'facil'))} · tecla 3</small></button></div>`;
+            }
+        }
+        corpo.innerHTML = html + '<div class="fc-atalhos">Atalhos do teclado: espaço, C/E, 1, 2, 3 · Esc fecha</div>';
+    }
+
+    function mostrarRespostaFC() { if (revisaoFC) { revisaoFC.mostrou = true; renderizarRevisaoFC(); } }
+    function responderCertoErradoFC(marcouCerto) {
+        let r = revisaoFC; if (!r || r.mostrou) return;
+        r.acertouCE = marcouCerto === !!r.fila[r.idx].gabarito;
+        r.mostrou = true;
+        renderizarRevisaoFC();
+    }
+
+    async function responderFC(resposta) {
+        let r = revisaoFC;
+        if (!r || r.enviando || !r.mostrou || r.idx >= r.fila.length) return;
+        let c = r.fila[r.idx];
+        r.enviando = true;
+        document.querySelectorAll('#fc-rev-corpo .btn').forEach(b => { b.disabled = true; });
+        try {
+            let data = await enviarAcao({ acao: 'flashcard_revisar', id: c.id, resposta: resposta });
+            if (data.status !== 'sucesso') throw new Error(data.mensagem || 'erro no servidor');
+            let i = (flashcardsGlobal || []).findIndex(x => x.id === c.id);
+            if (i !== -1) flashcardsGlobal[i] = data.card;
+            r.placar[resposta]++;
+            resumoFlashcards.revisadosHoje++;
+            let hoje = hojeISO();
+            if ((resumoFlashcards.diasRevisao || []).indexOf(hoje) === -1) {
+                resumoFlashcards.diasRevisao = (resumoFlashcards.diasRevisao || []).concat([hoje]);
+                setSafeText('streak-display', calcularDiasOfensiva());
+            }
+            recontarFlashcards();
+            atualizarBadgesFlashcards();
+            r.idx++; r.mostrou = false; r.acertouCE = null;
+        } catch (err) {
+            mostrarToastTatico('Revisão não registrada: ' + (err.message || err) + '. Tente de novo.', 'var(--accent-red)');
+        } finally {
+            r.enviando = false;
+            renderizarRevisaoFC();
+        }
+    }
+
+    function encerrarRevisaoFlashcards() {
+        document.getElementById('revisaoFlashcardModal').style.display = 'none';
+        revisaoFC = null;
+        renderizarListaFlashcards();
+    }
+
+    document.addEventListener('keydown', (e) => {
+        let modal = document.getElementById('revisaoFlashcardModal');
+        if (!revisaoFC || !modal || modal.style.display === 'none') return;
+        if (/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName || '')) return;
+        let c = revisaoFC.fila[revisaoFC.idx];
+        let k = e.key.toLowerCase();
+        if (k === 'escape') { encerrarRevisaoFlashcards(); return; }
+        if (!c) { if (k === 'enter' || k === ' ') { e.preventDefault(); encerrarRevisaoFlashcards(); } return; }
+        if (!revisaoFC.mostrou) {
+            if (c.tipo === 'certo_errado') { if (k === 'c') responderCertoErradoFC(true); else if (k === 'e') responderCertoErradoFC(false); }
+            else if (k === ' ' || k === 'enter') { e.preventDefault(); mostrarRespostaFC(); }
+            return;
+        }
+        let ce = c.tipo === 'certo_errado';
+        if (k === '1' && (!ce || !revisaoFC.acertouCE)) responderFC('errei');
+        else if (k === '2' && (!ce || revisaoFC.acertouCE)) responderFC('dificil');
+        else if (k === '3' && (!ce || revisaoFC.acertouCE)) responderFC('facil');
+        else if ((k === ' ' || k === 'enter') && ce && !revisaoFC.acertouCE) { e.preventDefault(); responderFC('errei'); }
+    });
+
     function mostrarToastTatico(mensagem, corBorda) {
         let toast = document.getElementById('tactical-toast');
         if (!toast) {
@@ -6826,6 +7381,8 @@ Gostaria que fizesse:
         let temp = document.getElementById('f-tempo'); let q = document.getElementById('f-q'); 
         let a = document.getElementById('f-a'); let fas = document.getElementById('f-fase');
         let actionStr = modoEdicao ? "retificar_ultimo" : "lancamento";
+        let chkCard = document.getElementById('f-criar-card');
+        let criarCardDepois = !modoEdicao && !!(chkCard && chkCard.checked);
 		
                 let qChk = Math.floor(Number(q ? q.value : 0)) || 0;
         let aChk = Math.floor(Number(a ? a.value : 0)) || 0;
@@ -6898,9 +7455,10 @@ Gostaria que fizesse:
         let em = document.getElementById('entryModal'); if(em) em.style.display = 'none'; 
         if(btn) btn.disabled = false;
         isEditingMode = false;
+        if (criarCardDepois) setTimeout(() => abrirNovoFlashcard({ materia: matSelecionada, topico: topicoTexto }), 300);
 
         mostrarToastTatico(
-            modoEdicao ? "Lançamento retificado no painel! Gravando na nuvem...": "Missão Cumprida! Painel atualizado com sucesso.",
+            modoEdicao? "Lançamento retificado no painel! Gravando na nuvem...": "Missão Cumprida! Painel atualizado com sucesso.",
             modoEdicao ? "var(--accent-orange)" : "var(--accent-green)"
         );
 
