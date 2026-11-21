@@ -1293,8 +1293,7 @@
                     <button class="btn-stealth stealth-red" onclick="toggleFocus()" title="Ativar Modo Foco"><i class="fas fa-crosshairs"></i> Foco</button>
                     <button class="btn-stealth stealth-mission" onclick="openEntryModal()"><i class="fas fa-pen-nib"></i> Lançar Missão</button>
                     <button type="button" class="btn-action-top btn-sino" id="btn-pedidos-admin" style="display:none;" onclick="abrirPedidosAdmin()" title="Pedidos de edital pendentes"><i class="fas fa-bell"></i><span id="sino-contador" class="sino-contador"></span></button>
-                    <button class="btn-stealth stealth-blue sync-btn-ui" id="btn-sync" onclick="loadGoogleSheetsData()" title="Sincronizar com a Nuvem"><i class="fas fa-sync-alt"></i> Sinc</button>
-                </div>
+</div>
             </div>
             
             <div id="view-painel" class="app-view active-view">
@@ -1346,7 +1345,7 @@
                         <div class="grid-gps-inner">
                             <div class="action-box">
                                 <h4 style="margin:0 0 10px 0; color:#888; font-size:12px; text-transform:uppercase;"><i class="fas fa-route"></i> Próximos Alvos</h4>
-                                <ul class="mission-list" id="mission-list"><li>Aguardando Sincronização...</li></ul>
+                                <ul class="mission-list" id="mission-list"><li>Carregando...</li></ul>
                             </div>
                             <div class="action-box">
                                 <h4 style="margin:0 0 10px 0; color:#888; font-size:12px; text-transform:uppercase;"><i class="fas fa-link"></i> Caderno do Alvo</h4>
@@ -1462,8 +1461,7 @@
                 <div class="chart-box" style="padding:0; overflow:hidden;">
                     <div style="background:var(--hover-bg); padding:20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); flex-wrap:wrap; gap:10px;">
                         <h2 style="margin:0; color:var(--accent-gold); font-size:1.4em;"><i class="fas fa-trophy"></i> Hall da Fama & Comparativo</h2>
-                        <button class="btn sync-btn-ui" style="background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-color);" onclick="loadGoogleSheetsData()"><i class="fas fa-sync"></i> Atualizar Placar</button>
-                    </div>
+</div>
                     <div style="padding:20px;">
                         <div class="rank-tabs" style="flex-wrap:wrap;">
                             <button class="rank-tab-btn active" id="tab-hoje" onclick="switchLeaderboard('diario')">DIÁRIO</button>
@@ -2957,6 +2955,7 @@ Gostaria que fizesse:
     async function enviarAcao(payload, timeoutMs) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs || 30000);
+        escritasPendentes++;
         try {
             if (!(await testarPostLegivel())) {
                 await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload), signal: controller.signal });
@@ -2978,6 +2977,8 @@ Gostaria que fizesse:
             return data || { status: 'erro', mensagem: 'Resposta vazia do servidor.' };
         } finally {
             clearTimeout(timeoutId);
+            escritasPendentes = Math.max(0, escritasPendentes - 1);
+            ultimaEscrita = Date.now();
         }
     }
 
@@ -3247,11 +3248,42 @@ Gostaria que fizesse:
     function resetTimer() { pauseTimer(); if(timerMode === 'crono') timerSeconds = 0; else pomoSeconds = 25 * 60; updateTimerDisplay(); }
     updateTimerDisplay();
 
-    async function loadGoogleSheetsData() {
-        let btns = document.querySelectorAll('.sync-btn-ui');
-        btns.forEach(b => b.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo...');
-        
-        const controller = new AbortController();
+    // ===== ATUALIZAÇÃO AUTOMÁTICA (substituiu o botão Sinc na v29-93) =====
+    // Os dados são relidos sozinhos: ao abrir, depois de cada gravação, ao voltar para a aba
+    // e a cada 2 min com a aba aberta. Não atualiza enquanto o aluno digita, está com uma janela
+    // aberta ou tem gravação em andamento, para não mexer na tela no meio do uso.
+    let escritasPendentes = 0, ultimaEscrita = 0;
+    let _leituraEmCurso = null, _assinaturaDados = "", _ultimaLeitura = 0, _falhasSilenciosas = 0;
+    const INTERVALO_ATUALIZACAO_MS = BACKEND === 'supabase' ? 120000 : 300000;
+
+    function usuarioOcupado() {
+        if (escritasPendentes > 0 || Date.now() - ultimaEscrita < 5000) return true;
+        const ativo = document.activeElement;
+        if (ativo && /^(INPUT|TEXTAREA|SELECT)$/.test(ativo.tagName)) return true;
+        return Array.from(document.querySelectorAll('.modal, .leitor-modal')).some(m => getComputedStyle(m).display !== 'none');
+    }
+
+    function atualizarSozinho() {
+        if (!loggedUserToken || document.hidden || usuarioOcupado()) return;
+        if (Date.now() - _ultimaLeitura < 30000) return;
+        loadGoogleSheetsData({ silencioso: true });
+    }
+    setInterval(atualizarSozinho, INTERVALO_ATUALIZACAO_MS);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) atualizarSozinho(); });
+    window.addEventListener('focus', atualizarSozinho);
+
+    function loadGoogleSheetsData(opcoes) {
+        const silencioso = !!(opcoes && opcoes.silencioso);
+        if (_leituraEmCurso) {
+            // Já tem leitura em curso: a automática aproveita; depois de uma gravação, lê de novo em seguida
+            return silencioso ? _leituraEmCurso : _leituraEmCurso.then(() => loadGoogleSheetsData(opcoes));
+        }
+        _leituraEmCurso = lerDadosNuvem(silencioso).finally(() => { _leituraEmCurso = null; });
+        return _leituraEmCurso;
+    }
+
+    async function lerDadosNuvem(silencioso) {
+        const controller= new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 20000);
 
         try {
@@ -3279,8 +3311,15 @@ Gostaria que fizesse:
                 }
                 throw new Error(data.mensagem || "Erro ao carregar dados.");
             }
-            
-            globalExpiration = data.expiration || "Vitalício"; 
+            _ultimaLeitura = Date.now();
+            _falhasSilenciosas = 0;
+            if (silencioso) {
+                if (text === _assinaturaDados) return;  // nada mudou: não redesenha a tela
+                if (usuarioOcupado()) return;           // o aluno começou a usar algo: atualiza na próxima
+            }
+            _assinaturaDados = text;
+
+            globalExpiration= data.expiration || "Vitalício"; 
             globalNickname = data.nickname || "Aluno"; 
             if (typeof data.avatar !== "undefined") {
                 globalAvatar = data.avatar || "";
@@ -3306,15 +3345,17 @@ Gostaria que fizesse:
             atualizarCampoTopico();
             verificarEscudosAutomatico();
 
-            btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizado');
-            setTimeout(() => btns.forEach(b => b.innerHTML = '<i class="fas fa-sync-alt"></i> Sinc'), 2000);
-            
         } catch (err) {
             clearTimeout(timeoutId);
-            console.error("Erro na Sincronização:", err); 
-            let msgErro = err.name === 'AbortError' ? "O servidor demorou mais de 20s para responder. Clique em Sinc novamente." : err.message;
-            alert("⚠️ FALHA DE SINCRONIZAÇÃO:\n" + msgErro);
-            btns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro');
+            console.error("Erro ao carregar os dados:", err);
+            let msgErro = err.name === 'AbortError' ? "O servidor demorou mais de 20s para responder." : err.message;
+            if (silencioso) {
+                // Falha na atualização automática: tenta de novo sozinho; só avisa se persistir
+                _falhasSilenciosas++;
+                if (_falhasSilenciosas === 3) mostrarToastTatico("Sem conexão com o servidor. Seus dados serão atualizados quando a conexão voltar.", "var(--accent-red)");
+                return;
+            }
+            alert("⚠️ FALHA AO CARREGAR OS DADOS:\n" + msgErro + "\nRecarregue a página para tentar de novo.");
         }
     }
     
@@ -6350,7 +6391,7 @@ Gostaria que fizesse:
                 fileInput.value = "";
                 setTimeout(() => loadGoogleSheetsData(), data.semConfirmacao ? 1500 : 0);
             })
-            .catch(err => { alert("Erro de conexão na importação. " + mensagemFalhaRede(err) + " Clique em SINC para conferir antes de importar de novo."); btn.innerHTML = oldHtml; btn.disabled = false; });
+            .catch(err => { alert("Erro de conexão na importação. " + mensagemFalhaRede(err) + " Aguarde um minuto: o histórico se atualiza sozinho. Confira antes de importar de novo."); btn.innerHTML = oldHtml; btn.disabled = false; });
         };
         reader.readAsText(file);
     }
@@ -6383,7 +6424,7 @@ Gostaria que fizesse:
                     btn.innerHTML = oldTxt; btn.disabled = false;
                 }, data.semConfirmacao ? 1500 : 0);
             })
-            .catch(err => { alert("Erro ao apagar histórico. " + mensagemFalhaRede(err) + " Clique em SINC para conferir."); btn.innerHTML = oldTxt; btn.disabled = false; });
+            .catch(err => { alert("Erro ao apagar histórico. " + mensagemFalhaRede(err) + " Aguarde um minuto: o histórico se atualiza sozinho para você conferir."); btn.innerHTML = oldTxt; btn.disabled = false; });
         }
     }
 
@@ -6859,11 +6900,11 @@ Gostaria que fizesse:
         isEditingMode = false;
 
         mostrarToastTatico(
-            modoEdicao ? "Lançamento retificado no painel! Sincronizando nuvem..." : "Missão Cumprida! Painel atualizado com sucesso.",
+            modoEdicao ? "Lançamento retificado no painel! Gravando na nuvem...": "Missão Cumprida! Painel atualizado com sucesso.",
             modoEdicao ? "var(--accent-orange)" : "var(--accent-green)"
         );
 
-        // 2. SINCRONIZAÇÃO EM SEGUNDO PLANO COM O GOOGLE SHEETS
+        // 2. GRAVAÇÃO EM SEGUNDO PLANO NA NUVEM
         let syncBtns = document.querySelectorAll('.sync-btn-ui');
         syncBtns.forEach(b => b.innerHTML = '<i class="fas fa-cloud-upload-alt fa-spin"></i> Gravando...');
 
@@ -6879,7 +6920,8 @@ Gostaria que fizesse:
         })
         .catch(err => {
             console.error("Erro na gravação em segundo plano:", err);
-            mostrarToastTatico("Sem confirmação da nuvem (" + mensagemFalhaRede(err) + "). Clique em SINC para conferir.", "var(--accent-red)");
+            mostrarToastTatico("Sem confirmação da nuvem (" + mensagemFalhaRede(err) + "). Conferindo em instantes...", "var(--accent-red)");
+            setTimeout(() => loadGoogleSheetsData(), 8000);
             syncBtns.forEach(b => b.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro');
         });
     }
