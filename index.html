@@ -1197,6 +1197,12 @@
         .fc-rev-fim { text-align: center; padding: 10px 0; }
         .fc-rev-fim h3 { color: var(--accent-purple); margin: 0 0 10px; }
         .fc-atalhos { text-align: center; font-size: 11px; color: #8B949E; margin-top: 12px; }
+        /* Aberto pelo leitor do caderno: painel à direita, a questão continua visível e clicável */
+        .modal.fc-lateral { left: auto; right: 0; width: 420px; max-width: 100%; padding: 0; background: transparent; backdrop-filter: none; z-index: 10004; }
+        .modal.fc-lateral .modal-content { margin: 0; min-height: 100%; max-width: none; border-radius: 0; border-top: none; border-left: 4px solid var(--accent-purple); padding: 22px 20px; box-shadow: -10px 0 30px rgba(0,0,0,0.45); }
+        .modal.fc-lateral .fc-botoes-salvar { grid-template-columns: 1fr; }
+        .fc-dica-leitor { display: none; font-size: 12px; color: var(--accent-purple); background: rgba(137, 87, 229, 0.1); border-radius: 6px; padding: 8px 10px; margin: -6px 0 14px; line-height: 1.4; }
+        .modal.fc-lateral .fc-dica-leitor { display: block; }
         @media (max-width: 768px) {
             .fc-stats { grid-template-columns: repeat(2, 1fr); }
             .fc-filtros { grid-template-columns: 1fr; }
@@ -2560,6 +2566,7 @@ Gostaria que fizesse:
             <span class="close-btn" onclick="fecharModalFlashcard()">&times;</span>
             <h2 style="color: var(--text-color); margin-top: 0; margin-bottom: 18px;"><i class="fas fa-clone" style="color:var(--accent-purple)"></i> <span id="fc-modal-titulo">Novo flashcard</span></h2>
             <input type="hidden" id="fc-id">
+            <div class="fc-dica-leitor"><i class="fas fa-lightbulb"></i> A questão continua aberta ao lado. Use <b>Salvar e criar outro</b> para anotar vários cards sem sair do caderno.</div>
             <div class="fc-tipos">
                 <label class="fc-tipo-op"><input type="radio" name="fc-tipo" value="pergunta" checked onchange="ajustarFormFlashcard()"> <span><b>Pergunta e resposta</b><br><small style="color:#8B949E">Frente e verso</small></span></label>
                 <label class="fc-tipo-op"><input type="radio" name="fc-tipo" value="certo_errado" onchange="ajustarFormFlashcard()"> <span><b>Certo ou Errado</b><br><small style="color:#8B949E">Estilo Cebraspe</small></span></label>
@@ -2607,6 +2614,7 @@ Gostaria que fizesse:
             </form>
             <div class="leitor-acoes">
                 <button type="button" class="btn" style="background:var(--hover-bg); color:var(--text-color); border:1px solid var(--border-color);" onclick="abrirLeitorEmNovaGuia()"><i class="fas fa-external-link-alt"></i> Nova guia</button>
+                <button type="button" class="btn" style="background:var(--accent-purple);" onclick="criarFlashcardDoLeitor()" title="Anotar um flashcard sem sair da questão"><i class="fas fa-clone"></i> Criar flashcard</button>
                 <button type="button" class="btn" style="background:var(--accent-green);" onclick="lancarBlocoDoLeitor()"><i class="fas fa-pen-nib"></i> Lançar este bloco</button>
                 <button type="button" class="leitor-fechar" onclick="fecharLeitorCaderno()" aria-label="Fechar">&times;</button>
             </div>
@@ -4577,6 +4585,8 @@ Gostaria que fizesse:
 
     document.addEventListener('keydown', function(e) {
         let m = document.getElementById('leitorModal');
+        let painelCard = document.getElementById('flashcardModal');
+        if(e.key === 'Escape' && painelCard && painelCard.style.display === 'block') { fecharModalFlashcard(); return; } // Esc fecha o card, não o caderno
         if(e.key === 'Escape' && m && m.classList.contains('aberto')) fecharLeitorCaderno();
     });
 
@@ -7063,9 +7073,10 @@ Gostaria que fizesse:
         document.getElementById('fc-verso').placeholder = ce ? 'Ex: ERRADO. O pregão usa menor preço ou maior desconto.' : 'Ex: 3 dias úteis, após a manifestação imediata da intenção de recorrer.';
     }
 
-    function abrirNovoFlashcard(dados) {
+    function abrirNovoFlashcard(dados, opcoes) {
         if (BACKEND !== 'supabase') return alert('Os flashcards funcionam só no servidor novo. Abra a plataforma sem ?backend=sheets no endereço.');
         dados = dados || {};
+        document.getElementById('flashcardModal').classList.toggle('fc-lateral', !!(opcoes && opcoes.lateral));
         document.getElementById('fc-id').value = dados.id || '';
         document.getElementById('fc-modal-titulo').textContent = dados.id ? 'Editar flashcard' : 'Novo flashcard';
         document.querySelectorAll('input[name="fc-tipo"]').forEach(r => { r.checked = r.value === (dados.tipo || 'pergunta'); });
@@ -7090,7 +7101,24 @@ Gostaria que fizesse:
         if (c) abrirNovoFlashcard(c);
     }
 
-    function fecharModalFlashcard() { document.getElementById('flashcardModal').style.display = 'none'; }
+    function fecharModalFlashcard() {
+        let m = document.getElementById('flashcardModal');
+        m.style.display = 'none';
+        m.classList.remove('fc-lateral');
+    }
+
+    // Leitor do caderno: anota o card num painel lateral, com a questão ainda visível.
+    // Matéria e assunto vêm do caderno aberto pelo GPS (o aluno pode corrigir antes de salvar).
+    function criarFlashcardDoLeitor() {
+        let cad = cadernoAberto || {};
+        let materia = '';
+        let selLanc = document.getElementById('f-materia');
+        if (selLanc && cad.sigla) {
+            let op = Array.from(selLanc.options).find(o => o.value === cad.sigla);
+            if (op) materia = op.text;
+        }
+        abrirNovoFlashcard({ materia: materia || cad.nome || '', topico: cad.topico || '' }, { lateral: true });
+    }
 
     async function salvarFlashcard(criarOutro) {
         let tipo = (document.querySelector('input[name="fc-tipo"]:checked') || {}).value || 'pergunta';
