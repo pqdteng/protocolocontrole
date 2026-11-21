@@ -114,12 +114,44 @@ A tela "Esqueci minha senha" continua pedindo um **código de 6 dígitos**. Para
 - Copiar os dados reais, entrar com a sua conta em `?backend=supabase` e conferir painel, ranking, lançamento, escudos, edital e pedidos.
 - Comparar os totais da planilha com os do Supabase.
 
-## Fase 4: virada (data a combinar)
+## Fase 4: virada (domingo, 22/11/2026, às 21h)
 
-1. Avisar os alunos.
-2. Pausar os lançamentos e fazer a cópia final.
-3. Trocar o padrão do site para o Supabase e publicar.
-4. A planilha fica como backup somente leitura por 30 dias.
+A versão da virada (v29-92) já está pronta na branch `virada-supabase`, testada e ainda não publicada. Com ela:
+- sem nenhum parâmetro, todos passam a usar o Supabase;
+- `?backend=sheets` vira o **plano B**: aparece o selo amarelo "PLANILHA · PLANO B", e um clique volta ao padrão;
+- quem estava logado pela planilha cai na tela de login uma vez e entra com a mesma senha.
+
+### Roteiro
+1. **20h30 — aviso aos alunos.**
+   > Hoje às 21h a plataforma fica em manutenção por uns 30 minutos (troca de servidor). Depois é só entrar com o mesmo e-mail e senha de sempre.
+2. **21h00 — você:** no Apps Script, rode `migrarParaSupabase` (última cópia) e me mande o resumo.
+3. **Eu:** confiro o resumo, junto a branch `virada-supabase` na `main` e publico a v29-92 (o GitHub Pages leva 1–2 minutos).
+4. **Você:**
+   - abra o site **sem** parâmetro e use Ctrl + F5;
+   - entre com a sua senha e confira o painel;
+   - faça um lançamento de teste e apague-o com "retificar".
+5. **Depois da virada:**
+   - **Não rode mais `migrarParaSupabase`.** Ele apagaria no Supabase os lançamentos feitos depois da virada.
+   - No Apps Script, em **Acionadores** (ícone de relógio), exclua o `registrarMetricasDiarias`. As métricas passam a ser gravadas pelo `pg_cron` no Supabase (Fase 1, item 6).
+   - Rode `backupSupabase` uma vez (▶) para autorizar o acesso ao Drive e depois `instalarBackupSemanal` uma vez.
+   - A planilha continua no Drive, intacta, como registro de tudo até a virada.
+
+### Se algo der errado
+- **Um aluno com problema:** ele usa `?backend=sheets` enquanto investigamos.
+- **Problema geral:** eu publico de novo a v29-91, e todos voltam para a planilha. O que foi lançado no Supabase nesse meio-tempo fica guardado lá.
+
+## Backup semanal (Supabase → Google Drive)
+
+O arquivo [`apps-script/BackupSupabase.gs`](../apps-script/BackupSupabase.gs) roda toda segunda-feira, por volta das 3h, e cria na pasta **Backups Protocolo Controle** do seu Drive:
+- `backup_AAAA-MM-DD.json`: cópia completa e exata, que é o arquivo que serve para restaurar;
+- a planilha **Backup Protocolo Controle AAAA-MM-DD**: uma aba por tabela, para consulta.
+
+Backups com mais de 8 semanas vão para a lixeira do Drive. As senhas antigas não entram no backup.
+
+**Para instalar:**
+1. No Apps Script, clique em **+ → Script**, dê o nome `BackupSupabase` e cole o conteúdo do arquivo.
+2. Rode `backupSupabase` (▶) e autorize o acesso ao Drive.
+3. Rode `instalarBackupSemanal` uma vez.
 
 ## Pendências que continuam com você
 
