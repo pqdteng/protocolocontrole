@@ -2471,6 +2471,197 @@ Gostaria que fizesse:
 
     <script>
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycby2wgtlQzCiHf4vMPqjHjNGTcRxqoeBTjkfUjUFZOhDo_gfM3dCoF6KslhKr2hmJNNl/exec";
+
+    // ===== BACKEND SUPABASE (transição) =====
+    // Padrão: Google Sheets. Para testar o Supabase sem afetar ninguém: abra o site com ?backend=supabase
+    // (fica gravado neste navegador; ?backend=sheets volta ao normal).
+    // No modo Supabase, as chamadas ao WEBHOOK_URL são atendidas aqui e devolvem o MESMO formato
+    // de resposta do Apps Script — o resto da plataforma não percebe a troca.
+    const SUPABASE_URL = "https://nydspkbnbahclgkjfotc.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_3xGuVODisx4WGrvovHTFGA_3TNe1n-C"; // chave pública (as regras ficam no banco)
+    (function escolherBackend() {
+        try {
+            const pedido = new URLSearchParams(location.search).get('backend');
+            if (pedido !== 'supabase' && pedido !== 'sheets') return;
+            const atual = localStorage.getItem('pqdtBackend') === 'supabase' ? 'supabase' : 'sheets';
+            if (pedido !== atual) { // trocou de servidor: a sessão do outro não vale aqui
+                localStorage.removeItem('pqdtToken'); localStorage.removeItem('pqdtSb');
+            }
+            if (pedido === 'supabase') localStorage.setItem('pqdtBackend', 'supabase');
+            else localStorage.removeItem('pqdtBackend');
+        } catch (e) {}
+    })();
+    const BACKEND = (function() { try { return localStorage.getItem('pqdtBackend') === 'supabase' ? 'supabase' : 'sheets'; } catch (e) { return 'sheets'; } })();
+
+    if (BACKEND === 'supabase') (function instalarBackendSupabase() {
+        const fetchNativo = window.fetch.bind(window);
+        const cabecalhos = (token) => Object.assign({ apikey: SUPABASE_KEY, 'Content-Type': 'application/json' }, token ? { Authorization: 'Bearer ' + token } : {});
+        const lerJSON = async (r) => { try { return await r.json(); } catch (e) { return null; } };
+
+        function sessao() { try { return JSON.parse(localStorage.getItem('pqdtSb') || 'null'); } catch (e) { return null; } }
+        function guardarSessao(d) {
+            const s = { access: d.access_token, refresh: d.refresh_token, exp: Date.now() + ((d.expires_in || 3600) - 60) * 1000 };
+            localStorage.setItem('pqdtSb', JSON.stringify(s));
+            return s;
+        }
+        async function auth(caminho, corpo, token, metodo) {
+            const r = await fetchNativo(`${SUPABASE_URL}/auth/v1/${caminho}`, { method: metodo || 'POST', headers: cabecalhos(token), body: JSON.stringify(corpo || {}) });
+            return { ok: r.ok, status: r.status, j: (await lerJSON(r)) || {} };
+        }
+        function mensagemAuth(r) {
+            const cod = r.j.error_code || r.j.code || '';
+            const txt = r.j.msg || r.j.message || r.j.error_description || '';
+            if (cod === 'weak_password' || /password/i.test(txt) && /least|characters/i.test(txt)) return "A senha precisa ter ao menos 6 caracteres.";
+            if (cod === 'user_already_exists' || cod === 'email_exists') return "Conta já ativada!";
+            if (r.status === 429 || /rate limit/i.test(txt)) return "Muitos pedidos seguidos. Aguarde alguns minutos e tente novamente.";
+            if (/Database error saving new user/i.test(txt)) return "Não foi possível concluir o cadastro: codinome em uso ou vagas encerradas.";
+            return txt || ("Erro " + r.status + " no servidor.");
+        }
+
+        let renovando = null; // uma renovação por vez
+        async function tokenValido() {
+            const s = sessao();
+            if (!s) return null;
+            if (Date.now() < s.exp) return s.access;
+            if (!renovando) {
+                renovando = auth('token?grant_type=refresh_token', { refresh_token: s.refresh }).then(r => {
+                    renovando = null;
+                    if (!r.ok) { localStorage.removeItem('pqdtSb'); return null; }
+                    return guardarSessao(r.j).access;
+                });
+            }
+            return renovando;
+        }
+
+        async function rpc(funcao, args, publica) {
+            const token = publica ? null : await tokenValido();
+            if (!publica && !token) return { status: 'erro', erro: true, sessao: false, mensagem: "Sessão inválida. Faça login novamente." };
+            const r = await fetchNativo(`${SUPABASE_URL}/rest/v1/rpc/${funcao}`, { method: 'POST', headers: cabecalhos(token), body: JSON.stringify(args || {}) });
+            const j = await lerJSON(r);
+            if (!r.ok) {
+                const msg = (j && j.message) || ("Erro " + r.status + " no servidor.");
+                const semSessao = r.status === 401 || /Sessão inválida|JWT/i.test(msg);
+                return Object.assign({ status: 'erro', erro: true, mensagem: semSessao ? "Sessão inválida. Faça login novamente." : msg }, semSessao ? { sessao: false } : {});
+            }
+            return j;
+        }
+
+        async function login(email, senha) {
+            email = String(email || '').trim().toLowerCase();
+            let r = await auth('token?grant_type=password', { email: email, password: senha });
+            if (!r.ok && r.status === 400) {
+                // Senha ainda da planilha? A função de transição confere e passa para o Supabase
+                let jl = {};
+                try {
+                    const lg = await fetchNativo(`${SUPABASE_URL}/functions/v1/login-legado`, { method: 'POST', headers: cabecalhos(null), body: JSON.stringify({ email: email, senha: senha }) });
+                    jl = (await lerJSON(lg)) || {};
+                } catch (errLegado) { console.warn("login-legado indisponível:", errLegado); }
+                if (jl.ok) r = await auth('token?grant_type=password', { email: email, password: senha });
+                else if (jl.mensagem) return { status: 'erro', mensagem: jl.mensagem };
+            }
+            if (!r.ok) return { status: 'erro', mensagem: r.status === 429 ? "Muitas tentativas. Aguarde alguns minutos e tente novamente." : "Credenciais inválidas." };
+            guardarSessao(r.j);
+            const acesso = await rpc('exigir_acesso');
+            if (acesso && acesso.status === 'erro') { localStorage.removeItem('pqdtSb'); return { status: 'erro', mensagem: acesso.mensagem }; }
+            return { status: 'sucesso', token: 'supabase' };
+        }
+
+        async function cadastro(email, senha, nickname) {
+            email = String(email || '').trim().toLowerCase();
+            if (String(senha || '').length < 6) return { status: 'erro', mensagem: "A senha precisa ter ao menos 6 caracteres." };
+            const pre = await rpc('preparar_cadastro', { p_email: email, p_nickname: nickname }, true);
+            if (!pre || pre.status !== 'sucesso') return pre || { status: 'erro', mensagem: "Falha ao conferir o cadastro." };
+            const r = await auth('signup', { email: email, password: senha, data: { nickname: pre.nickname || nickname } });
+            if (!r.ok) return { status: 'erro', mensagem: mensagemAuth(r) };
+            return { status: 'sucesso' };
+        }
+
+        async function trocarSenha(email, codigo, novaSenha) {
+            const v = await auth('verify', { type: 'recovery', email: String(email || '').trim().toLowerCase(), token: String(codigo || '').trim() });
+            if (!v.ok || !v.j.access_token) return { status: 'erro', mensagem: "Código inválido ou expirado. Solicite um novo." };
+            const r = await auth('user', { password: novaSenha }, v.j.access_token, 'PUT');
+            if (!r.ok) return { status: 'erro', mensagem: mensagemAuth(r) };
+            return { status: 'sucesso' };
+        }
+
+        async function radar() {
+            const token = await tokenValido();
+            if (!token) return { status: 'erro', sessao: false, mensagem: "Sessão inválida. Faça login novamente." };
+            try {
+                const r = await fetchNativo(`${SUPABASE_URL}/functions/v1/radar`, { method: 'GET', headers: cabecalhos(token) });
+                return (await lerJSON(r)) || { status: 'erro', mensagem: "Radar indisponível no momento." };
+            } catch (errRadar) {
+                return { status: 'erro', mensagem: "Radar indisponível no momento." };
+            }
+        }
+
+        async function painel() {
+            const [dados, catalogo] = await Promise.all([rpc('carregar_painel'), rpc('catalogo_editais')]);
+            if (dados && dados.status === 'sucesso') dados.baseEditais = (catalogo && !catalogo.status) ? catalogo : {};
+            return dados;
+        }
+
+        function jsonOuErro(texto, padrao) { try { return JSON.parse(texto || padrao); } catch (e) { return undefined; } }
+
+        // Mesmas "ações" do Code.gs (doPost / doGet)
+        async function atender(url, opts) {
+            const metodo = String((opts && opts.method) || 'GET').toUpperCase();
+            let p = {};
+            if (metodo === 'POST') p = jsonOuErro(opts.body, '{}') || {};
+            else new URL(url).searchParams.forEach((v, k) => { p[k] = v; });
+            const acao = p.acao || (metodo === 'GET' ? 'painel' : '');
+            switch (acao) {
+                case 'ping': return { status: 'sucesso' };
+                case 'vagas': return rpc('vagas_fundador', {}, true);
+                case 'login': return login(p.email, p.senha);
+                case 'cadastro': return cadastro(p.email, p.senha, p.nickname);
+                case 'solicitar_codigo': {
+                    const r = await auth('recover', { email: String(p.email || '').trim().toLowerCase() });
+                    return (r.ok || r.status === 404) ? { status: 'sucesso' } : { status: 'erro', mensagem: mensagemAuth(r) };
+                }
+                case 'trocarSenhaSegura': return trocarSenha(p.email, p.codigo, p.novaSenha);
+                case 'painel': return painel();
+                case 'radar': return radar();
+                case 'meus_pedidos': { const r = await rpc('meus_pedidos'); return Array.isArray(r) ? { status: 'sucesso', pedidos: r } : r; }
+                case 'lancamento': return rpc('lancar', { d: p });
+                case 'retificar_ultimo': return rpc('retificar_ultimo', { d: p });
+                case 'importar_historico': return rpc('importar_historico', { itens: p.lancamentos || [] });
+                case 'apagar_historico': return rpc('apagar_historico');
+                case 'salvar_ciclo_nuvem': {
+                    const c = jsonOuErro(p.cicloJson, '[]');
+                    return c === undefined ? { status: 'erro', mensagem: "Ciclo inválido." } : rpc('salvar_ciclo', { p_ciclo: c });
+                }
+                case 'salvar_progresso_edital': {
+                    const pr = jsonOuErro(p.progressoJson, '{}');
+                    return pr === undefined ? { status: 'erro', mensagem: "Progresso inválido." } : rpc('salvar_progresso_edital', { p_edital: p.editalAtivo || '', p_progresso: pr });
+                }
+                case 'updateProfile': return rpc('atualizar_perfil', { p_nickname: p.nickname, p_avatar: typeof p.avatar === 'undefined' ? null : p.avatar });
+                case 'comprar_escudo': return rpc('comprar_escudo');
+                case 'usar_escudos': return rpc('usar_escudos', { p_datas: p.datas || [] });
+                case 'solicitar_edital': return rpc('solicitar_edital', { p_concurso: p.concursoStr });
+                case 'atualizar_pedido': return rpc('atualizar_pedido', { p_id: Number(p.id), p_status: p.status });
+                default: return { status: 'erro', mensagem: "Ação desconhecida." };
+            }
+        }
+
+        window.fetch = function(url, opts) {
+            if (typeof url === 'string' && url.indexOf(WEBHOOK_URL) === 0) {
+                return atender(url, opts || {}).then(obj => new Response(JSON.stringify(obj || { status: 'erro', mensagem: "Resposta vazia do servidor." }),
+                    { status: 200, headers: { 'Content-Type': 'application/json' } }));
+            }
+            return fetchNativo(url, opts);
+        };
+
+        // Selo discreto para lembrar que este navegador está no modo de teste
+        document.addEventListener('DOMContentLoaded', () => {
+            const selo = document.createElement('a');
+            selo.href = '?backend=sheets';
+            selo.title = 'Você está usando o banco novo (Supabase). Clique para voltar ao Google Sheets.';
+            selo.textContent = 'SUPABASE · TESTE';
+            selo.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99999;background:#3ecf8e;color:#08130d;font:700 10px/1 sans-serif;letter-spacing:1px;padding:5px 8px;border-radius:6px;text-decoration:none;opacity:.85';
+            document.body.appendChild(selo);
+        });
+    })();
     
     let loggedUserEmail = localStorage.getItem('pqdtEmail') || "";
     let loggedUserToken = localStorage.getItem('pqdtToken') || "";
@@ -2921,7 +3112,12 @@ Gostaria que fizesse:
         btn.innerText = oldTxt; btn.disabled = false;
     }
 
-    function logout() { localStorage.clear(); location.reload(); }
+    function logout() {
+        let backend = localStorage.getItem('pqdtBackend'); // o modo de teste sobrevive ao "Sair"
+        localStorage.clear();
+        if (backend) localStorage.setItem('pqdtBackend', backend);
+        location.reload();
+    }
 
     function initApp() {
         let fData = document.getElementById('f-data'); 
