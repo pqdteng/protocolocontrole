@@ -1136,6 +1136,44 @@
                 border-bottom: 1px solid var(--border-color);
             }
         }
+        /* ===== BIBLIOTECA DE ASSUNTOS (admin, v29-96) ===== */
+        .bib-box { padding: 25px; min-height: 0; }
+        .bib-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }
+        .bib-titulo { margin: 0; color: var(--accent-green); }
+        .bib-sub { margin: 4px 0 0; font-size: 13px; color: var(--text-color); opacity: 0.7; }
+        .bib-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .bib-stat { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 12px; }
+        .bib-stat b { display: block; font-size: 20px; color: var(--text-color); }
+        .bib-stat span { font-size: 12px; opacity: 0.7; color: var(--text-color); }
+        .bib-abas { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+        .bib-aba { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 6px; padding: 7px 14px; cursor: pointer; font-family: inherit; font-size: 13px; }
+        .bib-aba.ativa { border-color: var(--accent-green); color: var(--accent-green); font-weight: bold; }
+        .bib-filtros { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+        .bib-filtros input, .bib-filtros select, .bib-nova-banca input { background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-color); border-radius: 6px; padding: 9px 12px; font-size: 14px; font-family: inherit; }
+        .bib-filtros input { flex: 1; min-width: 200px; }
+        .bib-item { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+        .bib-item-mat { font-size: 12px; color: var(--accent-blue); font-weight: bold; text-transform: uppercase; }
+        .bib-item-ass { font-size: 15px; font-weight: bold; color: var(--text-color); margin: 2px 0 4px; }
+        .bib-item-uso { font-size: 12px; color: var(--text-color); opacity: 0.65; margin-bottom: 10px; }
+        .bib-link-row { display: grid; grid-template-columns: 160px 1fr auto auto; gap: 8px; align-items: center; margin-bottom: 6px; }
+        .bib-link-row label { font-size: 12px; font-weight: bold; color: var(--text-color); display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .bib-link-row input { background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-color); border-radius: 6px; padding: 7px 10px; font-size: 13px; min-width: 0; width: 100%; box-sizing: border-box; }
+        .bib-ok { color: var(--accent-green); }
+        .bib-falta { color: var(--accent-orange); }
+        .bib-btn { background: var(--hover-bg); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 6px; padding: 7px 10px; cursor: pointer; font-size: 12px; font-family: inherit; white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+        .bib-btn.salvar { background: var(--accent-green); border-color: var(--accent-green); color: #fff; }
+        .bib-btn:disabled { opacity: 0.5; cursor: default; }
+        .bib-nova-banca { display: none; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+        .bib-nova-banca input { padding: 7px 10px; font-size: 13px; }
+        .bib-nova-banca .bib-nb-link { flex: 1; min-width: 180px; }
+        .bib-pag { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 12px; font-size: 13px; color: var(--text-color); }
+        .bib-dup-op { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 5px 0; color: var(--text-color); cursor: pointer; }
+        .bib-aviso { background: rgba(210, 153, 34, 0.12); border: 1px solid rgba(210, 153, 34, 0.4); color: var(--text-color); border-radius: 6px; padding: 10px 12px; font-size: 12px; margin-bottom: 12px; }
+        .bib-vazio { text-align: center; padding: 30px 10px; opacity: 0.6; color: var(--text-color); }
+        @media (max-width: 700px) {
+            .bib-link-row { grid-template-columns: 1fr auto auto; }
+            .bib-link-row label { grid-column: 1 / -1; }
+        }
         /* ===== FLASHCARDS (v29-94) ===== */
         .fc-badge-nav { display: none; margin-left: auto; background: var(--accent-purple); color: #fff; font-size: 11px; font-weight: bold; border-radius: 10px; padding: 1px 7px; }
         .fc-badge-painel { background: rgba(137, 87, 229, 0.15); color: var(--accent-purple); border: 1px solid rgba(137, 87, 229, 0.35); font-weight: bold; font-size: 0.85em; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 5px; }
@@ -1368,6 +1406,7 @@
                     <button class="btn-stealth stealth-red" onclick="toggleFocus()" title="Ativar Modo Foco"><i class="fas fa-crosshairs"></i> Foco</button>
                     <button class="btn-stealth stealth-mission" onclick="openEntryModal()"><i class="fas fa-pen-nib"></i> Lançar Missão</button>
                     <button type="button" class="btn-action-top btn-sino" id="btn-pedidos-admin" style="display:none;" onclick="abrirPedidosAdmin()" title="Pedidos de edital pendentes"><i class="fas fa-bell"></i><span id="sino-contador" class="sino-contador"></span></button>
+                    <button type="button" class="btn-action-top" id="btn-biblioteca-admin" style="display:none;" onclick="abrirBibliotecaAdmin()" title="Biblioteca de assuntos (links do TEC)"><i class="fas fa-book"></i></button>
 </div>
             </div>
             
@@ -1807,6 +1846,38 @@
                 </div>
             </div>
 
+            <div id="view-biblioteca-view" class="app-view">
+                <div class="chart-box bib-box">
+                    <div class="bib-topo">
+                        <div>
+                            <h3 class="bib-titulo"><i class="fas fa-book"></i> Biblioteca de assuntos</h3>
+                            <p class="bib-sub">Um link do TEC por assunto e por banca. Salvou aqui, vale para todos os editais com esse assunto.</p>
+                        </div>
+                        <button type="button" class="bib-btn" onclick="recarregarBiblioteca()"><i class="fas fa-sync-alt"></i> Recarregar</button>
+                    </div>
+                    <div class="bib-stats" id="bib-stats"></div>
+                    <div class="bib-abas">
+                        <button type="button" class="bib-aba ativa" id="bib-aba-assuntos" onclick="trocarAbaBiblioteca('assuntos')"><i class="fas fa-link"></i> Assuntos</button>
+                        <button type="button" class="bib-aba" id="bib-aba-duplicados" onclick="trocarAbaBiblioteca('duplicados')"><i class="fas fa-object-group"></i> Possíveis duplicados</button>
+                    </div>
+                    <div id="bib-painel-assuntos">
+                        <div class="bib-filtros">
+                            <input type="search" id="bib-busca" placeholder="Buscar matéria ou assunto" oninput="buscarBibliotecaDepois()" autocomplete="off">
+                            <select id="bib-filtro" onchange="bibPagina = 1; carregarBiblioteca()">
+                                <option value="sem_link">Faltando link</option>
+                                <option value="com_link">Com link</option>
+                                <option value="todos">Todos</option>
+                            </select>
+                        </div>
+                        <div id="bib-lista"></div>
+                        <div id="bib-pag" class="bib-pag"></div>
+                    </div>
+                    <div id="bib-painel-duplicados" style="display:none;">
+                        <div class="bib-aviso"><i class="fas fa-exclamation-triangle"></i> Assuntos com o mesmo nome em matérias diferentes. Junte só quando for <b>a mesma matéria escrita de outro jeito</b> (ex.: "Dir. Administrativo" e "Direito Administrativo"). Nomes genéricos como "Princípios" costumam ser de matérias diferentes: nesses casos, não junte. O texto dos editais não muda, então o progresso dos alunos fica intacto.</div>
+                        <div id="bib-dup-lista"></div>
+                    </div>
+                </div>
+            </div>
             <div id="view-radar-view" class="app-view">
                 <div class="chart-box" style="padding:25px;">
                     <div class="chart-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
@@ -2804,6 +2875,10 @@ Gostaria que fizesse:
                 case 'usar_escudos': return rpc('usar_escudos', { p_datas: p.datas || [] });
                 case 'solicitar_edital': return rpc('solicitar_edital', { p_concurso: p.concursoStr });
                 case 'atualizar_pedido': return rpc('atualizar_pedido', { p_id: Number(p.id), p_status: p.status });
+                case 'biblioteca_painel': return rpc('biblioteca_painel', { p_busca: p.busca || '', p_filtro: p.filtro || 'sem_link', p_pagina: Number(p.pagina) || 1 });
+                case 'biblioteca_salvar_link': return rpc('biblioteca_salvar_link', { p_assunto_id: Number(p.id), p_banca: p.banca || '', p_link: p.link || '' });
+                case 'biblioteca_duplicados': return rpc('biblioteca_duplicados');
+                case 'biblioteca_juntar': return rpc('biblioteca_juntar', { p_manter: Number(p.manter), p_remover: (p.remover || []).map(Number) });
                 case 'flashcards_listar': return rpc('meus_flashcards');
                 case 'flashcard_salvar': return rpc('salvar_flashcard', { d: p.card || {} });
                 case 'flashcard_excluir': return rpc('excluir_flashcard', { p_id: Number(p.id) });
@@ -3035,6 +3110,7 @@ Gostaria que fizesse:
         if(viewId === 'edital-view') atualizarSelectEditaisDisponiveis();
         if(viewId === 'ranking-view') switchLeaderboard(currentRankingTab);
         if(viewId === 'sala-view') atualizarPainelPelotao();
+        if(viewId === 'biblioteca-view') recarregarBiblioteca();
         if(viewId === 'flashcards-view') { atualizarBadgesFlashcards(); if (flashcardsGlobal) renderizarListaFlashcards(); carregarFlashcards(); }
     }
     
@@ -5115,6 +5191,8 @@ Gostaria que fizesse:
 
     function atualizarSinoPedidos(resumo) {
         pedidosAdminGlobal = resumo || null;
+        let btnBib = document.getElementById('btn-biblioteca-admin');
+        if (btnBib) btnBib.style.display = (pedidosAdminGlobal && BACKEND === 'supabase') ? 'inline-flex' : 'none';
         let btn = document.getElementById('btn-pedidos-admin');
         if (!btn) return;
         if (!pedidosAdminGlobal) { btn.style.display = 'none'; return; }
@@ -6914,6 +6992,181 @@ Gostaria que fizesse:
         if(btn) { btn.innerText = "SALVAR RETIFICAÇÃO"; btn.style.background = "var(--accent-orange)"; btn.style.color = "black"; }
     }
 
+
+    // ===== BIBLIOTECA DE ASSUNTOS (admin, v29-96) =====
+    // Um link do TEC por assunto e banca; o catálogo de editais usa esses links para todos os alunos.
+    let bibPagina = 1, bibDados = null, bibBuscaTimer = null, bibAba = 'assuntos', bibDuplicados = [];
+
+    function abrirBibliotecaAdmin() { switchView('biblioteca-view'); }
+
+    function recarregarBiblioteca() {
+        if (bibAba === 'duplicados') carregarDuplicadosBiblioteca(); else carregarBiblioteca();
+    }
+
+    function buscarBibliotecaDepois() {
+        clearTimeout(bibBuscaTimer);
+        bibBuscaTimer = setTimeout(() => { bibPagina = 1; carregarBiblioteca(); }, 350);
+    }
+
+    function trocarAbaBiblioteca(aba) {
+        bibAba = aba;
+        document.getElementById('bib-aba-assuntos').classList.toggle('ativa', aba === 'assuntos');
+        document.getElementById('bib-aba-duplicados').classList.toggle('ativa', aba === 'duplicados');
+        document.getElementById('bib-painel-assuntos').style.display = aba === 'assuntos' ? '' : 'none';
+        document.getElementById('bib-painel-duplicados').style.display = aba === 'duplicados' ? '' : 'none';
+        recarregarBiblioteca();
+    }
+
+    function linkSeguroBib(u) { return /^https?:\/\//i.test(String(u || '')) ? String(u) : ''; }
+
+    async function carregarBiblioteca() {
+        let el = document.getElementById('bib-lista');
+        if (!el) return;
+        if (BACKEND !== 'supabase') { el.innerHTML = '<div class="bib-vazio">A biblioteca só funciona com o Supabase.</div>'; return; }
+        el.innerHTML = '<div class="bib-vazio"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
+        document.getElementById('bib-pag').innerHTML = '';
+        try {
+            let d = await enviarAcao({ acao: 'biblioteca_painel', busca: document.getElementById('bib-busca').value.trim(),
+                                       filtro: document.getElementById('bib-filtro').value, pagina: bibPagina });
+            if (!d || d.status !== 'sucesso') { el.innerHTML = `<div class="bib-vazio">${escapeHTML((d && d.mensagem) || 'Não foi possível carregar a biblioteca.')}</div>`; return; }
+            bibDados = d;
+            renderizarBiblioteca();
+        } catch (err) {
+            el.innerHTML = `<div class="bib-vazio">Erro ao carregar. ${escapeHTML(mensagemFalhaRede(err))}</div>`;
+        }
+    }
+
+    function renderizarBiblioteca() {
+        let d = bibDados || {}, r = d.resumo || {};
+        let pct = r.linhas ? Math.round(((r.linhas - r.linhasSemLink) / r.linhas) * 100) : 0;
+        document.getElementById('bib-stats').innerHTML =
+              `<div class="bib-stat"><b>${r.assuntos || 0}</b><span>assuntos</span></div>`
+            + `<div class="bib-stat"><b>${r.assuntosComLink || 0}</b><span>com link</span></div>`
+            + `<div class="bib-stat"><b>${pct}%</b><span>das linhas de edital com link</span></div>`
+            + `<div class="bib-stat"><b class="bib-falta">${r.linhasSemLink || 0}</b><span>linhas ainda sem link</span></div>`;
+        let el = document.getElementById('bib-lista');
+        let itens = d.itens || [];
+        if (!itens.length) {
+            el.innerHTML = '<div class="bib-vazio">' + (document.getElementById('bib-filtro').value === 'sem_link'
+                ? '<i class="fas fa-check-circle bib-ok"></i> Nenhum assunto faltando link por aqui.' : 'Nenhum assunto encontrado.') + '</div>';
+        } else {
+            el.innerHTML = itens.map(itemBibliotecaHTML).join('');
+        }
+        let paginas = Math.max(1, Math.ceil((d.total || 0) / (d.porPagina || 30)));
+        document.getElementById('bib-pag').innerHTML = paginas <= 1 ? (d.total ? `${d.total} assunto(s)` : '') :
+              `<button type="button" class="bib-btn" ${bibPagina <= 1 ? 'disabled' : ''} onclick="bibPagina--; carregarBiblioteca()"><i class="fas fa-chevron-left"></i></button>`
+            + `<span>Página ${bibPagina} de ${paginas} · ${d.total} assuntos</span>`
+            + `<button type="button" class="bib-btn" ${bibPagina >= paginas ? 'disabled' : ''} onclick="bibPagina++; carregarBiblioteca()"><i class="fas fa-chevron-right"></i></button>`;
+    }
+
+    function itemBibliotecaHTML(it) {
+        let links = it.links || [];
+        let linkDe = chave => { let l = links.find(x => x.chave === chave); return l ? l.link : ''; };
+        let linhas = (it.bancas || []).map(b => ({ banca: b.banca, chave: b.chave, ok: b.temLink }));
+        links.forEach(l => { if (l.chave && !linhas.some(x => x.chave === l.chave)) linhas.push({ banca: l.banca, chave: l.chave, ok: true }); });
+        linhas.push({ banca: '', chave: '', geral: true });
+        let editais = (it.editais || []).join(', ') + ((it.qtdEditais || 0) > (it.editais || []).length ? '…' : '');
+        return `<div class="bib-item" data-id="${escapeHTML(it.id)}">`
+            + `<div class="bib-item-mat">${escapeHTML(it.materia)}</div>`
+            + `<div class="bib-item-ass">${escapeHTML(it.assunto)}</div>`
+            + `<div class="bib-item-uso">${it.linhas || 0} linha(s) em ${it.qtdEditais || 0} edital(is)${editais ? ': ' + escapeHTML(editais) : ''}</div>`
+            + linhas.map(l => {
+                let lk = linkDe(l.chave), seguro = linkSeguroBib(lk);
+                let icone = l.geral ? '<i class="fas fa-globe" style="opacity:.6"></i>'
+                          : (l.ok ? '<i class="fas fa-check-circle bib-ok"></i>' : '<i class="fas fa-exclamation-circle bib-falta"></i>');
+                let nome = l.geral ? 'Qualquer banca' : l.banca;
+                return `<div class="bib-link-row" data-banca="${escapeHTML(l.banca)}">`
+                    + `<label title="${escapeHTML(l.geral ? 'Vale para qualquer banca que ainda não tenha link próprio' : nome)}">${icone} ${escapeHTML(nome)}</label>`
+                    + `<input type="url" value="${escapeHTML(lk)}" placeholder="${l.geral ? 'Link para qualquer banca (opcional)' : 'Cole o link do filtro no TEC'}" onkeydown="if(event.key==='Enter'){event.preventDefault(); salvarLinkBiblioteca(this.nextElementSibling);}">`
+                    + `<button type="button" class="bib-btn salvar" onclick="salvarLinkBiblioteca(this)">Salvar</button>`
+                    + (seguro ? `<a class="bib-btn" href="${escapeHTML(seguro)}" target="_blank" rel="noopener noreferrer" title="Abrir link"><i class="fas fa-external-link-alt"></i></a>` : '<span></span>')
+                    + `</div>`;
+            }).join('')
+            + `<button type="button" class="bib-btn" style="margin-top:4px;" onclick="this.nextElementSibling.style.display='flex'; this.remove();"><i class="fas fa-plus"></i> Link para outra banca</button>`
+            + `<div class="bib-nova-banca"><input type="text" class="bib-nb-nome" placeholder="Banca (ex.: FCC)" maxlength="100">`
+            + `<input type="url" class="bib-nb-link" placeholder="Link do filtro no TEC">`
+            + `<button type="button" class="bib-btn salvar" onclick="salvarNovaBancaBiblioteca(this)">Adicionar</button></div>`
+            + `</div>`;
+    }
+
+    async function enviarLinkBiblioteca(botao, id, banca, link) {
+        if (link && !linkSeguroBib(link)) { alert('Cole o endereço completo, começando com https://'); return; }
+        if (!link && !confirm(`Apagar o link ${banca ? 'da banca ' + banca : 'de qualquer banca'} deste assunto?`)) return;
+        let texto = botao.innerHTML;
+        botao.disabled = true;
+        botao.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        try {
+            let d = await enviarAcao({ acao: 'biblioteca_salvar_link', id: id, banca: banca, link: link });
+            if (!d || d.status !== 'sucesso') { alert((d && d.mensagem) || 'Não foi possível salvar o link.'); botao.disabled = false; botao.innerHTML = texto; return; }
+            botao.innerHTML = '<i class="fas fa-check"></i> Salvo';
+            setTimeout(carregarBiblioteca, 600);
+        } catch (err) {
+            alert('Erro ao salvar o link. ' + mensagemFalhaRede(err));
+            botao.disabled = false; botao.innerHTML = texto;
+        }
+    }
+
+    function salvarLinkBiblioteca(botao) {
+        let row = botao.closest('.bib-link-row'), item = botao.closest('.bib-item');
+        if (!row || !item) return;
+        enviarLinkBiblioteca(botao, item.dataset.id, row.dataset.banca || '', row.querySelector('input').value.trim());
+    }
+
+    function salvarNovaBancaBiblioteca(botao) {
+        let box = botao.closest('.bib-nova-banca'), item = botao.closest('.bib-item');
+        let banca = box.querySelector('.bib-nb-nome').value.trim(), link = box.querySelector('.bib-nb-link').value.trim();
+        if (!banca) { alert('Escreva o nome da banca. Para um link que vale para qualquer banca, use a linha "Qualquer banca".'); return; }
+        if (!link) { alert('Cole o link do filtro no TEC.'); return; }
+        enviarLinkBiblioteca(botao, item.dataset.id, banca, link);
+    }
+
+    async function carregarDuplicadosBiblioteca() {
+        let el = document.getElementById('bib-dup-lista');
+        if (!el) return;
+        if (BACKEND !== 'supabase') { el.innerHTML = '<div class="bib-vazio">A biblioteca só funciona com o Supabase.</div>'; return; }
+        el.innerHTML = '<div class="bib-vazio"><i class="fas fa-spinner fa-spin"></i> Procurando duplicados...</div>';
+        try {
+            let d = await enviarAcao({ acao: 'biblioteca_duplicados' });
+            if (!d || d.status !== 'sucesso') { el.innerHTML = `<div class="bib-vazio">${escapeHTML((d && d.mensagem) || 'Não foi possível carregar.')}</div>`; return; }
+            bibDuplicados = d.grupos || [];
+            renderizarDuplicadosBiblioteca();
+        } catch (err) {
+            el.innerHTML = `<div class="bib-vazio">Erro ao carregar. ${escapeHTML(mensagemFalhaRede(err))}</div>`;
+        }
+    }
+
+    function renderizarDuplicadosBiblioteca() {
+        let el = document.getElementById('bib-dup-lista');
+        if (!bibDuplicados.length) { el.innerHTML = '<div class="bib-vazio"><i class="fas fa-check-circle bib-ok"></i> Nenhum duplicado encontrado.</div>'; return; }
+        el.innerHTML = `<p class="bib-sub" style="margin-bottom:10px;">${bibDuplicados.length} grupo(s). Marque os que são o mesmo assunto e clique em Juntar: fica o nome com mais linhas de edital.</p>`
+            + bibDuplicados.map((g, i) => `<div class="bib-item" data-grupo="${i}">`
+                + `<div class="bib-item-ass">${escapeHTML(g.assunto)}</div>`
+                + (g.opcoes || []).map(o => `<label class="bib-dup-op"><input type="checkbox" value="${escapeHTML(o.id)}">`
+                    + `<span><b>${escapeHTML(o.materia)}</b> · ${escapeHTML(o.assunto)} · ${o.linhas} linha(s) · ${o.links} link(s)</span></label>`).join('')
+                + `<button type="button" class="bib-btn salvar" style="margin-top:6px;" onclick="juntarDuplicadoBiblioteca(this)"><i class="fas fa-object-group"></i> Juntar marcados</button>`
+                + `</div>`).join('');
+    }
+
+    async function juntarDuplicadoBiblioteca(botao) {
+        let item = botao.closest('.bib-item');
+        let g = bibDuplicados[Number(item.dataset.grupo)];
+        let marcados = Array.from(item.querySelectorAll('input[type=checkbox]:checked')).map(c => Number(c.value));
+        if (marcados.length < 2) { alert('Marque pelo menos dois para juntar.'); return; }
+        let ops = (g.opcoes || []).filter(o => marcados.includes(Number(o.id)));
+        ops.sort((a, b) => (b.linhas - a.linhas) || (b.links - a.links));
+        let fica = ops[0];
+        if (!confirm(`Juntar ${ops.length} assuntos em "${fica.materia} › ${fica.assunto}"?\n\nOs editais e links dos outros passam para ele. Não dá para desfazer pela tela.`)) return;
+        botao.disabled = true;
+        botao.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        try {
+            let d = await enviarAcao({ acao: 'biblioteca_juntar', manter: fica.id, remover: ops.slice(1).map(o => o.id) });
+            if (!d || d.status !== 'sucesso') { alert((d && d.mensagem) || 'Não foi possível juntar.'); botao.disabled = false; botao.innerHTML = '<i class="fas fa-object-group"></i> Juntar marcados'; return; }
+            carregarDuplicadosBiblioteca();
+        } catch (err) {
+            alert('Erro ao juntar. ' + mensagemFalhaRede(err));
+            botao.disabled = false; botao.innerHTML = '<i class="fas fa-object-group"></i> Juntar marcados';
+        }
+    }
 
     // ===== FLASHCARDS (v29-94) =====
     // Cards de pergunta/resposta e de Certo/Errado. Revisão espaçada (mesma regra do servidor):

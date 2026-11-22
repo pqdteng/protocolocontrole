@@ -164,3 +164,26 @@ Backups com mais de 8 semanas vão para a lixeira do Drive. As senhas antigas n�
 2. Rode `supabase/teste_flashcards.sql`. O resultado esperado é **FLASHCARDS OK**, e nada fica gravado.
 3. Só depois disso a versão nova do site é publicada.
 4. No Apps Script, atualize o `BackupSupabase.gs` com a versão do repositório, que inclui as tabelas `flashcards` e `revisoes_flashcards` no backup.
+
+## Fase 4: Biblioteca de assuntos (links do TEC reaproveitados)
+
+1. SQL Editor → cole `fase4_biblioteca.sql` → Run ("Run without RLS" se perguntar).
+   Deve terminar com **BIBLIOTECA OK** e os números da biblioteca. Se aparecer "ABORTADO", nada foi gravado: mande a mensagem.
+2. Cole `teste_biblioteca.sql` → Run. Deve terminar com **BIBLIOTECA TESTES OK** (tudo é desfeito).
+3. No Apps Script, atualize o `BackupSupabase.gs` (agora inclui as tabelas da biblioteca).
+4. Use `revisao_biblioteca.sql` quando quiser ver: assuntos sem link (por prioridade), exceções, duplicados e bancas.
+
+Como cadastrar a partir de agora:
+- **Edital novo:** continue inserindo as linhas em `editais_base` como sempre. Cada linha se liga sozinha ao assunto da biblioteca;
+  se você colar um link e aquele assunto ainda não tiver link para a banca, ele vai para a biblioteca.
+- **Trocar o link de um assunto em todos os editais:** Table Editor → `assuntos_links` → edite o `link`.
+- **Link que vale para qualquer banca:** linha em `assuntos_links` com `banca` vazia.
+- **Banca escrita de outro jeito** (ex.: "CESPE/UnB"): cadastre em `bancas_apelidos` (apelido sem acento, minúsculo → banca).
+
+## Fase 5: Tela da biblioteca (v29-96)
+
+1. SQL Editor → `fase5_biblioteca_admin.sql` → Run. Deve terminar com **BIBLIOTECA ADMIN OK**.
+2. `teste_biblioteca_admin.sql` → Run. Deve terminar com **BIBLIOTECA ADMIN TESTES OK** (tudo é desfeito).
+3. Na plataforma (logado como admin), o botão 📖 no topo, ao lado do sino, abre a **Biblioteca de assuntos**:
+   - **Assuntos:** filtro "Faltando link" mostra primeiro os assuntos usados em mais editais; cole o link por banca e clique em Salvar.
+   - **Possíveis duplicados:** marque os que são a mesma matéria escrita de outro jeito e clique em Juntar.

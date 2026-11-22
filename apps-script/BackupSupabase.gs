@@ -13,8 +13,8 @@
 
 var BACKUP_TABELAS = ["perfis", "lancamentos", "escudos", "editais_base", "pedidos_editais",
                       "acessos_liberados", "lista_espera", "metricas_diarias",
-                      "flashcards", "revisoes_flashcards"];
-var BACKUP_ORDEM = { acessos_liberados: "email", lista_espera: "email", metricas_diarias: "data" };
+                      "flashcards", "revisoes_flashcards", "assuntos", "assuntos_links", "bancas_apelidos"];
+var BACKUP_ORDEM = { acessos_liberados: "email", lista_espera: "email", metricas_diarias: "data", bancas_apelidos: "apelido" };
 var BACKUP_SEMANAS = 8;
 var BACKUP_PASTA = "Backups Protocolo Controle";
 
