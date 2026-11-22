@@ -5334,6 +5334,19 @@ Gostaria que fizesse:
         } catch (e) { return 'site de origem'; }
     }
 
+    // O Instagram restringe posts com links: endereços e domínios (g1.globo.com, site.com.br/...) viram só o nome do site.
+    function semLinksRadar(texto) {
+        const GENERICOS_DOMINIO_RADAR = ['www', 'm', 'blog', 'portal', 'concursos', 'noticias', 'news', 'amp'];
+        return String(texto || '')
+            .replace(/(?:https?:\/\/)?((?:[a-z0-9][a-z0-9-]*\.)+(?:com|br|net|org|gov|edu|jus|leg|mp|info|io|news|blog|online)(?:\.[a-z]{2})?)\b(?:\/[^\s)]*)?/gi,
+                (m, host) => {
+                    let partes = host.toLowerCase().split('.').filter(p => !GENERICOS_DOMINIO_RADAR.includes(p));
+                    return partes[0] || 'site de origem';
+                })
+            .replace(/https?:\/\/\S+/gi, '')
+            .replace(/[ \t]{2,}/g, ' ');
+    }
+
     // O e-mail do admin não fica escrito no código público: só o hash SHA-256 dele.
     // Isso só decide o que aparece na tela; o servidor confere o admin de verdade (ehAdmin no Apps Script).
     const ADMIN_EMAIL_SHA256 = "9ba3803adce83ce105497f8ac0a6b4885bb505bfb2b475d7c34f67d3f3c59a59";
@@ -5952,9 +5965,8 @@ Gostaria que fizesse:
         let alerta = tipoPostRadar() === 'alerta';
 
         let rodape = null;
-        if (slide.tipo === 'noticia_unica') rodape = `Fonte: ${slide.noticia.fonte || fonteDoLinkRadar(slide.noticia.link)} · ${slide.noticia.data}`;
-        else if (slide.tipo === 'lista_noticias') rodape = 'Fontes na legenda · Confira o edital oficial.';
-        else if (slide.tipo === 'capa') rodape = 'Resumo de notícias públicas · fontes na legenda.';
+        if (slide.tipo === 'noticia_unica') rodape = semLinksRadar(`Fonte: ${slide.noticia.fonte || fonteDoLinkRadar(slide.noticia.link)} · ${slide.noticia.data}`);
+        else if (slide.tipo === 'lista_noticias' || slide.tipo === 'capa') rodape = 'Confira sempre o edital oficial.';
         desenharBaseTaticaSlide(ctx, W, H, idx + 1, totalSlides, rodape);
 
         if (slide.tipo === 'capa') {
@@ -6157,8 +6169,7 @@ Gostaria que fizesse:
 
             ctx.fillStyle = '#6E7681';
             ctx.font = `600 22px ${FONTE_SLIDE}`;
-            ctx.fillText('Resumo de notícias públicas, com a fonte na legenda.', M, 1150);
-            ctx.fillText('As informações oficiais estão sempre no edital de cada órgão.', M, 1184);
+            ctx.fillText('As informações oficiais estão sempre no edital de cada órgão.', M, 1150);
         }
 
         setSafeText('carousel-slide-indicator', `Slide ${idx + 1} / ${totalSlides}`);
@@ -6231,7 +6242,7 @@ Gostaria que fizesse:
         linhas.push(``);
         linhas.push(`#concursos #concursopublico #concurseiros #editais #estudos #aprovacao #radardeconcursos`);
 
-        txtArea.value = linhas.join('\n');
+        txtArea.value = semLinksRadar(linhas.join('\n'));
     }
 
     function copiarLegendaCarrosselRadar() {
