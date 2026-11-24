@@ -1136,6 +1136,93 @@
                 border-bottom: 1px solid var(--border-color);
             }
         }
+        /* ===== CRONOGRAMA SEMANAL (v29-98) ===== */
+        .cro-box { padding: 25px; min-height: 0; }
+        .cro-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; flex-wrap: wrap; margin-bottom: 16px; }
+        .cro-titulo { margin: 0; font-size: 1.4em; color: var(--accent-green); }
+        .cro-sub { margin: 6px 0 0; color: #8B949E; font-size: 13px; }
+        .cro-nav { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .cro-nav button { background: var(--hover-bg); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 6px; min-width: 38px; height: 38px; padding: 0 10px; cursor: pointer; font-family: inherit; font-weight: bold; font-size: 13px; }
+        .cro-nav button:hover { border-color: var(--accent-green); }
+        .cro-periodo { font-size: 14px; font-weight: bold; color: var(--text-color); padding: 0 8px; min-width: 150px; text-align: center; }
+        .cro-prog { border: 1px solid var(--border-color); background: var(--hover-bg); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; }
+        .cro-prog-txt { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 12.5px; color: #8B949E; margin-bottom: 7px; }
+        .cro-prog-txt b { color: var(--text-color); }
+        .cro-barra { height: 6px; border-radius: 3px; background: var(--border-color); overflow: hidden; }
+        .cro-barra div { height: 100%; background: var(--accent-green); transition: width 0.3s; }
+        .cro-atraso { display: none; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; border: 1px solid rgba(240, 136, 62, 0.45); background: rgba(240, 136, 62, 0.1); color: var(--text-color); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; }
+        .cro-atraso div { display: flex; gap: 8px; flex-wrap: wrap; }
+        .cro-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 6px; padding: 7px 12px; cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: bold; }
+        .cro-btn:hover { background: var(--hover-bg); }
+        .cro-chips { display: none; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 10px; }
+        .cro-chip { border: 1px solid var(--border-color); background: var(--hover-bg); color: #8B949E; border-radius: 8px; padding: 7px 0 5px; text-align: center; font-size: 10.5px; font-weight: bold; cursor: pointer; font-family: inherit; line-height: 1.35; }
+        .cro-chip span { display: block; font-size: 14px; color: var(--text-color); }
+        .cro-chip i { display: block; font-style: normal; font-size: 10px; min-height: 13px; }
+        .cro-chip.hoje { border-color: var(--accent-green); }
+        .cro-chip.sel { background: rgba(35, 134, 54, 0.22); border-color: var(--accent-green); color: var(--text-color); }
+        .cro-grade { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; align-items: stretch; }
+        .cro-col { display: flex; flex-direction: column; border: 1px solid var(--border-color); border-radius: 10px; background: var(--hover-bg); min-height: 320px; min-width: 0; }
+        .cro-col.hoje { border-color: var(--accent-green); }
+        .cro-col.alvo { outline: 2px dashed var(--accent-green); outline-offset: -3px; }
+        .cro-col-topo { text-align: center; padding: 9px 6px; border-bottom: 1px solid var(--border-color); font-size: 12px; font-weight: bold; color: var(--text-color); }
+        .cro-col.hoje .cro-col-topo { color: var(--accent-green); }
+        .cro-col-topo small { display: block; font-weight: normal; color: #8B949E; font-size: 11px; margin-top: 1px; }
+        .cro-lista { flex: 1; padding: 7px; display: flex; flex-direction: column; gap: 7px; }
+        .cro-card { background: var(--card-bg); border: 1px solid var(--border-color); border-left: 3px solid var(--cro-cor, var(--accent-orange)); border-radius: 8px; padding: 8px; font-size: 12px; min-width: 0; }
+        .cro-card[draggable="true"] { cursor: grab; }
+        .cro-card.feita { opacity: 0.72; }
+        .cro-card.feita .cro-mat { text-decoration: line-through; }
+        .cro-card.atrasada { border-color: rgba(240, 136, 62, 0.6); border-left-color: var(--cro-cor, var(--accent-orange)); }
+        .cro-card-topo { display: flex; gap: 7px; align-items: center; margin-bottom: 5px; }
+        .cro-check { flex: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid #8B949E; background: none; color: #fff; padding: 0; cursor: pointer; font-size: 10px; line-height: 1; }
+        .cro-card.feita .cro-check { background: var(--accent-green); border-color: var(--accent-green); }
+        .cro-mat { font-weight: bold; color: var(--text-color); overflow-wrap: anywhere; hyphens: auto; line-height: 1.3; }
+        .cro-assunto { color: #8B949E; font-size: 11.5px; margin-top: 4px; line-height: 1.35; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .cro-assunto i { color: var(--accent-blue); }
+        .cro-linha { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 6px; font-size: 10.5px; color: #8B949E; }
+        .cro-tag { font-size: 10.5px; font-weight: bold; color: var(--cro-cor); border: 1px solid var(--cro-cor); border-radius: 4px; padding: 0 5px; line-height: 1.6; }
+        .cro-mini { height: 3px; border-radius: 2px; background: var(--border-color); overflow: hidden; margin-top: 6px; }
+        .cro-mini div { height: 100%; background: var(--accent-green); }
+        .cro-acoes { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+        .cro-acoes button { flex: 1 1 28px; border: 1px solid var(--border-color); background: none; color: #8B949E; border-radius: 5px; min-width: 28px; height: 28px; padding: 0 6px; cursor: pointer; font-size: 11px; font-family: inherit; font-weight: bold; }
+        .cro-acoes button:hover { color: var(--text-color); background: var(--hover-bg); }
+        .cro-acoes .cro-estudar { flex: 100 1 84px; min-width: 0; color: var(--text-color); border-color: var(--cro-cor); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cro-add { margin: 0 7px 7px; border: 1px dashed var(--border-color); background: none; color: #8B949E; border-radius: 8px; padding: 9px; cursor: pointer; font-family: inherit; font-size: 12px; }
+        .cro-add:hover { border-color: var(--accent-green); color: var(--text-color); }
+        .cro-vazio { text-align: center; color: #8B949E; font-size: 13px; line-height: 1.6; padding: 14px 10px; }
+        .cro-ajuda { margin: 14px 0 0; font-size: 12px; color: #8B949E; line-height: 1.5; }
+        .cro-opcoes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 14px; }
+        .cro-opcoes.duas { grid-template-columns: 1fr 1fr; margin-bottom: 10px; }
+        .cro-opcoes.dias { grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 0; }
+        .cro-opcoes label { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-align: center; border: 1px solid var(--border-color); border-radius: 8px; padding: 9px 4px; cursor: pointer; font-size: 12px; font-weight: bold; color: var(--text-color); margin: 0; }
+        .cro-opcoes label small { font-weight: normal; color: #8B949E; font-size: 11px; }
+        .cro-opcoes input { position: absolute; opacity: 0; width: 1px; height: 1px; padding: 0; }
+        .cro-opcoes label:has(input:checked) { border-color: var(--accent-green); background: rgba(35, 134, 54, 0.16); }
+        .cro-opcoes label:has(input:focus-visible) { outline: 2px solid var(--accent-blue); }
+        .cro-opcoes label:has(input:disabled) { opacity: 0.35; cursor: default; }
+        .cro-tempos { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .cro-tempos input { width: 100px !important; }
+        .cro-rodape { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; }
+        .cro-rodape .btn { flex: 1; }
+        .cro-badge-nav { display: none; margin-left: auto; background: var(--accent-green); color: #fff; font-size: 11px; font-weight: bold; border-radius: 10px; padding: 1px 7px; }
+        @media (max-width: 1240px) {
+            .cro-chips { display: grid; }
+            .cro-grade { grid-template-columns: 1fr; }
+            .cro-col { display: none; min-height: 200px; }
+            .cro-col.sel { display: flex; }
+            .cro-card { font-size: 13.5px; padding: 11px; }
+            .cro-assunto { font-size: 12.5px; }
+            .cro-linha { font-size: 11.5px; }
+            .cro-acoes button { height: 36px; min-width: 40px; font-size: 13px; }
+            .cro-check { width: 26px; height: 26px; font-size: 12px; }
+        }
+        @media (max-width: 600px) {
+            .cro-box { padding: 16px 12px; }
+            .cro-opcoes { grid-template-columns: 1fr 1fr; }
+            .cro-nav { width: 100%; justify-content: space-between; }
+            .cro-periodo { min-width: 0; padding: 0; }
+        }
+
         /* ===== BIBLIOTECA DE ASSUNTOS (admin, v29-96) ===== */
         .bib-box { padding: 25px; min-height: 0; }
         .bib-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }
@@ -1341,6 +1428,7 @@
             <div class="sidebar-menu">
                 <button class="nav-item active" onclick="switchView('painel', this); toggleMobileMenu();"><i class="fas fa-chart-pie"></i> Painel de Controle</button>
                 <button class="nav-item" onclick="openConfigModal(this); toggleMobileMenu();"><i class="fas fa-sync-alt"></i> Meu Ciclo Tático</button>
+                <button class="nav-item" onclick="switchView('cronograma-view', this); toggleMobileMenu();"><i class="fas fa-calendar-week"></i> Cronograma Semanal <span id="cro-badge-nav" class="cro-badge-nav"></span></button>
 		<button class="nav-item" onclick="switchView('heatmap-view', this); toggleMobileMenu();"><i class="fas fa-fire-alt"></i> Mapa de Força</button>
                 <button class="nav-item" style="color: var(--accent-green);" onclick="switchView('edital-view', this); toggleMobileMenu();"><i class="fas fa-tasks"></i> Edital Verticalizado</button>
                 <button class="nav-item" style="color: var(--accent-purple);" onclick="switchView('flashcards-view', this); toggleMobileMenu();"><i class="fas fa-clone"></i> Flashcards <span id="fc-badge-nav" class="fc-badge-nav"></span></button>
@@ -1846,6 +1934,28 @@
                 </div>
             </div>
 
+            <div id="view-cronograma-view" class="app-view">
+                <div class="chart-box cro-box">
+                    <div class="cro-topo">
+                        <div>
+                            <h3 class="cro-titulo"><i class="fas fa-calendar-week"></i> Cronograma Semanal</h3>
+                            <p class="cro-sub">Planeje as metas do dia. As fases continuam mandando no assunto: deixe o GPS decidir ou fixe um.</p>
+                        </div>
+                        <div class="cro-nav">
+                            <button type="button" onclick="mudarSemanaCronograma(-1)" aria-label="Semana anterior"><i class="fas fa-chevron-left"></i></button>
+                            <span class="cro-periodo" id="cro-periodo"></span>
+                            <button type="button" onclick="mudarSemanaCronograma(1)" aria-label="Próxima semana"><i class="fas fa-chevron-right"></i></button>
+                            <button type="button" onclick="mudarSemanaCronograma(0)">Hoje</button>
+                        </div>
+                    </div>
+                    <div class="cro-prog" id="cro-prog"></div>
+                    <div class="cro-atraso" id="cro-atraso"></div>
+                    <div class="cro-chips" id="cro-chips"></div>
+                    <div class="cro-grade" id="cro-grade"></div>
+                    <p class="cro-ajuda"><i class="fas fa-info-circle"></i> A meta se conclui sozinha quando você lança o estudo daquela matéria no mesmo dia. Se preferir, marque o círculo.</p>
+                </div>
+            </div>
+
             <div id="view-biblioteca-view" class="app-view">
                 <div class="chart-box bib-box">
                     <div class="bib-topo">
@@ -2281,6 +2391,21 @@
               </details>
 
               <details>
+                <summary>📅 Cronograma Semanal</summary>
+                <div class="met-corpo">
+                  <p>Para quem estuda por <b>metas diárias</b>. É opcional: sem metas no dia, o GPS segue o ciclo normalmente.</p>
+                  <ul>
+                    <li><b>GPS decide</b>: você planeja a matéria e o tempo; o assunto e a fase vêm do seu acerto, como manda o método.</li>
+                    <li><b>Assunto fixo</b>: para uma meta fechada, como a teoria ou a revisão de um assunto.</li>
+                    <li>A meta <b>se conclui sozinha</b> quando você lança o tempo daquela matéria no mesmo dia (90% do tempo já conta). Teoria só conta com lançamento de leitura ou videoaula. Também dá para marcar o círculo.</li>
+                    <li><b>Estudar</b> abre o caderno; <b>💾</b> abre o lançamento preenchido. No computador, arraste o cartão para mudar o dia.</li>
+                    <li>Meta que ficou para trás: <b>mover para hoje</b> ou <b>descartar</b>.</li>
+                    <li>Com meta pendente hoje, o <b>GPS mostra a meta primeiro</b>.</li>
+                  </ul>
+                </div>
+              </details>
+
+              <details>
                 <summary>📖 Leitor de caderno</summary>
                 <div class="met-corpo">
                   <p>O botão <b>Retomar caderno</b> abre o material <b>dentro da plataforma</b>. Na barra do topo você tem:</p>
@@ -2664,6 +2789,43 @@ Gostaria que fizesse:
         </div>
     </div>
 
+    <div id="metaModal" class="modal">
+        <div class="modal-content" style="max-width: 560px; border-top: 4px solid var(--accent-green);">
+            <span class="close-btn" onclick="fecharModalMeta()">&times;</span>
+            <h2 style="color: var(--text-color); margin-top: 0; margin-bottom: 18px;"><i class="fas fa-calendar-plus" style="color:var(--accent-green)"></i> <span id="meta-titulo">Nova meta</span></h2>
+            <input type="hidden" id="meta-id">
+            <div class="cro-opcoes" id="meta-tipos">
+                <label><input type="radio" name="meta-tipo" value="questoes" onchange="ajustarFormMeta()"><i class="fas fa-tasks" style="color:var(--accent-orange)"></i> Questões</label>
+                <label><input type="radio" name="meta-tipo" value="teoria" onchange="ajustarFormMeta()"><i class="fas fa-book-open" style="color:var(--accent-blue)"></i> Teoria</label>
+                <label><input type="radio" name="meta-tipo" value="revisao" onchange="ajustarFormMeta()"><i class="fas fa-redo" style="color:var(--accent-gold)"></i> Revisão</label>
+                <label><input type="radio" name="meta-tipo" value="flashcards" onchange="ajustarFormMeta()"><i class="fas fa-clone" style="color:var(--accent-purple)"></i> Flashcards</label>
+            </div>
+            <div id="meta-grupo-materia">
+                <div class="form-group"><label for="meta-materia">Matéria (do seu ciclo)</label><select id="meta-materia" onchange="ajustarFormMeta()"></select></div>
+                <div class="cro-opcoes duas">
+                    <label><input type="radio" name="meta-modo" value="gps" onchange="ajustarFormMeta()"> <span><i class="fas fa-compass" style="color:var(--accent-blue)"></i> GPS decide</span><small>Assunto e fase pelo seu acerto</small></label>
+                    <label><input type="radio" name="meta-modo" value="fixo" onchange="ajustarFormMeta()"> <span><i class="fas fa-thumbtack" style="color:var(--accent-orange)"></i> Assunto fixo</span><small>Você escolhe agora</small></label>
+                </div>
+                <div class="form-group" id="meta-grupo-topico"><label for="meta-topico">Assunto</label><input type="text" id="meta-topico" maxlength="200" list="meta-lista-topicos" autocomplete="off" placeholder="Escolha da lista ou digite"><datalist id="meta-lista-topicos"></datalist></div>
+            </div>
+            <div class="form-group"><label for="meta-min">Tempo da meta (minutos)</label>
+                <div class="cro-tempos">
+                    <input type="number" id="meta-min" min="5" max="720" step="5">
+                    <button type="button" class="cro-btn" onclick="document.getElementById('meta-min').value=30">30 min</button>
+                    <button type="button" class="cro-btn" onclick="document.getElementById('meta-min').value=60">1h</button>
+                    <button type="button" class="cro-btn" onclick="document.getElementById('meta-min').value=90">1h30</button>
+                    <button type="button" class="cro-btn" onclick="document.getElementById('meta-min').value=120">2h</button>
+                </div>
+            </div>
+            <div class="form-group" id="meta-grupo-dias"><label>Dias desta semana</label><div class="cro-opcoes dias" id="meta-dias"></div></div>
+            <div class="form-group" id="meta-grupo-data"><label for="meta-data">Dia</label><input type="date" id="meta-data"></div>
+            <div class="cro-rodape">
+                <button type="button" class="btn" id="meta-btn-excluir" style="background: transparent; color: var(--accent-red); border: 1px solid var(--accent-red);" onclick="excluirMetaDoModal()"><i class="fas fa-trash"></i> Excluir</button>
+                <button type="button" class="btn" id="meta-btn-salvar" style="background: var(--accent-green);" onclick="salvarMeta()"><i class="fas fa-check"></i> Salvar meta</button>
+            </div>
+        </div>
+    </div>
+
     <div id="revisaoFlashcardModal" class="modal">
         <div class="modal-content" style="max-width: 640px; border-top: 4px solid var(--accent-purple);">
             <span class="close-btn" onclick="encerrarRevisaoFlashcards()">&times;</span>
@@ -2828,10 +2990,13 @@ Gostaria que fizesse:
         }
 
         async function painel() {
-            const [dados, catalogo, cards] = await Promise.all([rpc('carregar_painel'), rpc('catalogo_editais'), rpc('resumo_flashcards')]);
+            const per = periodoPadraoMetas();
+            const [dados, catalogo, cards, metas] = await Promise.all([rpc('carregar_painel'), rpc('catalogo_editais'), rpc('resumo_flashcards'),
+                rpc('minhas_metas', { p_de: per.de, p_ate: per.ate }).catch(() => null)]);
             if (dados && dados.status === 'sucesso') {
                 dados.baseEditais = (catalogo && !catalogo.status) ? catalogo : {};
                 dados.flashcards = (cards && cards.status === 'sucesso') ? cards : null;
+                dados.metas = (metas && metas.status === 'sucesso') ? metas : null;
             }
             return dados;
         }
@@ -2879,6 +3044,11 @@ Gostaria que fizesse:
                 case 'biblioteca_salvar_link': return rpc('biblioteca_salvar_link', { p_assunto_id: Number(p.id), p_banca: p.banca || '', p_link: p.link || '' });
                 case 'biblioteca_duplicados': return rpc('biblioteca_duplicados');
                 case 'biblioteca_juntar': return rpc('biblioteca_juntar', { p_manter: Number(p.manter), p_remover: (p.remover || []).map(Number) });
+                case 'metas_listar': return rpc('minhas_metas', { p_de: p.de, p_ate: p.ate });
+                case 'meta_salvar': return rpc('salvar_meta', { d: p.meta || {} });
+                case 'metas_mover': return rpc('mover_metas', { p_ids: (p.ids || []).map(Number), p_data: p.data });
+                case 'meta_marcar': return rpc('marcar_meta', { p_id: Number(p.id), p_feita: !!p.feita });
+                case 'metas_excluir': return rpc('excluir_metas', { p_ids: (p.ids || []).map(Number) });
                 case 'flashcards_listar': return rpc('meus_flashcards');
                 case 'flashcard_salvar': return rpc('salvar_flashcard', { d: p.card || {} });
                 case 'flashcard_excluir': return rpc('excluir_flashcard', { p_id: Number(p.id) });
@@ -3111,6 +3281,7 @@ Gostaria que fizesse:
         if(viewId === 'ranking-view') switchLeaderboard(currentRankingTab);
         if(viewId === 'sala-view') atualizarPainelPelotao();
         if(viewId === 'biblioteca-view') recarregarBiblioteca();
+        if(viewId === 'cronograma-view') { renderizarCronograma(); carregarCronograma(); }
         if(viewId === 'flashcards-view') { atualizarBadgesFlashcards(); if (flashcardsGlobal) renderizarListaFlashcards(); carregarFlashcards(); }
     }
     
@@ -3581,6 +3752,7 @@ Gostaria que fizesse:
             loadCiclo(data.cicloNuvem);
             if (data.escudos) escudosGlobal = { compras: data.escudos.compras || [], usados: data.escudos.usados || [] };
             if (data.flashcards) aplicarResumoFlashcards(data.flashcards);
+            if (data.metas) mesclarMetas(data.metas.de, data.metas.ate, data.metas.metas || []);
             atualizarSinoPedidos(data.pedidosAdmin);
             processData(data.dados || []);
             updateLeaderEffects();
@@ -3660,7 +3832,7 @@ Gostaria que fizesse:
         setSafeText('streak-display', calcularDiasOfensiva());
         let btnShareDia = document.getElementById('btn-compartilhar-dia');
         if (btnShareDia) btnShareDia.style.display = isCommanderAdmin() ? 'inline-flex' : 'none';
-        updateRank(); updateGPS(); updateDashboard('all'); renderReport();
+        updateRank(); updateGPS(); atualizarCronograma(); updateDashboard('all'); renderReport();
         initHeatmap();
         switchLeaderboard(currentRankingTab);
     }
@@ -4428,57 +4600,48 @@ Gostaria que fizesse:
         setSafeText('lbl-q-feito', qFeitas); setSafeText('lbl-q-pct', pctQ + '%'); let bq = document.getElementById('bar-q'); if(bq) bq.style.width = pctQ + '%';
 
         let ml = document.getElementById('mission-list'); let guc = document.getElementById('gps-ultimo-caderno');
-        if(!cicloMaster || cicloMaster.length === 0) {
+        // Cronograma: se há meta pendente hoje, ela vem antes do giro do ciclo
+        let pendentesHoje = metasPendentesGPS();
+        let metaHoje = pendentesHoje[0] || null;
+        if((!cicloMaster || cicloMaster.length === 0) && !metaHoje) {
             if(ml) ml.innerHTML = `<li style="color:var(--accent-orange); margin-bottom:10px;">Monte o seu ciclo de matérias para ativar o GPS.</li>`;
             if(guc) guc.innerHTML = 'Aguardando...';
             return;
         }
-        if(globalData.length > 0) {
+        if(globalData.length > 0 || metaHoje) {
             // Método Protocolo Controle: o ciclo gira a cada bloco de estudo, em qualquer fase.
             // Cada matéria é um "trilho" próprio: o GPS mostra onde aquele trilho parou e qual fase fazer agora.
-            let last = globalData[0];
-            let idx = cicloMaster.findIndex(d => registroDaMateria(last, d));
-            let p1 = idx === -1 ? cicloMaster[0] : cicloMaster[(idx + 1) % cicloMaster.length];
-            let p1Pos = cicloMaster.indexOf(p1);
-            let p2 = cicloMaster[(p1Pos + 1) % cicloMaster.length];
+            let last = globalData[0] || null;
+            let ciclo = cicloMaster || [];
+            let idx = last ? ciclo.findIndex(d => registroDaMateria(last, d)) : -1;
+            let p1 = metaHoje ? materiaPorChave(metaHoje.materia) : (idx === -1 ? ciclo[0] : ciclo[(idx + 1) % ciclo.length]);
+            let p1Pos = ciclo.indexOf(p1);
+            let p2 = pendentesHoje[1] ? materiaPorChave(pendentesHoje[1].materia) : (ciclo.length ? ciclo[(p1Pos + 1) % ciclo.length] : p1);
 
-            let ultimoP1 = globalData.find(x => registroDaMateria(x, p1));
-            let sug = sugestaoFase(ultimoP1);
-
-            // Assunto: o que está em andamento; se consolidou (ou ainda não começou), o próximo pendente do edital
-            let topicoAlvo = ""; let linkAlvo = "";
-            let assuntos = (editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal]) ? progressoEditalGlobal[editalAtivoGlobal][p1.nome] : null;
-            if(sug.novoAssunto) {
-                if(assuntos) {
-                    for(let t in assuntos) {
-                        if(t !== "_dataProva" && !assuntos[t].checked && (!ultimoP1 || t !== ultimoP1.topico)) { topicoAlvo = t; linkAlvo = assuntos[t].link || ""; break; }
-                    }
-                }
-            } else if(ultimoP1) {
-                topicoAlvo = ultimoP1.topico;
-                // o caderno do assunto: o link mais recente lançado para ele (nem todo lançamento repete o link)
-                let comLink = globalData.find(x => registroDaMateria(x, p1) && x.topico === topicoAlvo && x.link && x.link.includes('http'));
-                linkAlvo = comLink ? comLink.link : ((assuntos && assuntos[topicoAlvo] && assuntos[topicoAlvo].link) || "");
-            }
+            let alvo = metaHoje ? alvoDaMeta(metaHoje) : alvoDaMateria(p1);
+            let ultimoP1 = alvo.ultimo, sug = alvo.sug, topicoAlvo = alvo.topico, linkAlvo = alvo.link;
 
             let nomeMateriaExibida = escapeHTML(p1.nome);
             if(topicoAlvo) nomeMateriaExibida += ` <br><span style="color:var(--accent-gold); font-size:11px;"><i class="fas fa-crosshairs"></i> Alvo: ${escapeHTML(topicoAlvo)}</span>`;
             else if(sug.novoAssunto && ultimoP1) nomeMateriaExibida += ` <br><span style="color:var(--accent-gold); font-size:11px;"><i class="fas fa-crosshairs"></i> Alvo: próximo assunto</span>`;
             nomeMateriaExibida += ` <br><span style="color:var(--accent-blue); font-size:11px;"><i class="fas fa-route"></i> ${escapeHTML(sug.texto)}</span>`;
 
-            let pctLast = last.q > 0 ? Math.round((last.a / last.q) * 100) + '%' : '';
-            let faseLast = /^[1-4]$/.test(String(last.fase)) ? `Fase ${last.fase}` : (last.metodologia || '');
-            let resumoLast = escapeHTML(resolverMetaDisciplina(last.mat).nome) + (faseLast ? ` · ${escapeHTML(faseLast)}` : '') + (pctLast ? ` · ${pctLast}` : '');
-            if(ml) ml.innerHTML = `<li style="color:var(--accent-green); margin-bottom:10px;">Último bloco: ${resumoLast}. Gire o ciclo:</li><li class="now"><strong>Agora:</strong> ${nomeMateriaExibida}</li><li><strong>Depois:</strong> ${escapeHTML(p2.nome)}</li>`;
+            let pctLast = last && last.q > 0 ? Math.round((last.a / last.q) * 100) + '%' : '';
+            let faseLast = !last ? '' : /^[1-4]$/.test(String(last.fase)) ? `Fase ${last.fase}` : (last.metodologia || '');
+            let resumoLast = !last ? '' : escapeHTML(resolverMetaDisciplina(last.mat).nome) + (faseLast ? ` · ${escapeHTML(faseLast)}` : '') + (pctLast ? ` · ${pctLast}` : '');
+            let aberturaGPS = metaHoje
+                ? `<i class="fas fa-calendar-week"></i> Cronograma de hoje (${TIPOS_META[metaHoje.tipo].nome}, ${textoMinutos(metaHoje.minutos)}):`
+                : `Último bloco: ${resumoLast}. Gire o ciclo:`;
+            if(ml) ml.innerHTML = `<li style="color:var(--accent-green); margin-bottom:10px;">${aberturaGPS}</li><li class="now"><strong>Agora:</strong> ${nomeMateriaExibida}</li><li><strong>Depois:</strong> ${escapeHTML(p2.nome)}</li>`;
 
-            let metodoUsado = (ultimoP1 && ultimoP1.metodologia) ? ultimoP1.metodologia : METODO_QUESTOES;
+            let metodoUsado = alvo.metodo || ((ultimoP1 && ultimoP1.metodologia) ? ultimoP1.metodologia : METODO_QUESTOES);
             let badgeMetodoHtml = `<span class="badge" style="font-size:10px; background:rgba(240, 136, 62, 0.1); border:1px solid var(--accent-orange); color:var(--accent-orange); padding:2px 5px; border-radius:4px;">${escapeHTML(metodoUsado)}</span>`;
             let badgeHTML = `<div style="display:flex; gap:5px; margin-top:10px; justify-content:center; flex-wrap:wrap;"><span class="badge" style="font-size:10px; background:rgba(88,166,255,0.1); border:1px solid var(--accent-blue); color:var(--accent-blue); padding:2px 5px; border-radius:4px;">Fase sugerida: ${sug.fase}</span>${ultimoP1 ? badgeMetodoHtml : ''}</div>`;
 
             let finalUrl = "";
             if (linkAlvo && linkAlvo.includes('http')) { let ext = linkAlvo.match(/(https?:\/\/[^\s"'<>]+)/); finalUrl = ext ? ext[0] : ""; }
 
-            gpsAlvoAtual = { sigla: p1.chaves[0], nome: p1.nome, topico: topicoAlvo, fase: sug.fase, url: finalUrl };
+            gpsAlvoAtual = { sigla: p1.chaves[0], nome: p1.nome, topico: topicoAlvo, fase: sug.fase, url: finalUrl, metodo: alvo.metodo || '' };
 
             if(finalUrl) {
                 if(guc) guc.innerHTML = `<button type="button" onclick="abrirLeitorCaderno()" class="btn" style="background:var(--accent-orange); color:black; width:100%; box-sizing:border-box; justify-content:center; margin-bottom:8px; white-space:normal; text-align:center;"><i class="fas fa-book-open"></i> ${sug.novoAssunto ? 'ABRIR MATERIAL' : 'RETOMAR CADERNO'}</button><div style="font-size:11px; color:#888;">${escapeHTML(p1.nome)}</div>${badgeHTML}`;
@@ -4491,6 +4654,34 @@ Gostaria que fizesse:
             if(ml) ml.innerHTML = `<li style="color:var(--accent-green); margin-bottom:10px;">Inicie o seu Ciclo:</li><li class="now"><strong>Agora:</strong> ${escapeHTML(p1.nome)} <br><span style="color:var(--accent-blue); font-size:11px;"><i class="fas fa-route"></i> Comece pela Fase 1 (ambientação).</span></li>`;
             if(guc) guc.innerHTML = `<div style="background:var(--bg-color); border: 1px solid var(--border-color); padding:10px; border-radius:8px; width:100%; box-sizing:border-box; margin-bottom:8px;">Alvo: <strong style="color:var(--text-color);">${escapeHTML(p1.chaves[0])}</strong><br><span style="color:var(--accent-orange); font-size:11px;">Pendente.</span></div><button type="button" onclick="abrirLeitorCaderno()" class="btn" style="background:transparent; border:1px dashed var(--accent-orange); color:var(--accent-orange); width:100%; box-sizing:border-box; justify-content:center; font-size:12px;"><i class="fas fa-paste"></i> Colar link do caderno</button>`;
         }
+    }
+
+    // Link do caderno: o último lançado no assunto → o que o aluno colou no edital → o do TEC cadastrado no edital
+    function linkDoAssunto(materia, topico) {
+        if(!topico) return "";
+        let lancado = globalData.find(x => registroDaMateria(x, materia) && x.topico === topico && x.link && x.link.includes('http'));
+        if(lancado) return lancado.link;
+        let prog = (editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal]) ? progressoEditalGlobal[editalAtivoGlobal][materia.nome] : null;
+        let doAluno = prog && prog[topico] ? String(prog[topico].link || "") : "";
+        if(doAluno.includes('http')) return doAluno;
+        let linhas = editalAtivoGlobal ? baseEditaisGlobal[editalAtivoGlobal] : null;
+        let linha = Array.isArray(linhas) ? linhas.find(i => i.mat === materia.nome && i.top === topico) : null;
+        return (linha && linha.linkMaster) ? String(linha.linkMaster) : "";
+    }
+
+    // Onde o trilho da matéria parou: assunto, fase sugerida e link
+    function alvoDaMateria(materia) {
+        let ultimo = globalData.find(x => registroDaMateria(x, materia));
+        let sug = sugestaoFase(ultimo);
+        let topico = "";
+        // Assunto: o que está em andamento; se consolidou (ou ainda não começou), o próximo pendente do edital
+        if(sug.novoAssunto) {
+            let assuntos = (editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal]) ? progressoEditalGlobal[editalAtivoGlobal][materia.nome] : null;
+            for(let t in (assuntos || {})) {
+                if(t !== "_dataProva" && !assuntos[t].checked && (!ultimo || t !== ultimo.topico)) { topico = t; break; }
+            }
+        } else if(ultimo) topico = ultimo.topico;
+        return { ultimo: ultimo, sug: sug, topico: topico, link: linkDoAssunto(materia, topico), metodo: '' };
     }
 
     // Um lançamento pertence à matéria do ciclo pela sigla ou pelo nome
@@ -4579,9 +4770,9 @@ Gostaria que fizesse:
         return (Date.now() - cadernoAberto.quando) < VALIDADE_CADERNO_ABERTO_MS ? cadernoAberto : null;
     }
 
-    function abrirLeitorCaderno() {
-        let alvo = gpsAlvoAtual || { sigla: '', nome: '', topico: '', fase: 1, url: '' };
-        cadernoAberto = { sigla: alvo.sigla, nome: alvo.nome, topico: alvo.topico || '', fase: alvo.fase || 1, url: alvo.url || '', quando: Date.now() };
+    function abrirLeitorCaderno(alvoPedido) {
+        let alvo = alvoPedido || gpsAlvoAtual || { sigla: '', nome: '', topico: '', fase: 1, url: '' };
+        cadernoAberto = { sigla: alvo.sigla, nome: alvo.nome, topico: alvo.topico || '', fase: alvo.fase || 1, url: alvo.url || '', metodo: alvo.metodo || '', quando: Date.now() };
         let tit = document.getElementById('leitor-titulo');
         if(tit) tit.innerHTML = `<i class="fas fa-book-open" style="color:var(--accent-orange)"></i> ${escapeHTML(alvo.nome || 'Caderno')}${alvo.topico ? ' · ' + escapeHTML(alvo.topico) : ''}`;
         setSafeText('leitor-sub', `Fase sugerida: ${alvo.fase || 1}`);
@@ -4635,7 +4826,7 @@ Gostaria que fizesse:
         let elM = document.getElementById('f-materia');
         if(elM && cad.sigla && Array.from(elM.options).some(o => o.value === cad.sigla)) { elM.value = cad.sigla; atualizarCampoTopico(); }
         if(elM && elM.value !== cad.sigla) return; // matéria fora do ciclo: não arrisca preencher errado
-        let elMet = document.getElementById('f-metodo'); if(elMet) elMet.value = METODO_QUESTOES;
+        let elMet = document.getElementById('f-metodo'); if(elMet) elMet.value = cad.metodo || METODO_QUESTOES;
         let elT = document.getElementById('f-topico'); if(elT && cad.topico) elT.value = cad.topico;
         let elF = document.getElementById('f-fase'); if(elF && cad.fase) elF.value = String(cad.fase);
         let elL = document.getElementById('f-tipo-link'); if(elL && cad.url) { elL.value = cad.url; elL.dataset.auto = cad.url; }
@@ -7003,6 +7194,404 @@ Gostaria que fizesse:
         if(btn) { btn.innerText = "SALVAR RETIFICAÇÃO"; btn.style.background = "var(--accent-orange)"; btn.style.color = "black"; }
     }
 
+
+    // ===== CRONOGRAMA SEMANAL (v29-98) =====
+    // O banco guarda só o plano. A conclusão é calculada aqui, pelos lançamentos do dia (ou marcada à mão).
+    const TIPOS_META = {
+        questoes:   { nome: 'Questões',   cor: 'var(--accent-orange)' },
+        teoria:     { nome: 'Teoria',     cor: 'var(--accent-blue)' },
+        revisao:    { nome: 'Revisão',    cor: 'var(--accent-gold)' },
+        flashcards: { nome: 'Flashcards', cor: 'var(--accent-purple)' }
+    };
+    const DIAS_SEMANA_CRO = ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB', 'DOM'];
+    const CRO_TOLERANCIA = 0.9;   // 54 de 60 min já conta como meta cumprida
+    const CRO_DIAS_ATRASO = 14;   // até quantos dias para trás a meta pendente é lembrada
+    var metasGlobal = [];
+    var croSemana = '';           // segunda-feira da semana na tela (ISO)
+    var croDiaSel = '';           // dia aberto no celular
+    var croErro = '';
+    var croArrastando = null;
+
+    function somarDiasISO(iso, n) { let p = iso.split('-').map(Number); return chaveDiaISO(new Date(p[0], p[1] - 1, p[2] + n)); }
+    function segundaDeISO(iso) { let p = iso.split('-').map(Number); let dia = new Date(p[0], p[1] - 1, p[2]).getDay(); return somarDiasISO(iso, -((dia + 6) % 7)); }
+    function periodoPadraoMetas() { let h = chaveDiaISO(new Date()); return { de: somarDiasISO(h, -CRO_DIAS_ATRASO), ate: somarDiasISO(h, 13) }; }
+    function textoMinutos(min) {
+        min = Math.round(min || 0);
+        let h = Math.floor(min / 60), m = min % 60;
+        return h === 0 ? m + ' min' : h + 'h' + (m ? String(m).padStart(2, '0') : '');
+    }
+    function materiaPorChave(chave) {
+        let c = String(chave || '').trim().toLowerCase();
+        let achar = lista => (lista || []).find(m => String(m.chaves[0]).toLowerCase() === c || String(m.nome).toLowerCase() === c);
+        return achar(cicloMaster) || achar(customSubjects) || achar(TODAS_MATERIAS) || { nome: String(chave || ''), chaves: [String(chave || '')] };
+    }
+    function metodoDeTeoria(metodo) { let m = String(metodo || '').trim(); return m === 'Leitura (PDF)' || m === 'Videoaula'; }
+    function mesmoAssunto(a, b) {
+        a = String(a || '').trim().toLowerCase(); b = String(b || '').trim().toLowerCase();
+        return !!a && !!b && (a === b || (Math.min(a.length, b.length) >= 4 && (a.includes(b) || b.includes(a))));
+    }
+
+    function ordenarMetas(a, b) { return a.data < b.data ? -1 : a.data > b.data ? 1 : (a.ordem - b.ordem) || (a.id - b.id); }
+    // Substitui o que havia no período pelo que veio do servidor
+    function mesclarMetas(de, ate, lista) {
+        metasGlobal = metasGlobal.filter(m => m.data < de || m.data > ate).concat(lista).sort(ordenarMetas);
+    }
+    // Aplica metas devolvidas por uma gravação
+    function aplicarMetas(lista) {
+        let ids = new Set(lista.map(m => m.id));
+        metasGlobal = metasGlobal.filter(m => !ids.has(m.id)).concat(lista).sort(ordenarMetas);
+    }
+
+    var _croIndice = { base: null, n: -1, mapa: {} };
+    function lancamentosDoDia(iso) {
+        if (_croIndice.base !== globalData || _croIndice.n !== globalData.length) {
+            let mapa = {};
+            globalData.forEach(x => { let k = chaveDiaISO(x.date); (mapa[k] = mapa[k] || []).push(x); });
+            _croIndice = { base: globalData, n: globalData.length, mapa: mapa };
+        }
+        return _croIndice.mapa[iso] || [];
+    }
+
+    // Situação das metas de um dia. Os minutos lançados vão primeiro para as metas de assunto fixo e depois para as "GPS decide".
+    function situacaoDoDia(iso) {
+        let itens = metasGlobal.filter(m => m.data === iso).map(m => ({ meta: m, feitoMin: 0, topicos: [], concluida: false }));
+        if (!itens.length) return itens;
+        let sobra = lancamentosDoDia(iso).slice().sort((a, b) => a.origIdx - b.origIdx)
+            .map(x => ({ x: x, resta: x.t || 0, teoria: metodoDeTeoria(x.metodologia) }));
+        let alocar = it => {
+            let m = it.meta, mat = materiaPorChave(m.materia);
+            for (let l of sobra) {
+                if (it.feitoMin >= m.minutos) break;
+                if (l.resta <= 0 || l.teoria !== (m.tipo === 'teoria') || !registroDaMateria(l.x, mat)) continue;
+                if (m.topico && !mesmoAssunto(m.topico, l.x.topico)) continue;
+                let usa = Math.min(l.resta, m.minutos - it.feitoMin);
+                l.resta -= usa; it.feitoMin += usa;
+                if (l.x.topico && !it.topicos.includes(l.x.topico)) it.topicos.push(l.x.topico);
+            }
+        };
+        let deEstudo = itens.filter(it => it.meta.tipo !== 'flashcards');
+        deEstudo.filter(it => it.meta.topico).forEach(alocar);
+        deEstudo.filter(it => !it.meta.topico).forEach(alocar);
+        itens.forEach(it => {
+            let auto = it.meta.tipo === 'flashcards'
+                ? (resumoFlashcards.diasRevisao || []).includes(iso)
+                : it.feitoMin >= it.meta.minutos * CRO_TOLERANCIA;
+            it.auto = auto;
+            it.concluida = auto || it.meta.feita;
+        });
+        return itens;
+    }
+
+    // Metas de estudo ainda pendentes hoje, na ordem do dia (para o GPS)
+    function metasPendentesGPS() {
+        if (!metasGlobal.length) return [];
+        return situacaoDoDia(hojeISO()).filter(it => !it.concluida && it.meta.tipo !== 'flashcards').map(it => it.meta);
+    }
+
+    // Assunto, fase e link da meta: pelo GPS ou pelo assunto fixo
+    function alvoDaMeta(m) {
+        let mat = materiaPorChave(m.materia);
+        let a;
+        if (m.topico) {
+            let ultimo = globalData.find(x => registroDaMateria(x, mat) && x.topico === m.topico) || globalData.find(x => registroDaMateria(x, mat) && mesmoAssunto(x.topico, m.topico));
+            let sug = sugestaoFase(ultimo);
+            if (!ultimo) sug = { fase: 1, novoAssunto: true, texto: 'Assunto novo: comece pela Fase 1 (ambientação).' };
+            else if (sug.novoAssunto) sug = { fase: 4, novoAssunto: false, texto: 'Assunto já consolidado: revise pela Fase 4.' };
+            a = { ultimo: ultimo, sug: sug, topico: m.topico, link: linkDoAssunto(mat, m.topico) || linkDoAssunto(mat, ultimo ? ultimo.topico : ''), metodo: '' };
+        } else if (m.tipo === 'revisao') a = alvoDeRevisao(mat) || alvoDaMateria(mat);
+        else a = alvoDaMateria(mat);
+        if (m.tipo === 'teoria') { a.metodo = 'Leitura (PDF)'; a.sug = Object.assign({}, a.sug, { fase: 1, texto: 'Meta de teoria (leitura ou videoaula).' }); }
+        return a;
+    }
+
+    // Revisão "GPS decide": o assunto já estudado que está há mais tempo parado
+    function alvoDeRevisao(mat) {
+        let ultimos = new Map(); // globalData vem do mais recente para o mais antigo
+        globalData.forEach(x => { if (x.topico && registroDaMateria(x, mat) && !ultimos.has(x.topico)) ultimos.set(x.topico, x); });
+        if (!ultimos.size) return null;
+        let ultimo = [...ultimos.values()].pop();
+        let sug = sugestaoFase(ultimo);
+        if (sug.novoAssunto) sug = { fase: 4, novoAssunto: false, texto: 'Assunto consolidado: revise pela Fase 4.' };
+        return { ultimo: ultimo, sug: sug, topico: ultimo.topico, link: linkDoAssunto(mat, ultimo.topico), metodo: '' };
+    }
+
+    async function carregarCronograma() {
+        if (BACKEND !== 'supabase') return;
+        let per = periodoPadraoMetas();
+        if (!croSemana) croSemana = segundaDeISO(hojeISO());
+        let fim = somarDiasISO(croSemana, 6);
+        // semana dentro do período padrão: lê o período todo (inclui as atrasadas); senão, só a semana
+        let de = croSemana, ate = fim;
+        if (croSemana >= per.de && fim <= per.ate) { de = per.de; ate = per.ate; }
+        try {
+            let data = await enviarAcao({ acao: 'metas_listar', de: de, ate: ate });
+            if (data.status !== 'sucesso') throw new Error(data.mensagem || 'erro no servidor');
+            croErro = '';
+            mesclarMetas(de, ate, data.metas || []);
+        } catch (err) {
+            croErro = 'Não foi possível carregar o cronograma (' + (err.message || err) + '). Tente de novo em instantes.';
+        }
+        depoisDeMudarMetas();
+    }
+
+    function depoisDeMudarMetas() { atualizarCronograma(); updateGPS(); }
+
+    // Chamada depois de cada atualização de dados: selo do menu e, se a tela estiver aberta, o quadro
+    function atualizarCronograma() {
+        let badge = document.getElementById('cro-badge-nav');
+        if (badge) {
+            let n = situacaoDoDia(hojeISO()).filter(it => !it.concluida).length;
+            badge.textContent = n; badge.style.display = n > 0 ? 'inline-block' : 'none';
+        }
+        let v = document.getElementById('view-cronograma-view');
+        if (v && v.classList.contains('active-view') && !croArrastando) renderizarCronograma();
+    }
+
+    function mudarSemanaCronograma(passo) {
+        let atual = segundaDeISO(hojeISO());
+        croSemana = passo === 0 ? atual : somarDiasISO(croSemana || atual, passo * 7);
+        croDiaSel = croSemana === atual ? hojeISO() : croSemana;
+        renderizarCronograma();
+        carregarCronograma();
+    }
+
+    function selecionarDiaCronograma(iso) { croDiaSel = iso; renderizarCronograma(); }
+
+    function renderizarCronograma() {
+        let grade = document.getElementById('cro-grade');
+        if (!grade) return;
+        if (BACKEND !== 'supabase') {
+            grade.innerHTML = '<div class="cro-vazio" style="grid-column:1/-1">O cronograma funciona só no servidor novo. Abra a plataforma sem <code>?backend=sheets</code> no endereço.</div>';
+            return;
+        }
+        let hoje = hojeISO();
+        if (!croSemana) croSemana = segundaDeISO(hoje);
+        let dias = DIAS_SEMANA_CRO.map((_, i) => somarDiasISO(croSemana, i));
+        if (!dias.includes(croDiaSel)) croDiaSel = dias.includes(hoje) ? hoje : dias[0];
+        let ddmm = iso => brDeISO(iso).substring(0, 5);
+        setSafeText('cro-periodo', `${ddmm(dias[0])} a ${ddmm(dias[6])}` + (dias.includes(hoje) ? ' (atual)' : ''));
+
+        let porDia = dias.map(situacaoDoDia);
+        let todos = [].concat.apply([], porDia);
+        let feitas = todos.filter(it => it.concluida).length;
+        let minPlan = todos.reduce((t, it) => t + it.meta.minutos, 0);
+        let minFeito = todos.reduce((t, it) => t + (it.concluida ? it.meta.minutos : it.feitoMin), 0);
+        let pct = todos.length ? Math.round(100 * feitas / todos.length) : 0;
+        let prog = document.getElementById('cro-prog');
+        if (prog) prog.innerHTML = `<div class="cro-prog-txt"><span>Progresso da semana: <b>${feitas}/${todos.length} metas (${pct}%)</b></span><span>Tempo: <b>${textoMinutos(minFeito)}</b> de ${textoMinutos(minPlan)} planejados</span></div><div class="cro-barra"><div style="width:${pct}%"></div></div>`;
+
+        // Atrasadas (só na semana atual)
+        let atraso = document.getElementById('cro-atraso');
+        if (atraso) {
+            let n = dias.includes(hoje) ? metasAtrasadas().length : 0;
+            atraso.style.display = n ? 'flex' : 'none';
+            atraso.innerHTML = n ? `<span><i class="fas fa-history" style="color:var(--accent-orange)"></i> ${n === 1 ? '1 meta pendente' : n + ' metas pendentes'} de dias anteriores. Sem culpa: reorganize.</span>
+                <div><button type="button" class="cro-btn" onclick="moverAtrasadas()"><i class="fas fa-arrow-right"></i> Mover para hoje</button><button type="button" class="cro-btn" onclick="descartarAtrasadas()"><i class="fas fa-times"></i> Descartar</button></div>` : '';
+        }
+
+        let chips = document.getElementById('cro-chips');
+        if (chips) chips.innerHTML = dias.map((iso, i) => {
+            let its = porDia[i], ok = its.filter(it => it.concluida).length;
+            return `<button type="button" class="cro-chip ${iso === hoje ? 'hoje' : ''} ${iso === croDiaSel ? 'sel' : ''}" onclick="selecionarDiaCronograma('${iso}')">${DIAS_SEMANA_CRO[i]}<span>${iso.substring(8)}</span><i>${its.length ? ok + '/' + its.length : ''}</i></button>`;
+        }).join('');
+
+        let aviso = croErro ? `<div class="cro-vazio" style="grid-column:1/-1; color:var(--accent-red)">${escapeHTML(croErro)}</div>` : '';
+        grade.innerHTML = aviso + dias.map((iso, i) => {
+            let its = porDia[i], ok = its.filter(it => it.concluida).length;
+            let min = its.reduce((t, it) => t + it.meta.minutos, 0);
+            return `<div class="cro-col ${iso === hoje ? 'hoje' : ''} ${iso === croDiaSel ? 'sel' : ''}" data-dia="${iso}"
+                ondragover="arrastarSobreDia(event, this)" ondragleave="this.classList.remove('alvo')" ondrop="soltarNoDia(event, this)">
+                <div class="cro-col-topo">${DIAS_SEMANA_CRO[i]}${iso === hoje ? ' · HOJE' : ''}<small>${ddmm(iso)}${its.length ? ` · ${ok}/${its.length} · ${textoMinutos(min)}` : ''}</small></div>
+                <div class="cro-lista">${its.map(it => cardMetaHTML(it, hoje)).join('')}</div>
+                ${iso >= hoje ? `<button type="button" class="cro-add" onclick="abrirNovaMeta('${iso}')"><i class="fas fa-plus"></i> Adicionar</button>` : ''}
+            </div>`;
+        }).join('');
+    }
+
+    function cardMetaHTML(it, hoje) {
+        let m = it.meta, tipo = TIPOS_META[m.tipo] || TIPOS_META.questoes;
+        let atrasada = !it.concluida && m.data < hoje;
+        let titulo = m.tipo === 'flashcards' ? 'Revisar flashcards' : materiaPorChave(m.materia).nome;
+        let assunto = '';
+        if (m.tipo === 'flashcards') assunto = m.data === hoje && !it.concluida ? `${resumoFlashcards.hoje || 0} para revisar` : '';
+        else if (m.topico) assunto = `<i class="fas fa-thumbtack"></i> ${escapeHTML(m.topico)}`;
+        else if (it.topicos.length) assunto = `<i class="fas fa-compass"></i> ${escapeHTML(it.topicos.join(' · '))}`;
+        else if (m.data <= hoje && !it.concluida) assunto = `<i class="fas fa-compass"></i> ${escapeHTML(alvoDaMeta(m).topico || 'próximo assunto')}`;
+        else assunto = '<i class="fas fa-compass"></i> GPS decide no dia';
+        let fase = '';
+        if (!it.concluida && m.data <= hoje && (m.tipo === 'questoes' || m.tipo === 'revisao')) fase = `<span>Fase ${alvoDaMeta(m).sug.fase}</span>`;
+        let tempo = it.feitoMin > 0 && !it.concluida ? `${Math.round(it.feitoMin)} de ${m.minutos} min` : textoMinutos(m.minutos);
+        let pct = Math.min(100, Math.round(100 * it.feitoMin / m.minutos));
+        let rotuloCheck = it.auto ? 'Concluída pelos seus lançamentos' : (m.feita ? 'Desmarcar' : 'Marcar como feita');
+        return `<div class="cro-card ${it.concluida ? 'feita' : ''} ${atrasada ? 'atrasada' : ''}" style="--cro-cor:${tipo.cor}" draggable="true" ondragstart="comecarArrasto(event, ${m.id})" ondragend="croArrastando=null">
+            <div class="cro-card-topo"><button type="button" class="cro-check" title="${rotuloCheck}" aria-label="${rotuloCheck}" ${it.auto ? 'disabled' : ''} onclick="alternarMeta(${m.id})">${it.concluida ? '<i class="fas fa-check"></i>' : ''}</button><span class="cro-tag">${tipo.nome}</span></div>
+            <div class="cro-mat">${escapeHTML(titulo)}</div>
+            ${assunto ? `<div class="cro-assunto">${assunto}</div>` : ''}
+            <div class="cro-linha"><span><i class="far fa-clock"></i> ${tempo}</span>${fase}</div>
+            ${it.feitoMin > 0 && !it.concluida ? `<div class="cro-mini"><div style="width:${pct}%"></div></div>` : ''}
+            <div class="cro-acoes">
+                ${it.concluida ? '' : `<button type="button" class="cro-estudar" onclick="estudarMeta(${m.id})"><i class="fas fa-play"></i> Estudar</button>`}
+                ${it.concluida || m.tipo === 'flashcards' ? '' : `<button type="button" title="Lançar estudo" aria-label="Lançar estudo" onclick="lancarMeta(${m.id})"><i class="fas fa-save"></i></button>`}
+                <button type="button" title="Editar meta" aria-label="Editar meta" onclick="editarMeta(${m.id})"><i class="fas fa-pen"></i></button>
+            </div>
+        </div>`;
+    }
+
+    // ----- Ações -----
+    function metaPorId(id) { return metasGlobal.find(m => m.id === id); }
+
+    async function gravarMetas(payload, aoDarCerto) {
+        try {
+            let data = await enviarAcao(payload);
+            if (data.status !== 'sucesso') { mostrarToastTatico(escapeHTML(data.mensagem || 'Não foi possível salvar.'), 'var(--accent-red)'); return false; }
+            if (data.metas) aplicarMetas(data.metas);
+            if (aoDarCerto) aoDarCerto(data);
+            return true;
+        } catch (err) {
+            mostrarToastTatico(escapeHTML('Cronograma não salvo. ' + mensagemFalhaRede(err)), 'var(--accent-red)');
+            return false;
+        } finally {
+            depoisDeMudarMetas();
+        }
+    }
+
+    function alternarMeta(id) {
+        let m = metaPorId(id);
+        if (!m) return;
+        gravarMetas({ acao: 'meta_marcar', id: id, feita: !m.feita });
+    }
+
+    function alvoLeitorDaMeta(m) {
+        let mat = materiaPorChave(m.materia), a = alvoDaMeta(m);
+        let ext = String(a.link || '').match(/(https?:\/\/[^\s"'<>]+)/);
+        return { sigla: mat.chaves[0], nome: mat.nome, topico: a.topico, fase: a.sug.fase, url: ext ? ext[0] : '', metodo: a.metodo };
+    }
+
+    function estudarMeta(id) {
+        let m = metaPorId(id);
+        if (!m) return;
+        if (m.tipo === 'flashcards') return iniciarRevisaoFlashcards();
+        abrirLeitorCaderno(alvoLeitorDaMeta(m));
+    }
+
+    function lancarMeta(id) {
+        let m = metaPorId(id);
+        if (!m) return;
+        let alvo = alvoLeitorDaMeta(m);
+        openEntryModal();
+        let elL = document.getElementById('f-tipo-link'); if (elL) { elL.value = ''; delete elL.dataset.auto; }
+        let elT = document.getElementById('f-topico'); if (elT) elT.value = '';
+        preencherLancamentoComCaderno(alvo);
+        let elM = document.getElementById('f-materia');
+        if (elM && elM.value !== alvo.sigla) mostrarToastTatico('Esta matéria não está mais no seu ciclo. Inclua-a em Meu Ciclo Tático para lançar.', 'var(--accent-orange)');
+    }
+
+    function metasAtrasadas() {
+        let hoje = hojeISO(), desde = somarDiasISO(hoje, -CRO_DIAS_ATRASO);
+        let dias = [...new Set(metasGlobal.filter(m => m.data >= desde && m.data < hoje).map(m => m.data))];
+        return [].concat.apply([], dias.map(d => situacaoDoDia(d).filter(it => !it.concluida).map(it => it.meta)));
+    }
+    function moverAtrasadas() {
+        let ids = metasAtrasadas().map(m => m.id);
+        if (ids.length) gravarMetas({ acao: 'metas_mover', ids: ids, data: hojeISO() });
+    }
+    function descartarAtrasadas() {
+        let ids = metasAtrasadas().map(m => m.id);
+        if (!ids.length || !confirm(ids.length === 1 ? 'Descartar a meta pendente? Ela sai do cronograma.' : `Descartar as ${ids.length} metas pendentes? Elas saem do cronograma.`)) return;
+        gravarMetas({ acao: 'metas_excluir', ids: ids }, () => { metasGlobal = metasGlobal.filter(m => !ids.includes(m.id)); });
+    }
+
+    // Arrastar entre os dias (computador)
+    function comecarArrasto(ev, id) { croArrastando = id; ev.dataTransfer.effectAllowed = 'move'; ev.dataTransfer.setData('text/plain', String(id)); }
+    function arrastarSobreDia(ev, el) { if (croArrastando && el.dataset.dia >= hojeISO()) { ev.preventDefault(); el.classList.add('alvo'); } }
+    function soltarNoDia(ev, el) {
+        ev.preventDefault();
+        el.classList.remove('alvo');
+        let m = metaPorId(croArrastando);
+        croArrastando = null;
+        if (!m || m.data === el.dataset.dia || el.dataset.dia < hojeISO()) return;
+        gravarMetas({ acao: 'metas_mover', ids: [m.id], data: el.dataset.dia });
+    }
+
+    // ----- Formulário -----
+    function radioMeta(nome) { return (document.querySelector(`input[name="${nome}"]:checked`) || {}).value; }
+    function marcarRadioMeta(nome, valor) { document.querySelectorAll(`input[name="${nome}"]`).forEach(r => { r.checked = r.value === valor; }); }
+
+    function ajustarFormMeta() {
+        let fc = radioMeta('meta-tipo') === 'flashcards';
+        document.getElementById('meta-grupo-materia').style.display = fc ? 'none' : 'block';
+        document.getElementById('meta-grupo-topico').style.display = radioMeta('meta-modo') === 'fixo' ? 'block' : 'none';
+        let mat = materiaPorChave(document.getElementById('meta-materia').value);
+        let prog = (editalAtivoGlobal && progressoEditalGlobal[editalAtivoGlobal]) ? progressoEditalGlobal[editalAtivoGlobal][mat.nome] : null;
+        let topicos = new Set(Object.keys(prog || {}).filter(t => t !== '_dataProva'));
+        globalData.forEach(x => { if (x.topico && topicos.size < 300 && registroDaMateria(x, mat)) topicos.add(x.topico); });
+        document.getElementById('meta-lista-topicos').innerHTML = [...topicos].map(t => `<option value="${escapeHTML(t)}"></option>`).join('');
+    }
+
+    function abrirModalMeta(m, diaInicial) {
+        if (BACKEND !== 'supabase') return;
+        let hoje = hojeISO();
+        document.getElementById('meta-id').value = m ? m.id : '';
+        document.getElementById('meta-titulo').textContent = m ? 'Editar meta' : 'Nova meta';
+        marcarRadioMeta('meta-tipo', m ? m.tipo : 'questoes');
+        marcarRadioMeta('meta-modo', m && m.topico ? 'fixo' : 'gps');
+        let sel = document.getElementById('meta-materia');
+        let opcoes = (cicloMaster || []).map(d => ({ v: d.chaves[0], n: d.nome }));
+        if (m && m.materia && !opcoes.some(o => o.v === m.materia)) opcoes.unshift({ v: m.materia, n: materiaPorChave(m.materia).nome });
+        sel.innerHTML = opcoes.map(o => `<option value="${escapeHTML(o.v)}">${escapeHTML(o.n)}</option>`).join('') || '<option value="">Monte o seu ciclo primeiro</option>';
+        if (m && m.materia) sel.value = m.materia;
+        document.getElementById('meta-topico').value = m ? m.topico : '';
+        document.getElementById('meta-min').value = m ? m.minutos : 60;
+        document.getElementById('meta-grupo-dias').style.display = m ? 'none' : 'block';
+        document.getElementById('meta-grupo-data').style.display = m ? 'block' : 'none';
+        document.getElementById('meta-btn-excluir').style.display = m ? '' : 'none';
+        if (m) document.getElementById('meta-data').value = m.data;
+        else document.getElementById('meta-dias').innerHTML = DIAS_SEMANA_CRO.map((nome, i) => {
+            let iso = somarDiasISO(croSemana, i);
+            return `<label><input type="checkbox" value="${iso}" ${iso === diaInicial ? 'checked' : ''} ${iso < hoje ? 'disabled' : ''}>${nome}<small>${iso.substring(8)}</small></label>`;
+        }).join('');
+        ajustarFormMeta();
+        document.getElementById('metaModal').style.display = 'block';
+    }
+    function abrirNovaMeta(iso) { abrirModalMeta(null, iso); }
+    function editarMeta(id) { let m = metaPorId(id); if (m) abrirModalMeta(m); }
+    function fecharModalMeta() { document.getElementById('metaModal').style.display = 'none'; }
+
+    async function salvarMeta() {
+        let id = document.getElementById('meta-id').value;
+        let tipo = radioMeta('meta-tipo');
+        let fixo = radioMeta('meta-modo') === 'fixo';
+        let meta = {
+            id: id || null, tipo: tipo,
+            materia: tipo === 'flashcards' ? '' : document.getElementById('meta-materia').value,
+            topico: tipo === 'flashcards' || !fixo ? '' : document.getElementById('meta-topico').value.trim(),
+            minutos: Number(document.getElementById('meta-min').value) || 0
+        };
+        if (tipo !== 'flashcards' && !meta.materia) return alert('Escolha a matéria. Se a lista estiver vazia, monte primeiro o seu ciclo em Meu Ciclo Tático.');
+        if (tipo !== 'flashcards' && fixo && !meta.topico) return alert('Escreva o assunto ou escolha "GPS decide".');
+        if (meta.minutos < 5 || meta.minutos > 720) return alert('O tempo da meta vai de 5 minutos a 12 horas (720 min).');
+        if (id) {
+            meta.data = document.getElementById('meta-data').value;
+            if (!meta.data) return alert('Escolha o dia.');
+        } else {
+            meta.datas = Array.from(document.querySelectorAll('#meta-dias input:checked')).map(c => c.value);
+            if (!meta.datas.length) return alert('Marque pelo menos um dia.');
+        }
+        let btn = document.getElementById('meta-btn-salvar');
+        btn.disabled = true;
+        let ok = await gravarMetas({ acao: 'meta_salvar', meta: meta });
+        btn.disabled = false;
+        if (!ok) return;
+        fecharModalMeta();
+        mostrarToastTatico(id ? 'Meta atualizada!' : (meta.datas.length > 1 ? `Meta criada em ${meta.datas.length} dias!` : 'Meta criada!'), 'var(--accent-green)');
+    }
+
+    async function excluirMetaDoModal() {
+        let id = Number(document.getElementById('meta-id').value);
+        if (!id || !confirm('Excluir esta meta?')) return;
+        let ok = await gravarMetas({ acao: 'metas_excluir', ids: [id] }, () => { metasGlobal = metasGlobal.filter(m => m.id !== id); });
+        if (ok) fecharModalMeta();
+    }
 
     // ===== BIBLIOTECA DE ASSUNTOS (admin, v29-96) =====
     // Um link do TEC por assunto e banca; o catálogo de editais usa esses links para todos os alunos.

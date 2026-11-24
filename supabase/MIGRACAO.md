@@ -187,3 +187,10 @@ Como cadastrar a partir de agora:
 3. Na plataforma (logado como admin), o botão 📖 no topo, ao lado do sino, abre a **Biblioteca de assuntos**:
    - **Assuntos:** filtro "Faltando link" mostra primeiro os assuntos usados em mais editais; cole o link por banca e clique em Salvar.
    - **Possíveis duplicados:** marque os que são a mesma matéria escrita de outro jeito e clique em Juntar.
+
+## Fase 6: Cronograma Semanal (v29-98)
+
+1. SQL Editor → `fase6_cronograma.sql` → Run. Deve terminar com **CRONOGRAMA OK**.
+2. `teste_cronograma.sql` → Run. Deve terminar com **CRONOGRAMA TESTES OK** (tudo é desfeito).
+3. Só depois disso a versão nova do site é publicada.
+4. No Apps Script, atualize o `BackupSupabase.gs` (agora inclui `metas_cronograma` e `assuntos_apelidos`).
