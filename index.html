@@ -2769,7 +2769,7 @@ Gostaria que fizesse:
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <div class="form-group" style="margin:0 0 12px;"><label>Matéria</label><input type="text" id="fc-materia" list="fc-lista-materias" maxlength="120" placeholder="Ex: Direito Administrativo"></div>
-                <div class="form-group" style="margin:0 0 12px;"><label>Assunto</label><input type="text" id="fc-topico" maxlength="200" placeholder="Ex: Licitações"></div>
+                <div class="form-group" style="margin:0 0 12px;"><label>Assunto</label><input type="text" id="fc-topico" maxlength="500" placeholder="Ex: Licitações"></div>
             </div>
             <datalist id="fc-lista-materias"></datalist>
             <div class="form-group"><label id="fc-rot-frente">Pergunta (frente do card)</label><textarea id="fc-frente" rows="3" maxlength="1000" placeholder="Ex: Qual o prazo para interpor recurso no pregão?"></textarea></div>
@@ -2806,7 +2806,7 @@ Gostaria que fizesse:
                     <label><input type="radio" name="meta-modo" value="gps" onchange="ajustarFormMeta()"> <span><i class="fas fa-compass" style="color:var(--accent-blue)"></i> GPS decide</span><small>Assunto e fase pelo seu acerto</small></label>
                     <label><input type="radio" name="meta-modo" value="fixo" onchange="ajustarFormMeta()"> <span><i class="fas fa-thumbtack" style="color:var(--accent-orange)"></i> Assunto fixo</span><small>Você escolhe agora</small></label>
                 </div>
-                <div class="form-group" id="meta-grupo-topico"><label for="meta-topico">Assunto</label><input type="text" id="meta-topico" maxlength="200" list="meta-lista-topicos" autocomplete="off" placeholder="Escolha da lista ou digite"><datalist id="meta-lista-topicos"></datalist></div>
+                <div class="form-group" id="meta-grupo-topico"><label for="meta-topico">Assunto</label><input type="text" id="meta-topico" maxlength="500" list="meta-lista-topicos" autocomplete="off" placeholder="Escolha da lista ou digite"><datalist id="meta-lista-topicos"></datalist></div>
             </div>
             <div class="form-group"><label for="meta-min">Tempo da meta (minutos)</label>
                 <div class="cro-tempos">

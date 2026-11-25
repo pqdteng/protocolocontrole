@@ -92,7 +92,7 @@ create table if not exists public.lancamentos (
   criado_em    timestamptz not null default now(),
   data_estudo  date not null,
   materia      text not null check (char_length(materia) between 1 and 120),
-  topico       text not null check (char_length(topico) between 1 and 200),
+  topico       text not null check (char_length(topico) between 1 and 500),
   link         text not null default '' check (char_length(link) <= 300),
   tempo_min    int  not null default 0 check (tempo_min between 0 and 960),
   questoes     int  not null default 0 check (questoes between 0 and 1000),
@@ -248,7 +248,7 @@ begin
   end if;
 
   new.materia     := public.limpar_texto(new.materia, 120);
-  new.topico      := public.limpar_texto(new.topico, 200);
+  new.topico      := public.limpar_texto(new.topico, 500);
   new.link        := public.limpar_texto(new.link, 300);
   new.metodologia := public.limpar_texto(new.metodologia, 80);
 
@@ -607,7 +607,7 @@ begin
     begin
       v_data := public.data_br(it ->> 'data');
       v_mat := public.limpar_texto(it ->> 'mat', 120);
-      v_top := public.limpar_texto(it ->> 'top', 200);
+      v_top := public.limpar_texto(it ->> 'top', 500);
       v_t := round(public.numero_seguro(it ->> 't'));
       v_q := floor(public.numero_seguro(it ->> 'q'));
       v_a := floor(public.numero_seguro(it ->> 'a'));
@@ -857,7 +857,7 @@ create table if not exists public.flashcards (
   verso           text not null default '' check (char_length(verso) <= 2000),
   gabarito        boolean,                  -- só no Certo/Errado: true = CERTO
   materia         text not null default '' check (char_length(materia) <= 120),
-  topico          text not null default '' check (char_length(topico) <= 200),
+  topico          text not null default '' check (char_length(topico) <= 500),
   criado_em       timestamptz not null default now(),
   atualizado_em   timestamptz not null default now(),
   proxima_revisao date not null default public.hoje_br(),
@@ -935,7 +935,7 @@ declare
   v_verso text := public.limpar_card(d ->> 'verso', 2000);
   v_gab boolean := case when v_tipo = 'certo_errado' then (d ->> 'gabarito')::boolean end;
   v_mat text := public.limpar_texto(d ->> 'materia', 120);
-  v_top text := public.limpar_texto(d ->> 'topico', 200);
+  v_top text := public.limpar_texto(d ->> 'topico', 500);
   c public.flashcards%rowtype;
 begin
   if v_frente = '' then raise exception 'Escreva a frente do card.'; end if;

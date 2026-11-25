@@ -194,3 +194,9 @@ Como cadastrar a partir de agora:
 2. `teste_cronograma.sql` → Run. Deve terminar com **CRONOGRAMA TESTES OK** (tudo é desfeito).
 3. Só depois disso a versão nova do site é publicada.
 4. No Apps Script, atualize o `BackupSupabase.gs` (agora inclui `metas_cronograma` e `assuntos_apelidos`).
+
+## Fase 7: Assuntos de até 500 caracteres (v29-99)
+
+1. SQL Editor: rode fase7_assuntos_longos.sql. Deve terminar com **ASSUNTOS LONGOS OK**. Se aparecer ABORTADO, nada foi gravado.
+2. Rode teste_assuntos_longos.sql. Deve terminar com **ASSUNTOS LONGOS TESTES OK** (tudo é desfeito).
+3. Depois publique a versão nova do site (campos de assunto de flashcards e metas aceitam 500).
